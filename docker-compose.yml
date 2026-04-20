@@ -81,7 +81,9 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
-      - procare_network
+      procare_network:
+        aliases:
+          - shop.mvshoecare.com
 
 networks:
   procare_network:
