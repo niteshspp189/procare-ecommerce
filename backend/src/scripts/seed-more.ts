@@ -30,7 +30,7 @@ export default async function seedMoreProducts({ container }: ExecArgs) {
     });
     const shippingProfile = shippingProfiles[0];
 
-    const productsToCreate = [];
+    const productsToCreate: any[] = [];
 
     const types = ["Pro", "Elite", "Classic", "Premium", "Limited Edition"];
     const categoriesList = ["Shirts", "Sweatshirts", "Pants", "Merch"];

@@ -27,7 +27,7 @@ export default async function seedInventory({ container }: ExecArgs) {
     }
 
     // Find variants without inventory levels at this location
-    const inventoryLevelsToCreate = [];
+    const inventoryLevelsToCreate: any[] = [];
 
     for (const variant of variants) {
         const inventoryItemId = variant.inventory_items?.[0]?.inventory_item_id;
