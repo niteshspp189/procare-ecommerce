@@ -134,7 +134,29 @@ module.exports = defineConfig({
                   }
 
                   window.addEventListener('load', applyProfessionalUI);
-                  setInterval(applyProfessionalUI, 1200); 
+                  setInterval(applyProfessionalUI, 1200);
+
+                  // Hide unwanted admin sidebar items
+                  function hideAdminSidebarItems() {
+                    const hiddenTexts = ['Developer', 'Documentation', 'Changelog', 'Shortcuts', 'Publishable API Keys', 'Secret API Keys', 'Workflows'];
+                    document.querySelectorAll('a, button, span, div').forEach(function(el) {
+                      var text = (el.textContent || '').trim();
+                      if (hiddenTexts.indexOf(text) === -1) return;
+                      var container = el.closest('li') || el.closest('a') || el.closest('button');
+                      if (container && container.style.display !== 'none') {
+                        container.style.display = 'none';
+                      }
+                      if (text === 'Developer' && el.tagName === 'SPAN') {
+                        var parentLi = el.closest('li');
+                        if (parentLi) {
+                          parentLi.style.display = 'none';
+                          var prev = parentLi.previousElementSibling;
+                          if (prev && prev.tagName === 'LI') prev.style.display = 'none';
+                        }
+                      }
+                    });
+                  }
+                  setInterval(hideAdminSidebarItems, 1000);
                 </script><style>
                   @font-face {
                     font-family: 'KelsonSans';

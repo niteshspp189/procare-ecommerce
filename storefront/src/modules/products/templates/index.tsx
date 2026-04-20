@@ -173,7 +173,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         <div className="my-24 animate-fade-in-up" data-testid="related-products-container">
           <div className="flex justify-between items-center mb-10 border-b pb-4">
             <h2 className="text-3xl font-black uppercase tracking-tighter">Complete Your Routine</h2>
-            <LocalizedClientLink href="/store" className="font-bold border-b-2 border-black pb-1 hover:opacity-70 uppercase tracking-widest text-xs">SHOP ALL</LocalizedClientLink>
+            <LocalizedClientLink href="/shop" className="font-bold border-b-2 border-black pb-1 hover:opacity-70 uppercase tracking-widest text-xs">SHOP ALL</LocalizedClientLink>
           </div>
           <Suspense fallback={<SkeletonRelatedProducts />}>
             <RelatedProducts product={product} countryCode={countryCode} />

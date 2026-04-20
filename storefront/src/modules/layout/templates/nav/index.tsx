@@ -111,11 +111,17 @@ export default async function Nav() {
         </div>
 
         <div style={styles.menu as any} className="hidden lg:flex">
-          <LocalizedClientLink href="/store" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+          <LocalizedClientLink href="/shop" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
             Shop
           </LocalizedClientLink>
-          <LocalizedClientLink href="/store" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
-            Store
+          <LocalizedClientLink href="/categories/shoe-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+            Shoe Care
+          </LocalizedClientLink>
+          <LocalizedClientLink href="/categories/insoles" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+            Insoles
+          </LocalizedClientLink>
+          <LocalizedClientLink href="/categories/foot-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+            Foot Care
           </LocalizedClientLink>
           <LocalizedClientLink href="/our-story" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
             Our Story

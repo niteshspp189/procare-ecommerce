@@ -6,7 +6,7 @@ const OurStoryPage = () => {
             {/* HERO SECTION */}
             <div className="relative h-[60vh] overflow-hidden flex items-center justify-center bg-black text-white">
                 <div className="absolute inset-0 opacity-40">
-                    <img src="/images/landing-page-images/img_006_4096x4096.png" className="w-full h-full object-cover" alt="Our Story" />
+                    <img src="/images/landing-page-images/img_006_1920x700.png" className="w-full h-full object-cover" alt="Our Story" />
                 </div>
                 <div className="relative z-10 text-center animate-fade-in-up">
                     <h1 className="text-7xl font-black uppercase tracking-tighter">Our Story</h1>
