@@ -38,7 +38,7 @@ export default async function seedCollections({ container }: ExecArgs) {
                 ],
             },
         });
-        collections = result;
+        collections = result as any;
     }
 
     const featuredCollection = collections.find(c => c.handle === "featured");

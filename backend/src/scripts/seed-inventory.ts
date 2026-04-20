@@ -19,7 +19,7 @@ export default async function seedInventory({ container }: ExecArgs) {
         fields: ["id", "sku", "inventory_items.inventory_item_id"],
     });
 
-    const [location] = await stockLocationModuleService.listStockLocations();
+    const [location] = await stockLocationModuleService.listStockLocations({});
 
     if (!location) {
         logger.error("No stock location found.");
