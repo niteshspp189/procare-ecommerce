@@ -37,7 +37,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           return (
             <div
               key={image.id}
-              className="relative aspect-[4/5] w-full overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up"
+              className="relative aspect-square w-full overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up"
               id={image.id}
               style={{ animationDelay: `${index * 0.1}s` }}
             >

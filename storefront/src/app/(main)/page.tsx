@@ -86,7 +86,7 @@ export default async function Home(props: {
           <p className="text-xl text-gray-800 mb-10 tracking-wide font-medium">
             Wave Bye To Discomfort & Dust
           </p>
-          <LocalizedClientLink href="/store">
+          <LocalizedClientLink href="/shop">
             <button className="bg-black text-white px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all shadow-xl hover:-translate-y-1">
               Shop Now
             </button>
