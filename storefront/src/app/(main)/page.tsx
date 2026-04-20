@@ -165,7 +165,7 @@ export default async function Home(props: {
         <div className="my-24 bg-[#f9f9f9] rounded-3xl p-12 md:p-24 text-center animate-fade-in-up relative overflow-hidden group">
           <div className="relative z-10">
             <p className="text-sm font-bold tracking-[0.3em] text-gray-400 mb-6 uppercase">German Precision. Indian Excellence. Trusted Worldwide.</p>
-            <h2 className="text-[clamp(30px,6vw,56px)] font-black uppercase leading-[1.05] mb-12">Crafting World - Class <br /> Care For Every Step</h2>
+            <h2 className="text-[clamp(30px,6vw,56px)] font-black uppercase leading-[1.05] mb-12 whitespace-nowrap">Crafting World - Class Care For Every Step</h2>
             <LocalizedClientLink href="/contact">
               <button className="bg-black text-white px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all shadow-xl">Contact Us</button>
             </LocalizedClientLink>
