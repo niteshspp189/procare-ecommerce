@@ -33,7 +33,7 @@ export default async function seedMoreProducts({ container }: ExecArgs) {
     const productsToCreate: any[] = [];
 
     const types = ["Pro", "Elite", "Classic", "Premium", "Limited Edition"];
-    const categoriesList = ["Shirts", "Sweatshirts", "Pants", "Merch"];
+    const categoriesList = ["Shoe Care", "Foot Care", "Insoles"];
 
     for (let i = 1; i <= 16; i++) {
         const type = types[i % types.length];
@@ -43,13 +43,13 @@ export default async function seedMoreProducts({ container }: ExecArgs) {
         productsToCreate.push({
             title: `${type} Product ${i}`,
             category_ids: category ? [category.id] : [],
-            description: `A high-quality ${type.toLowerCase()} product for your collection. Experience the best of ProCare eCommerce.`,
+            description: `A high-quality ${type.toLowerCase()} leather care product. Experience the best of ProCare professional shoe maintenance.`,
             handle: `product-${i}`,
             weight: 500,
             status: ProductStatus.PUBLISHED,
             shipping_profile_id: shippingProfile.id,
             images: [
-                { url: `https://picsum.photos/seed/product${i}/600/800` }
+                { url: `http://shop.mvshoecare.com/products/Routine2.png` }
             ],
             options: [
                 { title: "Color", values: ["Default"] }
