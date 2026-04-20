@@ -127,23 +127,64 @@ We have provided two scripts in the `scripts/` directory:
 We use a **Monorepo** approach (single repository) for both Frontend and Backend.
 - **Why?**: It keeps code changes synchronized, simplifies CI/CD workflows, and allows sharing the same project identity and documentation in one place.
 
+# 🔧 Advanced Operations Guide
+
+## �️ Database Migration (Local to VPS)
+
+To move your local database data to the VPS, follow these steps:
+
+### 1. Create a Backup (Local)
+On your local machine, run:
+```bash
+./scripts/backup-logical.sh
+```
+This creates a file like `backups/procare_logical_backup_YYYYMMDD.sql.gz`.
+
+### 2. Transfer to VPS
+```bash
+scp backups/procare_logical_backup_TIMESTAMP.sql.gz procare:/var/www/procare-ecommerce/
+```
+
+### 3. Restore on VPS
+SSH into your VPS and run:
+```bash
+cd /var/www/procare-ecommerce
+# Unzip
+gunzip procare_logical_backup_TIMESTAMP.sql.gz
+# Clear existing schema (Warning: Destructive)
+docker exec procare_postgres psql -U procare_ecommerce -d procare_ecommerce -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+# Import
+cat procare_logical_backup_TIMESTAMP.sql | docker exec -i procare_postgres psql -U procare_ecommerce -d procare_ecommerce
+```
+
 ---
 
-## 🚀 CI/CD Deployment
+## ⚡ GitHub Actions VPS Pipeline
 
-The project includes a GitHub Actions workflow for automated deployment.
+We have two deployment strategies integrated into the repository.
 
-### Triggers
-1. **Manual**: Go to Actions tab -> "Deploy ProCare Ecommerce" -> Click **Run workflow**.
-2. **Automatic**: Any commit to the `main` branch containing the tag `--deploy=true` will trigger a deployment.
+### Strategy A: VPS SSH Deployment (Recommended for now)
+*Deploys directly to your Ubuntu VPS via SSH.*
 
-### Target Environment
-- **Database**: AWS RDS (PostgreSQL).
-- **Compute**: Amazon ECR/ECS (Current configured example).
+**Required GitHub Secrets:**
+1.  **`VPS_SSH_HOST`**: `3.7.7.67`
+2.  **`VPS_SSH_USER`**: `root`
+3.  **`VPS_SSH_KEY`**: Your Private SSH Key (e.g., contents of `id_rsa`).
 
-### Required Secrets
-Set these in GitHub Repository Secrets:
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION`
+**How to Trigger:**
+-   Manual trigger from GitHub Actions.
+-   Commit with `--deploy=true` tag.
 
+### Strategy B: AWS Cloud Deployment (Phase 2)
+*Builds Docker images and pushes to Amazon ECR.*
+
+**Required GitHub Secrets:**
+1.  `AWS_ACCESS_KEY_ID`
+2.  `AWS_SECRET_ACCESS_KEY`
+3.  `AWS_REGION`
+
+---
+
+## 🔒 Security Best Practices
+- **Never commit `.env` files**: They are already in `.gitignore`. Use `scp` to move them to the VPS manually.
+- **Port 9000**: Is currently exposed. Ensure your VPS firewall (`ufw`) allows traffic on 80 and 443, but limits 9000 if you want traffic to only go through the host Nginx.
