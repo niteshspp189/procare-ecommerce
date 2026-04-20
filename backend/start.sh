@@ -4,8 +4,8 @@
 yarn medusa db:migrate
 
 if [ "$NODE_ENV" = "production" ]; then
-  # Build is now handled in Dockerfile
-  yarn medusa start
+  # Increased memory limit for production startup
+  node --max-old-space-size=2048 ./node_modules/.bin/medusa start
 else
   yarn medusa develop --host 0.0.0.0
 fi
