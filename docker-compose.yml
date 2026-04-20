@@ -59,7 +59,7 @@ services:
     expose:
       - "8000"
     environment:
-      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
+      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://shop.mvshoecare.com
     env_file:
       - ./storefront/.env
     volumes:
