@@ -1,0 +1,211 @@
+import { Metadata } from "next"
+import { listCollections } from "@lib/data/collections"
+import { getRegion, listRegions } from "@lib/data/regions"
+import { listCategories } from "@lib/data/categories"
+import { listProducts } from "@lib/data/products"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import BestSellersTabs from "@modules/home/components/best-sellers-tabs"
+import FeaturedProducts from "@modules/home/components/featured-products"
+
+export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: "Pro Premium Care | Official Store",
+  description: "Experience the ultimate in shoe care and foot comfort. Pro Premium Care - Your confidence stays ahead.",
+}
+
+const s = {
+  container: {
+    width: '100%',
+    backgroundColor: '#fff',
+    color: '#000',
+    overflowX: 'hidden' as const
+  },
+}
+
+export default async function Home(props: {
+  params: Promise<{ countryCode: string }>
+}) {
+  const params = await props.params
+  const { countryCode } = params
+  const region = await getRegion(countryCode)
+  const productCategories = await listCategories()
+  const { collections } = await listCollections({
+    limit: "100"
+  })
+
+  // Log categories to help debug
+  console.log("All Categories Handles:", productCategories.map(c => c.handle))
+  console.log("All Collections Handles:", collections.map(c => c.handle))
+
+  if (!region) {
+    const regions = await listRegions()
+    const fallbackRegion = regions?.[0]
+    if (!fallbackRegion) return null
+    return <Home params={Promise.resolve({ countryCode: fallbackRegion.countries?.[0]?.iso_2 || "in" })} />
+  }
+
+  // Fetch products for best sellers categories
+  const bestSellerHandles = ['shoe-care', 'insoles', 'foot-care']
+  const bestSellerCategories = productCategories.filter(c => bestSellerHandles.includes(c.handle || ''))
+
+  console.log("Best Seller Categories found:", bestSellerCategories.map(c => c.handle))
+
+  const initialProducts: Record<string, any[]> = {}
+  for (const category of bestSellerCategories) {
+    const { response } = await listProducts({
+      regionId: region.id,
+      queryParams: {
+        category_id: [category.id],
+        limit: 4
+      }
+    })
+    console.log(`Products in ${category.handle}:`, response.products.length)
+    initialProducts[category.id] = response.products
+  }
+
+  const imgBase = '/images/landing-page-images/'
+
+  return (
+    <div style={s.container} className="animate-fade-in">
+      {/* HERO SECTION */}
+      <div className="relative overflow-hidden group min-h-[600px] flex items-center justify-center bg-[#f7f7f7]">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/landing-page-images/hero-banner-v2.png"
+            alt="Hero Banner"
+            className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-white/20"></div>
+        </div>
+
+        <div className="relative z-10 text-center px-4 animate-fade-in-up">
+          <h1 className="text-[clamp(32px,8vw,72px)] font-black text-black leading-tight mb-4 uppercase tracking-tighter">
+            Clean & Condition Your Shoes
+          </h1>
+          <p className="text-xl text-gray-800 mb-10 tracking-wide font-medium">
+            Wave Bye To Discomfort & Dust
+          </p>
+          <LocalizedClientLink href="/store">
+            <button className="bg-black text-white px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all shadow-xl hover:-translate-y-1">
+              Shop Now
+            </button>
+          </LocalizedClientLink>
+        </div>
+      </div>
+
+      <div className="pro-container">
+        {/* INTRODUCTION */}
+        <div className="text-center py-20 animate-fade-in-up">
+          <p className="tracking-[0.2em] text-gray-400 text-sm font-bold mb-4 uppercase">Extreme Comfort • Hyper Durable • Max Volume</p>
+          <h2 className="text-[clamp(24px,5vw,40px)] font-black uppercase leading-tight max-w-4xl mx-auto">
+            Show Care That Brings Comfort And Confidence
+          </h2>
+        </div>
+
+        {/* CATEGORY GRID V2 - 3 COLUMNS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 animate-fade-in-up">
+          <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
+            <img src={imgBase + 'img_008_4096x4096.png'} alt="Shoe Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">Shoe Care Kit</h3>
+              <LocalizedClientLink href="/categories/shoe-care">
+                <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
+              </LocalizedClientLink>
+            </div>
+          </div>
+          <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
+            <img src={imgBase + 'img_001_4096x4096.png'} alt="Insoles" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">Insoles Care</h3>
+              <LocalizedClientLink href="/categories/insoles">
+                <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
+              </LocalizedClientLink>
+            </div>
+          </div>
+          <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
+            <img src={imgBase + 'img_005_1024x1024.png'} alt="Foot Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">Foot Care Kit</h3>
+              <LocalizedClientLink href="/categories/foot-care">
+                <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
+              </LocalizedClientLink>
+            </div>
+          </div>
+        </div>
+
+        {/* BEST SELLERS TABS SECTION */}
+        <div className="py-20 animate-fade-in-up">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-black uppercase mb-8">Our Best Sellers</h2>
+          </div>
+
+          <BestSellersTabs
+            categories={bestSellerCategories}
+            region={region}
+            initialProducts={initialProducts}
+          />
+        </div>
+
+        {/* FEATURED COLLECTIONS */}
+        <div className="py-20 animate-fade-in-up border-t border-gray-100">
+          <h2 className="text-4xl font-black uppercase text-center mb-12">Featured Collections</h2>
+          {collections && collections.length > 0 ? (
+            <ul className="flex flex-col gap-y-0">
+              <FeaturedProducts collections={collections} region={region} />
+            </ul>
+          ) : (
+            <div className="text-center py-20 text-gray-500 uppercase tracking-widest text-sm">
+              No collections found
+            </div>
+          )}
+        </div>
+
+        {/* BRAND PROMISE BANNER */}
+        <div className="my-24 bg-[#f9f9f9] rounded-3xl p-12 md:p-24 text-center animate-fade-in-up relative overflow-hidden group">
+          <div className="relative z-10">
+            <p className="text-sm font-bold tracking-[0.3em] text-gray-400 mb-6 uppercase">German Precision. Indian Excellence. Trusted Worldwide.</p>
+            <h2 className="text-[clamp(30px,6vw,56px)] font-black uppercase leading-[1.05] mb-12">Crafting World - Class <br /> Care For Every Step</h2>
+            <LocalizedClientLink href="/contact">
+              <button className="bg-black text-white px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all shadow-xl">Contact Us</button>
+            </LocalizedClientLink>
+          </div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gray-200 rounded-full blur-3xl opacity-20 -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gray-200 rounded-full blur-3xl opacity-20 -ml-32 -mb-32"></div>
+        </div>
+
+        {/* FEATURE PILLARS */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 py-20 border-t border-gray-100 animate-fade-in-up">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+            </div>
+            <h4 className="font-bold uppercase text-sm tracking-widest mb-2">Product Quality</h4>
+            <p className="text-xs text-gray-500 uppercase">Premium Standard</p>
+          </div>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            </div>
+            <h4 className="font-bold uppercase text-sm tracking-widest mb-2">24/7 Support</h4>
+            <p className="text-xs text-gray-500 uppercase">Always available</p>
+          </div>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" /><polyline points="16 8 20 8 23 11 23 16 16 16" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
+            </div>
+            <h4 className="font-bold uppercase text-sm tracking-widest mb-2">Free Shipping</h4>
+            <p className="text-xs text-gray-500 uppercase">On all orders</p>
+          </div>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 2v6h6M21.5 22v-6h-6" /><path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.3" /></svg>
+            </div>
+            <h4 className="font-bold uppercase text-sm tracking-widest mb-2">Easy Returns</h4>
+            <p className="text-xs text-gray-500 uppercase">30 Day Policy</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

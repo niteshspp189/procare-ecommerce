@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: procare_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: procare_ecommerce
+      POSTGRES_USER: procare_ecommerce
+      POSTGRES_PASSWORD: procare_ecommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - procare_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: procare_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - procare_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: procare_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "9000:9000"
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL:-postgres://procare_ecommerce:procare_ecommerce@postgres:5432/procare_ecommerce}
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/server
+      - /server/node_modules
+    networks:
+      - procare_network
+
+  storefront:
+    build:
+      context: ./storefront
+      dockerfile: Dockerfile
+    container_name: procare_storefront
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8000:8000"
+    environment:
+      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
+    env_file:
+      - ./storefront/.env
+    volumes:
+      - ./storefront:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - procare_network
+
+networks:
+  procare_network:
+    driver: bridge
