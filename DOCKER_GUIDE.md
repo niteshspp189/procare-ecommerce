@@ -17,8 +17,8 @@ This guide provides details on the Dockerized setup for the ProCare Ecommerce sy
 ## 🔑 Default Credentials
 
 ### ProCare Admin
-- **Email**: `admin@procare.com`
-- **Password**: `supersecret`
+- **Email**: `admin@procareshop.com`
+- **Password**: `Admin@2026#`
 
 ---
 
@@ -163,7 +163,7 @@ cat procare_logical_backup_TIMESTAMP.sql | docker exec -i procare_postgres psql 
 
 We have two deployment strategies integrated into the repository.
 
-### Strategy A: VPS SSH Deployment (Recommended for now)
+### Strategy A: VPS SSH Deployment (Active)
 *Deploys directly to your Ubuntu VPS via SSH.*
 
 **Required GitHub Secrets:**
@@ -174,14 +174,6 @@ We have two deployment strategies integrated into the repository.
 **How to Trigger:**
 -   Manual trigger from GitHub Actions.
 -   Commit with `--deploy=true` tag.
-
-### Strategy B: AWS Cloud Deployment (Phase 2)
-*Builds Docker images and pushes to Amazon ECR.*
-
-**Required GitHub Secrets:**
-1.  `AWS_ACCESS_KEY_ID`
-2.  `AWS_SECRET_ACCESS_KEY`
-3.  `AWS_REGION`
 
 ---
 
