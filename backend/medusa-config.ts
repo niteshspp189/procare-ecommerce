@@ -49,7 +49,7 @@ module.exports = defineConfig({
                     // Inject ProCare Logo into Login Page
                     const loginLogoContainer = document.querySelector('div[class*="bg-ui-button-neutral"][class*="w-[50px]"]');
                     if (loginLogoContainer && !document.getElementById('procare-login-logo-v2')) {
-                      loginLogoContainer.innerHTML = '<img id="procare-login-logo-v2" src="http://localhost:8000/procare-logo.png" style="width: 140px; height: auto; object-fit: contain;">';
+                      loginLogoContainer.innerHTML = '<img id="procare-login-logo-v2" src="http://shop.mvshoecare.com/procare-logo.png" style="width: 140px; height: auto; object-fit: contain;">';
                       loginLogoContainer.style.background = 'transparent';
                       loginLogoContainer.style.boxShadow = 'none';
                       loginLogoContainer.style.width = 'auto';
@@ -138,14 +138,14 @@ module.exports = defineConfig({
                 </script><style>
                   @font-face {
                     font-family: 'KelsonSans';
-                    src: url('http://localhost:8000/fonts/KelsonSans-Regular.otf') format('opentype');
+                    src: url('http://shop.mvshoecare.com/fonts/KelsonSans-Regular.otf') format('opentype');
                     font-weight: normal;
                     font-style: normal;
                   }
 
                   @font-face {
                     font-family: 'KelsonSans';
-                    src: url('http://localhost:8000/fonts/KelsonSans-Bold.otf') format('opentype');
+                    src: url('http://shop.mvshoecare.com/fonts/KelsonSans-Bold.otf') format('opentype');
                     font-weight: bold;
                     font-style: normal;
                   }
@@ -241,6 +241,7 @@ module.exports = defineConfig({
             '.localhost',
             '127.0.0.1',
             'backend',
+            'shop.mvshoecare.com',
           ],
           hmr: {
             port: 5173,
