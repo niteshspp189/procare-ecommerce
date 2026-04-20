@@ -6,9 +6,9 @@ This guide provides details on the Dockerized setup for the ProCare Ecommerce sy
 
 | Service | Local URL | Port |
 |---------|-----------|------|
-| **Storefront (Next.js)** | [http://localhost:8000](http://localhost:8000) | 8000 |
-| **ProCare Backend API** | [http://localhost:9000](http://localhost:9000) | 9000 |
-| **ProCare Admin Dashboard** | [http://localhost:9000/app](http://localhost:9000/app) | 9000 |
+| **Unified Storefront** | [http://localhost:9000](http://localhost:9000) | 9000 |
+| **ProCare Admin Dashboard** | [http://localhost:9000/store-backend](http://localhost:9000/store-backend) | 9000 |
+| **Backend API** | [http://localhost:9000/store](http://localhost:9000/store) | 9000 |
 | **PostgreSQL Database** | `localhost:5432` | 5432 |
 | **Redis Cache** | `localhost:6379` | 6379 |
 
@@ -28,6 +28,7 @@ The project is orchestrated using `docker-compose`. All services reside in a sha
 
 - **`procare_backend`**: The ProCare Ecommerce core server.
 - **`procare_storefront`**: The ProCare Ecommerce Next.js storefront.
+- **`procare_nginx`**: Reverse Proxy (Entry point for Port 9000).
 - **`procare_postgres`**: Database (Postgres 15).
 - **`procare_redis`**: Cache and Event Bus (Redis 7).
 
