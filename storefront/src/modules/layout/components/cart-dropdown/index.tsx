@@ -48,9 +48,17 @@ const CartDropdown = ({
   const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
 
   const pathname = usePathname()
+  const isInitialRender = useRef(true)
 
   useEffect(() => {
-    if (itemRef.current !== totalItems && !pathname.includes("/cart")) {
+    const timer = setTimeout(() => {
+      isInitialRender.current = false
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!isInitialRender.current && totalItems > itemRef.current && !pathname.includes("/cart")) {
       openDrawer()
     }
     itemRef.current = totalItems

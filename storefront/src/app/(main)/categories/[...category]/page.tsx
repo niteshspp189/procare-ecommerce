@@ -66,7 +66,9 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function CategoryPage(props: Props) {
   const searchParams = await props.searchParams
   const params = await props.params
-  const { sortBy, page } = searchParams
+
+  // Extract all available filters exactly like the Shop page
+  const { sortBy, page, collection, size, color, type } = searchParams as any
 
   const productCategory = await getCategoryByHandle(params.category)
 
@@ -75,11 +77,15 @@ export default async function CategoryPage(props: Props) {
   }
 
   return (
-      <CategoryTemplate
-        category={productCategory}
-        sortBy={sortBy}
-        page={page}
-        countryCode={params.countryCode}
-      />
+    <CategoryTemplate
+      category={productCategory}
+      sortBy={sortBy}
+      page={page}
+      countryCode={params.countryCode}
+      collection={collection}
+      size={size}
+      color={color}
+      type={type}
+    />
   )
 }
