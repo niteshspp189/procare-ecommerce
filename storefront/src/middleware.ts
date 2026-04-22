@@ -145,6 +145,12 @@ export async function middleware(request: NextRequest) {
 
   // If no country code is set, we just proceed (we moved routes to root)
   if (!urlHasCountryCode && countryCode) {
+    if (!cacheIdCookie) {
+      response.cookies.set("_medusa_cache_id", cacheId, {
+        maxAge: 60 * 60 * 24,
+      })
+      return response
+    }
     return NextResponse.next()
   } else if (!urlHasCountryCode && !countryCode) {
     // Handle case where no valid country code exists

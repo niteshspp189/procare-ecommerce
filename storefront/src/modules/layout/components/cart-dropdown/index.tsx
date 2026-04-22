@@ -121,8 +121,11 @@ const CartDropdown = ({
           <>
             <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
               {hasFreeShipping ? (
-                <p className="text-sm text-green-600 font-medium text-center">
-                  🎉 You&apos;ve unlocked free shipping!
+                <p className="text-sm text-gray-900 font-medium text-center flex items-center justify-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Eligible for complimentary shipping
                 </p>
               ) : (
                 <p className="text-sm text-gray-600 text-center">

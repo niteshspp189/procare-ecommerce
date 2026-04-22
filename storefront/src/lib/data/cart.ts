@@ -49,7 +49,10 @@ export async function retrieveCart(cartId?: string, fields?: string) {
       cache: "force-cache",
     })
     .then(({ cart }: { cart: HttpTypes.StoreCart }) => cart)
-    .catch(() => null)
+    .catch(async () => {
+      await removeCartId()
+      return null
+    })
 }
 
 export async function getOrSetCart(countryCode: string) {
@@ -111,7 +114,12 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
 
       return cart
     })
-    .catch(medusaError)
+    .catch(async (e) => {
+      if (e.message?.includes("not found") || e.status === 404) {
+        await removeCartId()
+      }
+      return medusaError(e)
+    })
 }
 
 export async function addToCart({
@@ -154,7 +162,12 @@ export async function addToCart({
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
     })
-    .catch(medusaError)
+    .catch(async (e) => {
+      if (e.message?.includes("not found") || e.status === 404) {
+        await removeCartId()
+      }
+      return medusaError(e)
+    })
 }
 
 export async function updateLineItem({
@@ -187,7 +200,12 @@ export async function updateLineItem({
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
     })
-    .catch(medusaError)
+    .catch(async (e) => {
+      if (e.message?.includes("not found") || e.status === 404) {
+        await removeCartId()
+      }
+      return medusaError(e)
+    })
 }
 
 export async function deleteLineItem(lineId: string) {
@@ -214,7 +232,12 @@ export async function deleteLineItem(lineId: string) {
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
     })
-    .catch(medusaError)
+    .catch(async (e) => {
+      if (e.message?.includes("not found") || e.status === 404) {
+        await removeCartId()
+      }
+      return medusaError(e)
+    })
 }
 
 export async function setShippingMethod({

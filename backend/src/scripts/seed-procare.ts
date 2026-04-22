@@ -134,13 +134,12 @@ export default async function seedProCareCatalog({ container }: ExecArgs) {
 
                 return {
                     title: color,
-                    sku: `PRO-${index + 1}${isShoeCream ? '-' + (vIndex + 1) : ''}`,
+                    sku: `NEW-PRO-${index + 1}${isShoeCream ? '-' + (vIndex + 1) : ''}`,
                     options: { Color: color },
-                    inventory_quantity: 100,
                     manage_inventory: false,
                     prices: [
-                        { amount: inrPrice * 100, currency_code: "inr" },
-                        { amount: (Math.floor(inrPrice / 80) + 5) * 100, currency_code: "usd" }
+                        { amount: 1500 * 100, currency_code: "inr" },
+                        { amount: 20 * 100, currency_code: "usd" }
                     ]
                 }
             })
