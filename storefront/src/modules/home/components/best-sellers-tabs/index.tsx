@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
-import ProductPreview from "@modules/products/components/product-preview"
+import ProductItemCard from "@modules/common/components/product-item-card"
 
 export default function BestSellersTabs({
     categories,
@@ -42,7 +42,7 @@ export default function BestSellersTabs({
                     <ul className="grid grid-cols-2 lg:grid-cols-3 gap-8">
                         {products.map((product) => (
                             <li key={product.id} className="animate-fade-in">
-                                <ProductPreview product={product} region={region} isStaging={isStaging} />
+                                <ProductItemCard product={product} region={region} isStaging={isStaging} />
                             </li>
                         ))}
                     </ul>

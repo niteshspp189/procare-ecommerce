@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState, useTransition } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
-const FREE_SHIPPING_THRESHOLD = 99900
+const FREE_SHIPPING_THRESHOLD = 150000
 
 const CartDropdown = ({
   cart: cartState,
@@ -93,9 +93,8 @@ const CartDropdown = ({
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-[420px] bg-white z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-full max-w-[420px] bg-white z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         data-testid="nav-cart-dropdown"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -181,7 +180,7 @@ const CartDropdown = ({
                           <div className="text-right flex-shrink-0">
                             {hasDiscount && (
                               <p className="text-xs text-gray-400 line-through">
-                                {convertToLocale({ amount: item.original_total, currency_code: currencyCode })}
+                                {convertToLocale({ amount: item.original_total ?? 0, currency_code: currencyCode })}
                               </p>
                             )}
                             <p className={`text-sm font-semibold ${hasDiscount ? "text-red-600" : "text-gray-900"}`}>

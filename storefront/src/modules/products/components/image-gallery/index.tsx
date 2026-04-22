@@ -25,6 +25,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 fill
                 className="object-cover p-1"
                 sizes="64px"
+                unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
               />
             )}
           </a>
@@ -49,6 +50,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                   alt={`Product image ${index + 1}`}
                   fill
                   sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                  unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
                 />
               )}
             </div>

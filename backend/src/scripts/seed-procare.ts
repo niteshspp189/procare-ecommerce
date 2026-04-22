@@ -110,32 +110,42 @@ export default async function seedProCareCatalog({ container }: ExecArgs) {
         { title: "PRO GOLD Suede and Nubuck", handle: "suede-nubuck-spray", category: "Shoe Care", collection: "New Arrivals", description: "Revives colors and conditions." }
     ];
 
-    const productsToCreate = productData.map((p, index) => ({
-        title: p.title,
-        handle: p.handle,
-        description: p.description,
-        collection_id: collections[p.collection]?.id,
-        category_ids: [categories[p.category]?.id].filter(Boolean),
-        images,
-        thumbnail: relativeImageUrl,
-        status: ProductStatus.PUBLISHED,
-        shipping_profile_id: shippingProfile.id,
-        sales_channels: [{ id: salesChannel.id }],
-        options: [{ title: "Color", values: ["Neutral"] }],
-        variants: [
-            {
-                title: "Standard",
-                sku: `PRO-${index + 1}`,
-                options: { Color: "Neutral" },
-                inventory_quantity: 100,
-                manage_inventory: false,
-                prices: [
-                    { amount: Math.floor(Math.random() * 1000) + 500, currency_code: "inr" },
-                    { amount: Math.floor(Math.random() * 20) + 10, currency_code: "usd" }
-                ]
-            }
-        ]
-    }));
+    const productsToCreate = productData.map((p, index) => {
+        const isShoeCream = p.handle === "shoe-cream";
+        const colorValues = isShoeCream ? ["Neutral", "Black", "Brown"] : ["Neutral"];
+
+        return {
+            title: p.title,
+            handle: p.handle,
+            description: p.description,
+            collection_id: collections[p.collection]?.id,
+            category_ids: [categories[p.category]?.id].filter(Boolean),
+            images,
+            thumbnail: relativeImageUrl,
+            status: ProductStatus.PUBLISHED,
+            shipping_profile_id: shippingProfile.id,
+            sales_channels: [{ id: salesChannel.id }],
+            options: [{ title: "Color", values: colorValues }],
+            variants: colorValues.map((color, vIndex) => {
+                let inrPrice = Math.floor(Math.random() * 2000) + 500; // Default: 500 to 2500
+                if (isShoeCream) {
+                    inrPrice = Math.floor(Math.random() * 400) + 400; // Shoe Cream: 400 to 800
+                }
+
+                return {
+                    title: color,
+                    sku: `PRO-${index + 1}${isShoeCream ? '-' + (vIndex + 1) : ''}`,
+                    options: { Color: color },
+                    inventory_quantity: 100,
+                    manage_inventory: false,
+                    prices: [
+                        { amount: inrPrice * 100, currency_code: "inr" },
+                        { amount: (Math.floor(inrPrice / 80) + 5) * 100, currency_code: "usd" }
+                    ]
+                }
+            })
+        }
+    });
 
     await createProductsWorkflow(container).run({
         input: {

@@ -9,7 +9,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { HttpTypes } from "@medusajs/types"
 import { convertToLocale } from "@lib/util/money"
 
-const FREE_SHIPPING_THRESHOLD = 99900
+const FREE_SHIPPING_THRESHOLD = 150000
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {

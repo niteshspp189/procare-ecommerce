@@ -18,6 +18,23 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
   },
+  modules: [
+    {
+      resolve: "@medusajs/medusa/file",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/file-local",
+            id: "local",
+            options: {
+              upload_dir: "static",
+              backend_url: "http://localhost:9000/static"
+            },
+          },
+        ],
+      },
+    },
+  ],
   admin: {
     path: "/store-backend",
     vite: (_config) => {
@@ -97,6 +114,25 @@ module.exports = defineConfig({
                       var contentInner = mainContent.querySelector('div') || mainContent;
                       contentInner.prepend(statsGrid);
                     }
+
+                    // Inject External Storefront Link
+                    var productHeader = document.querySelector('h1.h1-core') || document.querySelector('h1');
+                    if (productHeader && window.location.pathname.includes('/products/prod_') && !productHeader.querySelector('.procare-external-link')) {
+                      var handleLabel = Array.from(document.querySelectorAll('p, span, div')).find(function(el) { return el.innerText.trim() === 'Handle'; });
+                      var handleValue = handleLabel ? handleLabel.nextElementSibling?.innerText.trim() : null;
+                      if (handleValue) {
+                        var link = document.createElement('a');
+                        var cleanHandle = handleValue.startsWith('/') ? handleValue.substring(1) : handleValue;
+                        link.href = window.location.origin + '/products/' + cleanHandle;
+                        link.target = '_blank';
+                        link.className = 'procare-external-link ml-4 inline-flex items-center text-slate-400 hover:text-black transition-all';
+                        link.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>';
+                        link.title = 'View on Storefront';
+                        productHeader.style.display = 'flex';
+                        productHeader.style.alignItems = 'center';
+                        productHeader.appendChild(link);
+                      }
+                    }
                   }
 
                   function hideAdminSidebarItems() {
@@ -158,10 +194,14 @@ module.exports = defineConfig({
                     --border-ui-border-base: #e2e8f0 !important;
                   }
                   
-                  body, html, * {
+                  body, html {
                     font-family: 'KelsonSans', sans-serif !important;
                     font-size: 14.5px !important;
                     background-color: #f8fafc !important;
+                  }
+
+                  * {
+                    font-family: 'KelsonSans', sans-serif !important;
                   }
 
                   /* LOGIN LOGO FIX */
@@ -231,11 +271,23 @@ module.exports = defineConfig({
                     height: 40px !important;
                   }
 
-                  /* FocusModal background transparency */
+                  /* SIDE DRAWER / MODAL TRANSPARENCY */
+                  .bg-ui-bg-overlay,
+                  #preact-border-shadow-host,
                   div[role="dialog"],
+                  div[data-state="open"] > div.fixed.inset-0.bg-ui-bg-base,
                   div.fixed.inset-0.bg-ui-bg-base {
-                    background-color: rgba(255, 255, 255, 0.4) !important;
-                    backdrop-filter: blur(2px) !important;
+                    background-color: rgba(255, 255, 255, 0.35) !important;
+                    backdrop-filter: blur(4px) !important;
+                    -webkit-backdrop-filter: blur(4px) !important;
+                  }
+
+                  /* Ensure the Edit Drawer itself stays opaque */
+                  [role="dialog"] [role="dialog"],
+                  [data-state="open"] aside,
+                  [data-state="open"] [role="dialog"] {
+                    background-color: #ffffff !important;
+                    box-shadow: -10px 0 30px rgba(0,0,0,0.05) !important;
                   }
 
                   /* Hide the Developer Header and items by structural patterns */
