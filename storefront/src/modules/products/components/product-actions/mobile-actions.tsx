@@ -183,6 +183,11 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                                 updateOption={updateOptions}
                                 title={option.title ?? ""}
                                 disabled={optionsDisabled}
+                                colorHexMap={
+                                  (option.title?.toLowerCase() === "color" &&
+                                    (product.metadata?.color_hex_map as Record<string, string>)) ||
+                                  undefined
+                                }
                               />
                             </div>
                           )

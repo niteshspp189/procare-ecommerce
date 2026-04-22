@@ -20,11 +20,9 @@ module.exports = defineConfig({
   },
   admin: {
     path: "/store-backend",
-    vite: (config) => {
+    vite: (_config) => {
       return {
-        ...config,
         plugins: [
-          ...(config.plugins || []),
           {
             name: "procare-admin-branding",
             transformIndexHtml(html: string) {
@@ -250,6 +248,22 @@ module.exports = defineConfig({
                     background-color: #0f172a !important;
                     border-radius: 8px !important;
                     height: 40px !important;
+                  }
+                </style><style>
+                  /* Make the left side background of FocusModal transparent so the details page is visible */
+                  div[role="dialog"] {
+                    background-color: rgba(255, 255, 255, 0.4) !important;
+                    backdrop-filter: blur(2px) !important;
+                  }
+                  
+                  div.fixed.inset-0.bg-ui-bg-base {
+                    background-color: rgba(255, 255, 255, 0.4) !important;
+                    backdrop-filter: blur(2px) !important;
+                  }
+
+                  /* Target the FocusModal overlay specifically if medusa ui uses another class */
+                  [data-radix-collection-item] {
+                    background-color: transparent !important;
                   }
                 </style></body>`
               )
