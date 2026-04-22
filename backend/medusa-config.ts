@@ -272,22 +272,14 @@ module.exports = defineConfig({
                   }
 
                   /* SIDE DRAWER / MODAL TRANSPARENCY */
-                  .bg-ui-bg-overlay,
-                  #preact-border-shadow-host,
-                  div[role="dialog"],
-                  div[data-state="open"] > div.fixed.inset-0.bg-ui-bg-base,
-                  div.fixed.inset-0.bg-ui-bg-base {
-                    background-color: rgba(255, 255, 255, 0.35) !important;
-                    backdrop-filter: blur(4px) !important;
-                    -webkit-backdrop-filter: blur(4px) !important;
+                  .bg-ui-bg-overlay {
+                    background-color: rgba(0, 0, 0, 0.5) !important;
                   }
 
                   /* Ensure the Edit Drawer itself stays opaque */
-                  [role="dialog"] [role="dialog"],
-                  [data-state="open"] aside,
-                  [data-state="open"] [role="dialog"] {
+                  [role="dialog"] {
                     background-color: #ffffff !important;
-                    box-shadow: -10px 0 30px rgba(0,0,0,0.05) !important;
+                    box-shadow: -10px 0 30px rgba(0,0,0,0.1) !important;
                   }
 
                   /* Hide the Developer Header and items by structural patterns */
