@@ -6,6 +6,7 @@ import Modal from "@modules/common/components/modal"
 import { Button, Text, Heading, clx } from "@medusajs/ui"
 import { addToCart } from "@lib/data/cart"
 import { useParams, useRouter } from "next/navigation"
+import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
 const s = {
     btnQuick: {
@@ -25,12 +26,25 @@ const s = {
 
 export default function QuickBuy({
     product,
-    region
+    region,
+    externalOpen,
+    onExternalOpenHandled,
+    hideButton
 }: {
     product: HttpTypes.StoreProduct
     region: HttpTypes.StoreRegion
+    externalOpen?: boolean
+    onExternalOpenHandled?: () => void
+    hideButton?: boolean
 }) {
     const [isOpen, setIsOpen] = useState(false)
+
+    React.useEffect(() => {
+        if (externalOpen) {
+            setIsOpen(true)
+            onExternalOpenHandled?.()
+        }
+    }, [externalOpen])
     const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
         product.variants?.[0]?.id || null
     )
@@ -40,6 +54,7 @@ export default function QuickBuy({
     const params = useParams()
     const countryCode = (params?.countryCode as string) || region.countries?.[0]?.iso_2 || "in"
     const router = useRouter()
+    const { openDrawer } = useCartDrawer()
 
     const openModal = (e: React.MouseEvent) => {
         e.preventDefault()
@@ -62,8 +77,8 @@ export default function QuickBuy({
                 quantity: 1,
                 countryCode
             })
-            // Optionally close modal or show success
             setIsOpen(false)
+            openDrawer()
         } catch (err) {
             console.error(err)
         } finally {
@@ -90,13 +105,15 @@ export default function QuickBuy({
 
     return (
         <>
-            <button
-                style={s.btnQuick as any}
-                onClick={openModal}
-                className="hover:bg-gray-50 transition-all transform active:scale-95"
-            >
-                Quick Buy
-            </button>
+            {!hideButton && (
+                <button
+                    style={s.btnQuick as any}
+                    onClick={openModal}
+                    className="hover:bg-gray-50 transition-all transform active:scale-95"
+                >
+                    Quick Buy
+                </button>
+            )}
 
             <Modal isOpen={isOpen} close={close} size="large">
                 <Modal.Title>

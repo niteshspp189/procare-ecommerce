@@ -53,6 +53,7 @@ const StoreTemplate = async ({
   size,
   color,
   type,
+  q,
 }: {
   sortBy?: SortOptions
   page?: string
@@ -62,6 +63,7 @@ const StoreTemplate = async ({
   size?: string
   color?: string
   type?: string
+  q?: string
 }) => {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
@@ -142,7 +144,9 @@ const StoreTemplate = async ({
       />
       <div className="w-full">
         <div className="mb-8 text-2xl-semi">
-          <h1 data-testid="store-page-title">All products</h1>
+          <h1 data-testid="store-page-title">
+            {q ? `Search results for "${q}"` : "All products"}
+          </h1>
         </div>
         <Suspense fallback={<SkeletonProductGrid />}>
           <PaginatedProducts
@@ -154,6 +158,7 @@ const StoreTemplate = async ({
             typeValue={type}
             sizeValue={size}
             colorValue={color}
+            searchQuery={q}
           />
         </Suspense>
       </div>

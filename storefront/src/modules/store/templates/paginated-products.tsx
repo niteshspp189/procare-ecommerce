@@ -16,6 +16,7 @@ type PaginatedProductsParams = {
   category_id?: string[]
   id?: string[]
   order?: string
+  q?: string
 }
 
 const hasOptionValue = (
@@ -41,6 +42,7 @@ export default async function PaginatedProducts({
   colorValue,
   productsIds,
   countryCode,
+  searchQuery,
 }: {
   sortBy?: SortOptions
   page: number
@@ -53,6 +55,7 @@ export default async function PaginatedProducts({
   colorValue?: string
   productsIds?: string[]
   countryCode?: string
+  searchQuery?: string
 }) {
   const queryParams: PaginatedProductsParams = {
     limit: 100,
@@ -90,6 +93,10 @@ export default async function PaginatedProducts({
 
   if (sortBy === "created_at") {
     queryParams["order"] = "created_at"
+  }
+
+  if (searchQuery?.trim()) {
+    queryParams["q"] = searchQuery.trim()
   }
 
   const region = await getRegion(countryCode)

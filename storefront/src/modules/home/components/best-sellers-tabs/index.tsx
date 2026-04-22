@@ -8,10 +8,12 @@ export default function BestSellersTabs({
     categories,
     region,
     initialProducts,
+    isStaging,
 }: {
     categories: HttpTypes.StoreProductCategory[]
     region: HttpTypes.StoreRegion
     initialProducts: Record<string, HttpTypes.StoreProduct[]>
+    isStaging?: boolean
 }) {
     const [activeTab, setActiveTab] = useState(categories[0]?.id || "")
 
@@ -40,7 +42,7 @@ export default function BestSellersTabs({
                     <ul className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {products.map((product) => (
                             <li key={product.id} className="animate-fade-in">
-                                <ProductPreview product={product} region={region} />
+                                <ProductPreview product={product} region={region} isStaging={isStaging} />
                             </li>
                         ))}
                     </ul>

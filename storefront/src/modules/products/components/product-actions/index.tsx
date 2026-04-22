@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
+import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -39,6 +40,7 @@ export default function ProductActions({
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
   const countryCode = useParams().countryCode as string
+  const { openDrawer } = useCartDrawer()
 
   // If there is only 1 variant, preselect the options
   useEffect(() => {
@@ -132,6 +134,7 @@ export default function ProductActions({
       countryCode,
     })
 
+    openDrawer()
     setIsAdding(false)
   }
 

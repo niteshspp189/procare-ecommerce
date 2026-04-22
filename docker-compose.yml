@@ -13,6 +13,11 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
       - procare_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U procare_ecommerce -d procare_ecommerce"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -22,6 +27,11 @@ services:
       - "6379:6379"
     networks:
       - procare_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -30,8 +40,10 @@ services:
     container_name: procare_backend
     restart: unless-stopped
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     expose:
       - "9000"
     ports:
@@ -47,6 +59,12 @@ services:
       - /server/node_modules
     networks:
       - procare_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:9000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 90s
 
   storefront:
     build:
@@ -55,7 +73,8 @@ services:
     container_name: procare_storefront
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     expose:
       - "8000"
     environment:
@@ -69,14 +88,20 @@ services:
       - /app/.next
     networks:
       - procare_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 20s
+      timeout: 10s
+      retries: 8
+      start_period: 90s
 
   nginx:
     image: nginx:alpine
     container_name: procare_nginx
     restart: unless-stopped
     depends_on:
-      - backend
-      - storefront
+      backend:
+        condition: service_healthy
     ports:
       - "9000:80"
     volumes:

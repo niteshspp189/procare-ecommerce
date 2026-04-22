@@ -1,3 +1,5 @@
+"use client"
+
 import { Text } from "@medusajs/ui"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
@@ -5,6 +7,10 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
 import QuickBuy from "./quick-buy"
+import { addToCart } from "@lib/data/cart"
+import { useParams } from "next/navigation"
+import { useState } from "react"
+import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
 const s = {
   productCard: {
@@ -36,14 +42,41 @@ export default function ProductPreview({
   product,
   isFeatured,
   region,
+  isStaging,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
+  isStaging?: boolean
 }) {
-  const { cheapestPrice } = getProductPrice({
-    product,
-  })
+  const { cheapestPrice } = getProductPrice({ product })
+  const params = useParams()
+  const countryCode = (params?.countryCode as string) || region.countries?.[0]?.iso_2 || "in"
+  const [isAdding, setIsAdding] = useState(false)
+  const [triggerQuickBuy, setTriggerQuickBuy] = useState(false)
+  const { openDrawer } = useCartDrawer()
+
+  const isMultiVariant = product.variants && product.variants.length > 1 && product.options && product.options.length > 0
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const variantId = product.variants?.[0]?.id
+    if (!variantId || isMultiVariant) {
+      // Open Quick Buy modal so user can pick variant — cart drawer opens after selection
+      setTriggerQuickBuy(true)
+      return
+    }
+    setIsAdding(true)
+    try {
+      await addToCart({ variantId, quantity: 1, countryCode })
+      openDrawer()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   return (
     <div style={s.productCard as any} className="group hover-lift solid-box animate-fade-in-up">
@@ -67,14 +100,42 @@ export default function ProductPreview({
         </div>
       </LocalizedClientLink>
       <div style={s.btnRow as any} className="pt-2">
-        <LocalizedClientLink
-          href={`/products/${product.handle}`}
-          style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: '#000' } as any}
-          className="hover:bg-gray-800 transition-all transform active:scale-95"
-        >
-          Add to Cart
-        </LocalizedClientLink>
-        <QuickBuy product={product} region={region} />
+        {isStaging ? (
+          <>
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdding}
+              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#099980' : '#0bb799' } as any}
+              className="hover:bg-[#099980] transition-all transform active:scale-95 disabled:opacity-60"
+            >
+              {isAdding ? "Adding…" : "Shop Now"}
+            </button>
+            <QuickBuy
+              product={product}
+              region={region}
+              externalOpen={triggerQuickBuy}
+              onExternalOpenHandled={() => setTriggerQuickBuy(false)}
+              hideButton={true}
+            />
+          </>
+        ) : (
+          <>
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdding}
+              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#555' : '#000' } as any}
+              className="hover:bg-gray-800 transition-all transform active:scale-95 disabled:opacity-60"
+            >
+              {isAdding ? "Adding…" : "Add to Cart"}
+            </button>
+            <QuickBuy
+              product={product}
+              region={region}
+              externalOpen={triggerQuickBuy}
+              onExternalOpenHandled={() => setTriggerQuickBuy(false)}
+            />
+          </>
+        )}
       </div>
     </div>
   )

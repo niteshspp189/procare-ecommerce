@@ -3,7 +3,6 @@
 import { Table, Text, clx } from "@medusajs/ui"
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
-import CartItemSelect from "@modules/cart/components/cart-item-select"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
@@ -41,8 +40,7 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   }
 
   // TODO: Update this to grab the actual max inventory
-  const maxQtyFromInventory = 10
-  const maxQuantity = item.variant?.manage_inventory ? 10 : maxQtyFromInventory
+  const maxQuantity = item.variant?.manage_inventory ? 10 : 10
 
   return (
     <Table.Row className="w-full" data-testid="product-row">
@@ -74,31 +72,33 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
 
       {type === "full" && (
         <Table.Cell>
-          <div className="flex gap-2 items-center w-28">
-            <DeleteButton id={item.id} data-testid="product-delete-button" />
-            <CartItemSelect
-              value={item.quantity}
-              onChange={(value) => changeQuantity(parseInt(value.target.value))}
-              className="w-14 h-10 p-4"
-              data-testid="product-select-button"
-            >
-              {/* TODO: Update this with the v2 way of managing inventory */}
-              {Array.from(
-                {
-                  length: Math.min(maxQuantity, 10),
-                },
-                (_, i) => (
-                  <option value={i + 1} key={i}>
-                    {i + 1}
-                  </option>
-                )
-              )}
-
-              <option value={1} key={1}>
-                1
-              </option>
-            </CartItemSelect>
-            {updating && <Spinner />}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center border border-gray-200 rounded-full overflow-hidden w-fit">
+              <button
+                onClick={() => item.quantity > 1 && changeQuantity(item.quantity - 1)}
+                disabled={item.quantity <= 1 || updating}
+                className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-30 transition-colors text-lg"
+                aria-label="Decrease quantity"
+                data-testid="product-decrease-button"
+              >
+                −
+              </button>
+              <span className="w-9 text-center text-sm font-medium">
+                {updating ? <Spinner /> : item.quantity}
+              </span>
+              <button
+                onClick={() => changeQuantity(item.quantity + 1)}
+                disabled={updating}
+                className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-30 transition-colors text-lg"
+                aria-label="Increase quantity"
+                data-testid="product-increase-button"
+              >
+                +
+              </button>
+            </div>
+            <DeleteButton id={item.id} data-testid="product-delete-button" className="text-xs text-gray-400 hover:text-red-500">
+              Remove
+            </DeleteButton>
           </div>
           <ErrorMessage error={error} data-testid="product-error-message" />
         </Table.Cell>
