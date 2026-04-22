@@ -57,7 +57,7 @@ export default async function Home(props: {
       regionId: region.id,
       queryParams: {
         category_id: [category.id],
-        limit: 4
+        limit: 3
       }
     })
     console.log(`Products in ${category.handle}:`, response.products.length)
@@ -72,7 +72,7 @@ export default async function Home(props: {
       <div className="relative overflow-hidden group min-h-[600px] flex items-center justify-center bg-[#f7f7f7]">
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/landing-page-images/hero-banner-v2.png"
+            src="/images/landing-page-images/hero-banner-v3.png"
             alt="Hero Banner"
             className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-105"
           />

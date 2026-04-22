@@ -28,8 +28,8 @@ export default function BestSellersTabs({
                         key={category.id}
                         onClick={() => setActiveTab(category.id)}
                         className={`text-sm font-bold uppercase tracking-widest whitespace-nowrap pb-2 transition-all ${activeTab === category.id
-                                ? "text-black border-b-2 border-black"
-                                : "text-gray-400 hover:text-black border-b-2 border-transparent"
+                            ? "text-black border-b-2 border-black"
+                            : "text-gray-400 hover:text-black border-b-2 border-transparent"
                             }`}
                     >
                         {category.name}
@@ -39,7 +39,7 @@ export default function BestSellersTabs({
 
             <div className="animate-fade-in-up">
                 {products.length > 0 ? (
-                    <ul className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    <ul className="grid grid-cols-2 lg:grid-cols-3 gap-8">
                         {products.map((product) => (
                             <li key={product.id} className="animate-fade-in">
                                 <ProductPreview product={product} region={region} isStaging={isStaging} />

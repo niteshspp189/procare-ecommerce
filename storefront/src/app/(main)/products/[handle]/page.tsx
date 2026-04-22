@@ -44,8 +44,7 @@ export async function generateStaticParams() {
       .filter((param) => param.handle)
   } catch (error) {
     console.error(
-      `Failed to generate static paths for product pages: ${
-        error instanceof Error ? error.message : "Unknown error"
+      `Failed to generate static paths for product pages: ${error instanceof Error ? error.message : "Unknown error"
       }.`
     )
     return []
@@ -56,17 +55,25 @@ function getImagesForVariant(
   product: HttpTypes.StoreProduct,
   selectedVariantId?: string
 ) {
+  const productImages = product.images?.length
+    ? product.images
+    : product.thumbnail
+      ? ([
+        { id: "thumbnail", url: product.thumbnail },
+      ] as HttpTypes.StoreProductImage[])
+      : []
+
   if (!selectedVariantId || !product.variants) {
-    return product.images
+    return productImages
   }
 
   const variant = product.variants!.find((v) => v.id === selectedVariantId)
-  if (!variant || !variant.images.length) {
-    return product.images
+  if (!variant || !variant.images?.length) {
+    return productImages
   }
 
   const imageIdsMap = new Map(variant.images.map((i) => [i.id, true]))
-  return product.images!.filter((i) => imageIdsMap.has(i.id))
+  return productImages.filter((i) => imageIdsMap.has(i.id))
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

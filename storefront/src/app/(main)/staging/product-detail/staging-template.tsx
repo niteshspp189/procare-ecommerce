@@ -41,7 +41,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   region,
   countryCode,
 }) => {
-  const images = product?.images || []
+  const images = useMemo(() => {
+    if (product?.images?.length) return product.images
+    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
+    return []
+  }, [product])
   const imgBase = '/images/product-detail-images/'
   const { openDrawer } = useCartDrawer()
   const [isAdding, setIsAdding] = useState(false)
@@ -93,6 +97,14 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     setIsAdding(false)
   }
 
+  const [activeAccordion, setActiveAccordion] = useState<string | null>("description")
+
+  const toggleAccordion = (name: string) => {
+    setActiveAccordion(activeAccordion === name ? null : name)
+  }
+
+  const metadata = product?.metadata || {}
+
   return (
     <div style={s.container as any} className="font-sans">
       <div style={s.inner as any}>
@@ -112,7 +124,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
               <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>
-              
+
               <div className="flex items-end gap-3 mb-6">
                 {product && <ProductPrice product={product} variant={selectedVariant} />}
               </div>
@@ -127,6 +139,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                         updateOption={setOptionValue}
                         title={option.title ?? ""}
                         disabled={isAdding}
+                        colorHexMap={
+                          (option.title?.toLowerCase() === "color" &&
+                            (metadata.color_hex_map as Record<string, string>)) ||
+                          undefined
+                        }
                       />
                     </div>
                   ))
@@ -152,12 +169,12 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               </div>
 
               <div className="flex items-center border border-gray-200 rounded-full w-max mb-6">
-                <button 
+                <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black font-bold"
                 >−</button>
                 <div className="w-10 text-center text-sm font-bold">{quantity}</div>
-                <button 
+                <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black font-bold"
                 >+</button>
@@ -177,48 +194,102 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               </div>
 
               {/* FEATURE ICONS */}
-              <div className="flex justify-between items-center py-6 border-t border-b border-gray-100 mb-8">
-                <div className="text-center flex flex-col items-center gap-2">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  <span className="text-[10px] font-bold text-black tracking-widest uppercase">Free Shipping</span>
+              <div className="flex justify-between items-center py-8 border-t border-b border-gray-100 mb-8 max-w-full overflow-x-auto gap-4 no-scrollbar">
+                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </div>
+                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">Free Shipping</span>
                 </div>
-                <div className="text-center flex flex-col items-center gap-2">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                  <span className="text-[10px] font-bold text-black tracking-widest uppercase">Complete Kit</span>
+                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                  </div>
+                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">Complete Kit</span>
                 </div>
-                <div className="text-center flex flex-col items-center gap-2">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                  <span className="text-[10px] font-bold text-black tracking-widest uppercase">30 Day Return</span>
+                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  </div>
+                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">30 Day Return</span>
                 </div>
-                <div className="text-center flex flex-col items-center gap-2">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  <span className="text-[10px] font-bold text-black tracking-widest uppercase">Eco Friendly</span>
+                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  </div>
+                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">Eco Friendly</span>
                 </div>
               </div>
 
               {/* ACCORDIONS */}
               <div className="space-y-0">
                 <div className="border-b border-gray-100 py-4 pb-6">
-                  <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer text-black">
+                  <div
+                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer text-black"
+                    onClick={() => toggleAccordion("description")}
+                  >
                     <span>Product Description</span>
-                    <span className="text-gray-400">−</span>
+                    <span className="text-gray-400">{activeAccordion === "description" ? "−" : "+"}</span>
                   </div>
-                  <p className="mt-4 text-gray-500 text-sm leading-relaxed">
-                    Our Professional Shoe Care Kit is expertly formulated to clean, condition, and protect all types of footwear. Made with premium ingredients that are gentle yet effective on leather, suede, nubuck, and canvas materials. Each component in this kit has been carefully selected to provide professional-level care for your most valued shoes.
-                  </p>
+                  {activeAccordion === "description" && (
+                    <div className="mt-4 text-gray-500 text-sm leading-relaxed">
+                      <p className="mb-4">{product.description as string}</p>
+                      {metadata.key_benefits && (
+                        <ul className="list-disc pl-5 space-y-1">
+                          {(metadata.key_benefits as string[]).map((benefit, i) => (
+                            <li key={i}>{benefit as string}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="border-b border-gray-100 py-4">
-                  <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black">
-                    <span>How To Use</span>
-                    <span className="text-gray-400">+</span>
+                {metadata.how_to_use && (
+                  <div className="border-b border-gray-100 py-4">
+                    <div
+                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black"
+                      onClick={() => toggleAccordion("how")}
+                    >
+                      <span>How To Use</span>
+                      <span className="text-gray-400">{activeAccordion === "how" ? "−" : "+"}</span>
+                    </div>
+                    {activeAccordion === "how" && (
+                      <div className="mt-4 space-y-4">
+                        {(metadata.how_to_use as any[]).map((step, i) => (
+                          <div key={i}>
+                            <h4 className="font-bold text-xs text-black uppercase mb-1">Step {i + 1}: {step.title}</h4>
+                            <p className="text-sm text-gray-500 leading-relaxed">{step.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="border-b border-gray-100 py-4">
-                  <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black">
-                    <span>Ingredients</span>
-                    <span className="text-gray-400">+</span>
+                )}
+                {metadata.specifications && (
+                  <div className="border-b border-gray-100 py-4">
+                    <div
+                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black"
+                      onClick={() => toggleAccordion("specs")}
+                    >
+                      <span>Specifications</span>
+                      <span className="text-gray-400">{activeAccordion === "specs" ? "−" : "+"}</span>
+                    </div>
+                    {activeAccordion === "specs" && (
+                      <div className="mt-4 pb-4">
+                        <table className="w-full text-sm text-left">
+                          <tbody>
+                            {Object.entries(metadata.specifications as Record<string, string>).map(([key, value], i) => (
+                              <tr key={i} className="border-b border-gray-50 last:border-0">
+                                <td className="py-2 font-semibold text-gray-400 uppercase text-[10px] tracking-widest w-1/3">{key}</td>
+                                <td className="py-2 text-gray-600 font-medium">{value}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
                 <div className="border-b border-gray-100 py-4">
                   <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black">
                     <span>Shipping & Returns</span>
@@ -244,43 +315,69 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <h2 className="text-3xl font-semibold mb-2 text-black">How It Works</h2>
             <p className="text-gray-500 text-sm tracking-wide">Follow these simple steps for perfect results</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            <div>
-              <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4">
-                <img src="/images/product-category-images/shoe_care.png" alt="Clean" className="object-contain h-full" />
-              </div>
-              <h3 className="font-semibold text-base mb-1 text-black">1. Clean</h3>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Remove dirt and debris from your shoes.</p>
-            </div>
-            <div>
-              <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4">
-                <img src="/images/product-category-images/shoe_care.png" alt="Apply" className="object-contain h-full" />
-              </div>
-              <h3 className="font-semibold text-base mb-1 text-black">2. Apply</h3>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Use the solution with gentle circular motions.</p>
-            </div>
-            <div>
-              <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4">
-                <img src="/images/products/insole-demo.png" alt="Dry" className="object-contain h-full" />
-              </div>
-              <h3 className="font-semibold text-base mb-1 text-black">3. Dry</h3>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Let your shoes air dry naturally.</p>
-            </div>
-            <div>
-              <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4">
-                <img src="/images/product-category-images/foot_care.png" alt="Protect" className="object-contain h-full" />
-              </div>
-              <h3 className="font-semibold text-base mb-1 text-black">4. Protect</h3>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Apply protective coating for longevity.</p>
-            </div>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-${Math.min(4, ((product.metadata?.how_to_use as any[])?.length || 4))} gap-6`}>
+            {product.metadata?.how_to_use ? (
+              (product.metadata.how_to_use as any[]).map((step, index) => (
+                <div key={index}>
+                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden relative group">
+                    <img
+                      src={`${imgBase}how${(index % 4) + 1}.png`}
+                      alt={step.title}
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                      {index + 1}
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">{step.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">{step.description}</p>
+                </div>
+              ))
+            ) : (
+              <>
+                <div>
+                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
+                    <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">1. Clean</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Remove dirt and debris from your shoes.</p>
+                </div>
+                <div>
+                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
+                    <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">2. Apply</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Use the solution with gentle circular motions.</p>
+                </div>
+                <div>
+                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
+                    <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">3. Dry</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Let your shoes air dry naturally.</p>
+                </div>
+                <div>
+                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
+                    <img src="/images/product-detail-images/how4.png" alt="Protect" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">4. Protect</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Apply protective coating for longevity.</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
 
       {/* BRAND PROMISE SPLIT */}
       <div className="flex flex-col md:flex-row w-full bg-white mb-20 min-h-[400px]">
-        <div className="flex-1 bg-black">
-           {/* video place holder exact same as staging homepage */}
+        <div className="flex-1 bg-black relative overflow-hidden group">
+          <img
+            src="/images/product-detail-images/product-slider-1.png"
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
+            alt="Brand Brand"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
         </div>
         <div className="flex-1 bg-[#f0f0f5] flex items-center justify-center p-12 text-center relative overflow-hidden">
           <div className="relative z-10 max-w-lg">
@@ -294,42 +391,42 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       <div style={s.inner as any}>
         {/* RELATED PRODUCTS / COMPLETE YOUR ROUTINE */}
         <div className="py-16 text-center">
-            <h2 className="text-3xl font-semibold mb-2">Complete Your Routine</h2>
-            <p className="text-gray-500 text-sm tracking-wide mb-12">Products that work perfectly together</p>
-            <div data-testid="related-products-container">
+          <h2 className="text-3xl font-semibold mb-2">Complete Your Routine</h2>
+          <p className="text-gray-500 text-sm tracking-wide mb-12">Products that work perfectly together</p>
+          <div data-testid="related-products-container">
             <Suspense fallback={<SkeletonRelatedProducts />}>
-                {product && <RelatedProducts product={product} countryCode={countryCode} isStaging={true} />}
+              {product && <RelatedProducts product={product} countryCode={countryCode} isStaging={true} />}
             </Suspense>
-            </div>
+          </div>
         </div>
 
         {/* FAQ SECTION */}
         <div className="py-16 max-w-3xl mx-auto">
-            <h2 className="text-3xl font-semibold mb-2 text-center">Frequently Asked Questions</h2>
-            <p className="text-gray-500 text-sm tracking-wide text-center mb-12">Everything you need to know about our products</p>
-            <div className="space-y-0 text-left">
-              <div className="border-b border-gray-200 py-6 text-sm">
-                <button className="flex justify-between items-center w-full group">
-                  <span className="font-semibold text-black">Can I use this on all materials?</span>
-                  <span className="text-gray-400 group-hover:text-black">v</span>
-                </button>
-              </div>
-              <div className="border-b border-gray-200 py-6 text-sm">
-                <button className="flex justify-between items-center w-full group mb-4">
-                  <span className="font-semibold text-black">How often should I use this product?</span>
-                  <span className="text-gray-400 group-hover:text-black">^</span>
-                </button>
-                <p className="text-gray-600 leading-relaxed font-medium">
-                  We recommend using it once a week for regular maintenance, or as needed depending on how frequently you wear your shoes.
-                </p>
-              </div>
-              <div className="border-b border-gray-200 py-6 text-sm">
-                <button className="flex justify-between items-center w-full group">
-                  <span className="font-semibold text-black">Is this environment friendly?</span>
-                  <span className="text-gray-400 group-hover:text-black">v</span>
-                </button>
-              </div>
+          <h2 className="text-3xl font-semibold mb-2 text-center">Frequently Asked Questions</h2>
+          <p className="text-gray-500 text-sm tracking-wide text-center mb-12">Everything you need to know about our products</p>
+          <div className="space-y-0 text-left">
+            <div className="border-b border-gray-200 py-6 text-sm">
+              <button className="flex justify-between items-center w-full group">
+                <span className="font-semibold text-black">Can I use this on all materials?</span>
+                <span className="text-gray-400 group-hover:text-black">v</span>
+              </button>
             </div>
+            <div className="border-b border-gray-200 py-6 text-sm">
+              <button className="flex justify-between items-center w-full group mb-4">
+                <span className="font-semibold text-black">How often should I use this product?</span>
+                <span className="text-gray-400 group-hover:text-black">^</span>
+              </button>
+              <p className="text-gray-600 leading-relaxed font-medium">
+                We recommend using it once a week for regular maintenance, or as needed depending on how frequently you wear your shoes.
+              </p>
+            </div>
+            <div className="border-b border-gray-200 py-6 text-sm">
+              <button className="flex justify-between items-center w-full group">
+                <span className="font-semibold text-black">Is this environment friendly?</span>
+                <span className="text-gray-400 group-hover:text-black">v</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

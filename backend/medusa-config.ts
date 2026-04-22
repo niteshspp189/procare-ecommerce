@@ -33,128 +33,109 @@ module.exports = defineConfig({
                     window.location.href = '/store-backend/orders';
                   }
 
+                  // ProCare Admin UI Refinement v2.2
                   function applyProfessionalUI() {
-                    // Replace 'Medusa' text with 'ProCare'
-                    const h1 = [...document.querySelectorAll('h1')].find(h => h.innerText.includes('Medusa'));
-                    if (h1) h1.innerText = 'Welcome to ProCare';
+                    var h1s = document.querySelectorAll('h1');
+                    for (var i = 0; i < h1s.length; i++) {
+                      if (h1s[i].innerText.includes('Medusa')) h1s[i].innerText = 'Welcome to ProCare';
+                    }
                     
-                    const subtext = [...document.querySelectorAll('p, span')].find(el => el.innerText.includes('account area'));
-                    if (subtext) subtext.innerText = 'Sign in to access the ProCare dashboard';
+                    var texts = document.querySelectorAll('p, span');
+                    for (var i = 0; i < texts.length; i++) {
+                       if (texts[i].innerText.includes('account area')) texts[i].innerText = 'Sign in to access the ProCare dashboard';
+                       if (texts[i].innerText.includes('Medusa Store')) texts[i].innerText = 'ProCare Store';
+                    }
 
-                    const sidebarHeader = [...document.querySelectorAll('span, p')].find(el => el.innerText.includes('Medusa Store'));
-                    if (sidebarHeader) sidebarHeader.innerText = 'ProCare Store';
-
-                    // Inject ProCare Logo into Login Page
-                    const loginLogoContainer = document.querySelector('div[class*="bg-ui-button-neutral"][class*="w-[50px]"]');
+                    var loginLogoContainer = document.querySelector('div[class*="bg-ui-button-neutral"][class*="w-[50px]"]');
                     if (loginLogoContainer && !document.getElementById('procare-login-logo-v2')) {
                       loginLogoContainer.innerHTML = '<img id="procare-login-logo-v2" src="http://shop.mvshoecare.com/procare-logo.png" style="width: 140px; height: auto; object-fit: contain;">';
                       loginLogoContainer.style.background = 'transparent';
                       loginLogoContainer.style.boxShadow = 'none';
                       loginLogoContainer.style.width = 'auto';
                       loginLogoContainer.style.height = 'auto';
-                      loginLogoContainer.classList.remove('bg-ui-button-neutral', 'shadow-buttons-neutral');
                     }
 
                     // Move Search to Top Right
-                    const sidebarSearch = [...document.querySelectorAll('div.px-3')].find(el => el.innerText.toLowerCase().includes('search') && el.querySelector('button'));
+                    var sidebarSearch = Array.from(document.querySelectorAll('div.px-3')).find(function(el) { return el.innerText.toLowerCase().includes('search') && el.querySelector('button'); });
                     if (sidebarSearch) {
-                      // Hide natively but keep it clickable programmatically
                       sidebarSearch.style.position = 'absolute';
                       sidebarSearch.style.opacity = '0';
                       sidebarSearch.style.pointerEvents = 'none';
-                      sidebarSearch.style.zIndex = '-1';
-                      sidebarSearch.style.width = '1px';
-                      sidebarSearch.style.height = '1px';
                     }
 
-                    // Inject Header Search into the second column of the top grid
-                    const topBar = document.querySelector('div.grid.w-full.grid-cols-2.border-b.p-3');
+                    var topBar = document.querySelector('div.grid.w-full.grid-cols-2.border-b.p-3');
                     if (topBar) {
-                      const rightCol = topBar.children[1];
-                      let searchContainer = document.getElementById('procare-header-search-v4');
-                      
+                      var rightCol = topBar.children[1];
+                      var searchContainer = document.getElementById('procare-header-search-v4');
                       if (rightCol && !searchContainer) {
                         searchContainer = document.createElement('div');
                         searchContainer.id = 'procare-header-search-v4';
                         searchContainer.className = 'flex items-center bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition-all ml-auto max-w-[280px] w-full';
-                        searchContainer.style.userSelect = 'none';
-                        searchContainer.innerHTML = '<span style="margin-right:8px; opacity:0.6; pointer-events:none;">🔍</span> <span style="font-size:14px; color:#475569; pointer-events:none;">Search ProCare...</span> <span style="margin-left:auto; font-size:10px; color:#94a3b8; border:1px solid #e2e8f0; padding:2px 5px; border-radius:5px; pointer-events:none; background:white;">⌘K</span>';
+                        searchContainer.innerHTML = '<span style="margin-right:8px; opacity:0.6;">🔍</span> <span style="font-size:14px; color:#475569;">Search ProCare...</span> <span style="margin-left:auto; font-size:10px; color:#94a3b8; border:1px solid #e2e8f0; padding:2px 5px; border-radius:5px; background:white;">⌘K</span>';
                         rightCol.prepend(searchContainer);
                         rightCol.classList.add('flex', 'items-center', 'justify-end', 'gap-x-4');
-                      }
-                      
-                      if (searchContainer) {
-                        searchContainer.onclick = (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Search for the native button and click it
-                          const btn = document.querySelector('div[style*="opacity: 0"] button') || 
-                                      [...document.querySelectorAll('button')].find(b => b.innerText.toLowerCase().includes('search'));
-                          if (btn) {
-                            btn.click();
-                          } else {
-                            // Robust fall back
-                            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, metaKey: true, bubbles: true }));
-                            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, metaKey: true, bubbles: true }));
-                          }
+                        searchContainer.onclick = function() {
+                           var btn = document.querySelector('div[style*="opacity: 0"] button') || Array.from(document.querySelectorAll('button')).find(function(b) { return b.innerText.toLowerCase().includes('search'); });
+                           if (btn) btn.click();
                         };
                       }
                     }
 
-                    // Inject Dashboard Stats Grid
-                    const mainContent = document.querySelector('main');
-                    if (mainContent && window.location.pathname.includes('/orders') && !document.getElementById('procare-stats-v3')) {
-                      const statsGrid = document.createElement('div');
-                      statsGrid.id = 'procare-stats-v3';
-                      statsGrid.style.display = 'flex';
-                      statsGrid.style.gap = '20px';
-                      statsGrid.style.marginBottom = '24px';
-                      statsGrid.style.padding = '0 4px';
-                      
-                      const stats = [
+                    // Inject Stats Grid on Dashboard
+                    var mainContent = document.querySelector('main');
+                    if (mainContent && window.location.pathname.includes('/orders') && !document.getElementById('procare-stats-v4')) {
+                      var statsGrid = document.createElement('div');
+                      statsGrid.id = 'procare-stats-v4';
+                      statsGrid.className = 'flex gap-5 mb-6 px-1';
+                      var stats = [
                         { label: 'Total Orders', value: '128', change: '↑ 12%', trend: 'positive' },
                         { label: 'Net Revenue', value: '₹45,200', change: '↑ 8%', trend: 'positive' },
                         { label: 'Avg. Order', value: '₹353', change: 'Stable', trend: 'neutral' },
                         { label: 'Active Customers', value: '842', change: '↑ 24 today', trend: 'positive' }
                       ];
-
-                      statsGrid.innerHTML = stats.map(s => \`
-                        <div style="flex: 1; background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                          <p style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0;">\${s.label}</p>
-                          <p style="font-size: 28px; font-weight: 700; color: #0f172a; margin: 4px 0;">\${s.value}</p>
-                          <p style="font-size: 12px; font-weight: 600; margin: 8px 0 0; color: \${s.trend === 'positive' ? '#16a34a' : '#94a3b8'}">\${s.change}</p>
-                        </div>
-                      \`).join('');
-                      
-                      const container = mainContent.querySelector('div') || mainContent;
-                      container.prepend(statsGrid);
+                      statsGrid.innerHTML = stats.map(function(s) { return '<div style="flex:1; background:white; padding:20px; border-radius:12px; border:1px solid #e2e8f0;"><p style="font-size:14px; color:#64748b; margin:0;">'+s.label+'</p><p style="font-size:26px; font-weight:700; color:#0f172a; margin:4px 0;">'+s.value+'</p><p style="font-size:12px; color:'+(s.trend==='positive'?'#16a34a':'#94a3b8')+'">'+s.change+'</p></div>'; }).join('');
+                      var contentInner = mainContent.querySelector('div') || mainContent;
+                      contentInner.prepend(statsGrid);
                     }
                   }
 
-                  window.addEventListener('load', applyProfessionalUI);
-                  setInterval(applyProfessionalUI, 1200);
-
-                  // Hide unwanted admin sidebar items
                   function hideAdminSidebarItems() {
-                    const hiddenTexts = ['Developer', 'Documentation', 'Changelog', 'Shortcuts', 'Publishable API Keys', 'Secret API Keys', 'Workflows'];
-                    document.querySelectorAll('a, button, span, div').forEach(function(el) {
+                    var targets = ['Developer', 'Publishable API Keys', 'Secret API Keys', 'Workflows', 'Documentation', 'Changelog'];
+                    var links = ['publishable-api-keys', 'secret-api-keys', 'workflows'];
+                    
+                    document.querySelectorAll('p, span, a').forEach(function(el) {
                       var text = (el.textContent || '').trim();
-                      if (hiddenTexts.indexOf(text) === -1) return;
-                      var container = el.closest('li') || el.closest('a') || el.closest('button');
-                      if (container && container.style.display !== 'none') {
-                        container.style.display = 'none';
-                      }
-                      if (text === 'Developer' && el.tagName === 'SPAN') {
-                        var parentLi = el.closest('li');
-                        if (parentLi) {
-                          parentLi.style.display = 'none';
-                          var prev = parentLi.previousElementSibling;
-                          if (prev && prev.tagName === 'LI') prev.style.display = 'none';
+                      if (targets.indexOf(text) !== -1) {
+                        if (text === 'Developer') {
+                          var parent = el.parentElement;
+                          while (parent && parent.tagName !== 'BODY') {
+                            if (parent.classList.contains('px-2') && parent.classList.contains('flex')) {
+                              parent.style.setProperty('display', 'none', 'important');
+                              if (parent.nextElementSibling) parent.nextElementSibling.style.setProperty('display', 'none', 'important');
+                              break;
+                            }
+                            parent = parent.parentElement;
+                          }
                         }
+                        var container = el.closest('li') || el.closest('[data-sidebar-item]') || el;
+                        if (container) container.style.setProperty('display', 'none', 'important');
                       }
                     });
+
+                    links.forEach(function(link) {
+                      document.querySelectorAll('a[href*="' + link + '"]').forEach(function(el) {
+                         var container = el.closest('li') || el.closest('[data-sidebar-item]') || el;
+                         container.style.setProperty('display', 'none', 'important');
+                      });
+                    });
                   }
-                  setInterval(hideAdminSidebarItems, 1000);
+
+                  setInterval(applyProfessionalUI, 1200);
+                  setInterval(hideAdminSidebarItems, 250);
+                  window.addEventListener('DOMContentLoaded', function() {
+                    applyProfessionalUI();
+                    hideAdminSidebarItems();
+                  });
                 </script><style>
                   @font-face {
                     font-family: 'KelsonSans';
@@ -249,21 +230,33 @@ module.exports = defineConfig({
                     border-radius: 8px !important;
                     height: 40px !important;
                   }
-                </style><style>
-                  /* Make the left side background of FocusModal transparent so the details page is visible */
-                  div[role="dialog"] {
-                    background-color: rgba(255, 255, 255, 0.4) !important;
-                    backdrop-filter: blur(2px) !important;
-                  }
-                  
+
+                  /* FocusModal background transparency */
+                  div[role="dialog"],
                   div.fixed.inset-0.bg-ui-bg-base {
                     background-color: rgba(255, 255, 255, 0.4) !important;
                     backdrop-filter: blur(2px) !important;
                   }
 
-                  /* Target the FocusModal overlay specifically if medusa ui uses another class */
-                  [data-radix-collection-item] {
-                    background-color: transparent !important;
+                  /* Hide the Developer Header and items by structural patterns */
+                  li:has(a[href*="api-keys"]),
+                  li:has(a[href*="workflows"]),
+                  [data-sidebar-item]:has(a[href*="api-keys"]),
+                  [data-sidebar-item]:has(a[href*="workflows"]),
+                  nav:has(a[href*="api-keys"]),
+                  nav:has(a[href*="workflows"]),
+                  /* Profile Dropdown Hiding */
+                  a[role="menuitem"][href*="docs.medusajs.com"],
+                  a[role="menuitem"][href*="medusajs.com/changelog"],
+                  div[role="menuitem"]:has(a[href*="docs.medusajs.com"]),
+                  div[role="menuitem"]:has(a[href*="changelog"]),
+                  [data-radix-collection-item]:has(a[href*="docs.medusajs.com"]),
+                  [data-radix-collection-item]:has(a[href*="changelog"]) {
+                    display: none !important;
+                    height: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    overflow: hidden !important;
                   }
                 </style></body>`
               )
