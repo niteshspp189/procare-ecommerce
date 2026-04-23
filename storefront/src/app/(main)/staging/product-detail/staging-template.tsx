@@ -120,7 +120,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:w-[460px] shrink-0">
+          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-24 self-start">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
@@ -238,15 +238,15 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <p className="mb-4">{product.description as string}</p>
                       {metadata.key_benefits && (
                         <ul className="list-disc pl-5 space-y-1">
-                          {(metadata.key_benefits as string[]).map((benefit, i) => (
-                            <li key={i}>{benefit as string}</li>
+                          {(metadata.key_benefits as any[]).map((benefit, i) => (
+                            <li key={i}>{benefit as any}</li>
                           ))}
                         </ul>
                       )}
                     </div>
                   )}
                 </div>
-                {metadata.how_to_use && (
+                {!!metadata.how_to_use && (
                   <div className="border-b border-gray-100 py-4">
                     <div
                       className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black"
@@ -280,10 +280,10 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <div className="mt-4 pb-4">
                         <table className="w-full text-sm text-left">
                           <tbody>
-                            {Object.entries(metadata.specifications as Record<string, string>).map(([key, value], i) => (
+                            {Object.entries(metadata.specifications as Record<string, any>).map(([key, value], i) => (
                               <tr key={i} className="border-b border-gray-50 last:border-0">
                                 <td className="py-2 font-semibold text-gray-400 uppercase text-[10px] tracking-widest w-1/3">{key}</td>
-                                <td className="py-2 text-gray-600 font-medium">{value}</td>
+                                <td className="py-2 text-gray-600 font-medium">{value as any}</td>
                               </tr>
                             ))}
                           </tbody>

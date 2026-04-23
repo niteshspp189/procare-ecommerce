@@ -64,24 +64,25 @@ export default async function StagingHome(props: {
   return (
     <div style={s.container} className="animate-fade-in font-sans">
       {/* HERO SECTION */}
-      <div className="relative overflow-hidden group min-h-[600px] flex items-center justify-center bg-[#f0f0f8]">
+      <div className="relative overflow-hidden group min-h-[600px] flex items-center justify-center bg-[#ffffff]">
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/landing-page-images/hero-banner-v2.png"
+            src="/images/landing-page-images/hero-banner-v5.png"
             alt="Hero Banner"
-            className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-105"
+            className="w-full h-full object-cover object-bottom transition-transform duration-[5s] group-hover:scale-105"
           />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.8)_0%,_transparent_70%)] z-0" />
         </div>
 
-        <div className="relative z-10 text-center px-4 -mt-32 animate-fade-in-up">
-          <h1 className="text-[clamp(32px,6vw,56px)] font-bold text-black leading-tight mb-2 uppercase tracking-wide">
+        <div className="relative z-10 text-center px-4 -mt-24 animate-fade-in-up">
+          <h1 className="text-[clamp(32px,6vw,64px)] font-bold text-black leading-tight mb-4 uppercase tracking-tighter">
             Clean & Condition Your Shoes
           </h1>
-          <p className="text-xl text-gray-800 mb-8 tracking-wide font-medium">
+          <p className="text-[clamp(16px,2vw,22px)] text-black mb-10 tracking-wide font-semibold opacity-90">
             Wave Bye To Discomfort & Dust
           </p>
           <LocalizedClientLink href="/shop">
-            <button className="bg-black text-white px-10 py-3 rounded-full font-semibold text-sm hover:bg-gray-800 transition-all shadow-xl">
+            <button className="bg-black text-white px-12 py-4 rounded-full font-bold text-sm hover:bg-gray-800 transition-all shadow-xl hover:shadow-2xl brightness-110 uppercase tracking-widest">
               Shop Now
             </button>
           </LocalizedClientLink>
