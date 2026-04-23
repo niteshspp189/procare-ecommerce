@@ -52,7 +52,7 @@ export default async function seedProCareCatalog({ container }: ExecArgs) {
             const { result } = await createProductCategoriesWorkflow(container).run({
                 input: { product_categories: [{ name, is_active: true }] }
             });
-            cat = result[0];
+            cat = result[0] as any;
         }
         categories[name] = cat;
     }
@@ -72,7 +72,7 @@ export default async function seedProCareCatalog({ container }: ExecArgs) {
             const { result } = await createCollectionsWorkflow(container).run({
                 input: { collections: [{ title }] }
             });
-            col = result[0];
+            col = result[0] as any;
         }
         collections[title] = col;
     }
