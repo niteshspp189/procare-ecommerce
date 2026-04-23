@@ -4,7 +4,6 @@ import React, { Suspense, useState, useMemo } from "react"
 import { HttpTypes } from "@medusajs/types"
 import ImageGallery from "@modules/products/components/image-gallery"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import RelatedProducts from "@modules/products/components/related-products"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { addToCart } from "@lib/data/cart"
@@ -14,7 +13,7 @@ import { isEqual } from "lodash"
 
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
-  inner: { maxWidth: '1280px', margin: '0 auto', padding: '0 24px' },
+  inner: { maxWidth: '1488px', margin: '0 auto', padding: '0 24px' },
   breadcrumb: { padding: '20px 0', fontSize: '12px', color: '#888' },
   howSection: { backgroundColor: '#fff', color: '#000', padding: '80px 0' },
   btnBuy: { flex: 1, padding: '14px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' as const },
@@ -25,6 +24,7 @@ type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   countryCode: string
+  relatedProducts?: React.ReactNode
 }
 
 const optionsAsKeymap = (
@@ -40,6 +40,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
   countryCode,
+  relatedProducts,
 }) => {
   const images = useMemo(() => {
     if (product?.images?.length) return product.images
@@ -189,8 +190,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 </button>
               </div>
 
-              <div className="bg-[#fef6ed] text-[#db8a52] text-xs font-bold text-center py-2 rounded-[4px] mb-8">
-                📦 Save up to 20% in value with subscription
+              <div className="flex items-center justify-center gap-2 bg-gray-50 border border-gray-200 text-gray-800 text-[11px] uppercase tracking-widest font-bold text-center py-3 rounded-xl mb-8">
+                <span className="text-sm font-bold">₹</span>
+                Save up to 20% with subscription
               </div>
 
               {/* FEATURE ICONS */}
@@ -318,47 +320,47 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-${Math.min(4, ((product.metadata?.how_to_use as any[])?.length || 4))} gap-6`}>
             {product.metadata?.how_to_use ? (
               (product.metadata.how_to_use as any[]).map((step, index) => (
-                <div key={index}>
-                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden relative group">
+                <div key={index} className="text-left">
+                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img
                       src={`${imgBase}how${(index % 4) + 1}.png`}
                       alt={step.title}
-                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
                       {index + 1}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">{step.title}</h3>
+                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">{index + 1}. {step.title}</h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">{step.description}</p>
                 </div>
               ))
             ) : (
               <>
-                <div>
-                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
-                    <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                <div className="text-left">
+                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                    <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">1. Clean</h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Remove dirt and debris from your shoes.</p>
                 </div>
-                <div>
-                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
-                    <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                <div className="text-left">
+                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                    <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">2. Apply</h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Use the solution with gentle circular motions.</p>
                 </div>
-                <div>
-                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
-                    <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                <div className="text-left">
+                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                    <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">3. Dry</h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Let your shoes air dry naturally.</p>
                 </div>
-                <div>
-                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center p-6 mb-4 overflow-hidden">
-                    <img src="/images/product-detail-images/how4.png" alt="Protect" className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" />
+                <div className="text-left">
+                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                    <img src="/images/product-detail-images/how4.png" alt="Protect" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">4. Protect</h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Apply protective coating for longevity.</p>
@@ -370,20 +372,20 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       </section>
 
       {/* BRAND PROMISE SPLIT */}
-      <div className="flex flex-col md:flex-row w-full bg-white mb-20 min-h-[400px]">
-        <div className="flex-1 bg-black relative overflow-hidden group">
+      <div className="flex flex-col md:flex-row w-full bg-white mb-20 min-h-[600px]">
+        <div className="flex-1 bg-black relative overflow-hidden group min-h-[400px] md:min-h-full">
           <img
             src="/images/product-detail-images/product-slider-1.png"
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
             alt="Brand Brand"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
         </div>
-        <div className="flex-1 bg-[#f0f0f5] flex items-center justify-center p-12 text-center relative overflow-hidden">
-          <div className="relative z-10 max-w-lg">
-            <p className="text-sm font-normal tracking-[0.05em] text-gray-500 mb-2">German Precision. Indian Excellence. Trusted Worldwide.</p>
-            <h2 className="text-[clamp(28px,4vw,40px)] font-normal leading-tight mb-8">Crafting World - Class Care For Every Step</h2>
-            <button className="bg-black text-white px-8 py-3 rounded-full font-medium text-sm hover:bg-gray-800 transition-all shadow-xl">Read More</button>
+        <div className="flex-1 bg-[#f0f0f5] flex items-center justify-center p-12 text-center relative overflow-hidden min-h-[300px] md:min-h-full">
+          <div className="relative z-10 max-w-2xl">
+            <p className="text-xs lg:text-sm font-bold tracking-[0.2em] text-gray-500 mb-4 uppercase">German Precision. Indian Excellence. Trusted Worldwide.</p>
+            <h2 className="text-[clamp(16px,2vw,28px)] font-black leading-tight mb-8 uppercase text-black whitespace-nowrap overflow-hidden text-ellipsis">Crafting World - Class Care For Every Step</h2>
+            <button className="bg-black text-white px-8 py-3 rounded-full font-bold text-sm tracking-wide hover:bg-gray-800 transition-all shadow-xl">Read More</button>
           </div>
         </div>
       </div>
@@ -394,9 +396,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           <h2 className="text-3xl font-semibold mb-2">Complete Your Routine</h2>
           <p className="text-gray-500 text-sm tracking-wide mb-12">Products that work perfectly together</p>
           <div data-testid="related-products-container">
-            <Suspense fallback={<SkeletonRelatedProducts />}>
-              {product && <RelatedProducts product={product} countryCode={countryCode} isStaging={true} />}
-            </Suspense>
+            {relatedProducts}
           </div>
         </div>
 
