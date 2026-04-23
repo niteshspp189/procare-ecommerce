@@ -2,18 +2,11 @@ services:
   backend:
     environment:
       - NODE_ENV=production
-    volumes:
-      - ./backend:/server
-      - /server/node_modules
 
   storefront:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://shop.mvshoecare.com
-    volumes:
-      - ./storefront:/app
-      - /app/node_modules
-      - /app/.next
 
   nginx:
     ports:
