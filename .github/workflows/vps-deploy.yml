@@ -37,5 +37,5 @@ jobs:
           script: |
             cd /var/www/procare-ecommerce
             git pull origin main
-            docker compose up -d --build
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
             docker system prune -f
