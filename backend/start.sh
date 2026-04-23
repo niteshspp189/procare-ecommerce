@@ -4,8 +4,6 @@
 yarn medusa db:migrate
 
 if [ "$NODE_ENV" = "production" ]; then
-  # Build admin for production
-  yarn medusa build
   # Increased memory limit for production startup
   node --max-old-space-size=2048 ./node_modules/.bin/medusa start
 else

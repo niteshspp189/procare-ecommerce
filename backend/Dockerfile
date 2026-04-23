@@ -11,6 +11,8 @@ RUN yarn install
 
 COPY . .
 
+RUN yarn medusa build
+
 RUN chmod +x start.sh
 
 EXPOSE 9000
