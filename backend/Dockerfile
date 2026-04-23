@@ -20,6 +20,9 @@ COPY . .
 # Build Medusa Admin
 RUN yarn medusa build
 
+# Copy admin build output to the path Medusa server expects
+RUN mkdir -p /server/public && cp -r /server/.medusa/server/public/admin /server/public/admin
+
 RUN chmod +x start.sh
 
 EXPOSE 9000

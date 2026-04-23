@@ -2,11 +2,18 @@ services:
   backend:
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=postgres://procare_ecommerce:procare_ecommerce@postgres:5432/procare_ecommerce
+      - REDIS_URL=redis://redis:6379
+    volumes: []
 
   storefront:
+    depends_on:
+      backend:
+        condition: service_healthy
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://shop.mvshoecare.com
+    volumes: []
 
   nginx:
     ports:

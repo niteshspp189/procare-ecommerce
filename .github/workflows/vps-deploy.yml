@@ -35,7 +35,27 @@ jobs:
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
             cd /var/www/procare-ecommerce
+
+            echo "==> Pulling latest code..."
             git pull origin main
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-            docker system prune -f
+
+            echo "==> Pruning unused Docker resources to free space..."
+            docker system prune -f --volumes=false
+
+            echo "==> Building and starting containers in production mode..."
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+
+            echo "==> Waiting for backend health..."
+            for i in $(seq 1 30); do
+              if docker inspect --format='{{.State.Health.Status}}' procare_backend 2>/dev/null | grep -q "healthy"; then
+                echo "Backend is healthy"
+                break
+              fi
+              echo "Waiting... ($i/30)"
+              sleep 10
+            done
+
+            echo "==> Final container status:"
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
