@@ -3,6 +3,8 @@
 import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import ProductItemCard from "@modules/common/components/product-item-card"
+import StagingProductCard from "./staging-product-card"
+import CarouselWrapper from "@modules/products/components/related-products/carousel-wrapper"
 
 export default function BestSellersTabs({
     categories,
@@ -39,13 +41,23 @@ export default function BestSellersTabs({
 
             <div className="animate-fade-in-up">
                 {products.length > 0 ? (
-                    <ul className="grid grid-cols-2 lg:grid-cols-3 gap-8">
-                        {products.map((product) => (
-                            <li key={product.id} className="animate-fade-in">
-                                <ProductItemCard product={product} region={region} isStaging={isStaging} />
-                            </li>
-                        ))}
-                    </ul>
+                    isStaging ? (
+                        <CarouselWrapper>
+                            {products.map((product) => (
+                                <div key={product.id} className="min-w-[320px] w-[320px] snap-start shrink-0">
+                                    <StagingProductCard product={product} region={region} />
+                                </div>
+                            ))}
+                        </CarouselWrapper>
+                    ) : (
+                        <ul className="grid grid-cols-2 lg:grid-cols-3 gap-8">
+                            {products.map((product) => (
+                                <li key={product.id} className="animate-fade-in">
+                                    <ProductItemCard product={product} region={region} />
+                                </li>
+                            ))}
+                        </ul>
+                    )
                 ) : (
                     <div className="text-center py-20 text-gray-500 uppercase tracking-widest text-sm">
                         No products found in this category

@@ -5,6 +5,8 @@ import { listCategories } from "@lib/data/categories"
 import { listProducts } from "@lib/data/products"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import BestSellersTabs from "@modules/home/components/best-sellers-tabs"
+import CarouselWrapper from "@modules/products/components/related-products/carousel-wrapper"
+import StagingProductCard from "@modules/home/components/best-sellers-tabs/staging-product-card"
 
 export const dynamic = "force-dynamic"
 
@@ -41,7 +43,7 @@ export default async function StagingHome(props: {
   }
 
   // Fetch products for best sellers categories
-  const bestSellerHandles = ['shoe-care', 'insoles', 'foot-care']
+  const bestSellerHandles = ['shoe-care', 'accessories', 'insoles', 'nails-foot-care']
   const bestSellerCategories = productCategories.filter(c => bestSellerHandles.includes(c.handle || ''))
 
   const initialProducts: Record<string, any[]> = {}
@@ -57,6 +59,7 @@ export default async function StagingHome(props: {
   }
 
   const imgBase = '/images/landing-page-images/'
+  const firstCategoryProducts = bestSellerCategories.length > 0 ? initialProducts[bestSellerCategories[0].id] || [] : []
 
   return (
     <div style={s.container} className="animate-fade-in font-sans">
@@ -152,23 +155,24 @@ export default async function StagingHome(props: {
           </div>
         </div>
 
-        {/* SPLIT SECTION WITH PRODUCT AND BLACK BOX */}
+        {/* SPLIT SECTION WITH PRODUCT CAROUSEL AND BLACK BOX */}
         <div className="flex flex-col md:flex-row w-full gap-8 py-16 px-4 md:px-8 mx-auto">
-          <div className="flex-1 bg-gray-50 rounded-2xl p-8 flex flex-col justify-between group cursor-pointer hover:shadow-lg transition-shadow">
-            <div className="bg-white self-start px-3 py-1 text-xs font-semibold rounded-full mb-4 shadow-sm">New</div>
-            <div className="w-full flex-1 flex justify-center items-center py-8">
-              <img src={imgBase + 'img_008_4096x4096.png'} alt="Product" className="object-contain h-[300px] md:h-[400px] drop-shadow-xl group-hover:scale-105 transition-transform" />
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">Athletic Support</p>
-              <h3 className="font-semibold text-lg mb-4 text-black">PRO Sport Performance Insole</h3>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-black">₹1200.00</span>
-                <button className="bg-[#0bb799] text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-[#099980]">Shop Now</button>
+          <div className="flex-1 w-full md:w-1/2 overflow-hidden h-full">
+            {firstCategoryProducts.length > 0 ? (
+              <CarouselWrapper buttonPosition="top-right">
+                {firstCategoryProducts.map(product => (
+                  <div key={product.id} className="min-w-full sm:min-w-[320px] snap-start shrink-0 h-full">
+                    <StagingProductCard product={product} region={region} isFullHeight={true} />
+                  </div>
+                ))}
+              </CarouselWrapper>
+            ) : (
+              <div className="flex-1 bg-gray-50 rounded-[20px] p-6 h-[420px]">
+                <span className="text-gray-400">Loading products...</span>
               </div>
-            </div>
+            )}
           </div>
-          <div className="flex-1 bg-black rounded-2xl min-h-[400px] overflow-hidden">
+          <div className="flex-1 w-full md:w-1/2 bg-black rounded-2xl min-h-[400px] overflow-hidden">
             <img src={imgBase + 'img_005_1024x1024.png'} alt="Video Placeholder" className="w-full h-full object-cover opacity-80 transition-transform duration-700 hover:scale-105" />
           </div>
         </div>
