@@ -33,7 +33,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
     }
 
     // 3. Read and Parse Markdown
-    const catalogPath = path.join(process.cwd(), "..", "PRO_GOLD_Product_Catalog.md");
+    const catalogPath = path.join(process.cwd(), "PRO_GOLD_Product_Catalog.md");
     const content = fs.readFileSync(catalogPath, "utf-8");
 
     const sections = content.split(/## /);
