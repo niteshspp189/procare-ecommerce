@@ -18,7 +18,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
     const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
     const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT);
 
-    logger.info("🚀 Starting Debug-Enabled PRO GOLD Seeder...");
+    logger.info("🚀 Starting Robust PRO GOLD Seeder...");
 
     // 1. Setup Environment
     const [salesChannel] = await salesChannelModuleService.listSalesChannels({ name: "Default Sales Channel" });
@@ -34,54 +34,45 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
 
     // 3. Read and Parse Markdown
     const catalogPath = path.join(process.cwd(), "PRO_GOLD_Product_Catalog.md");
-    if (!fs.existsSync(catalogPath)) {
-        throw new Error(`CRITICAL: Catalog file not found at ${catalogPath}`);
-    }
-
     const content = fs.readFileSync(catalogPath, "utf-8");
-    logger.info(`📄 Catalog Content: ${content.length} chars. First 50: ${content.substring(0, 50)}`);
 
-    // Support all line ending variations and headers
-    const sections = content.split(/\r?\n## /);
-    logger.info(`📂 Split into ${sections.length} sections using '## ' delimiter.`);
-
+    // Split by Categories
+    const sections = content.split(/\n## /).slice(1);
     const productsToCreate: any[] = [];
     const placeholderImage = "/images/polish.jpeg";
 
     for (const section of sections) {
-        if (!section.includes("###")) continue;
+        const lines = section.split("\n");
+        const categoryHeader = lines[0].trim();
+        const categoryName = categoryHeader.replace("Shoe Care – ", "");
 
-        const firstLine = section.split("\n")[0].trim();
-        const categoryName = firstLine.replace(/^#+\s*/, "").replace("Shoe Care – ", "");
+        logger.info(`📂 Found Category: ${categoryName}`);
 
-        logger.info(`📦 CATEGORY: [${categoryName}]`);
-
-        // Get/Create Category
-        let categoryId;
+        // Ensure category exists or create it
         const catSearch = await query.graph({
             entity: "product_category",
             fields: ["id"],
             filters: { name: categoryName }
         });
 
+        let categoryId;
         if (catSearch.data.length > 0) {
             categoryId = catSearch.data[0].id;
         } else {
-            const { result } = await createProductCategoriesWorkflow(container).run({
+            const categoryResult = await createProductCategoriesWorkflow(container).run({
                 input: { product_categories: [{ name: categoryName, is_active: true }] }
             });
-            categoryId = result[0].id;
+            categoryId = categoryResult.result[0].id;
         }
 
         // Split by Products
-        const items = section.split(/\r?\n### /);
+        const items = section.split(/\n### /).slice(1);
         for (const item of items) {
-            if (!item.trim() || item.startsWith("#")) continue;
+            const itemLines = item.split("\n");
+            const title = itemLines[0].replace(/^\d+\.\s*/, "").trim();
+            const handle = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-            const title = item.split("\n")[0].replace(/^\d+\.\s*/, "").trim();
-            const handle = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
-            logger.info(`   ✨ PRODUCT: ${title}`);
+            logger.info(`   ✨ Processing Product: ${title}`);
 
             const extract = (key: string) => {
                 const match = item.match(new RegExp(`\\*\\*${key}:\\*\\*\\s*(.*)`));
@@ -91,7 +82,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
             const extractList = (header: string) => {
                 const parts = item.split(new RegExp(`#### ${header}`, 'i'));
                 if (parts.length < 2) return "";
-                const listPart = parts[1].split(/\n#{2,4}|---|#### /)[0].trim();
+                const listPart = parts[1].split(/\n###|\n##|---/)[0].trim();
                 return listPart;
             };
 
@@ -129,12 +120,9 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         }
     }
 
-    if (productsToCreate.length === 0) {
-        logger.error("🛑 PARSER ERROR: No products created. Check regex patterns.");
-    } else {
-        await createProductsWorkflow(container).run({
-            input: { products: productsToCreate }
-        });
-        logger.info(`✅ Successfully seeded ${productsToCreate.length} products!`);
-    }
+    await createProductsWorkflow(container).run({
+        input: { products: productsToCreate }
+    });
+
+    logger.info(`✅ Successfully seeded ${productsToCreate.length} products!`);
 }
