@@ -5,7 +5,9 @@ WORKDIR /app
 # Install necessary build tools if needed
 RUN apk add --no-cache python3 make g++
 
-COPY package.json yarn.lock* ./
+# Copy Yarn configuration and lockfile
+COPY package.json yarn.lock* .yarnrc.yml* ./
+COPY .yarn .yarn
 
 # Next.js starter uses Yarn v4 (Berry)
 RUN corepack enable && corepack prepare yarn@4.12.0 --activate
