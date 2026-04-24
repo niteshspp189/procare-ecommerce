@@ -80,30 +80,30 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
               {/* FEATURE ICONS SECTION */}
               <div className="grid grid-cols-4 gap-4 mt-12 py-8 border-t border-gray-100">
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /></svg>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Natural</span>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12A9 9 0 1 1 3 12A9 9 0 0 1 21 12Z" /><path d="M12 8V12L15 15" /></svg>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Refillable</span>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" /><path d="M12 18V12L15 9" /></svg>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Eco Friendly</span>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 21L7 17L11 13" /><path d="M17 3L21 7L17 11" /><path d="M3 13L7 17L3 21" /><path d="M21 7H7a2 2 0 0 0-2 2v2" /><path d="M3 17h14a2 2 0 0 0 2-2v-2" /></svg>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Organic</span>
-                </div>
+                {[
+                  { key: 'is_natural', label: 'Natural', icon: <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /> },
+                  { key: 'is_refillable', label: 'Refillable', icon: <><path d="M21 12A9 9 0 1 1 3 12A9 9 0 0 1 21 12Z" /><path d="M12 8V12L15 15" /></> },
+                  { key: 'is_eco', label: 'Eco Friendly', icon: <><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" /><path d="M12 18V12L15 9" /></> },
+                  { key: 'is_organic', label: 'Organic', icon: <><path d="M11 21L7 17L11 13" /><path d="M17 3L21 7L17 11" /><path d="M3 13L7 17L3 21" /><path d="M21 7H7a2 2 0 0 0-2 2v2" /><path d="M3 17h14a2 2 0 0 0 2-2v-2" /></> },
+                ].map((feat) => {
+                  // Show by default if no metadata features are set, otherwise check for the specific key
+                  const metadata = (product.metadata || {}) as any;
+                  const hasSpecificFeature = metadata[feat.key] === "true" || metadata[feat.key] === true;
+                  const noFeaturesSet = !metadata.is_natural && !metadata.is_refillable && !metadata.is_eco && !metadata.is_organic;
+
+                  if (!hasSpecificFeature && !noFeaturesSet) return null;
+
+                  return (
+                    <div key={feat.key} className="text-center animate-fade-in">
+                      <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2 text-black">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          {feat.icon}
+                        </svg>
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{feat.label}</span>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="mt-8 border-t pt-8">
