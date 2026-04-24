@@ -60,11 +60,15 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   )
 }
 
-const MetadataTab = ({ title, content }: { title: string; content?: string }) => {
+const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
   if (!content) return null
 
-  // Convert MD lists to simple format
-  const lines = content.split('\n').filter(l => l.trim().length > 0)
+  // Ensure we are working with a string
+  const contentString = typeof content === 'string'
+    ? content
+    : JSON.stringify(content);
+
+  const lines = contentString.split('\n').filter(l => l.trim().length > 0)
 
   return (
     <div className="text-small-regular py-8">
@@ -72,7 +76,7 @@ const MetadataTab = ({ title, content }: { title: string; content?: string }) =>
         {lines.map((line, i) => (
           <div key={i} className="flex gap-x-2">
             <span className="text-ui-fg-subtle">•</span>
-            <p>{line.replace(/^[*-]\s*|^\d+\.\s*/, "")}</p>
+            <p>{line.replace(/^[*-]\s*|^\d+\.\s*/, "").replace(/^[#]{1,4}\s*/, "")}</p>
           </div>
         ))}
       </div>

@@ -18,7 +18,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
     const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
     const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT);
 
-    logger.info("🚀 Starting Decoupled PRO GOLD Seeder...");
+    logger.info("🚀 Starting Final Optimized PRO GOLD Seeder...");
 
     // 1. Setup Environment
     const [salesChannel] = await salesChannelModuleService.listSalesChannels({ name: "Default Sales Channel" });
@@ -32,38 +32,52 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         await productModuleService.deleteProducts(existingProducts.map(p => p.id));
     }
 
-    // 3. Read and Parse Markdown
+    // 3. Ensure Master Categories Exist (Mapping to Homepage)
+    const masterCategoryMap: Record<string, string> = {
+        "Creams & Polish": "shoe-care",
+        "Cleaners": "shoe-care",
+        "Brushes": "shoe-care",
+        "Insoles": "insoles",
+        "Protectors": "shoe-care",
+        "Accessories": "shoe-care",
+        "Foot Care": "foot-care"
+    };
+
+    const categories: Record<string, any> = {};
+    for (const slug of ["shoe-care", "insoles", "foot-care"]) {
+        const catSearch = await query.graph({
+            entity: "product_category",
+            fields: ["id", "name"],
+            filters: { handle: slug }
+        });
+
+        if (catSearch.data.length > 0) {
+            categories[slug] = catSearch.data[0];
+        } else {
+            const name = slug.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+            const { result } = await createProductCategoriesWorkflow(container).run({
+                input: { product_categories: [{ name, handle: slug, is_active: true }] }
+            });
+            categories[slug] = result[0];
+        }
+    }
+
+    // 4. Read and Parse Markdown
     const catalogPath = path.join(process.cwd(), "PRO_GOLD_Product_Catalog.md");
     const content = fs.readFileSync(catalogPath, "utf-8");
 
-    // Split by Categories
+    // Split by Categories (## sections)
     const sections = content.split(/\n## /).slice(1);
     const productsToCreate: any[] = [];
     const placeholderImage = "/images/polish.jpeg";
 
     for (const section of sections) {
         const lines = section.split("\n");
-        const categoryHeader = lines[0].trim();
-        const categoryName = categoryHeader.replace("Shoe Care – ", "");
+        const categoryHeader = lines[0].trim().replace("Shoe Care – ", "");
+        const masterSlug = masterCategoryMap[categoryHeader] || "shoe-care";
+        const categoryId = categories[masterSlug].id;
 
-        logger.info(`📂 Processing Category: ${categoryName}`);
-
-        // Ensure category exists
-        const catSearch = await query.graph({
-            entity: "product_category",
-            fields: ["id"],
-            filters: { name: categoryName }
-        });
-
-        let categoryId;
-        if (catSearch.data.length > 0) {
-            categoryId = catSearch.data[0].id;
-        } else {
-            const { result } = await createProductCategoriesWorkflow(container).run({
-                input: { product_categories: [{ name: categoryName, is_active: true }] }
-            });
-            categoryId = result[0].id;
-        }
+        logger.info(`📂 Mapping Category [${categoryHeader}] to Master [${masterSlug}]`);
 
         const items = section.split(/\n### /).slice(1);
         for (const item of items) {
@@ -83,6 +97,13 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
                 return listPart;
             };
 
+            // Set dynamic pricing based on category
+            let price = 500;
+            if (categoryHeader.toLowerCase().includes("kit")) price = 1499;
+            if (categoryHeader.toLowerCase().includes("insoles")) price = 999;
+            if (categoryHeader.toLowerCase().includes("protectors")) price = 850;
+            if (categoryHeader.toLowerCase().includes("shampoo")) price = 450;
+
             productsToCreate.push({
                 title,
                 handle,
@@ -91,7 +112,6 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
                 status: ProductStatus.PUBLISHED,
                 images: [{ url: placeholderImage }],
                 thumbnail: placeholderImage,
-                // Omit sales_channels here to avoid link conflict during creation
                 shipping_profile_id: shippingProfile.id,
                 category_ids: [categoryId],
                 metadata: {
@@ -109,8 +129,8 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
                     sku: `PG-${handle}`,
                     manage_inventory: false,
                     prices: [
-                        { amount: 1500 * 100, currency_code: "inr" },
-                        { amount: 20 * 100, currency_code: "usd" }
+                        { amount: price, currency_code: "inr" }, // No * 100, server scale is 1:1
+                        { amount: Math.floor(price / 80), currency_code: "usd" }
                     ]
                 }]
             });
@@ -121,16 +141,13 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         input: { products: productsToCreate }
     });
 
-    // 4. Manually link to Sales Channel as a separate step
-    logger.info(`🔗 Linking ${createdProducts.length} products to Sales Channel...`);
+    // Final Link to Sales Channel
     const linkService = container.resolve(ContainerRegistrationKeys.LINK);
-
     const links = createdProducts.map(p => ({
         [Modules.PRODUCT]: { product_id: p.id },
         [Modules.SALES_CHANNEL]: { sales_channel_id: salesChannel.id }
     }));
-
     await linkService.create(links);
 
-    logger.info(`✅ Successfully seeded and linked ${createdProducts.length} products!`);
+    logger.info(`✅ Successfully seeded ${createdProducts.length} products with corrected scale and master categories.`);
 }
