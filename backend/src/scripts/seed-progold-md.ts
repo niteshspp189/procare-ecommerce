@@ -18,7 +18,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
     const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
     const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT);
 
-    logger.info("🚀 Starting Robust PRO GOLD Seeder...");
+    logger.info("🚀 Starting Debug-Enabled PRO GOLD Seeder...");
 
     // 1. Setup Environment
     const [salesChannel] = await salesChannelModuleService.listSalesChannels({ name: "Default Sales Channel" });
@@ -34,45 +34,54 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
 
     // 3. Read and Parse Markdown
     const catalogPath = path.join(process.cwd(), "PRO_GOLD_Product_Catalog.md");
-    const content = fs.readFileSync(catalogPath, "utf-8");
+    if (!fs.existsSync(catalogPath)) {
+        throw new Error(`CRITICAL: Catalog file not found at ${catalogPath}`);
+    }
 
-    // Split by Categories
-    const sections = content.split(/\n## /).slice(1);
+    const content = fs.readFileSync(catalogPath, "utf-8");
+    logger.info(`📄 Catalog Content: ${content.length} chars. First 50: ${content.substring(0, 50)}`);
+
+    // Support all line ending variations and headers
+    const sections = content.split(/\r?\n## /);
+    logger.info(`📂 Split into ${sections.length} sections using '## ' delimiter.`);
+
     const productsToCreate: any[] = [];
     const placeholderImage = "/images/polish.jpeg";
 
     for (const section of sections) {
-        const lines = section.split("\n");
-        const categoryHeader = lines[0].trim();
-        const categoryName = categoryHeader.replace("Shoe Care – ", "");
+        if (!section.includes("###")) continue;
 
-        logger.info(`📂 Found Category: ${categoryName}`);
+        const firstLine = section.split("\n")[0].trim();
+        const categoryName = firstLine.replace(/^#+\s*/, "").replace("Shoe Care – ", "");
 
-        // Ensure category exists or create it
+        logger.info(`📦 CATEGORY: [${categoryName}]`);
+
+        // Get/Create Category
+        let categoryId;
         const catSearch = await query.graph({
             entity: "product_category",
             fields: ["id"],
             filters: { name: categoryName }
         });
 
-        let categoryId;
         if (catSearch.data.length > 0) {
             categoryId = catSearch.data[0].id;
         } else {
-            const categoryResult = await createProductCategoriesWorkflow(container).run({
+            const { result } = await createProductCategoriesWorkflow(container).run({
                 input: { product_categories: [{ name: categoryName, is_active: true }] }
             });
-            categoryId = categoryResult.result[0].id;
+            categoryId = result[0].id;
         }
 
         // Split by Products
-        const items = section.split(/\n### /).slice(1);
+        const items = section.split(/\r?\n### /);
         for (const item of items) {
-            const itemLines = item.split("\n");
-            const title = itemLines[0].replace(/^\d+\.\s*/, "").trim();
+            if (!item.trim() || item.startsWith("#")) continue;
+
+            const title = item.split("\n")[0].replace(/^\d+\.\s*/, "").trim();
             const handle = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-            logger.info(`   ✨ Processing Product: ${title}`);
+            logger.info(`   ✨ PRODUCT: ${title}`);
 
             const extract = (key: string) => {
                 const match = item.match(new RegExp(`\\*\\*${key}:\\*\\*\\s*(.*)`));
@@ -82,7 +91,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
             const extractList = (header: string) => {
                 const parts = item.split(new RegExp(`#### ${header}`, 'i'));
                 if (parts.length < 2) return "";
-                const listPart = parts[1].split(/\n###|\n##|---/)[0].trim();
+                const listPart = parts[1].split(/\n#{2,4}|---|#### /)[0].trim();
                 return listPart;
             };
 
@@ -120,9 +129,12 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         }
     }
 
-    await createProductsWorkflow(container).run({
-        input: { products: productsToCreate }
-    });
-
-    logger.info(`✅ Successfully seeded ${productsToCreate.length} products!`);
+    if (productsToCreate.length === 0) {
+        logger.error("🛑 PARSER ERROR: No products created. Check regex patterns.");
+    } else {
+        await createProductsWorkflow(container).run({
+            input: { products: productsToCreate }
+        });
+        logger.info(`✅ Successfully seeded ${productsToCreate.length} products!`);
+    }
 }
