@@ -48,10 +48,10 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
               disabled={disabled}
               data-testid="option-button"
             >
-              {isColorOption && hex && (
+              {isColorOption && (
                 <span
                   className="w-4 h-4 rounded-full border border-gray-200 shrink-0"
-                  style={{ backgroundColor: hex }}
+                  style={{ backgroundColor: hex || "#888888" }}
                 />
               )}
               <span className={clx(
