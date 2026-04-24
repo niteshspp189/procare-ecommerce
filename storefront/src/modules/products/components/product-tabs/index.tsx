@@ -12,21 +12,40 @@ type ProductTabsProps = {
 }
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
+  const metadata = product.metadata || {}
+
   const tabs = [
     {
-      label: "Product Information",
-      component: <ProductInfoTab product={product} />,
+      label: "Product Description",
+      component: <ProductDescriptionTab product={product} />,
+      condition: !!product.description
+    },
+    {
+      label: "How to Use",
+      component: <MetadataTab title="Usage Instructions" content={metadata.how_to_use as string} />,
+      condition: !!metadata.how_to_use
+    },
+    {
+      label: "Ingredients",
+      component: <MetadataTab title="Key Ingredients" content={metadata.ingredients as string} />,
+      condition: !!metadata.ingredients
+    },
+    {
+      label: "Suitable For",
+      component: <MetadataTab title="Recommended For" content={metadata.suitable_for as string} />,
+      condition: !!metadata.suitable_for
     },
     {
       label: "Shipping & Returns",
       component: <ShippingInfoTab />,
+      condition: true
     },
   ]
 
   return (
     <div className="w-full">
       <Accordion type="multiple">
-        {tabs.map((tab, i) => (
+        {tabs.filter(t => t.condition).map((tab, i) => (
           <Accordion.Item
             key={i}
             title={tab.label}
@@ -41,36 +60,60 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   )
 }
 
-const ProductInfoTab = ({ product }: ProductTabsProps) => {
+const MetadataTab = ({ title, content }: { title: string; content?: string }) => {
+  if (!content) return null
+
+  // Convert MD lists to simple format
+  const lines = content.split('\n').filter(l => l.trim().length > 0)
+
   return (
     <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
+      <div className="flex flex-col gap-y-4">
+        {lines.map((line, i) => (
+          <div key={i} className="flex gap-x-2">
+            <span className="text-ui-fg-subtle">•</span>
+            <p>{line.replace(/^[*-]\s*|^\d+\.\s*/, "")}</p>
           </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const ProductDescriptionTab = ({ product }: ProductTabsProps) => {
+  const metadata = product.metadata || {}
+  return (
+    <div className="text-small-regular py-8">
+      <div className="grid grid-cols-1 gap-y-8">
+        <div>
+          <p className="mb-4">{product.description}</p>
+          {metadata.key_benefits && (
+            <div className="mt-4">
+              <span className="font-semibold block mb-2">Key Benefits</span>
+              <MetadataTab title="Benefits" content={metadata.key_benefits as string} />
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
+        <div className="grid grid-cols-2 gap-x-8 border-t border-gray-100 pt-8">
+          <div className="flex flex-col gap-y-4">
+            <div>
+              <span className="font-semibold">Type</span>
+              <p>{product.type ? product.type.value : "-"}</p>
+            </div>
+            <div>
+              <span className="font-semibold">Country of origin</span>
+              <p>{product.origin_country || "India"}</p>
+            </div>
           </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
+          <div className="flex flex-col gap-y-4">
+            <div>
+              <span className="font-semibold">Formula</span>
+              <p>{(metadata.formula as string) || "Standard"}</p>
+            </div>
+            <div>
+              <span className="font-semibold">Contains</span>
+              <p>{(metadata.includes as string) || "1 Unit"}</p>
+            </div>
           </div>
         </div>
       </div>
