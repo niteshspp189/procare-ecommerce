@@ -1,0 +1,11 @@
+services:
+  backend:
+    volumes:
+      - ./backend:/server
+      - /server/node_modules
+
+  storefront:
+    volumes:
+      - ./storefront:/app
+      - /app/node_modules
+      - /app/.next
