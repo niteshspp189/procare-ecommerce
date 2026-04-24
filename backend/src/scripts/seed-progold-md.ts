@@ -18,7 +18,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
     const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
     const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT);
 
-    logger.info("🚀 Starting Robust PRO GOLD Seeder...");
+    logger.info("🚀 Starting Decoupled PRO GOLD Seeder...");
 
     // 1. Setup Environment
     const [salesChannel] = await salesChannelModuleService.listSalesChannels({ name: "Default Sales Channel" });
@@ -46,9 +46,9 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         const categoryHeader = lines[0].trim();
         const categoryName = categoryHeader.replace("Shoe Care – ", "");
 
-        logger.info(`📂 Found Category: ${categoryName}`);
+        logger.info(`📂 Processing Category: ${categoryName}`);
 
-        // Ensure category exists or create it
+        // Ensure category exists
         const catSearch = await query.graph({
             entity: "product_category",
             fields: ["id"],
@@ -59,20 +59,17 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         if (catSearch.data.length > 0) {
             categoryId = catSearch.data[0].id;
         } else {
-            const categoryResult = await createProductCategoriesWorkflow(container).run({
+            const { result } = await createProductCategoriesWorkflow(container).run({
                 input: { product_categories: [{ name: categoryName, is_active: true }] }
             });
-            categoryId = categoryResult.result[0].id;
+            categoryId = result[0].id;
         }
 
-        // Split by Products
         const items = section.split(/\n### /).slice(1);
         for (const item of items) {
             const itemLines = item.split("\n");
             const title = itemLines[0].replace(/^\d+\.\s*/, "").trim();
             const handle = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-
-            logger.info(`   ✨ Processing Product: ${title}`);
 
             const extract = (key: string) => {
                 const match = item.match(new RegExp(`\\*\\*${key}:\\*\\*\\s*(.*)`));
@@ -82,7 +79,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
             const extractList = (header: string) => {
                 const parts = item.split(new RegExp(`#### ${header}`, 'i'));
                 if (parts.length < 2) return "";
-                const listPart = parts[1].split(/\n###|\n##|---/)[0].trim();
+                const listPart = parts[1].split(/\n#{2,4}|---|#### /)[0].trim();
                 return listPart;
             };
 
@@ -94,7 +91,7 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
                 status: ProductStatus.PUBLISHED,
                 images: [{ url: placeholderImage }],
                 thumbnail: placeholderImage,
-                sales_channels: [{ id: salesChannel.id }],
+                // Omit sales_channels here to avoid link conflict during creation
                 shipping_profile_id: shippingProfile.id,
                 category_ids: [categoryId],
                 metadata: {
@@ -120,9 +117,20 @@ export default async function seedProGoldCatalog({ container }: ExecArgs) {
         }
     }
 
-    await createProductsWorkflow(container).run({
+    const { result: createdProducts } = await createProductsWorkflow(container).run({
         input: { products: productsToCreate }
     });
 
-    logger.info(`✅ Successfully seeded ${productsToCreate.length} products!`);
+    // 4. Manually link to Sales Channel as a separate step
+    logger.info(`🔗 Linking ${createdProducts.length} products to Sales Channel...`);
+    const linkService = container.resolve(ContainerRegistrationKeys.LINK);
+
+    const links = createdProducts.map(p => ({
+        [Modules.PRODUCT]: { product_id: p.id },
+        [Modules.SALES_CHANNEL]: { sales_channel_id: salesChannel.id }
+    }));
+
+    await linkService.create(links);
+
+    logger.info(`✅ Successfully seeded and linked ${createdProducts.length} products!`);
 }
