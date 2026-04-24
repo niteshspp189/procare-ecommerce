@@ -1,8 +1,11 @@
 services:
   backend:
+    depends_on:
+      redis:
+        condition: service_healthy
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://procare_ecommerce:procare_ecommerce@postgres:5432/procare_ecommerce
+      - DATABASE_URL=postgres://propremiumcare:Mvsc2026%23%2356@database-1.c5wkcis2qg1p.ap-south-1.rds.amazonaws.com:5432/prepreimiumcare_ecommerce?sslmode=require
       - REDIS_URL=redis://redis:6379
     volumes: []
 
