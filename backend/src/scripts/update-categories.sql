@@ -1,0 +1,40 @@
+-- Re-assign all 23 products to 4 main categories
+-- Shoe Care, Insoles, Foot Care, Accessories
+
+-- Clear existing category assignments first
+DELETE FROM product_category_product;
+
+-- Shoe Care (pcat_01KPTT7Z5P0MKS57KAXWCFM234)
+INSERT INTO product_category_product (product_category_id, product_id) VALUES
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZHE5S4181TSHEWKASR'), -- Pro Gold Color Shoe Cream
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZHXRN5N0JR528YAFTS'), -- Pro Gold Care Leather Moisturizer
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZKY5E8GRRJAYZGM4MT'), -- Pro Gold Color Shoe Cream with Applicator
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZMKZ45EX8703TXNCQZ'), -- Pro Gold Shine Instant Shine
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZMK5X5AWYNSXKZAYGG'), -- Pro Gold Shine Self Shine
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZMW75WEWQCSV00NR8C'), -- Pro Gold Clean Power Cleaning Shampoo
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZM5TAYWT09MXKEMHPS'), -- PRO GOLD Sneaker Cleaning Kit (Shampoo + Wooden Brush)
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZMBQ1VMT2ZDG91GKS6'), -- PRO GOLD Sneaker Cleaning Kit (Shampoo + Mini Brush)
+('pcat_01KPTT7Z5P0MKS57KAXWCFM234', 'prod_01KPZ6MYZM8F229E51SZ4YKSS0'); -- PRO GOLD Sneaker Wipes – Pack of 30
+
+-- Insoles (pcat_01KPTT7Z5FHRCPP95ETWHNCENX)
+INSERT INTO product_category_product (product_category_id, product_id) VALUES
+('pcat_01KPTT7Z5FHRCPP95ETWHNCENX', 'prod_01KPZ6MZ001Y57S9FVAYWNPTXP'), -- PRO Insoles Ease Memory Foam
+('pcat_01KPTT7Z5FHRCPP95ETWHNCENX', 'prod_01KPZ6MZ00GYCC215GGASJJDVS'), -- PRO Comfort Air Walk Gel Insoles
+('pcat_01KPTT7Z5FHRCPP95ETWHNCENX', 'prod_01KPZ6MZ00Y2JDBW8GS0CH3K33'), -- PRO Comfort Gel Insoles
+('pcat_01KPTT7Z5FHRCPP95ETWHNCENX', 'prod_01KPZ6MZ00GKB4CY8AC89E6NJV'); -- PRO Insoles Ease Soft
+
+-- Foot Care (pcat_01KPTT7Z52E4TQR1JG0KAVQ2T6)
+INSERT INTO product_category_product (product_category_id, product_id) VALUES
+('pcat_01KPTT7Z52E4TQR1JG0KAVQ2T6', 'prod_01KPZ6MYZN32N2HQMJKFHZYCRK'), -- PRO GOLD Foam Cleaner
+('pcat_01KPTT7Z52E4TQR1JG0KAVQ2T6', 'prod_01KPZ6MYZNJPYEV2YYSY1QRFN5'), -- PRO GOLD Shoe Deo
+('pcat_01KPTT7Z52E4TQR1JG0KAVQ2T6', 'prod_01KPZ6MZ00EC2B3M3M81NYX9Q5'), -- PRO Hydroshield
+('pcat_01KPTT7Z52E4TQR1JG0KAVQ2T6', 'prod_01KPZ6MZ00MY8ZQ35WTGMCTZZ3'); -- PRO Suede and Nubuck Renovator Spray
+
+-- Accessories (pcat_01KQ0QH06F2WSGEF69WVBH8EYQ)
+INSERT INTO product_category_product (product_category_id, product_id) VALUES
+('pcat_01KQ0QH06F2WSGEF69WVBH8EYQ', 'prod_01KPZ6MYZPYQ39C9S3J8VDMW7F'), -- Pro Horse Hair Brush
+('pcat_01KQ0QH06F2WSGEF69WVBH8EYQ', 'prod_01KPZ6MYZPG94WZ9852VDAHYV3'), -- Pro Application Brush
+('pcat_01KQ0QH06F2WSGEF69WVBH8EYQ', 'prod_01KPZ6MYZQRCJ6SQXQG5FNACSC'), -- Pro Gloss Brush
+('pcat_01KQ0QH06F2WSGEF69WVBH8EYQ', 'prod_01KPZ6MYZQ3FSA05VXJKRR8R73'), -- Pro Suede Brush
+('pcat_01KQ0QH06F2WSGEF69WVBH8EYQ', 'prod_01KPZ6MYZZK406PGFZ6MAS5WH4'), -- Pro Suede 2in1
+('pcat_01KQ0QH06F2WSGEF69WVBH8EYQ', 'prod_01KPZ6MZ03BBMCEXM9WQZZEJ08'); -- PRO Premium Shoe Tree

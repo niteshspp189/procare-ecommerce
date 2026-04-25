@@ -46,7 +46,7 @@ export default async function Home(props: {
   }
 
   // Fetch products for best sellers categories
-  const bestSellerHandles = ['shoe-care', 'insoles', 'foot-care']
+  const bestSellerHandles = ['shoe-care', 'insoles', 'foot-care', 'accessories']
   const bestSellerCategories = productCategories.filter(c => bestSellerHandles.includes(c.handle || ''))
 
   console.log("Best Seller Categories found:", bestSellerCategories.map(c => c.handle))
@@ -103,12 +103,12 @@ export default async function Home(props: {
           </h2>
         </div>
 
-        {/* CATEGORY GRID V2 - 3 COLUMNS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 animate-fade-in-up">
+        {/* CATEGORY GRID V2 - 4 COLUMNS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24 animate-fade-in-up">
           <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
             <img src={imgBase + 'img_008_4096x4096.png'} alt="Shoe Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">Shoe Care Kit</h3>
+              <h3 className="text-2xl font-bold mb-4">Shoe Care</h3>
               <LocalizedClientLink href="/categories/shoe-care">
                 <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
               </LocalizedClientLink>
@@ -117,7 +117,7 @@ export default async function Home(props: {
           <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
             <img src={imgBase + 'img_001_4096x4096.png'} alt="Insoles" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">Insoles Care</h3>
+              <h3 className="text-2xl font-bold mb-4">Insoles</h3>
               <LocalizedClientLink href="/categories/insoles">
                 <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
               </LocalizedClientLink>
@@ -126,8 +126,17 @@ export default async function Home(props: {
           <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
             <img src={imgBase + 'img_005_1024x1024.png'} alt="Foot Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">Foot Care Kit</h3>
+              <h3 className="text-2xl font-bold mb-4">Foot Care</h3>
               <LocalizedClientLink href="/categories/foot-care">
+                <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
+              </LocalizedClientLink>
+            </div>
+          </div>
+          <div className="relative group overflow-hidden rounded-2xl aspect-[3/4]">
+            <img src={imgBase + 'img_011_4096x4096.png'} alt="Accessories" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex flex-col justify-end p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">Accessories</h3>
+              <LocalizedClientLink href="/categories/accessories">
                 <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors w-max">Shop Now</button>
               </LocalizedClientLink>
             </div>

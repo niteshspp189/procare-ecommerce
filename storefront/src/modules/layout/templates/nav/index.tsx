@@ -94,10 +94,7 @@ export default async function Nav() {
       {/* Black Top bar for premium feel */}
       <div style={styles.topNav as any} className="hidden lg:flex">
         <LocalizedClientLink href="/" style={styles.topLink} className="hover:opacity-100">Home</LocalizedClientLink>
-        <LocalizedClientLink href="/our-story" style={styles.topLink} className="hover:opacity-100">Our Story</LocalizedClientLink>
-        <LocalizedClientLink href="/" style={styles.topLink} className="hover:opacity-100">Blogs</LocalizedClientLink>
-        <LocalizedClientLink href="/faq" style={styles.topLink} className="hover:opacity-100">FAQ</LocalizedClientLink>
-        <LocalizedClientLink href="/contact" style={styles.topLink} className="hover:opacity-100">Contact Us</LocalizedClientLink>
+        <LocalizedClientLink href="/blog" style={styles.topLink} className="hover:opacity-100">Blogs</LocalizedClientLink>
         <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">Log In</LocalizedClientLink>
       </div>
 
@@ -124,14 +121,8 @@ export default async function Nav() {
           <LocalizedClientLink href="/categories/foot-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
             Foot Care
           </LocalizedClientLink>
-          <LocalizedClientLink href="/our-story" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
-            Our Story
-          </LocalizedClientLink>
-          <LocalizedClientLink href="/faq" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
-            FAQ
-          </LocalizedClientLink>
-          <LocalizedClientLink href="/contact" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
-            Contact
+          <LocalizedClientLink href="/categories/accessories" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+            Accessories
           </LocalizedClientLink>
         </div>
 
