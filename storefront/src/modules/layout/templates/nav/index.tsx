@@ -12,7 +12,6 @@ import SearchModal from "@modules/layout/components/search-modal"
 
 const styles = {
   topNav: {
-    display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
     padding: '8px var(--container-padding)',
@@ -31,7 +30,6 @@ const styles = {
     transition: 'opacity 0.2s'
   },
   mainNav: {
-    display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '12px var(--container-padding)',
@@ -46,7 +44,6 @@ const styles = {
     transition: 'transform 0.3s ease'
   },
   menu: {
-    display: 'flex',
     gap: '36px',
     alignItems: 'center'
   },
@@ -55,20 +52,17 @@ const styles = {
     color: '#000',
     fontSize: '15px',
     fontWeight: '700',
-    display: 'flex',
     alignItems: 'center',
     gap: '6px',
     padding: '8px 0',
     transition: 'color 0.2s'
   },
   rightSection: {
-    display: 'flex',
     alignItems: 'center',
     gap: '24px'
   },
   searchContainer: {
     position: 'relative',
-    display: 'flex',
     alignItems: 'center',
   },
   icon: {
@@ -77,7 +71,6 @@ const styles = {
     color: '#000',
     textDecoration: 'none',
     transition: 'transform 0.2s ease',
-    display: 'flex',
     alignItems: 'center'
   }
 }
@@ -98,11 +91,8 @@ export default async function Nav() {
         <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">Log In</LocalizedClientLink>
       </div>
 
-      <nav style={styles.mainNav as any}>
+      <nav style={styles.mainNav as any} className="flex">
         <div className="flex items-center">
-          <div className="flex md:hidden mr-3">
-            <SideMenu regions={regions} locales={locales} currentLocale={currentLocale} />
-          </div>
           <LocalizedClientLink href="/" className="flex items-center group">
             <img src="/images/logos/logo.png" alt="PRO" style={styles.logo} className="group-hover:scale-105" />
           </LocalizedClientLink>
@@ -126,7 +116,7 @@ export default async function Nav() {
           </LocalizedClientLink>
         </div>
 
-        <div style={styles.rightSection as any}>
+        <div style={styles.rightSection as any} className="flex">
           <div style={styles.searchContainer as any} className="hidden md:flex group">
             <SearchModal />
           </div>
@@ -160,6 +150,9 @@ export default async function Nav() {
             >
               <CartButton />
             </Suspense>
+          </div>
+          <div className="flex lg:hidden ml-3">
+            <SideMenu regions={regions} locales={locales} currentLocale={currentLocale} />
           </div>
         </div>
       </nav>

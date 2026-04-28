@@ -53,3 +53,4 @@ blob-report/
 playwright/.cache/
 playwright/.auth
 dump.rdb
+docker-compose.override.yml
