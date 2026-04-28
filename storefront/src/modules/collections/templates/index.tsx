@@ -92,8 +92,8 @@ export default async function CollectionTemplate({
   const colorOptions = getProductOptionValues(products, "Color")
 
   return (
-    <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
-      <div className="w-[260px] flex-shrink-0">
+    <div className="flex flex-col lg:flex-row lg:items-start py-4 sm:py-6 content-container gap-6 lg:gap-0">
+      <div className="w-full lg:w-[260px] flex-shrink-0">
         <RefinementList
           sortBy={sort}
           types={typeOptions}
@@ -103,7 +103,7 @@ export default async function CollectionTemplate({
         />
       </div>
       <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
+        <div className="mb-6 lg:mb-8 text-xl lg:text-2xl-semi">
           <h1>{collection.title}</h1>
         </div>
         <Suspense

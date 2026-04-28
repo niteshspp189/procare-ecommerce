@@ -100,7 +100,7 @@ export default async function Nav() {
 
       <nav style={styles.mainNav as any}>
         <div className="flex items-center">
-          <div className="lg:hidden mr-4">
+          <div className="flex md:hidden mr-3">
             <SideMenu regions={regions} locales={locales} currentLocale={currentLocale} />
           </div>
           <LocalizedClientLink href="/" className="flex items-center group">
@@ -110,7 +110,7 @@ export default async function Nav() {
 
         <div style={styles.menu as any} className="hidden lg:flex">
           <LocalizedClientLink href="/shop" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
-            Shop
+            Shop All
           </LocalizedClientLink>
           <LocalizedClientLink href="/categories/shoe-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
             Shoe Care
@@ -127,11 +127,11 @@ export default async function Nav() {
         </div>
 
         <div style={styles.rightSection as any}>
-          <div style={styles.searchContainer as any} className="hidden lg:flex group">
+          <div style={styles.searchContainer as any} className="hidden md:flex group">
             <SearchModal />
           </div>
 
-          <LocalizedClientLink href="/account" style={styles.icon} className="hidden lg:flex hover:scale-110">
+          <LocalizedClientLink href="/account" style={styles.icon} className="hidden md:flex hover:scale-110">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>

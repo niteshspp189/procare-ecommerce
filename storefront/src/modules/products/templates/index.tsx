@@ -12,18 +12,18 @@ import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-relat
 import ProductActionsWrapper from "./product-actions-wrapper"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-const s = {
+  const s = {
   container: { width: '100%', backgroundColor: '#fff', color: '#000' },
   inner: { maxWidth: '1488px', margin: '0 auto', padding: '0 var(--container-padding)' },
-  breadcrumb: { padding: '20px 0', fontSize: '13px', color: '#888' },
-  howSection: { backgroundColor: '#000', color: '#fff', padding: '80px 0', marginTop: '60px' },
-  howTitle: { textAlign: 'center', fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: '800', marginBottom: '12px' },
-  howSub: { textAlign: 'center', fontSize: '16px', opacity: '0.7', marginBottom: '60px' },
+  breadcrumb: { padding: '16px 0', fontSize: '12px', color: '#888' },
+  howSection: { backgroundColor: '#000', color: '#fff', padding: '48px 0', marginTop: '40px' },
+  howTitle: { textAlign: 'center', fontSize: 'clamp(20px, 5vw, 32px)', fontWeight: '800', marginBottom: '12px' },
+  howSub: { textAlign: 'center', fontSize: '14px', opacity: '0.7', marginBottom: '40px' },
   stepCard: { textAlign: 'center' },
-  stepImg: { width: '100%', height: '220px', objectFit: 'contain' as const, backgroundColor: '#fff', borderRadius: '12px', marginBottom: '20px' },
-  premium: { padding: '80px 0' },
-  premiumFlex: { display: 'flex', alignItems: 'center', gap: '40px', backgroundColor: '#000', borderRadius: '16px', padding: 'clamp(24px, 8vw, 60px)', color: '#fff' },
-  premiumH2: { fontSize: 'clamp(24px, 6vw, 36px)', fontWeight: '800', marginBottom: '20px' },
+  stepImg: { width: '100%', height: '180px', objectFit: 'contain' as const, backgroundColor: '#fff', borderRadius: '12px', marginBottom: '16px' },
+  premium: { padding: '48px 0' },
+  premiumFlex: { display: 'flex', alignItems: 'center', gap: '24px', backgroundColor: '#000', borderRadius: '12px', padding: 'clamp(20px, 6vw, 60px)', color: '#fff' },
+  premiumH2: { fontSize: 'clamp(20px, 5vw, 36px)', fontWeight: '800', marginBottom: '16px' },
 }
 
 type ProductTemplateProps = {
@@ -115,44 +115,44 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       </div>
 
       {/* HOW IT WORKS */}
-      <section style={s.howSection as any} className="mt-24 overflow-hidden bg-white text-black border-y border-gray-100">
+      <section style={s.howSection as any} className="mt-16 sm:mt-24 overflow-hidden bg-white text-black border-y border-gray-100">
         <div style={s.inner as any}>
-          <div className="text-center mb-16 animate-fade-in-up py-12">
-            <h2 className="text-4xl font-black uppercase mb-4">How It Works</h2>
+          <div className="text-center mb-8 sm:mb-16 animate-fade-in-up py-8 sm:py-12">
+            <h2 className="text-2xl sm:text-4xl font-black uppercase mb-2 sm:mb-4">How It Works</h2>
             <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Professional results in four simple steps</p>
           </div>
-          <div className="responsive-grid-4 gap-8 mb-20">
+          <div className="responsive-grid-4 gap-4 sm:gap-8 mb-12 sm:mb-20 px-4 sm:px-0">
             <div className="animate-fade-in-up group" style={{ animationDelay: '0.1s' }}>
-              <div className="relative aspect-square overflow-hidden rounded-3xl mb-6 bg-gray-50 shadow-sm border border-gray-100">
+              <div className="relative aspect-square overflow-hidden rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 bg-gray-50 shadow-sm border border-gray-100">
                 <img src={imgBase + 'how1.png'} alt="Clean" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute top-6 left-6 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-lg">1</div>
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 w-8 h-8 sm:w-10 sm:h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-base sm:text-lg">1</div>
               </div>
-              <h3 className="text-xl font-black uppercase mb-2">Clean</h3>
-              <p className="text-gray-500 text-sm leading-relaxed uppercase tracking-tight">Remove surface dirt with a premium brush to prepare for conditioning.</p>
+              <h3 className="text-lg sm:text-xl font-black uppercase mb-2">Clean</h3>
+              <p className="text-gray-500 text-xs sm:text-sm leading-relaxed uppercase tracking-tight">Remove surface dirt with a premium brush to prepare for conditioning.</p>
             </div>
             <div className="animate-fade-in-up group" style={{ animationDelay: '0.2s' }}>
-              <div className="relative aspect-square overflow-hidden rounded-3xl mb-6 bg-gray-50 shadow-sm border border-gray-100">
+              <div className="relative aspect-square overflow-hidden rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 bg-gray-50 shadow-sm border border-gray-100">
                 <img src={imgBase + 'how2.png'} alt="Apply" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute top-6 left-6 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-lg">2</div>
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 w-8 h-8 sm:w-10 sm:h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-base sm:text-lg">2</div>
               </div>
-              <h3 className="text-xl font-black uppercase mb-2">Apply</h3>
-              <p className="text-gray-500 text-sm leading-relaxed uppercase tracking-tight">Apply the leather care solution evenly across the entire surface area.</p>
+              <h3 className="text-lg sm:text-xl font-black uppercase mb-2">Apply</h3>
+              <p className="text-gray-500 text-xs sm:text-sm leading-relaxed uppercase tracking-tight">Apply the leather care solution evenly across the entire surface area.</p>
             </div>
             <div className="animate-fade-in-up group" style={{ animationDelay: '0.3s' }}>
-              <div className="relative aspect-square overflow-hidden rounded-3xl mb-6 bg-gray-50 shadow-sm border border-gray-100">
+              <div className="relative aspect-square overflow-hidden rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 bg-gray-50 shadow-sm border border-gray-100">
                 <img src={imgBase + 'how3.png'} alt="Dry" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute top-6 left-6 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-lg">3</div>
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 w-8 h-8 sm:w-10 sm:h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-base sm:text-lg">3</div>
               </div>
-              <h3 className="text-xl font-black uppercase mb-2">Dry</h3>
-              <p className="text-gray-500 text-sm leading-relaxed uppercase tracking-tight">Allow the product to air dry naturally in a cool environment (approx 15-20 min).</p>
+              <h3 className="text-lg sm:text-xl font-black uppercase mb-2">Dry</h3>
+              <p className="text-gray-500 text-xs sm:text-sm leading-relaxed uppercase tracking-tight">Allow the product to air dry naturally in a cool environment (approx 15-20 min).</p>
             </div>
             <div className="animate-fade-in-up group" style={{ animationDelay: '0.4s' }}>
-              <div className="relative aspect-square overflow-hidden rounded-3xl mb-6 bg-gray-50 shadow-sm border border-gray-100">
+              <div className="relative aspect-square overflow-hidden rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 bg-gray-50 shadow-sm border border-gray-100">
                 <img src={imgBase + 'how4.png'} alt="Protect" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute top-6 left-6 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-lg">4</div>
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 w-8 h-8 sm:w-10 sm:h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-base sm:text-lg">4</div>
               </div>
-              <h3 className="text-xl font-black uppercase mb-2">Protect</h3>
-              <p className="text-gray-500 text-sm leading-relaxed uppercase tracking-tight">Your premium leather is now ready! Step out with confidence and comfort.</p>
+              <h3 className="text-lg sm:text-xl font-black uppercase mb-2">Protect</h3>
+              <p className="text-gray-500 text-xs sm:text-sm leading-relaxed uppercase tracking-tight">Your premium leather is now ready! Step out with confidence and comfort.</p>
             </div>
           </div>
         </div>
@@ -160,19 +160,19 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
       <div style={s.inner as any}>
         {/* BRAND PROMISE BANNER */}
-        <div className="my-24 bg-black rounded-3xl p-12 md:p-24 text-center animate-fade-in-up text-white relative overflow-hidden group">
+        <div className="my-12 sm:my-24 bg-black rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-24 text-center animate-fade-in-up text-white relative overflow-hidden group mx-4 sm:mx-0">
           <div className="relative z-10">
-            <p className="text-sm font-bold tracking-[0.3em] text-gray-500 mb-6 uppercase">German Precision. Indian Excellence. Trusted Worldwide.</p>
-            <h2 className="text-[clamp(30px,6vw,56px)] font-black uppercase leading-[1.05] mb-12">Crafting World - Class <br /> Care For Every Step</h2>
-            <button className="bg-white text-black px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl">Read More</button>
+            <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-gray-500 mb-4 sm:mb-6 uppercase">German Precision. Indian Excellence. Trusted Worldwide.</p>
+            <h2 className="text-[clamp(24px,5vw,56px)] font-black uppercase leading-[1.05] mb-8 sm:mb-12">Crafting World - Class <br /> Care For Every Step</h2>
+            <button className="bg-white text-black px-6 sm:px-12 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg hover:bg-gray-100 transition-all shadow-xl">Read More</button>
           </div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl opacity-10 -mr-32 -mt-32"></div>
+          <div className="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white rounded-full blur-3xl opacity-10 -mr-16 sm:-mr-32 -mt-16 sm:-mt-32"></div>
         </div>
 
         {/* RELATED PRODUCTS */}
-        <div className="my-24 animate-fade-in-up" data-testid="related-products-container">
-          <div className="flex justify-between items-center mb-10 border-b pb-4">
-            <h2 className="text-3xl font-black uppercase tracking-tighter">Complete Your Routine</h2>
+        <div className="my-12 sm:my-24 animate-fade-in-up" data-testid="related-products-container">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-10 border-b pb-4 gap-4">
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">Complete Your Routine</h2>
             <LocalizedClientLink href="/shop" className="font-bold border-b-2 border-black pb-1 hover:opacity-70 uppercase tracking-widest text-xs">SHOP ALL</LocalizedClientLink>
           </div>
           <Suspense fallback={<SkeletonRelatedProducts />}>
@@ -181,30 +181,30 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         </div>
 
         {/* FAQ SECTION */}
-        <div className="py-24 border-t border-gray-100 animate-fade-in-up">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl font-black uppercase mb-12 text-center">Frequently Asked Questions</h2>
+        <div className="py-12 sm:py-24 border-t border-gray-100 animate-fade-in-up">
+          <div className="max-w-3xl mx-auto px-4">
+            <h2 className="text-2xl sm:text-4xl font-black uppercase mb-8 sm:mb-12 text-center">Frequently Asked Questions</h2>
             <div className="space-y-6">
               <div className="border-b border-gray-100 pb-6">
                 <button className="flex justify-between items-center w-full text-left group">
-                  <span className="font-bold uppercase tracking-tight text-lg">How often should I use the kit?</span>
-                  <span className="text-2xl font-light group-hover:rotate-45 transition-transform">+</span>
+                  <span className="font-bold uppercase tracking-tight text-base sm:text-lg">How often should I use the kit?</span>
+                  <span className="text-xl sm:text-2xl font-light group-hover:rotate-45 transition-transform">+</span>
                 </button>
-                <p className="mt-4 text-gray-500 leading-relaxed uppercase text-sm tracking-tight">For best results, we recommend a deep clean every 2-4 weeks depending on usage.</p>
+                <p className="mt-4 text-gray-500 leading-relaxed uppercase text-xs sm:text-sm tracking-tight">For best results, we recommend a deep clean every 2-4 weeks depending on usage.</p>
               </div>
               <div className="border-b border-gray-100 pb-6">
                 <button className="flex justify-between items-center w-full text-left group">
-                  <span className="font-bold uppercase tracking-tight text-lg">Is it safe for all leather types?</span>
-                  <span className="text-2xl font-light group-hover:rotate-45 transition-transform">+</span>
+                  <span className="font-bold uppercase tracking-tight text-base sm:text-lg">Is it safe for all leather types?</span>
+                  <span className="text-xl sm:text-2xl font-light group-hover:rotate-45 transition-transform">+</span>
                 </button>
-                <p className="mt-4 text-gray-500 leading-relaxed uppercase text-sm tracking-tight">Yes, our formula is neutral pH balanced and safe for all smooth and treated leathers.</p>
+                <p className="mt-4 text-gray-500 leading-relaxed uppercase text-xs sm:text-sm tracking-tight">Yes, our formula is neutral pH balanced and safe for all smooth and treated leathers.</p>
               </div>
               <div className="border-b border-gray-100 pb-6">
                 <button className="flex justify-between items-center w-full text-left group">
-                  <span className="font-bold uppercase tracking-tight text-lg">What is the return policy?</span>
-                  <span className="text-2xl font-light group-hover:rotate-45 transition-transform">+</span>
+                  <span className="font-bold uppercase tracking-tight text-base sm:text-lg">What is the return policy?</span>
+                  <span className="text-xl sm:text-2xl font-light group-hover:rotate-45 transition-transform">+</span>
                 </button>
-                <p className="mt-4 text-gray-500 leading-relaxed uppercase text-sm tracking-tight">We offer a 30-day no-questions-asked return policy for all sealed products.</p>
+                <p className="mt-4 text-gray-500 leading-relaxed uppercase text-xs sm:text-sm tracking-tight">We offer a 30-day no-questions-asked return policy for all sealed products.</p>
               </div>
             </div>
           </div>

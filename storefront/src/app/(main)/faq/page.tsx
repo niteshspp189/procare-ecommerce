@@ -21,14 +21,14 @@ const FAQPage = () => {
     ]
 
     return (
-        <div className="py-24 bg-white">
+        <div className="py-12 sm:py-24 bg-white">
             <div className="max-w-4xl mx-auto px-4">
-                <h1 className="text-5xl font-black uppercase mb-12 text-center">Frequently Asked Questions</h1>
-                <div className="space-y-8">
+                <h1 className="text-3xl sm:text-5xl font-black uppercase mb-8 sm:mb-12 text-center">Frequently Asked Questions</h1>
+                <div className="space-y-6 sm:space-y-8">
                     {faqs.map((faq, i) => (
-                        <div key={i} className="border-b border-gray-100 pb-8">
-                            <h3 className="text-xl font-bold uppercase mb-4">{faq.q}</h3>
-                            <p className="text-gray-500 leading-relaxed uppercase text-sm tracking-tight">{faq.a}</p>
+                        <div key={i} className="border-b border-gray-100 pb-6 sm:pb-8">
+                            <h3 className="text-lg sm:text-xl font-bold uppercase mb-3 sm:mb-4">{faq.q}</h3>
+                            <p className="text-gray-500 leading-relaxed uppercase text-xs sm:text-sm tracking-tight">{faq.a}</p>
                         </div>
                     ))}
                 </div>
