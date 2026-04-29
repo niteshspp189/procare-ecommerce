@@ -1,8 +1,4 @@
 services:
-  # ── Disable local postgres in production (using AWS RDS) ──────────────────
-  postgres:
-    profiles: ["local-only"]
-
   backend:
     depends_on:
       redis:
