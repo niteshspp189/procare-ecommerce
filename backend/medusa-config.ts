@@ -65,7 +65,7 @@ module.exports = defineConfig({
 
                     var loginLogoContainer = document.querySelector('div[class*="bg-ui-button-neutral"][class*="w-[50px]"]');
                     if (loginLogoContainer && !document.getElementById('procare-login-logo-v2')) {
-                      loginLogoContainer.innerHTML = '<img id="procare-login-logo-v2" src="http://shop.mvshoecare.com/procare-logo.png" style="width: 140px; height: auto; object-fit: contain;">';
+                      loginLogoContainer.innerHTML = '<img id="procare-login-logo-v2" src="/procare-logo.png" style="width: 140px; height: auto; object-fit: contain;">';
                       loginLogoContainer.style.background = 'transparent';
                       loginLogoContainer.style.boxShadow = 'none';
                       loginLogoContainer.style.width = 'auto';
