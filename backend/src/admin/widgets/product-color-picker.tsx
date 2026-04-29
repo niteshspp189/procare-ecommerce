@@ -62,7 +62,7 @@ export default function ColorPickerWidget({ data: product }: { data: any }) {
     return (
       <Container className="p-4 mb-4">
         <Heading level="h2" className="text-sm font-semibold mb-1">🎨 Variant Colors</Heading>
-        <Text className={`text-xs ${status.startsWith("error") ? "text-red-500" : "text-gray-500"}`}>
+        <Text className={`text-xs ${status.startsWith("error") ? "text-red-500" : "text-ui-fg-subtle"}`}>
           {status === "loading" ? "Loading..." : status === "no-color-option" ? "No 'Color' option found on this product." : status}
         </Text>
       </Container>
@@ -77,10 +77,10 @@ export default function ColorPickerWidget({ data: product }: { data: any }) {
           const hex = colors[colorName] || "#888888"
           const state = saveState[colorName] || "idle"
           const statusLabel = state === "saving" ? "Saving…" : state === "saved" ? "✓ Saved" : state === "error" ? "✗ Error" : ""
-          const statusColor = state === "saved" ? "text-green-600" : state === "error" ? "text-red-500" : "text-gray-400"
+          const statusColor = state === "saved" ? "text-green-600" : state === "error" ? "text-red-500" : "text-ui-fg-muted"
 
           return (
-            <div key={colorName} className="flex items-center gap-2 p-2 border rounded-md bg-gray-50">
+            <div key={colorName} className="flex items-center gap-2 p-2 border border-ui-border-base rounded-md bg-ui-bg-subtle">
               <input
                 type="color"
                 value={hex}
@@ -97,7 +97,7 @@ export default function ColorPickerWidget({ data: product }: { data: any }) {
                   setColors((c) => ({ ...c, [colorName]: v }))
                   if (/^#[0-9a-fA-F]{6}$/.test(v)) handleColorChange(colorName, v)
                 }}
-                className="w-20 p-1 text-xs font-mono border rounded uppercase bg-white"
+                className="w-20 p-1 text-xs font-mono border border-ui-border-base rounded uppercase bg-ui-bg-field text-ui-fg-base"
               />
               {statusLabel && <span className={`text-xs ${statusColor} min-w-[50px] text-right`}>{statusLabel}</span>}
             </div>

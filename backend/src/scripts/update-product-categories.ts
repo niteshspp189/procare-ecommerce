@@ -77,12 +77,9 @@ export default async function updateProductCategories({ container }: ExecArgs) {
   for (const product of products) {
     const categoryId = getCategoryForProduct(product.title);
     if (categoryId) {
-      await productModuleService.updateProducts([
-        {
-          id: product.id,
-          category_ids: [categoryId],
-        },
-      ]);
+      await productModuleService.updateProducts(product.id, {
+        category_ids: [categoryId],
+      });
       const catName = Object.keys(catMap).find((k) => catMap[k] === categoryId);
       logger.info(`Assigned [${product.title}] -> ${catName}`);
       updated++;

@@ -108,7 +108,7 @@ export default async function StagingHome(props: {
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
               <h3 className="text-2xl font-semibold mb-3">Shoe Care</h3>
               <LocalizedClientLink href="/categories/shoe-care">
-                <Button variant="secondary" className="px-6 py-2 text-xs !border-white !text-white hover:!bg-white hover:!text-black">Explore</Button>
+                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
@@ -117,7 +117,7 @@ export default async function StagingHome(props: {
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
               <h3 className="text-2xl font-semibold mb-3">Insoles</h3>
               <LocalizedClientLink href="/categories/insoles">
-                <Button variant="secondary" className="px-6 py-2 text-xs !border-white !text-white hover:!bg-white hover:!text-black">Explore</Button>
+                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default async function StagingHome(props: {
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
               <h3 className="text-2xl font-semibold mb-3">Foot Care</h3>
               <LocalizedClientLink href="/categories/foot-care">
-                <Button variant="secondary" className="px-6 py-2 text-xs !border-white !text-white hover:!bg-white hover:!text-black">Explore</Button>
+                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default async function StagingHome(props: {
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
               <h3 className="text-2xl font-semibold mb-3">Accessories</h3>
               <LocalizedClientLink href="/categories/accessories">
-                <Button variant="secondary" className="px-6 py-2 text-xs !border-white !text-white hover:!bg-white hover:!text-black">Explore</Button>
+                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>

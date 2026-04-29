@@ -31,6 +31,58 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'KelsonSans', sans-serif !important;
 }
 
+/* ─── Design Token CSS Variables ─────────────────────────────────────────── */
+:root {
+  --pc-bg:           #ffffff;
+  --pc-bg-subtle:    #f9fafb;
+  --pc-bg-elevated:  #f3f4f6;
+  --pc-text:         #111827;
+  --pc-text-muted:   #6b7280;
+  --pc-border:       #e5e7eb;
+  --pc-nav-bg:       #ffffff;
+  --pc-nav-border:   #f3f4f6;
+  --pc-card-bg:      #ffffff;
+  --pc-input-bg:     #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pc-bg:           #0f0f0f;
+    --pc-bg-subtle:    #1a1a1a;
+    --pc-bg-elevated:  #242424;
+    --pc-text:         #f0f0f0;
+    --pc-text-muted:   #9ca3af;
+    --pc-border:       #2d2d2d;
+    --pc-nav-bg:       #111111;
+    --pc-nav-border:   #2d2d2d;
+    --pc-card-bg:      #1a1a1a;
+    --pc-input-bg:     #1a1a1a;
+  }
+
+  body {
+    background-color: var(--pc-bg);
+    color: var(--pc-text);
+  }
+
+  /* Sections / cards that hardcode white backgrounds */
+  .bg-white {
+    background-color: var(--pc-card-bg) !important;
+    color: var(--pc-text) !important;
+  }
+
+  /* Generic white/light borders */
+  .border-gray-100,
+  .border-gray-200 {
+    border-color: var(--pc-border) !important;
+  }
+
+  /* Ensure inputs are readable */
+  input, textarea, select {
+    background-color: var(--pc-input-bg);
+    color: var(--pc-text);
+    border-color: var(--pc-border);
+  }
+}
 
 @layer utilities {
 

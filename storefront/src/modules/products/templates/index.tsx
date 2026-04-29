@@ -197,32 +197,55 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               </div>
 
               {/* FEATURE ICONS */}
-              <div className="flex justify-between items-center py-8 border-t border-b border-gray-100 mb-8 max-w-full overflow-x-auto gap-4 no-scrollbar">
-                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              {(() => {
+                const ICON_SVGS: Record<string, string> = {
+                  shipping:   '<path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" strokeLinecap="round" strokeLinejoin="round"/>',
+                  return:     '<path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
+                  eco:        '<path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"/>',
+                  natural:    '<path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+                  refillable: '<path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>',
+                  organic:    '<path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>',
+                  kit:        '<path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
+                  star:       '<path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>',
+                  award:      '<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/>',
+                  lock:       '<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>',
+                  truck:      '<path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>',
+                  gift:       '<path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1014.25 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 119.75 7.5H12m0 0H8.625M12 7.5h3.375m0 0a3 3 0 013 3v1.5M8.625 7.5a3 3 0 00-3 3v1.5m12.75 0h-12m12 0a3 3 0 013 3v1.5m-15.75-3v-1.5m0 4.5v-1.5"/>',
+                  leaf:       '<path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 0C7.857 5.25 4.5 8.607 4.5 12.75c0 2.588 1.276 4.875 3.234 6.277A9.015 9.015 0 0012 20.25a9.015 9.015 0 004.266-1.223C18.224 17.625 19.5 15.338 19.5 12.75 19.5 8.607 16.143 5.25 12 5.25z"/>',
+                  thumb:      '<path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z"/>',
+                }
+                const defaultBadges = [
+                  { iconId: "shipping", label: "Free Shipping" },
+                  { iconId: "return",   label: "30 Day Return" },
+                  { iconId: "eco",      label: "Eco Friendly" },
+                  { iconId: "kit",      label: "Complete Kit" },
+                ]
+                let activeBadges = defaultBadges
+                if (metadata.product_badges) {
+                  try {
+                    const parsed = typeof metadata.product_badges === "string"
+                      ? JSON.parse(metadata.product_badges)
+                      : metadata.product_badges
+                    if (Array.isArray(parsed) && parsed.length === 4) activeBadges = parsed
+                  } catch {}
+                }
+                return (
+                  <div className="flex justify-between items-center py-8 border-t border-b border-gray-100 mb-8 max-w-full overflow-x-auto gap-4 no-scrollbar">
+                    {activeBadges.map((badge: { iconId: string; label: string }, idx: number) => {
+                      const svg = ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"]
+                      return (
+                        <div key={idx} className="text-center flex flex-col items-center gap-3 min-w-[70px]">
+                          <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                              dangerouslySetInnerHTML={{ __html: svg }} />
+                          </div>
+                          <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
+                        </div>
+                      )
+                    })}
                   </div>
-                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">Free Shipping</span>
-                </div>
-                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                  </div>
-                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">Complete Kit</span>
-                </div>
-                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                  </div>
-                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">30 Day Return</span>
-                </div>
-                <div className="text-center flex flex-col items-center gap-3 min-w-[70px]">
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </div>
-                  <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">Eco Friendly</span>
-                </div>
-              </div>
+                )
+              })()}
 
               {/* ACCORDIONS */}
               <div className="space-y-0">
@@ -326,7 +349,12 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           </div>
           <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-${Math.min(4, ((product.metadata?.how_to_use as any[])?.length || 4))} gap-6`}>
             {product.metadata?.how_to_use ? (
-              (product.metadata.how_to_use as any[]).map((step, index) => (
+              (() => {
+                const raw = product.metadata.how_to_use
+                const steps: { title: string; description: string }[] = Array.isArray(raw)
+                  ? raw
+                  : String(raw).split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.trim() }))
+                return steps.map((step, index) => (
                 <div key={index} className="text-left">
                   <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img
@@ -342,6 +370,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">{step.description}</p>
                 </div>
               ))
+              })()
             ) : (
               <>
                 <div className="text-left">

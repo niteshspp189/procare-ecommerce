@@ -196,10 +196,10 @@ export default function AllProductsPage() {
                                             {product.thumbnail ? (
                                                 <img src={product.thumbnail} alt={product.title} className="w-10 h-10 object-cover rounded-md border" />
                                             ) : (
-                                                <div className="w-10 h-10 bg-gray-100 rounded-md border flex items-center justify-center">?</div>
+                                                <div className="w-10 h-10 bg-ui-bg-subtle rounded-md border border-ui-border-base flex items-center justify-center text-ui-fg-muted">?</div>
                                             )}
                                             <div>
-                                                <Text className="text-gray-900">{product.title}</Text>
+                                                <Text className="text-ui-fg-base">{product.title}</Text>
                                                 <Text className="text-xs text-ui-fg-subtle">{product.handle}</Text>
                                             </div>
                                         </div>
@@ -220,7 +220,7 @@ export default function AllProductsPage() {
                                     </Table.Cell>
                                     <Table.Cell>
                                         <div className="flex items-center gap-2 text-ui-fg-subtle">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${product.status === "published" ? "bg-green-500" : "bg-gray-400"}`}></div>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${product.status === "published" ? "bg-green-500" : "bg-ui-fg-muted"}`}></div>
                                             <span className="capitalize">{product.status}</span>
                                         </div>
                                     </Table.Cell>
@@ -255,7 +255,7 @@ export default function AllProductsPage() {
                                 <div className="flex items-center gap-2">
                                     <Text className="text-xs text-ui-fg-subtle">Per page</Text>
                                     <select
-                                        className="text-xs border border-gray-200 rounded p-1 bg-transparent text-ui-fg-subtle outline-none"
+                                        className="text-xs border border-ui-border-base rounded p-1 bg-transparent text-ui-fg-subtle outline-none"
                                         value={pageSize}
                                         onChange={(e) => {
                                             setPageSize(Number(e.target.value))

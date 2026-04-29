@@ -1,10 +1,16 @@
-name: Deploy to VPS (SSH)
+name: Deploy to Production (VPS + RDS)
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deploy even without --deploy=true in commit'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   check-deploy:
@@ -17,18 +23,22 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "Triggered manually via workflow_dispatch"
           elif [[ "${{ github.event.head_commit.message }}" == *"--deploy=true"* ]]; then
             echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "Deploy flag found in commit message"
           else
             echo "should_deploy=false" >> $GITHUB_OUTPUT
+            echo "No --deploy=true flag — skipping production deploy"
           fi
 
-  deploy-vps:
+  deploy-production:
     needs: check-deploy
     if: needs.check-deploy.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_SSH_HOST }}
@@ -38,24 +48,58 @@ jobs:
             set -e
             cd /var/www/procare-ecommerce
 
-            echo "==> Pulling latest code..."
-            git pull origin main
+            echo "========================================"
+            echo "  ProCare Production Deploy — $(date)"
+            echo "========================================"
 
-            echo "==> Pruning unused Docker resources to free space..."
+            echo ""
+            echo "==> [1/4] Pulling latest code from main..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo ""
+            echo "==> [2/4] Pruning unused Docker resources..."
             docker system prune -f --volumes=false
 
-            echo "==> Building and starting containers in production mode..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+            echo ""
+            echo "==> [3/4] Building and starting production containers..."
+            # Uses docker-compose.prod.yml which:
+            #   - Sets DATABASE_URL to AWS RDS (local postgres is disabled)
+            #   - Sets NODE_ENV=production
+            #   - Sets NEXT_PUBLIC_MEDUSA_BACKEND_URL to production domain
+            #   - Bakes nginx.conf into the nginx image
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              up -d --build --remove-orphans
 
-            echo "==> Waiting for backend health..."
+            echo ""
+            echo "==> [4/4] Waiting for backend health (up to 5 min)..."
+            READY=false
             for i in $(seq 1 30); do
-              if docker inspect --format='{{.State.Health.Status}}' procare_backend 2>/dev/null | grep -q "healthy"; then
-                echo "Backend is healthy"
+              STATUS=$(docker inspect --format='{{.State.Health.Status}}' procare_backend 2>/dev/null || echo "not_found")
+              if [[ "$STATUS" == "healthy" ]]; then
+                READY=true
+                echo "  Backend healthy after $((i * 10))s"
                 break
               fi
-              echo "Waiting... ($i/30)"
+              echo "  Attempt $i/30 — status: $STATUS"
               sleep 10
             done
 
+            if [[ "$READY" != "true" ]]; then
+              echo "ERROR: Backend did not become healthy in time. Last 50 log lines:"
+              docker logs --tail 50 procare_backend
+              exit 1
+            fi
+
+            echo ""
             echo "==> Final container status:"
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+            echo ""
+            echo "========================================"
+            echo "  Deploy complete! Site live at:"
+            echo "  https://shop.mvshoecare.com"
+            echo "========================================"
+

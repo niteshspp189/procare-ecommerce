@@ -33,11 +33,8 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '12px var(--container-padding)',
-    backgroundColor: '#fff',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
     position: 'relative',
     zIndex: 1000,
-    borderBottom: '1px solid #f3f4f6'
   },
   logo: {
     height: '44px',
@@ -49,7 +46,6 @@ const styles = {
   },
   menuLink: {
     textDecoration: 'none',
-    color: '#000',
     fontSize: '15px',
     fontWeight: '700',
     alignItems: 'center',
@@ -68,7 +64,6 @@ const styles = {
   icon: {
     fontSize: '22px',
     cursor: 'pointer',
-    color: '#000',
     textDecoration: 'none',
     transition: 'transform 0.2s ease',
     alignItems: 'center'
@@ -91,7 +86,7 @@ export default async function Nav() {
         <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">Log In</LocalizedClientLink>
       </div>
 
-      <nav style={styles.mainNav as any} className="flex">
+      <nav style={styles.mainNav as any} className="flex bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none">
         <div className="flex items-center">
           <LocalizedClientLink href="/" className="flex items-center group">
             <img src="/images/logos/logo.png" alt="PRO" style={styles.logo} className="group-hover:scale-105" />
@@ -99,19 +94,19 @@ export default async function Nav() {
         </div>
 
         <div style={styles.menu as any} className="hidden lg:flex">
-          <LocalizedClientLink href="/shop" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+          <LocalizedClientLink href="/shop" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
             Shop All
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/shoe-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+          <LocalizedClientLink href="/categories/shoe-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
             Shoe Care
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/insoles" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+          <LocalizedClientLink href="/categories/insoles" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
             Insoles
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/foot-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+          <LocalizedClientLink href="/categories/foot-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
             Foot Care
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/accessories" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px]">
+          <LocalizedClientLink href="/categories/accessories" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
             Accessories
           </LocalizedClientLink>
         </div>
@@ -121,7 +116,7 @@ export default async function Nav() {
             <SearchModal />
           </div>
 
-          <LocalizedClientLink href="/account" style={styles.icon} className="hidden md:flex hover:scale-110">
+          <LocalizedClientLink href="/account" style={styles.icon} className="hidden md:flex hover:scale-110 text-black dark:text-gray-100">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>

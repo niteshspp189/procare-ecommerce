@@ -40,7 +40,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
               <div className="relative flex h-full">
                 <Popover.Button
                   data-testid="nav-menu-button"
-                  className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none p-2 text-black hover:bg-gray-100 rounded"
+                  className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none p-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                 >
                   {/* Hamburger Icon - always visible */}
                   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -134,7 +134,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                           )}
                         />
                       </div>
-                      <Text className="flex justify-between txt-compact-small text-gray-500">
+                      <Text className="flex justify-between txt-compact-small text-gray-400">
                         © {new Date().getFullYear()} Pro Premium Care. All rights reserved.
                       </Text>
                     </div>
