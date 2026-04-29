@@ -82,6 +82,9 @@ export default async function Nav() {
       {/* Black Top bar for premium feel */}
       <div style={styles.topNav as any} className="hidden lg:flex">
         <LocalizedClientLink href="/" style={styles.topLink} className="hover:opacity-100">Home</LocalizedClientLink>
+        <LocalizedClientLink href="/faq" style={styles.topLink} className="hover:opacity-100">FAQ</LocalizedClientLink>
+        <LocalizedClientLink href="/our-story" style={styles.topLink} className="hover:opacity-100">Our Story</LocalizedClientLink>
+        <LocalizedClientLink href="/contact" style={styles.topLink} className="hover:opacity-100">Contact Us</LocalizedClientLink>
         <LocalizedClientLink href="/blog" style={styles.topLink} className="hover:opacity-100">Blogs</LocalizedClientLink>
         <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">Log In</LocalizedClientLink>
       </div>

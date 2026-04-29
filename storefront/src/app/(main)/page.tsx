@@ -191,30 +191,38 @@ export default async function StagingHome(props: {
         </div>
 
         {/* FEATURE ICONS ROW */}
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 py-12 px-4 border-t border-gray-100 mt-8 mb-16">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 mb-4 text-gray-700">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 py-14 px-4 border-t border-gray-100 mt-8 mb-16">
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-12 h-12 mb-3 text-gray-800">
+              {/* Delivery truck */}
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.3"><path strokeLinecap="round" strokeLinejoin="round" d="M1.5 8.5h13v9H1.5V8.5zM14.5 11.5h3l3 3v3h-6v-6z" /><circle cx="5.5" cy="18" r="1.5" /><circle cx="17.5" cy="18" r="1.5" /></svg>
             </div>
-            <span className="text-sm font-medium text-black">Free Shipping</span>
+            <span className="text-sm font-semibold text-black tracking-wide">Free Delivery</span>
+            <span className="text-xs text-gray-400">On all orders above ₹499</span>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 mb-4 text-gray-700">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-12 h-12 mb-3 text-gray-800">
+              {/* Award / badge */}
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.3"><circle cx="12" cy="9" r="6" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 14.5l-2.5 6L12 18l5.5 2.5L15 14.5" /></svg>
             </div>
-            <span className="text-sm font-medium text-black">Complete Kit</span>
+            <span className="text-sm font-semibold text-black tracking-wide">Pro-Grade Formula</span>
+            <span className="text-xs text-gray-400">Trusted by professionals</span>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 mb-4 text-gray-700">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-12 h-12 mb-3 text-gray-800">
+              {/* Shield check */}
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.3"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3l8 3.5v5c0 4.5-3.2 8.7-8 10-4.8-1.3-8-5.5-8-10v-5L12 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" /></svg>
             </div>
-            <span className="text-sm font-medium text-black">30 Day Return</span>
+            <span className="text-sm font-semibold text-black tracking-wide">30-Day Guarantee</span>
+            <span className="text-xs text-gray-400">Hassle-free returns</span>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 mb-4 text-gray-700">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-12 h-12 mb-3 text-gray-800">
+              {/* Leaf */}
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.3"><path strokeLinecap="round" strokeLinejoin="round" d="M12 22C6.5 22 3 17.5 3 12c0-4.5 3-8.5 9-10 0 5 2 8 6 9-1 .5-2 .8-3 .8a6 6 0 006-6c1 2 1.5 4 1.5 6.2C22.5 17.5 17.5 22 12 22z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 22V14" /></svg>
             </div>
-            <span className="text-sm font-medium text-black">Eco Friendly</span>
+            <span className="text-sm font-semibold text-black tracking-wide">Eco-Certified</span>
+            <span className="text-xs text-gray-400">Safe for you & the planet</span>
           </div>
         </div>
       </div>

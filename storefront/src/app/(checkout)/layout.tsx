@@ -26,10 +26,10 @@ export default function CheckoutLayout({
           </LocalizedClientLink>
           <LocalizedClientLink
             href="/"
-            className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
+            className="flex items-center"
             data-testid="store-link"
           >
-            Medusa Store
+            <img src="/images/logos/logo.png" alt="ProCare" style={{ height: 36 }} />
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>
