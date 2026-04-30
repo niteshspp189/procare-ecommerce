@@ -6,7 +6,7 @@ const OurStoryPage = () => {
             {/* HERO SECTION */}
             <div className="relative h-[50vh] sm:h-[60vh] overflow-hidden flex items-center justify-center bg-black text-white">
                 <div className="absolute inset-0 opacity-40">
-                    <img src="/images/landing-page-images/img_006_1920x700.png" className="w-full h-full object-cover" alt="Our Story" />
+                    <img src="/images/IMG_1572.webp" className="w-full h-full object-cover" alt="Our Story" />
                 </div>
                 <div className="relative z-10 text-center animate-fade-in-up px-4">
                     <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter">Our Story</h1>
@@ -53,8 +53,8 @@ const OurStoryPage = () => {
             <div className="mb-12 sm:mb-24 mx-4 bg-black rounded-2xl lg:rounded-3xl p-6 sm:p-12 md:p-24 text-center text-white relative overflow-hidden group">
                 <div className="relative z-10">
                     <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-gray-500 mb-4 sm:mb-6 uppercase">Trusted Worldwide</p>
-                    <h2 className="text-[clamp(24px,5vw,56px)] font-black uppercase leading-[1.05] mb-8 sm:mb-12">Join the Revolution in <br /> Footwear Care</h2>
-                    <button className="bg-white text-black px-6 sm:px-12 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg hover:bg-gray-100 transition-all shadow-xl">Shop The Collection</button>
+                    <h2 className="text-[clamp(20px,4vw,48px)] font-black uppercase leading-[1.05] mb-8 sm:mb-12">Join the Revolution in Footwear Care</h2>
+                    <a href="/shop" className="bg-white text-black px-6 sm:px-12 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg hover:bg-gray-100 transition-all shadow-xl inline-block">Shop The Collection</a>
                 </div>
             </div>
         </div>
