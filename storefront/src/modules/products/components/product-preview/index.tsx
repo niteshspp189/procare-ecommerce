@@ -105,8 +105,8 @@ export default function ProductPreview({
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#333' : '#000' } as any}
-              className="hover:bg-gray-800 transition-all transform active:scale-95 disabled:opacity-60 uppercase tracking-widest text-[10px] font-bold"
+              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#009d8e' : '#00b5a4', color: '#fff' } as any}
+              className="hover:opacity-90 transition-all transform active:scale-95 disabled:opacity-60 uppercase tracking-widest text-[10px] font-bold"
             >
               {isAdding ? "Adding…" : "Shop Now"}
             </button>
