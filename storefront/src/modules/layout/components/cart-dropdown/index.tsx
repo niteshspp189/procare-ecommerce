@@ -146,7 +146,7 @@ const CartDropdown = ({
               )}
               <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-black rounded-full transition-all duration-500"
+                  className="h-full bg-[#00b5a4] rounded-full transition-all duration-500"
                   style={{ width: `${freeShippingProgress}%` }}
                 />
               </div>
@@ -243,15 +243,17 @@ const CartDropdown = ({
               </div>
               <p className="text-xs text-gray-400">Taxes and shipping calculated at checkout</p>
               <LocalizedClientLink href="/checkout?step=address" onClick={closeDrawer}>
-                <button className="w-full bg-black text-white py-4 rounded-full font-semibold text-sm tracking-wide hover:bg-gray-800 transition-colors">
+                <button className="w-full bg-[#00b5a4] text-white py-4 rounded-full font-semibold text-sm tracking-wide hover:bg-[#009d8e] transition-colors">
                   Checkout →
                 </button>
               </LocalizedClientLink>
-              <LocalizedClientLink href="/cart" onClick={closeDrawer}>
-                <button className="w-full border border-gray-200 py-3 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                  View Cart
-                </button>
-              </LocalizedClientLink>
+              <div className="mt-2">
+                <LocalizedClientLink href="/cart" onClick={closeDrawer}>
+                  <button className="w-full border border-gray-200 py-3 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    View Cart
+                  </button>
+                </LocalizedClientLink>
+              </div>
             </div>
           </>
         ) : (
@@ -264,7 +266,7 @@ const CartDropdown = ({
               <p className="text-sm text-gray-500 mt-1">Add some products to get started</p>
             </div>
             <LocalizedClientLink href="/shop" onClick={closeDrawer}>
-              <button className="bg-black text-white px-8 py-3 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
+              <button className="bg-[#00b5a4] text-white px-8 py-3 rounded-full text-sm font-semibold hover:bg-[#009d8e] transition-colors">
                 Shop Now
               </button>
             </LocalizedClientLink>

@@ -63,7 +63,7 @@ const Summary = ({ cart }: SummaryProps) => {
         )}
         <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-black rounded-full transition-all duration-500"
+            className="h-full bg-[#00b5a4] rounded-full transition-all duration-500"
             style={{ width: `${freeShippingProgress}%` }}
           />
         </div>
@@ -77,7 +77,7 @@ const Summary = ({ cart }: SummaryProps) => {
         href={"/checkout?step=" + step}
         data-testid="checkout-button"
       >
-        <button className="w-full bg-black text-white py-4 rounded-full font-semibold text-sm tracking-wide hover:bg-gray-800 transition-colors">
+        <button className="w-full bg-[#00b5a4] text-white py-4 rounded-full font-semibold text-sm tracking-wide hover:bg-[#009d8e] transition-colors">
           Checkout →
         </button>
       </LocalizedClientLink>

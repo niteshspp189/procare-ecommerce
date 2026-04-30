@@ -1,6 +1,6 @@
 "use client"
 
-import React, { Suspense, useState, useMemo } from "react"
+import React, { Suspense, useState, useMemo, useRef } from "react"
 import { HttpTypes } from "@medusajs/types"
 import ImageGallery from "@modules/products/components/image-gallery"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -111,6 +111,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
 
   const [activeAccordion, setActiveAccordion] = useState<string | null>("description")
   const [faqOpen, setFaqOpen] = useState<number | null>(null)
+  const howScrollRef = useRef<HTMLDivElement>(null)
 
   const toggleAccordion = (name: string) => {
     setActiveAccordion(activeAccordion === name ? null : name)
@@ -147,6 +148,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
     { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
     { q: "What is the return policy?", a: "We offer a 30-day return policy for all sealed and unused products. No questions asked." },
+    { q: "Is cash on delivery available?", a: "Yes, COD is available on select pincodes across India. You can check availability at checkout." },
+    { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
+    { q: "Are Pro Care products safe for all shoe types?", a: "Yes, our products are specially formulated to be gentle on all shoe materials including leather, canvas, suede, and synthetic fabrics." },
   ]
 
   return (
@@ -159,15 +163,15 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12 mt-4">
-          <div className="w-full lg:flex-1 min-w-0">
+          <div className="w-full lg:w-[46%] min-w-0">
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:w-[42%] shrink-0 lg:sticky lg:top-24 self-start">
+          <div className="w-full lg:flex-1 shrink-0 lg:sticky lg:top-24 self-start">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
-              <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>
+              {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>}
 
               <div className="flex items-baseline gap-4 mb-1">
                 {product && <ProductPrice product={product} variant={selectedVariant} />}
@@ -175,10 +179,10 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   const pct = 10 + (mrpSeed % 6)
                   const base = selectedVariant.calculated_price.calculated_amount as number
                   const mrp = Math.round(base * (1 + pct / 100) / 10) * 10
-                  return <span className="text-gray-400 text-base line-through">₹{mrp.toFixed(2)}</span>
+                  return <span className="text-black text-lg line-through font-medium">₹{mrp.toFixed(2)}</span>
                 })()}
               </div>
-              <p className="text-xs text-gray-400 mb-6">(Inclusive of all taxes)</p>
+              <p className="text-sm text-black mb-4">(Inclusive of all taxes)</p>
 
               <div className="mb-6">
                 {isSingleDefaultVariant ? (
@@ -247,9 +251,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 </Button>
               </div>
 
-              <div className="flex items-center justify-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] uppercase tracking-widest font-bold text-center py-3 rounded-xl mb-8">
-                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
-                Delivered in 5–6 business days
+              <div className="flex items-center justify-center gap-2 bg-gray-50 border border-gray-200 text-black text-[13px] uppercase tracking-widest font-bold text-center py-3 rounded-xl mb-6">
+                <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                Delivery in 5–6 business days
               </div>
 
               {/* FEATURE ICONS */}
@@ -286,16 +290,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   } catch {}
                 }
                 return (
-                  <div className="flex justify-between items-center py-8 border-t border-b border-gray-100 mb-8 max-w-full overflow-x-auto gap-4 no-scrollbar">
+                  <div className="flex justify-between items-center py-6 border-t border-b border-gray-200 mb-5 max-w-full overflow-x-auto gap-4 no-scrollbar">
                     {activeBadges.map((badge: { iconId: string; label: string }, idx: number) => {
                       const svg = ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"]
                       return (
-                        <div key={idx} className="text-center flex flex-col items-center gap-3 min-w-[70px]">
-                          <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 border-2 border-emerald-100">
-                            <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                        <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[72px]">
+                          <div className="w-[60px] h-[60px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300">
+                            <svg width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
                               dangerouslySetInnerHTML={{ __html: svg }} />
                           </div>
-                          <span className="text-[9px] font-bold text-emerald-700 tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
+                          <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
                         </div>
                       )
                     })}
@@ -304,22 +308,22 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               })()}
 
               {/* ACCORDIONS */}
-              <div className="space-y-2">
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
+              <div className="space-y-0 border border-gray-200 rounded-xl overflow-hidden">
+                <div className="border-b border-gray-200">
                   <div
-                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("description")}
                   >
                     <span>Product Description</span>
-                    <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "description" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "description" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "description" && (
-                    <div className="px-5 pb-5 pt-2 border-t border-gray-100 text-gray-600 text-sm leading-relaxed">
-                      <p className="mb-4">{String(product.description || '').replace(/\*\*/g, '')}</p>
+                    <div className="px-1 pb-4 text-black text-sm leading-relaxed">
+                      <p className="mb-3">{String(product.description || '').replace(/\*\*/g, '')}</p>
                       {metadata.key_benefits && (
-                        <ul className="space-y-1 mt-2">
+                        <ul className="space-y-2 mt-2">
                           {parseLines(metadata.key_benefits).map((line: string, i: number) => (
-                            <li key={i} className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">•</span>{line}</li>
+                            <li key={i} className="flex items-start gap-2"><span className="mt-0.5">•</span>{line}</li>
                           ))}
                         </ul>
                       )}
@@ -327,20 +331,20 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   )}
                 </div>
                 {!!metadata.how_to_use && (
-                  <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="border-b border-gray-200">
                     <div
-                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
                       onClick={() => toggleAccordion("how")}
                     >
                       <span>How To Use</span>
-                      <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "how" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                      <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "how" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
                     {activeAccordion === "how" && (
-                      <div className="px-5 pb-5 pt-2 border-t border-gray-100 space-y-4">
+                      <div className="px-1 pb-4 space-y-4">
                         {howToUseSteps.map((step, i) => (
                           <div key={i}>
-                            <h4 className="font-bold text-xs text-black uppercase mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '').replace(/^step\s*\d+[\s:.–-]*/i, '').trim()}</h4>
-                            <p className="text-sm text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
+                            <h4 className="font-bold text-sm text-black mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '').replace(/^step\s*\d+[\s:.–-]*/i, '').trim()}</h4>
+                            <p className="text-sm text-black leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
                           </div>
                         ))}
                       </div>
@@ -348,22 +352,22 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   </div>
                 )}
                 {metadata.specifications && (
-                  <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="border-b border-gray-200">
                     <div
-                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
                       onClick={() => toggleAccordion("specs")}
                     >
                       <span>Specifications</span>
-                      <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "specs" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                      <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "specs" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
                     {activeAccordion === "specs" && (
-                      <div className="px-5 pb-5 pt-2 border-t border-gray-100">
+                      <div className="px-1 pb-4">
                         <table className="w-full text-sm text-left">
                           <tbody>
                             {Object.entries(metadata.specifications as Record<string, any>).map(([key, value], i) => (
                               <tr key={i} className="border-b border-gray-50 last:border-0">
-                                <td className="py-2 font-semibold text-gray-400 uppercase text-[10px] tracking-widest w-1/3">{key}</td>
-                                <td className="py-2 text-gray-600 font-medium">{value as any}</td>
+                                <td className="py-2 font-semibold text-black uppercase text-xs tracking-wide w-1/3">{key}</td>
+                                <td className="py-2 text-black">{value as any}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -372,39 +376,39 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     )}
                   </div>
                 )}
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="border-b border-gray-200">
                   <div
-                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("shipping")}
                   >
                     <span>Shipping & Returns</span>
-                    <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "shipping" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "shipping" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "shipping" && (
-                    <div className="px-5 pb-5 pt-2 border-t border-gray-100 space-y-3 text-sm text-gray-600">
-                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Delivery:</strong> Ships within 5–6 business days across India.</span></div>
-                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Free Delivery:</strong> On all orders above ₹499.</span></div>
-                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Cash on Delivery:</strong> Available on select pincodes.</span></div>
-                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Returns:</strong> 30-day return policy for sealed and unused products.</span></div>
-                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Exchange:</strong> Available within 7 days of delivery. Contact us at connect@mvscindia.com.</span></div>
-                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Packaging:</strong> Securely packed to prevent transit damage.</span></div>
+                    <div className="px-1 pb-4 space-y-2 text-sm text-black">
+                      <div><strong>Delivery:</strong> Ships within 5–6 business days across India.</div>
+                      <div><strong>Free Delivery:</strong> On all orders above ₹499.</div>
+                      <div><strong>Cash on Delivery:</strong> Available on select pincodes.</div>
+                      <div><strong>Returns:</strong> 30-day return policy for sealed and unused products.</div>
+                      <div><strong>Exchange:</strong> Available within 7 days of delivery. Contact us at connect@mvscindia.com.</div>
+                      <div><strong>Packaging:</strong> Securely packed to prevent transit damage.</div>
                     </div>
                   )}
                 </div>
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="border-b border-gray-200">
                   <div
-                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("manufacturer")}
                   >
                     <span>Manufacturer Details</span>
-                    <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "manufacturer" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "manufacturer" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "manufacturer" && (
-                    <div className="px-5 pb-5 pt-2 border-t border-gray-100 text-sm text-gray-600 space-y-2">
-                      <p><strong className="text-black">Company:</strong> M V SHOE CARE PVT LTD</p>
-                      <p><strong className="text-black">Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</p>
-                      <p><strong className="text-black">Contact:</strong> +91-120-429-9685</p>
-                      <p><strong className="text-black">Email:</strong> connect@mvscindia.com</p>
+                    <div className="px-1 pb-4 text-sm text-black space-y-2">
+                      <div><strong>Company:</strong> M V SHOE CARE PVT LTD</div>
+                      <div><strong>Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</div>
+                      <div><strong>Contact:</strong> +91-120-429-9685</div>
+                      <div><strong>Email:</strong> connect@mvscindia.com</div>
                     </div>
                   )}
                 </div>
@@ -421,7 +425,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <h2 className="text-3xl font-semibold mb-2 text-black">How It Works</h2>
             <p className="text-gray-500 text-sm tracking-wide">Follow these simple steps for perfect results</p>
           </div>
-          <div style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
+          <div className="relative">
+            {/* Prev button */}
+            <button
+              onClick={() => howScrollRef.current?.scrollBy({ left: -(343 + 32), behavior: 'smooth' })}
+              className="hidden md:flex absolute left-0 top-[140px] -translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label="Previous"
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+          <div ref={howScrollRef} style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
           <div className="snap-x snap-mandatory" style={{ display: 'inline-flex', gap: '32px', textAlign: 'left' } as React.CSSProperties}>
             {product.metadata?.how_to_use ? (
               (() => {
@@ -430,8 +443,8 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   ? raw
                   : String(raw).replace(/\*\*/g, '').split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim() }))
                 return steps.map((step, index) => (
-                <div key={index} className="text-left flex-shrink-0 w-[286px] snap-start">
-                  <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
+                <div key={index} className="text-left flex-shrink-0 w-[343px] snap-start">
+                  <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img
                       src={`${imgBase}how${(index % 4) + 1}.png`}
                       alt={step.title}
@@ -448,29 +461,29 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               })()
             ) : (
               <>
-                <div className="text-left flex-shrink-0 w-[286px] snap-start">
-                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black">Clean</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">Remove dirt and debris from your shoes.</p>
                 </div>
-                <div className="text-left flex-shrink-0 w-[286px] snap-start">
-                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black">Apply</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">Use the solution with gentle circular motions.</p>
                 </div>
-                <div className="text-left flex-shrink-0 w-[286px] snap-start">
-                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black">Dry</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">Let your shoes air dry naturally.</p>
                 </div>
-                <div className="text-left flex-shrink-0 w-[286px] snap-start">
-                  <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how4.png" alt="Protect" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-semibold text-base mb-1 text-black">Protect</h3>
@@ -479,6 +492,15 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               </>
             )}
           </div>
+          </div>
+            {/* Next button */}
+            <button
+              onClick={() => howScrollRef.current?.scrollBy({ left: 343 + 32, behavior: 'smooth' })}
+              className="hidden md:flex absolute right-0 top-[140px] translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label="Next"
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
           </div>
         </div>
       </section>
