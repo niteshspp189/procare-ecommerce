@@ -22,26 +22,39 @@ export default async function Footer() {
       <div style={s.inner as any} className="px-4 sm:px-0">
         <div style={s.grid as any} className="responsive-grid-4">
           <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <h4 style={s.colTitle as any} className="text-white">STORE LOCATOR</h4>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Become a Member</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Sign Up for Email</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Send Us Feedback</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Student Discounts</LocalizedClientLink>
+            <h4 style={s.colTitle as any} className="text-white">CUSTOMER DESK</h4>
+            <LocalizedClientLink href="/account/orders" style={s.link} className="hover:text-white transition-colors">Track Order</LocalizedClientLink>
+            <LocalizedClientLink href="/account/orders" style={s.link} className="hover:text-white transition-colors">My Orders</LocalizedClientLink>
+            <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Return Or Replace</LocalizedClientLink>
+            <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Help / Contact</LocalizedClientLink>
+            <LocalizedClientLink href="/faq" style={s.link} className="hover:text-white transition-colors">FAQ</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <h4 style={s.colTitle as any} className="text-white">GET HELP</h4>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Order Status</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Delivery</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Returns</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Payment Options</LocalizedClientLink>
-            <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Contact Us</LocalizedClientLink>
+            <h4 style={s.colTitle as any} className="text-white">SHOP BY COLLECTION</h4>
+            <LocalizedClientLink href="/collections/shoe-care" style={s.link} className="hover:text-white transition-colors">Shoe Care</LocalizedClientLink>
+            <LocalizedClientLink href="/collections/insoles" style={s.link} className="hover:text-white transition-colors">Insoles</LocalizedClientLink>
+            <LocalizedClientLink href="/collections/foot-care" style={s.link} className="hover:text-white transition-colors">Foot Care</LocalizedClientLink>
+            <LocalizedClientLink href="/collections/accessories" style={s.link} className="hover:text-white transition-colors">Accessories</LocalizedClientLink>
+            <LocalizedClientLink href="/collections/bestsellers" style={s.link} className="hover:text-white transition-colors">Bestsellers</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <h4 style={s.colTitle as any} className="text-white">ABOUT PRO CARE</h4>
             <LocalizedClientLink href="/our-story" style={s.link} className="hover:text-white transition-colors">Our Story</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Careers</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Sustainability</LocalizedClientLink>
-            <div className="mt-6 sm:mt-8 flex gap-3 sm:gap-4">
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Career</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Our Brands</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Responsibility</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Quality</LocalizedClientLink>
+          </div>
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <h4 style={s.colTitle as any} className="text-white">QUICK LINKS</h4>
+            <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Contact for B2B</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Customer Reviews</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Media</LocalizedClientLink>
+            <LocalizedClientLink href="/blog" style={s.link} className="hover:text-white transition-colors">Blogs</LocalizedClientLink>
+          </div>
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+            <h4 style={s.colTitle as any} className="text-white">FOLLOW US</h4>
+            <div className="flex gap-3 mb-6">
               <LocalizedClientLink href="/" style={s.socialIcon as any} className="hover:bg-white hover:text-black transition-all">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
               </LocalizedClientLink>
@@ -55,26 +68,24 @@ export default async function Footer() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.46-5.58z" /><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" /></svg>
               </LocalizedClientLink>
             </div>
-          </div>
-          <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <h4 style={s.colTitle as any} className="text-white">NEWSLETTER</h4>
-            <p className="text-[10px] sm:text-[11px] text-gray-400 mb-3 sm:mb-4 leading-relaxed">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+            <h4 style={s.colTitle as any} className="text-white mt-2">NEWSLETTER</h4>
+            <p className="text-[10px] text-gray-400 mb-3 leading-relaxed">Subscribe for special offers & once-in-a-lifetime deals.</p>
             <div className="flex bg-[#111] rounded-full overflow-hidden border border-gray-800 focus-within:border-gray-600 transition-colors">
-              <input type="email" placeholder="Email Address" className="bg-transparent border-none px-3 sm:px-4 py-2 text-[11px] sm:text-[12px] w-full focus:outline-none" />
-              <button className="bg-white text-black px-3 sm:px-4 py-2 text-[10px] sm:text-[11px] font-bold">JOIN</button>
+              <input type="email" placeholder="Email Address" className="bg-transparent border-none px-3 py-2 text-[11px] w-full focus:outline-none" />
+              <button className="bg-white text-black px-3 py-2 text-[10px] font-bold">JOIN</button>
             </div>
           </div>
         </div>
         <div style={s.bottom as any}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-            <span className="flex items-center gap-2"><span className="w-2 h-2 bg-green-500 rounded-full"></span> India</span>
+            <span className="flex items-center gap-2"><svg width="12" height="12" viewBox="0 0 24 24" fill="#e11d48" stroke="#e11d48" strokeWidth="1"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> India</span>
             <span>© {new Date().getFullYear()} Pro Premium Care. All rights reserved.</span>
           </div>
           <div style={s.bottomLinks as any}>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Guides</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Terms of Sale</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Terms of Use</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Terms &amp; Conditions</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Shipping &amp; Exchange</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Privacy Policy</LocalizedClientLink>
+            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Refund Policy</LocalizedClientLink>
           </div>
         </div>
       </div>

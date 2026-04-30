@@ -1,8 +1,11 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
+import RelatedProducts from "@modules/products/components/related-products"
+import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { HttpTypes } from "@medusajs/types"
 
 export const dynamic = "force-dynamic"
@@ -113,6 +116,11 @@ export default async function ProductPage(props: Props) {
       region={region}
       countryCode="in"
       images={images}
+      relatedProducts={
+        <Suspense fallback={<SkeletonRelatedProducts />}>
+          <RelatedProducts product={pricedProduct} countryCode="in" isStaging={true} />
+        </Suspense>
+      }
     />
   )
 }

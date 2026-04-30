@@ -242,7 +242,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .responsive-grid-4 {
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-columns: repeat(5, 1fr) !important;
   gap: 24px !important;
 }
 

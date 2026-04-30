@@ -73,6 +73,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     })
   }, [product?.variants, options])
 
+  const isSingleDefaultVariant = useMemo(() => {
+    if (!product?.variants || product.variants.length !== 1) return false
+    const opts = product.variants[0].options || []
+    if (opts.length === 0) return true
+    return (opts as any[]).every((opt: any) => {
+      const val = (opt.value || '').toLowerCase()
+      return val === 'default' || val === 'standard' || val === ''
+    })
+  }, [product?.variants])
+
   const setOptionValue = (optionId: string, value: string) => {
     setOptions((prev) => ({
       ...prev,
@@ -100,12 +110,44 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }
 
   const [activeAccordion, setActiveAccordion] = useState<string | null>("description")
+  const [faqOpen, setFaqOpen] = useState<number | null>(null)
 
   const toggleAccordion = (name: string) => {
     setActiveAccordion(activeAccordion === name ? null : name)
   }
 
   const metadata = product?.metadata || {}
+
+  const mrpSeed = useMemo(() => {
+    return product?.id?.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0) ?? 7
+  }, [product?.id])
+
+  const parseLines = (content: any): string[] => {
+    if (!content) return []
+    const str = typeof content === 'string' ? content
+      : Array.isArray(content) ? (content as any[]).map((c: any) => typeof c === 'string' ? c : c?.description || c?.title || '').join('\n')
+      : JSON.stringify(content)
+    return str.replace(/\*\*/g, '').split('\n')
+      .map((l: string) => l.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim())
+      .filter((l: string) => l.length > 0)
+  }
+
+  const howToUseSteps = useMemo((): { title: string; description: string }[] => {
+    if (!metadata.how_to_use) return []
+    if (Array.isArray(metadata.how_to_use)) return metadata.how_to_use as { title: string; description: string }[]
+    return String(metadata.how_to_use).replace(/\*\*/g, '').split('\n').filter(Boolean)
+      .map((line: string, i: number) => ({
+        title: `Step ${i + 1}`,
+        description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim()
+      }))
+  }, [metadata.how_to_use])
+
+  const faqItems = [
+    { q: "Can I use this on all materials?", a: "Yes, our formula is safe for all smooth and treated leather, suede, and fabric materials." },
+    { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
+    { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
+    { q: "What is the return policy?", a: "We offer a 30-day return policy for all sealed and unused products. No questions asked." },
+  ]
 
   return (
     <div style={s.container as any} className="font-sans">
@@ -117,22 +159,36 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12 mt-4">
-          <div className="flex-1 min-w-0">
+          <div className="w-full lg:flex-1 min-w-0">
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-24 self-start">
+          <div className="w-full lg:w-[42%] shrink-0 lg:sticky lg:top-24 self-start">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
               <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>
 
-              <div className="flex items-end gap-3 mb-6">
+              <div className="flex items-baseline gap-4 mb-1">
                 {product && <ProductPrice product={product} variant={selectedVariant} />}
+                {selectedVariant?.calculated_price?.calculated_amount != null && selectedVariant.calculated_price.calculated_amount > 0 && (() => {
+                  const pct = 10 + (mrpSeed % 6)
+                  const base = selectedVariant.calculated_price.calculated_amount as number
+                  const mrp = Math.round(base * (1 + pct / 100) / 10) * 10
+                  return <span className="text-gray-400 text-base line-through">₹{mrp.toFixed(2)}</span>
+                })()}
               </div>
+              <p className="text-xs text-gray-400 mb-6">(Inclusive of all taxes)</p>
 
               <div className="mb-6">
-                {(product?.options || []).length > 0 ? (
+                {isSingleDefaultVariant ? (
+                  <div>
+                    <div className="text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">Size</div>
+                    <div className="inline-flex items-center border-2 border-black rounded-full px-5 py-2 bg-white">
+                      <span className="text-sm font-bold text-black">{subtitle}</span>
+                    </div>
+                  </div>
+                ) : (product?.options || []).length > 0 ? (
                   (product?.options || []).map((option) => (
                     <div key={option.id} className="mb-4">
                       <OptionSelect
@@ -191,9 +247,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 </Button>
               </div>
 
-              <div className="flex items-center justify-center gap-2 bg-gray-50 border border-gray-200 text-gray-800 text-[11px] uppercase tracking-widest font-bold text-center py-3 rounded-xl mb-8">
-                <span className="text-sm font-bold">₹</span>
-                Save up to 20% with subscription
+              <div className="flex items-center justify-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] uppercase tracking-widest font-bold text-center py-3 rounded-xl mb-8">
+                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                Delivered in 5–6 business days
               </div>
 
               {/* FEATURE ICONS */}
@@ -235,11 +291,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       const svg = ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"]
                       return (
                         <div key={idx} className="text-center flex flex-col items-center gap-3 min-w-[70px]">
-                          <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-black border border-gray-100">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                          <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 border-2 border-emerald-100">
+                            <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
                               dangerouslySetInnerHTML={{ __html: svg }} />
                           </div>
-                          <span className="text-[9px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
+                          <span className="text-[9px] font-bold text-emerald-700 tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
                         </div>
                       )
                     })}
@@ -248,49 +304,43 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               })()}
 
               {/* ACCORDIONS */}
-              <div className="space-y-0">
-                <div className="border-b border-gray-100 py-4 pb-6">
+              <div className="space-y-2">
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
                   <div
-                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer text-black"
+                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("description")}
                   >
                     <span>Product Description</span>
-                    <span className="text-gray-400">{activeAccordion === "description" ? "−" : "+"}</span>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "description" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "description" && (
-                    <div className="mt-4 text-gray-500 text-sm leading-relaxed">
-                      <p className="mb-4">{product.description as string}</p>
+                    <div className="px-5 pb-5 pt-2 border-t border-gray-100 text-gray-600 text-sm leading-relaxed">
+                      <p className="mb-4">{String(product.description || '').replace(/\*\*/g, '')}</p>
                       {metadata.key_benefits && (
-                        <ul className="list-disc pl-5 space-y-1">
-                          {Array.isArray(metadata.key_benefits) ? (
-                            (metadata.key_benefits as any[]).map((benefit, i) => (
-                              <li key={i}>{benefit as any}</li>
-                            ))
-                          ) : typeof metadata.key_benefits === 'string' ? (
-                            metadata.key_benefits.split('\n').map((benefit: string, i: number) => (
-                              <li key={i}>{benefit}</li>
-                            ))
-                          ) : null}
+                        <ul className="space-y-1 mt-2">
+                          {parseLines(metadata.key_benefits).map((line: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">•</span>{line}</li>
+                          ))}
                         </ul>
                       )}
                     </div>
                   )}
                 </div>
                 {!!metadata.how_to_use && (
-                  <div className="border-b border-gray-100 py-4">
+                  <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <div
-                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black"
+                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
                       onClick={() => toggleAccordion("how")}
                     >
                       <span>How To Use</span>
-                      <span className="text-gray-400">{activeAccordion === "how" ? "−" : "+"}</span>
+                      <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "how" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
                     {activeAccordion === "how" && (
-                      <div className="mt-4 space-y-4">
-                        {(metadata.how_to_use as any[]).map((step, i) => (
+                      <div className="px-5 pb-5 pt-2 border-t border-gray-100 space-y-4">
+                        {howToUseSteps.map((step, i) => (
                           <div key={i}>
-                            <h4 className="font-bold text-xs text-black uppercase mb-1">Step {i + 1}: {step.title}</h4>
-                            <p className="text-sm text-gray-500 leading-relaxed">{step.description}</p>
+                            <h4 className="font-bold text-xs text-black uppercase mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '')}</h4>
+                            <p className="text-sm text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
                           </div>
                         ))}
                       </div>
@@ -298,16 +348,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   </div>
                 )}
                 {metadata.specifications && (
-                  <div className="border-b border-gray-100 py-4">
+                  <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <div
-                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black"
+                      className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
                       onClick={() => toggleAccordion("specs")}
                     >
                       <span>Specifications</span>
-                      <span className="text-gray-400">{activeAccordion === "specs" ? "−" : "+"}</span>
+                      <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "specs" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
                     {activeAccordion === "specs" && (
-                      <div className="mt-4 pb-4">
+                      <div className="px-5 pb-5 pt-2 border-t border-gray-100">
                         <table className="w-full text-sm text-left">
                           <tbody>
                             {Object.entries(metadata.specifications as Record<string, any>).map(([key, value], i) => (
@@ -322,17 +372,41 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     )}
                   </div>
                 )}
-                <div className="border-b border-gray-100 py-4">
-                  <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black">
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div
+                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                    onClick={() => toggleAccordion("shipping")}
+                  >
                     <span>Shipping & Returns</span>
-                    <span className="text-gray-400">+</span>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "shipping" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
+                  {activeAccordion === "shipping" && (
+                    <div className="px-5 pb-5 pt-2 border-t border-gray-100 space-y-3 text-sm text-gray-600">
+                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Delivery:</strong> Ships within 5–6 business days across India.</span></div>
+                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Free Delivery:</strong> On all orders above ₹499.</span></div>
+                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Cash on Delivery:</strong> Available on select pincodes.</span></div>
+                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Returns:</strong> 30-day return policy for sealed and unused products.</span></div>
+                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Exchange:</strong> Available within 7 days of delivery. Contact us at connect@mvscindia.com.</span></div>
+                      <div className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">✓</span><span><strong className="text-black">Packaging:</strong> Securely packed to prevent transit damage.</span></div>
+                    </div>
+                  )}
                 </div>
-                <div className="py-4">
-                  <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black">
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div
+                    className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer px-5 py-4 hover:bg-gray-50 text-black"
+                    onClick={() => toggleAccordion("manufacturer")}
+                  >
                     <span>Manufacturer Details</span>
-                    <span className="text-gray-400">+</span>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 ${activeAccordion === "manufacturer" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
+                  {activeAccordion === "manufacturer" && (
+                    <div className="px-5 pb-5 pt-2 border-t border-gray-100 text-sm text-gray-600 space-y-2">
+                      <p><strong className="text-black">Company:</strong> M V SHOE CARE PVT LTD</p>
+                      <p><strong className="text-black">Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</p>
+                      <p><strong className="text-black">Contact:</strong> +91-120-429-9685</p>
+                      <p><strong className="text-black">Email:</strong> connect@mvscindia.com</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -347,15 +421,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <h2 className="text-3xl font-semibold mb-2 text-black">How It Works</h2>
             <p className="text-gray-500 text-sm tracking-wide">Follow these simple steps for perfect results</p>
           </div>
-          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-${Math.min(4, ((product.metadata?.how_to_use as any[])?.length || 4))} gap-6`}>
+          <div style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
+          <div className="snap-x snap-mandatory" style={{ display: 'inline-flex', gap: '32px', textAlign: 'left' } as React.CSSProperties}>
             {product.metadata?.how_to_use ? (
               (() => {
                 const raw = product.metadata.how_to_use
                 const steps: { title: string; description: string }[] = Array.isArray(raw)
                   ? raw
-                  : String(raw).split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.trim() }))
+                  : String(raw).replace(/\*\*/g, '').split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim() }))
                 return steps.map((step, index) => (
-                <div key={index} className="text-left">
+                <div key={index} className="text-left flex-shrink-0 w-[286px] snap-start">
                   <div className="aspect-[4/3] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img
                       src={`${imgBase}how${(index % 4) + 1}.png`}
@@ -366,43 +441,44 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       {index + 1}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">{index + 1}. {step.title}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">{step.description}</p>
+                  <h3 className="font-semibold text-base mb-1 text-black">{String(step.title).replace(/\*\*/g, '').replace(/^\d+\.\s*/, '')}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
                 </div>
               ))
               })()
             ) : (
               <>
-                <div className="text-left">
+                <div className="text-left flex-shrink-0 w-[286px] snap-start">
                   <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
-                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">1. Clean</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Remove dirt and debris from your shoes.</p>
+                  <h3 className="font-semibold text-base mb-1 text-black">Clean</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">Remove dirt and debris from your shoes.</p>
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-shrink-0 w-[286px] snap-start">
                   <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
-                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">2. Apply</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Use the solution with gentle circular motions.</p>
+                  <h3 className="font-semibold text-base mb-1 text-black">Apply</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">Use the solution with gentle circular motions.</p>
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-shrink-0 w-[286px] snap-start">
                   <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
-                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">3. Dry</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Let your shoes air dry naturally.</p>
+                  <h3 className="font-semibold text-base mb-1 text-black">Dry</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">Let your shoes air dry naturally.</p>
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-shrink-0 w-[286px] snap-start">
                   <div className="aspect-square bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
                     <img src="/images/product-detail-images/how4.png" alt="Protect" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   </div>
-                  <h3 className="font-semibold text-base mb-1 text-black whitespace-nowrap">4. Protect</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">Apply protective coating for longevity.</p>
+                  <h3 className="font-semibold text-base mb-1 text-black">Protect</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">Apply protective coating for longevity.</p>
                 </div>
               </>
             )}
+          </div>
           </div>
         </div>
       </section>
@@ -417,13 +493,26 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
         </div>
-        <div className="flex-1 bg-[#f0f0f5] flex items-center justify-center p-12 text-center relative overflow-hidden min-h-[300px] md:min-h-full">
-          <div className="relative z-10 max-w-2xl">
-            <p className="text-xs lg:text-sm font-bold tracking-[0.2em] text-gray-500 mb-4 uppercase">German Precision. Indian Excellence. Trusted Worldwide.</p>
-            <h2 className="text-[clamp(16px,2vw,28px)] font-black leading-tight mb-8 uppercase text-black whitespace-nowrap overflow-hidden text-ellipsis">Crafting World - Class Care For Every Step</h2>
-            <LocalizedClientLink href="/about">
-              <Button variant="primary">Read More</Button>
-            </LocalizedClientLink>
+        <div className="flex-1 bg-[#f0f0f5] flex items-center justify-center p-8 lg:p-12 relative overflow-hidden min-h-[300px] md:min-h-full">
+          <div className="relative z-10 w-full max-w-lg">
+            <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 mb-2 uppercase">Got Questions?</p>
+            <h2 className="text-xl font-black mb-6 uppercase text-black">Frequently Asked Questions</h2>
+            <div className="space-y-2 text-left">
+              {faqItems.map((item, i) => (
+                <div key={i} className="border border-gray-300 rounded-xl overflow-hidden bg-white">
+                  <button
+                    className="w-full flex justify-between items-center px-5 py-4 font-bold text-xs uppercase tracking-widest text-black hover:bg-gray-50"
+                    onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                  >
+                    <span className="text-left">{item.q}</span>
+                    <svg className={`w-4 h-4 flex-shrink-0 ml-2 transition-transform text-gray-400 ${faqOpen === i ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                  {faqOpen === i && (
+                    <div className="px-5 pb-4 pt-2 border-t border-gray-100 text-sm text-gray-600 leading-relaxed normal-case tracking-normal font-normal">{item.a}</div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -438,34 +527,6 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           </div>
         </div>
 
-        {/* FAQ SECTION */}
-        <div className="py-16 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-semibold mb-2 text-center">Frequently Asked Questions</h2>
-          <p className="text-gray-500 text-sm tracking-wide text-center mb-12">Everything you need to know about our products</p>
-          <div className="space-y-0 text-left">
-            <div className="border-b border-gray-200 py-6 text-sm">
-              <button className="flex justify-between items-center w-full group">
-                <span className="font-semibold text-black">Can I use this on all materials?</span>
-                <span className="text-gray-400 group-hover:text-black">v</span>
-              </button>
-            </div>
-            <div className="border-b border-gray-200 py-6 text-sm">
-              <button className="flex justify-between items-center w-full group mb-4">
-                <span className="font-semibold text-black">How often should I use this product?</span>
-                <span className="text-gray-400 group-hover:text-black">^</span>
-              </button>
-              <p className="text-gray-600 leading-relaxed font-medium">
-                We recommend using it once a week for regular maintenance, or as needed depending on how frequently you wear your shoes.
-              </p>
-            </div>
-            <div className="border-b border-gray-200 py-6 text-sm">
-              <button className="flex justify-between items-center w-full group">
-                <span className="font-semibold text-black">Is this environment friendly?</span>
-                <span className="text-gray-400 group-hover:text-black">v</span>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
