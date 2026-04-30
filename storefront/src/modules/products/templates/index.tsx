@@ -339,7 +339,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <div className="px-5 pb-5 pt-2 border-t border-gray-100 space-y-4">
                         {howToUseSteps.map((step, i) => (
                           <div key={i}>
-                            <h4 className="font-bold text-xs text-black uppercase mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '')}</h4>
+                            <h4 className="font-bold text-xs text-black uppercase mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '').replace(/^step\s*\d+[\s:.–-]*/i, '').trim()}</h4>
                             <p className="text-sm text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
                           </div>
                         ))}
