@@ -13,8 +13,8 @@ const s = {
         flex: 1,
         padding: '10px',
         backgroundColor: '#fff',
-        color: '#000',
-        border: '1.5px solid #000',
+        color: '#00bda5',
+        border: '1.5px solid #00bda5',
         borderRadius: '999px',
         fontSize: '13px',
         fontWeight: '700',
@@ -145,7 +145,7 @@ export default function QuickBuy({
                                             className={clx(
                                                 "px-4 py-2 border rounded-full text-xs font-bold transition-all uppercase tracking-widest",
                                                 selectedVariantId === v.id
-                                                    ? "border-black bg-black text-white"
+                                                    ? "border-[#00bda5] bg-[#00bda5] text-white"
                                                     : "border-gray-200 bg-white text-gray-500 hover:border-gray-400"
                                             )}
                                         >
@@ -153,7 +153,7 @@ export default function QuickBuy({
                                         </button>
                                     ))}
                                     {(!product.variants || product.variants.length === 0) && (
-                                        <div className="px-4 py-2 border border-black bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest">
+                                        <div className="px-4 py-2 border border-[#00bda5] bg-[#00bda5] text-white rounded-full text-xs font-bold uppercase tracking-widest">
                                             Default
                                         </div>
                                     )}
@@ -166,7 +166,7 @@ export default function QuickBuy({
                                         onClick={handleAddToCart}
                                         isLoading={isAdding}
                                         disabled={!selectedVariantId || isBuying}
-                                        className="rounded-full bg-white text-black border-2 border-black hover:bg-gray-50 h-12 uppercase tracking-widest text-xs font-black"
+                                        className="rounded-full bg-white text-[#00bda5] border-2 border-[#00bda5] hover:bg-gray-50 h-12 uppercase tracking-widest text-xs font-black"
                                     >
                                         Add To Cart
                                     </Button>
@@ -174,7 +174,7 @@ export default function QuickBuy({
                                         onClick={handleBuyNow}
                                         isLoading={isBuying}
                                         disabled={!selectedVariantId || isAdding}
-                                        className="rounded-full bg-black text-white h-12 uppercase tracking-widest text-xs font-black hover:bg-gray-800"
+                                        className="rounded-full bg-[#00bda5] text-white h-12 uppercase tracking-widest text-xs font-black hover:bg-[#00a38f]"
                                     >
                                         Buy Now
                                     </Button>

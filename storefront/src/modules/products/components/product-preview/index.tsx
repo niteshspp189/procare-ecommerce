@@ -34,7 +34,7 @@ const s = {
   prodCat: { fontSize: '13px', color: '#777', marginBottom: '12px' },
   priceRow: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' },
   btnRow: { display: 'flex', gap: '10px', marginTop: 'auto' },
-  btnCart: { flex: 1, padding: '10px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center' as const },
+  btnCart: { flex: 1, padding: '10px', backgroundColor: '#00bda5', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center' as const },
   btnBuy: { flex: 1, padding: '10px', backgroundColor: '#fff', color: '#000', border: '1px solid #000', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center' as const }
 }
 
@@ -105,7 +105,7 @@ export default function ProductPreview({
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#009d8e' : '#00b5a4', color: '#fff' } as any}
+              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#00a38f' : '#00bda5', color: '#fff' } as any}
               className="hover:opacity-90 transition-all transform active:scale-95 disabled:opacity-60 uppercase tracking-widest text-[10px] font-bold"
             >
               {isAdding ? "Adding…" : "Shop Now"}
@@ -123,8 +123,8 @@ export default function ProductPreview({
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#555' : '#000' } as any}
-              className="hover:bg-gray-800 transition-all transform active:scale-95 disabled:opacity-60"
+              style={{ ...s.btnCart, borderRadius: '999px', backgroundColor: isAdding ? '#00a38f' : '#00bda5' } as any}
+              className="hover:bg-[#00a38f] transition-all transform active:scale-95 disabled:opacity-60"
             >
               {isAdding ? "Adding…" : "Add to Cart"}
             </button>

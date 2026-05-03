@@ -46,7 +46,13 @@ export default async function StagingHome(props: {
   // Fetch products for best sellers categories
   const bestSellerHandles = ['shoe-care', 'insoles', 'foot-care', 'accessories']
   const bestSellerCategories = bestSellerHandles
-    .map(handle => productCategories.find(c => c.handle === handle))
+    .map(handle => {
+      const category = productCategories.find(c => c.handle === handle)
+      if (category && category.handle === 'shoe-care') {
+        return { ...category, name: 'Shoe Care' }
+      }
+      return category
+    })
     .filter(Boolean) as any[]
 
   const initialProducts: Record<string, any[]> = {}
@@ -101,41 +107,57 @@ export default async function StagingHome(props: {
           </h2>
         </div>
 
-        {/* CATEGORY GRID V2 - 4 COLUMNS TOUCHING */}
-        <div className="flex flex-col md:flex-row w-full animate-fade-in-up h-[500px]">
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_001_4096x4096.png'} alt="Shoe Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Shoe Care</h3>
+        {/* CATEGORY GRID V2 - RESPONSIVE 4 COLUMNS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row w-full animate-fade-in-up">
+          <div className="relative group overflow-hidden h-[300px] sm:h-[400px] md:h-[600px] md:flex-1">
+            <img 
+              src={imgBase + 'img_001_4096x4096.png'} 
+              alt="Shoe Care" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 uppercase tracking-wider drop-shadow-lg">Shoe Care</h3>
               <LocalizedClientLink href="/categories/shoe-care">
-                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
+                <Button variant="primary" className="px-8 py-2.5 shadow-xl">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_008_4096x4096.png'} alt="Insoles" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Insoles</h3>
+          <div className="relative group overflow-hidden h-[300px] sm:h-[400px] md:h-[600px] md:flex-1">
+            <img 
+              src={imgBase + 'img_008_4096x4096.png'} 
+              alt="Insoles" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 uppercase tracking-wider drop-shadow-lg">Insoles</h3>
               <LocalizedClientLink href="/categories/insoles">
-                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
+                <Button variant="primary" className="px-8 py-2.5 shadow-xl">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_005_1024x1024.png'} alt="Foot Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Foot Care</h3>
+          <div className="relative group overflow-hidden h-[300px] sm:h-[400px] md:h-[600px] md:flex-1">
+            <img 
+              src={imgBase + 'img_005_1024x1024.png'} 
+              alt="Foot Care" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 uppercase tracking-wider drop-shadow-lg">Foot Care</h3>
               <LocalizedClientLink href="/categories/foot-care">
-                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
+                <Button variant="primary" className="px-8 py-2.5 shadow-xl">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_011_4096x4096.png'} alt="Accessories" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Accessories</h3>
+          <div className="relative group overflow-hidden h-[300px] sm:h-[400px] md:h-[600px] md:flex-1">
+            <img 
+              src={imgBase + 'img_011_4096x4096.png'} 
+              alt="Accessories" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 uppercase tracking-wider drop-shadow-lg">Accessories</h3>
               <LocalizedClientLink href="/categories/accessories">
-                <Button variant="primary" className="px-6 py-2 text-xs">Explore</Button>
+                <Button variant="primary" className="px-8 py-2.5 shadow-xl">Explore</Button>
               </LocalizedClientLink>
             </div>
           </div>
@@ -161,7 +183,7 @@ export default async function StagingHome(props: {
         <div className="bg-[#f0f0f5] py-20 text-center animate-fade-in-up relative overflow-hidden">
           <div className="relative z-10 w-full mx-auto px-4">
             <p className="text-sm font-normal text-gray-500 mb-2">German Precision. Indian Excellence. Trusted Worldwide.</p>
-            <h2 className="text-[clamp(24px,3.5vw,48px)] font-normal leading-tight mb-8 whitespace-nowrap overflow-hidden text-ellipsis">Crafting World - Class Care For Every Step</h2>
+            <h2 className="text-[clamp(24px,3.5vw,48px)] font-normal leading-tight mb-8">Crafting World - Class Care For Every Step</h2>
             <LocalizedClientLink href="/about">
               <Button variant="primary">Read More About Us</Button>
             </LocalizedClientLink>

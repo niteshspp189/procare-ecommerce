@@ -45,7 +45,8 @@ h1, h2, h3, h4, h5, h6 {
   --pc-input-bg:     #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Temporarily disabled dark mode to focus on light theme polish */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --pc-bg:           #0f0f0f;
     --pc-bg-subtle:    #1a1a1a;
@@ -64,25 +65,22 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--pc-text);
   }
 
-  /* Sections / cards that hardcode white backgrounds */
   .bg-white {
     background-color: var(--pc-card-bg) !important;
     color: var(--pc-text) !important;
   }
 
-  /* Generic white/light borders */
   .border-gray-100,
   .border-gray-200 {
     border-color: var(--pc-border) !important;
   }
 
-  /* Ensure inputs are readable */
   input, textarea, select {
     background-color: var(--pc-input-bg);
     color: var(--pc-text);
     border-color: var(--pc-border);
   }
-}
+} */
 
 @layer utilities {
 

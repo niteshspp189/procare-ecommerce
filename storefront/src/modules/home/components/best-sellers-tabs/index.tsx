@@ -24,12 +24,12 @@ export default function BestSellersTabs({
 
     return (
         <div className="py-12">
-            <div className="flex justify-center gap-8 mb-12 overflow-x-auto pb-4">
+            <div className="flex justify-start md:justify-center gap-6 md:gap-8 mb-12 overflow-x-auto pb-4 px-4 no-scrollbar">
                 {categories.map((category) => (
                     <button
                         key={category.id}
                         onClick={() => setActiveTab(category.id)}
-                        className={`text-sm font-bold uppercase tracking-widest whitespace-nowrap pb-2 transition-all ${activeTab === category.id
+                        className={`text-sm font-bold uppercase tracking-widest whitespace-nowrap pb-2 transition-all shrink-0 ${activeTab === category.id
                             ? "text-black border-b-2 border-black"
                             : "text-gray-400 hover:text-black border-b-2 border-transparent"
                             }`}

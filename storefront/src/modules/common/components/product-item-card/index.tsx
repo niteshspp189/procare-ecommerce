@@ -151,7 +151,7 @@ export default function ProductItemCard({
                 <button
                     onClick={handleAddToCart}
                     disabled={isAdding}
-                    className={`w-full transition-all transform active:scale-95 disabled:opacity-50 ${isStaging ? "bg-[#00b5a4] text-white hover:bg-[#009d8e]" : "bg-black text-white hover:bg-slate-800"}`}
+                    className={`w-full transition-all transform active:scale-95 disabled:opacity-50 ${isStaging ? "bg-[#00bda5] text-white hover:bg-[#00a38f]" : "bg-[#00bda5] text-white hover:bg-[#00a38f]"}`}
                     style={s.button as any}
                 >
                     {isAdding ? "Adding..." : (isStaging ? "Shop Now" : "Add to Cart")}
