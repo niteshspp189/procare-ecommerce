@@ -1,4 +1,4 @@
-import { sdk } from "./storefront/src/lib/config"
+import { sdk } from "../storefront/src/lib/config"
 
 async function run() {
   const { collections } = await sdk.client.fetch("/store/collections", { query: { handle: "new-arrivals" }})
