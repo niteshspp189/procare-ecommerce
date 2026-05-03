@@ -2,8 +2,7 @@
 
 import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
-import ProductItemCard from "@modules/common/components/product-item-card"
-import StagingProductCard from "./staging-product-card"
+import ProductCard from "@modules/common/components/product-card"
 import CarouselWrapper from "@modules/products/components/related-products/carousel-wrapper"
 
 export default function BestSellersTabs({
@@ -41,23 +40,13 @@ export default function BestSellersTabs({
 
             <div className="animate-fade-in-up">
                 {products.length > 0 ? (
-                    isStaging ? (
-                        <CarouselWrapper>
-                            {products.map((product) => (
-                                <div key={product.id} className="min-w-[320px] w-[320px] snap-start shrink-0">
-                                    <StagingProductCard product={product} region={region} />
-                                </div>
-                            ))}
-                        </CarouselWrapper>
-                    ) : (
-                        <ul className="grid grid-cols-2 lg:grid-cols-3 gap-8">
-                            {products.map((product) => (
-                                <li key={product.id} className="animate-fade-in">
-                                    <ProductItemCard product={product} region={region} />
-                                </li>
-                            ))}
-                        </ul>
-                    )
+                    <CarouselWrapper>
+                        {products.map((product) => (
+                            <div key={product.id} className="min-w-[280px] sm:min-w-[320px] snap-start shrink-0 p-2">
+                                <ProductCard product={product} region={region} />
+                            </div>
+                        ))}
+                    </CarouselWrapper>
                 ) : (
                     <div className="text-center py-20 text-gray-500 uppercase tracking-widest text-sm">
                         No products found in this category

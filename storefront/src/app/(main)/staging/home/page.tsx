@@ -6,7 +6,7 @@ import { listProducts } from "@lib/data/products"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import BestSellersTabs from "@modules/home/components/best-sellers-tabs"
 import CarouselWrapper from "@modules/products/components/related-products/carousel-wrapper"
-import StagingProductCard from "@modules/home/components/best-sellers-tabs/staging-product-card"
+import ProductCard from "@modules/common/components/product-card"
 
 export const dynamic = "force-dynamic"
 
@@ -172,7 +172,7 @@ export default async function StagingHome(props: {
               <CarouselWrapper buttonPosition="top-right">
                 {firstCategoryProducts.map(product => (
                   <div key={product.id} className="min-w-full sm:min-w-[320px] snap-start shrink-0 h-full">
-                    <StagingProductCard product={product} region={region} isFullHeight={true} />
+                    <ProductCard product={product} region={region} variant="featured" />
                   </div>
                 ))}
               </CarouselWrapper>

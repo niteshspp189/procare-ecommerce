@@ -2,7 +2,7 @@ import { listProducts } from "@lib/data/products"
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
 import InteractiveLink from "@modules/common/components/interactive-link"
-import ProductItemCard from "@modules/common/components/product-item-card"
+import ProductCard from "@modules/common/components/product-card"
 
 export default async function ProductRail({
   collection,
@@ -37,7 +37,7 @@ export default async function ProductRail({
         {pricedProducts &&
           pricedProducts.map((product) => (
             <li key={product.id}>
-              <ProductItemCard product={product} region={region} isFeatured />
+              <ProductCard product={product} region={region} variant="featured" />
             </li>
           ))}
       </ul>

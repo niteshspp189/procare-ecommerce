@@ -1,0 +1,71 @@
+/* Design Tokens for ProCare Premium UI */
+:root {
+  /* Spacing */
+  --spacing-section: 4rem; /* 64px */
+  --spacing-grid: 1.5rem;   /* 24px */
+  --spacing-card-padding: 1rem; /* 16px */
+  
+  /* Proportions */
+  --aspect-ratio-card: 1 / 1;
+  
+  /* Typography Sizes */
+  --font-size-title: 1rem;
+  --font-size-category: 0.75rem;
+  --font-size-price: 0.875rem;
+  
+  /* Colors - Unified */
+  --color-primary: #00bda5;
+  --color-primary-hover: #00a38f;
+  --color-text-main: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border-light: #f1f5f9;
+  
+  /* Transitions */
+  --transition-standard: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.2s ease;
+  
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-card-hover: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --spacing-section: 6rem; /* 96px */
+  }
+}
+
+.section-wrapper {
+  padding-top: var(--spacing-section);
+  padding-bottom: var(--spacing-section);
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.product-card-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--spacing-grid);
+}
+
+@media (min-width: 512px) {
+  .product-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .product-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
