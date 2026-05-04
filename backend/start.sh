@@ -1,6 +1,7 @@
 #!/bin/sh
 # corepack enable && corepack prepare yarn@4.12.0 --activate
 # yarn install
+yarn add razorpay
 yarn medusa db:migrate
 
 if [ "$NODE_ENV" = "production" ]; then

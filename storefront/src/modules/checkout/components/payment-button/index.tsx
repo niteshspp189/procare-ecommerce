@@ -1,11 +1,11 @@
 "use client"
 
-import { isManual, isStripeLike } from "@lib/constants"
-import { placeOrder } from "@lib/data/cart"
+import { isManual, isRazorpay, isStripeLike } from "@lib/constants"
+import { placeOrder, updatePaymentSession } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 
 type PaymentButtonProps = {
@@ -35,6 +35,14 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
+    case isRazorpay(paymentSession?.provider_id):
+      return (
+        <RazorpayPaymentButton
+          notReady={notReady}
+          cart={cart}
+          data-testid={dataTestId}
+        />
+      )
     case isManual(paymentSession?.provider_id):
       return (
         <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
@@ -42,6 +50,115 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     default:
       return <Button disabled>Select a payment method</Button>
   }
+}
+
+const RazorpayPaymentButton = ({
+  cart,
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  cart: HttpTypes.StoreCart
+  notReady: boolean
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const session = cart.payment_collection?.payment_sessions?.find(
+    (s) => s.status === "pending"
+  )
+
+  const onPaymentCompleted = async () => {
+    await placeOrder()
+      .catch((err) => {
+        setErrorMessage(err.message)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
+  }
+
+  const handlePayment = async () => {
+    setSubmitting(true)
+
+    if (!session || !cart) {
+      setSubmitting(false)
+      return
+    }
+
+    const loadScript = (src: string) => {
+      return new Promise((resolve) => {
+        const script = document.createElement("script")
+        script.src = src
+        script.onload = () => resolve(true)
+        script.onerror = () => resolve(false)
+        document.body.appendChild(script)
+      })
+    }
+
+    const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
+
+    if (!res) {
+      setErrorMessage("Razorpay SDK failed to load. Are you online?")
+      setSubmitting(false)
+      return
+    }
+
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+      amount: cart.total * 100, // Amount is in currency subunits
+      currency: cart.region?.currency_code.toUpperCase(),
+      name: "ProCare Store",
+      description: `Order ${cart.id}`,
+      order_id: session.data.id,
+      handler: async function (response: any) {
+        await updatePaymentSession(cart.id, {
+          data: {
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+          },
+        })
+        onPaymentCompleted()
+      },
+      prefill: {
+        name: `${cart.billing_address?.first_name} ${cart.billing_address?.last_name}`,
+        email: cart.email,
+        contact: cart.billing_address?.phone,
+      },
+      notes: {
+        address: cart.billing_address?.address_1,
+      },
+      theme: {
+        color: "#00bda5",
+      },
+    }
+
+    const rzp1 = new (window as any).Razorpay(options)
+    rzp1.on("payment.failed", function (response: any) {
+      setErrorMessage(response.error.description)
+      setSubmitting(false)
+    })
+    rzp1.open()
+  }
+
+  return (
+    <>
+      <Button
+        disabled={notReady}
+        onClick={handlePayment}
+        size="large"
+        isLoading={submitting}
+        data-testid={dataTestId}
+      >
+        Place order
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="razorpay-payment-error-message"
+      />
+    </>
+  )
 }
 
 const StripePaymentButton = ({

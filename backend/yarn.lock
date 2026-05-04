@@ -7401,6 +7401,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.6.8":
+  version: 1.16.0
+  resolution: "axios@npm:1.16.0"
+  dependencies:
+    follow-redirects: "npm:^1.16.0"
+    form-data: "npm:^4.0.5"
+    proxy-from-env: "npm:^2.1.0"
+  checksum: 10c0/1c91a5221b77b76072026b4cc95ecdf38f7c3e33e63423abec09a85e6e9a12279637dcc9ac2ba1fc333e0c447fb3b0f46d7965acb5d7cea02d188e9c6d425c0b
+  languageName: node
+  linkType: hard
+
 "babel-jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "babel-jest@npm:29.7.0"
@@ -9212,7 +9223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.15.11":
+"follow-redirects@npm:^1.15.11, follow-redirects@npm:^1.16.0":
   version: 1.16.0
   resolution: "follow-redirects@npm:1.16.0"
   peerDependenciesMeta:
@@ -12237,6 +12248,7 @@ __metadata:
     "@types/react-dom": "npm:^18.3.7"
     jest: "npm:^29.7.0"
     prop-types: "npm:^15.8.1"
+    razorpay: "npm:^2.9.6"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     ts-node: "npm:^10.9.2"
@@ -12434,6 +12446,15 @@ __metadata:
     iconv-lite: "npm:~0.4.24"
     unpipe: "npm:~1.0.0"
   checksum: 10c0/449844344fc90547fb994383a494b83300e4f22199f146a79f68d78a199a8f2a923ea9fd29c3be979bfd50291a3884733619ffc15ba02a32e703b612f8d3f74a
+  languageName: node
+  linkType: hard
+
+"razorpay@npm:^2.9.6":
+  version: 2.9.6
+  resolution: "razorpay@npm:2.9.6"
+  dependencies:
+    axios: "npm:^1.6.8"
+  checksum: 10c0/aeffe41e221ed99c7ca58bf04aa765aee623d5b259075cdcc5fafd28d5fb66e807737186746ddd72499b4c0ef57f7eef766c3932796472c027e07ad89802951c
   languageName: node
   linkType: hard
 
