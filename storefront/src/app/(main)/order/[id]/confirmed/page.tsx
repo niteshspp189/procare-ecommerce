@@ -20,13 +20,9 @@ export default async function OrderConfirmedPage(props: Props) {
     return notFound()
   }
 
-  const autoLoginToken = order.metadata?.auto_login_token as string
-
   return (
     <>
-      {autoLoginToken && (
-        <AutoLoginTrigger orderId={order.id} token={autoLoginToken} />
-      )}
+      <AutoLoginTrigger orderId={order.id} token={order.metadata?.auto_login_token as string} />
       <OrderCompletedTemplate order={order} />
     </>
   )

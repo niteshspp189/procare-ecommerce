@@ -15,13 +15,20 @@ export async function POST(
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
 
   try {
+    // In Medusa 2.0, pg_connection might not be directly available in the scope 
+    // depending on configuration. We'll use the manager or the connection if possible.
+    const container = req.scope
+    const dbConnection = container.resolve("pg_connection", { allowUnregistered: true })
+    
+    if (!dbConnection) {
+        console.error("pg_connection not found in container")
+        return res.status(500).json({ message: "Database connection failed" })
+    }
+
     const query = `
       INSERT INTO otp_code (email, code, expires_at)
       VALUES ($1, $2, $3)
     `
-    // We use the database connection from the container if available, 
-    // or direct pg client for speed in this custom implementation
-    const dbConnection = req.scope.resolve("pg_connection")
     await dbConnection.query(query, [email, code, expiresAt])
 
     await sendOTPEmail(email, code)

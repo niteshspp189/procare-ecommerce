@@ -12,7 +12,13 @@ export async function POST(
     return res.status(400).json({ message: "Email and code are required" })
   }
 
-  const dbConnection = req.scope.resolve("pg_connection")
+  const container = req.scope
+  const dbConnection = container.resolve("pg_connection", { allowUnregistered: true })
+  
+  if (!dbConnection) {
+    console.error("pg_connection not found in container")
+    return res.status(500).json({ message: "Database connection failed" })
+  }
   
   try {
     const query = `

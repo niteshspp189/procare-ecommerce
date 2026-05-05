@@ -37,7 +37,7 @@ export const retrieveCustomer =
         },
         headers,
         next,
-        cache: "force-cache",
+        cache: "no-store",
       })
       .then(({ customer }) => customer)
       .catch(() => null)
@@ -304,7 +304,27 @@ export async function verifyOTP(_currentState: unknown, formData: FormData) {
   }
 }
 
-export async function autoLogin(orderId: string) {
-    // This will be called from the client side or confirmation page
-    console.log("Auto-logging in for order:", orderId)
+export async function autoLogin(orderId: string, token: string) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/auth/auto-login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+      },
+      body: JSON.stringify({ order_id: orderId, token }),
+    })
+    
+    const result = await response.json()
+    console.log(`[Auto-login] Backend Result:`, JSON.stringify(result))
+    
+    if (result.success && result.token) {
+        await setAuthToken(result.token)
+        revalidateTag(await getCacheTag("customers"))
+        return { success: true }
+    }
+    return { success: false, error: result.message }
+  } catch (error: any) {
+    return { success: false, error: error.toString() }
+  }
 }

@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import { listRegions } from "@lib/data/regions"
 import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
+import { retrieveCustomer } from "@lib/data/customer"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ShoppingBag from "@modules/common/icons/shopping-bag"
@@ -71,10 +72,11 @@ const styles = {
 }
 
 export default async function Nav() {
-  const [regions, locales, currentLocale] = await Promise.all([
+  const [regions, locales, currentLocale, customer] = await Promise.all([
     listRegions().then((regions: StoreRegion[]) => regions),
     listLocales(),
     getLocale(),
+    retrieveCustomer().catch(() => null),
   ])
 
   return (
@@ -86,7 +88,9 @@ export default async function Nav() {
         <LocalizedClientLink href="/our-story" style={styles.topLink} className="hover:opacity-100">Our Story</LocalizedClientLink>
         <LocalizedClientLink href="/contact" style={styles.topLink} className="hover:opacity-100">Contact Us</LocalizedClientLink>
         <LocalizedClientLink href="/blog" style={styles.topLink} className="hover:opacity-100">Blogs</LocalizedClientLink>
-        <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">Log In</LocalizedClientLink>
+        <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">
+          {customer ? "Account" : "Log In"}
+        </LocalizedClientLink>
       </div>
 
       <nav style={styles.mainNav as any} className="flex bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none">

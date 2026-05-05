@@ -2,23 +2,24 @@ import {
   type SubscriberConfig, 
   type SubscriberArgs,
 } from "@medusajs/framework"
-import { IOrderModuleService, ICustomerModuleService, IAuthModuleService } from "@medusajs/types"
+import { IOrderModuleService, ICustomerModuleService } from "@medusajs/types"
 import { Modules } from "@medusajs/utils"
+import { generateOTP, sendOTPEmail } from "../lib/otp"
 
 export default async function orderPlacedHandler({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
+  console.log(`[OrderPlacedSubscriber] Handling event for Order ID: ${data.id}`)
+  
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
   const customerModuleService: ICustomerModuleService = container.resolve(Modules.CUSTOMER)
   
-  // Note: Auth module might have a different resolution in some versions, 
-  // but we'll attempt to resolve it to initialize the identity.
   let authModuleService: any
   try {
     authModuleService = container.resolve(Modules.AUTH)
   } catch (e) {
-    console.log("Auth module not found or restricted in this context")
+    console.log("[OrderPlacedSubscriber] Auth module not available")
   }
 
   const order = await orderModuleService.retrieveOrder(data.id, {
@@ -26,6 +27,8 @@ export default async function orderPlacedHandler({
   })
   
   if (!order.customer_id && order.email) {
+    console.log(`[OrderPlacedSubscriber] Processing guest order for ${order.email}`)
+    
     // 1. Find or create customer profile
     const [existingCustomers] = await customerModuleService.listAndCountCustomers({
         email: order.email
@@ -40,11 +43,10 @@ export default async function orderPlacedHandler({
             last_name: order.shipping_address?.last_name || "User",
             phone: order.shipping_address?.phone
         })
-        console.log(`Created new customer profile for ${order.email}`)
+        console.log(`[OrderPlacedSubscriber] Created new customer profile: ${customer.id}`)
     }
 
-    // 2. Attempt to initialize auth identity if module is available
-    // This enables the "Forgot Password" flow for the guest email
+    // 2. Initialize auth identity
     if (authModuleService) {
         try {
             const [identities] = await authModuleService.listAndCountProviderIdentities({
@@ -57,25 +59,26 @@ export default async function orderPlacedHandler({
                     entity_id: order.email,
                     provider: "emailpass",
                 })
-                console.log(`Initialized auth identity for ${order.email}`)
+                console.log(`[OrderPlacedSubscriber] Initialized auth identity for ${order.email}`)
             }
         } catch (e) {
-            console.error("Could not initialize auth identity:", e)
+            console.error("[OrderPlacedSubscriber] Failed auth identity:", e)
         }
     }
 
-    // 3. Link order to customer
+    // 3. Link order and set auto_login_token
+    const autoLoginToken = Math.random().toString(36).substring(2, 15)
     await orderModuleService.updateOrders(order.id, {
         customer_id: customer.id,
         metadata: {
             ...order.metadata,
-            auto_login_token: Math.random().toString(36).substring(2, 15)
+            auto_login_token: autoLoginToken
         }
     })
+    console.log(`[OrderPlacedSubscriber] Linked order ${order.id} and set auto_login_token`)
     
-    // 4. Send Welcome Email with instructions
+    // 4. Send Welcome OTP (For all guest checkouts to ensure they can login)
     try {
-        const { generateOTP, sendOTPEmail } = require("../lib/otp")
         const code = generateOTP()
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
         
@@ -86,12 +89,21 @@ export default async function orderPlacedHandler({
         )
 
         await sendOTPEmail(order.email, code)
-        console.log(`Sent welcome OTP to ${order.email}`)
+        console.log(`[OrderPlacedSubscriber] Sent welcome OTP to ${order.email}`)
     } catch (e) {
-        console.error("Failed to send welcome OTP:", e)
+        console.error("[OrderPlacedSubscriber] Failed welcome OTP:", e)
     }
-    
-    console.log(`Linked order ${order.id} to customer ${customer.email}`)
+  } else if (order.customer_id) {
+      console.log(`[OrderPlacedSubscriber] Order already has customer_id: ${order.customer_id}`)
+      // Even for existing customers, we set an auto_login_token for convenience
+      const autoLoginToken = Math.random().toString(36).substring(2, 15)
+      await orderModuleService.updateOrders(order.id, {
+          metadata: {
+              ...order.metadata,
+              auto_login_token: autoLoginToken
+          }
+      })
+      console.log(`[OrderPlacedSubscriber] Set auto_login_token for existing customer`)
   }
 }
 
