@@ -3,7 +3,8 @@ import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
+import OTPLogin from "../otp-login"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -11,6 +12,11 @@ type Props = {
 
 const Login = ({ setCurrentView }: Props) => {
   const [message, formAction] = useActionState(login, null)
+  const [showOTP, setShowOTP] = useState(false)
+
+  if (showOTP) {
+    return <OTPLogin onBack={() => setShowOTP(false)} />
+  }
 
   return (
     <div
@@ -46,6 +52,14 @@ const Login = ({ setCurrentView }: Props) => {
           Sign in
         </SubmitButton>
       </form>
+      
+      <button
+        onClick={() => setShowOTP(true)}
+        className="text-center text-ui-fg-base text-small-regular mt-6 underline"
+      >
+        Login with OTP instead
+      </button>
+
       <span className="text-center text-ui-fg-base text-small-regular mt-6">
         Not a member?{" "}
         <button

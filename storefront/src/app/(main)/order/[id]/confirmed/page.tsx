@@ -1,5 +1,6 @@
 import { retrieveOrder } from "@lib/data/orders"
 import OrderCompletedTemplate from "@modules/order/templates/order-completed-template"
+import AutoLoginTrigger from "@modules/order/components/auto-login"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -19,5 +20,14 @@ export default async function OrderConfirmedPage(props: Props) {
     return notFound()
   }
 
-  return <OrderCompletedTemplate order={order} />
+  const autoLoginToken = order.metadata?.auto_login_token as string
+
+  return (
+    <>
+      {autoLoginToken && (
+        <AutoLoginTrigger orderId={order.id} token={autoLoginToken} />
+      )}
+      <OrderCompletedTemplate order={order} />
+    </>
+  )
 }

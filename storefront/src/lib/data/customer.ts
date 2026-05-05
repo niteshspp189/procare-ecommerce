@@ -259,3 +259,52 @@ export const updateCustomerAddress = async (
       return { success: false, error: err.toString() }
     })
 }
+export async function sendOTP(email: string) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/auth/otp/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+      },
+      body: JSON.stringify({ email }),
+    })
+    return await response.json()
+  } catch (error) {
+    return { success: false, error: error.toString() }
+  }
+}
+
+export async function verifyOTP(_currentState: unknown, formData: FormData) {
+  const email = formData.get("email") as string
+  const code = formData.get("code") as string
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/auth/otp/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+      },
+      body: JSON.stringify({ email, code }),
+    })
+    
+    const result = await response.json()
+    
+    if (result.success) {
+      // For now, we'll redirect to account, 
+      // where the user will see a banner to set their password.
+      // Real session injection requires a backend-signed JWT.
+      redirect("/account")
+    }
+    
+    return result.message || "Verification failed"
+  } catch (error: any) {
+    return error.toString()
+  }
+}
+
+export async function autoLogin(orderId: string) {
+    // This will be called from the client side or confirmation page
+    console.log("Auto-logging in for order:", orderId)
+}

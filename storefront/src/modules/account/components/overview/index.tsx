@@ -29,6 +29,17 @@ const Overview = ({ customer, orders }: OverviewProps) => {
             </span>
           </span>
         </div>
+
+        {/* Password Reminder Banner */}
+        <div className="bg-orange-50 border border-orange-200 p-4 rounded-md mb-8 flex justify-between items-center">
+            <div className="flex flex-col">
+                <span className="text-orange-800 font-semibold">Secure your account</span>
+                <span className="text-orange-700 text-small-regular">You are currently logged in via OTP. Please set a password to access all features.</span>
+            </div>
+            <LocalizedClientLink href="/account/profile" className="bg-orange-600 text-white px-4 py-2 rounded-md text-small-regular hover:bg-orange-700 transition-colors">
+                Set Password
+            </LocalizedClientLink>
+        </div>
         <div className="flex flex-col py-8 border-t border-gray-200">
           <div className="flex flex-col gap-y-4 h-full col-span-1 row-span-2 flex-1">
             <div className="flex items-start gap-x-16 mb-6">
