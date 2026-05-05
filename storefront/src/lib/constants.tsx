@@ -36,7 +36,11 @@ export const paymentInfoMap: Record<
   },
   pp_razorpay: {
     title: "Razorpay",
-    icon: <CreditCard />, // For now, use CreditCard icon
+    icon: <CreditCard />,
+  },
+  pp_razorpay_razorpay: {
+    title: "Razorpay",
+    icon: <CreditCard />,
   },
   // Add more payment providers here
 }

@@ -113,6 +113,7 @@ const RazorpayPaymentButton = ({
       order_id: session.data.id,
       handler: async function (response: any) {
         await updatePaymentSession(cart.id, {
+          provider_id: session.provider_id,
           data: {
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_order_id: response.razorpay_order_id,

@@ -262,20 +262,30 @@ export async function setShippingMethod({
 
 export async function updatePaymentSession(
   cartId: string,
-  data: HttpTypes.StoreUpdatePaymentSession
+  data: any
 ) {
   const headers = {
     ...(await getAuthHeaders()),
   }
 
-  return sdk.store.payment
-    .updatePaymentSession(cartId, data, {}, headers)
-    .then(async (resp) => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
-      return resp
-    })
-    .catch(medusaError)
+  const cart = await retrieveCart(cartId)
+  const paymentCollectionId = cart?.payment_collection?.id
+
+  if (!paymentCollectionId) {
+    throw new Error("No payment collection found for this cart")
+  }
+
+  return sdk.client.fetch<any>(`/store/payment-collections/${paymentCollectionId}/payment-sessions`, {
+    method: "POST",
+    body: data,
+    headers,
+  })
+  .then(async (resp) => {
+    const cartCacheTag = await getCacheTag("carts")
+    revalidateTag(cartCacheTag)
+    return resp
+  })
+  .catch(medusaError)
 }
 
 export async function initiatePaymentSession(
@@ -422,9 +432,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     return e.message
   }
 
-  redirect(
-    `/${formData.get("shipping_address.country_code")}/checkout?step=delivery`
-  )
+  redirect(`/checkout?step=delivery`)
 }
 
 /**
@@ -460,7 +468,7 @@ export async function placeOrder(cartId?: string) {
     revalidateTag(orderCacheTag)
 
     removeCartId()
-    redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
+    redirect(`/order/${cartRes?.order.id}/confirmed`)
   }
 
   return cartRes.cart
@@ -491,7 +499,7 @@ export async function updateRegion(countryCode: string, currentPath: string) {
   const productsCacheTag = await getCacheTag("products")
   revalidateTag(productsCacheTag)
 
-  redirect(`/${countryCode}${currentPath}`)
+  redirect(`${currentPath}`)
 }
 
 export async function listCartOptions() {
