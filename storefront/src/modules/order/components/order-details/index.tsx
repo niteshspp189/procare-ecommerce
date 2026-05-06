@@ -55,6 +55,14 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
             </Text>
           </>
         )}
+        <a 
+          href={`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/orders/${order.id}/invoice`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover font-semibold underline"
+        >
+          Download Invoice (PDF)
+        </a>
       </div>
     </div>
   )

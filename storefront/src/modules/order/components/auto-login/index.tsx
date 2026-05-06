@@ -67,22 +67,20 @@ const AutoLoginTrigger = ({ orderId, token }: Props) => {
     startPolling()
   }, [orderId, token, router])
 
+  if (status === null || status.includes("SUCCESS")) return null
+
   return (
-    <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        background: 'rgba(0,0,0,0.85)',
-        color: 'white',
-        padding: '12px 20px',
-        borderRadius: '10px',
-        zIndex: 9999,
-        fontSize: '13px',
-        fontFamily: 'monospace',
-        border: '1px solid #444',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-    }}>
-        <b>AutoLogin:</b> {status}
+    <div className="fixed bottom-6 right-6 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-black/90 backdrop-blur-md text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/10 ring-1 ring-white/5">
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.2em] opacity-40 font-black">System Process</span>
+          <span className="text-sm font-semibold tracking-tight">{status}</span>
+        </div>
+        <div className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </div>
+      </div>
     </div>
   )
 }

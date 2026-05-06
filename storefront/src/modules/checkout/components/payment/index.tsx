@@ -9,6 +9,7 @@ import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
   StripeCardContainer,
 } from "@modules/checkout/components/payment-container"
+import PaymentButton from "@modules/checkout/components/payment-button"
 import Divider from "@modules/common/components/divider"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
@@ -183,21 +184,9 @@ const Payment = ({
             data-testid="payment-method-error-message"
           />
 
-          <Button
-            size="large"
-            className="mt-6"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={
-              (isStripeLike(selectedPaymentMethod) && !cardComplete) ||
-              (!selectedPaymentMethod && !paidByGiftcard)
-            }
-            data-testid="submit-payment-button"
-          >
-            {!activeSession && isStripeLike(selectedPaymentMethod)
-              ? " Enter card details"
-              : "Continue to review"}
-          </Button>
+          <div className="mt-8">
+            <PaymentButton cart={cart} data-testid="submit-order-button" />
+          </div>
         </div>
 
         <div className={isOpen ? "hidden" : "block"}>

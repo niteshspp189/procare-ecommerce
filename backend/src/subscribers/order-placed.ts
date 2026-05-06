@@ -105,6 +105,19 @@ export default async function orderPlacedHandler({
       })
       console.log(`[OrderPlacedSubscriber] Set auto_login_token for existing customer`)
   }
+
+  // 5. Send Order Confirmation Email (for all orders)
+  try {
+    const { sendOrderConfirmationEmail } = require("../lib/email")
+    // Retrieve full order with items and addresses for the invoice
+    const fullOrder = await orderModuleService.retrieveOrder(data.id, {
+        relations: ["shipping_address", "items", "billing_address"]
+    })
+    await sendOrderConfirmationEmail(fullOrder)
+    console.log(`[OrderPlacedSubscriber] Sent order confirmation email for ${data.id}`)
+  } catch (e) {
+    console.error("[OrderPlacedSubscriber] Failed to send confirmation email:", e)
+  }
 }
 
 export const config: SubscriberConfig = {

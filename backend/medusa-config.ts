@@ -32,6 +32,10 @@ module.exports = defineConfig({
               razorpay_account: process.env.RAZORPAY_ACCOUNT,
             },
           },
+          {
+            resolve: "@medusajs/medusa/payment-manual",
+            id: "manual",
+          },
         ],
       },
     },

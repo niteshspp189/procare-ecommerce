@@ -104,7 +104,15 @@ const Shipping: React.FC<ShippingProps> = ({
     if (_pickupMethods?.find((m) => m.id === shippingMethodId)) {
       setShowPickupOptions(PICKUP_OPTION_ON)
     }
-  }, [availableShippingMethods])
+
+    // Auto-select first option if none is selected
+    if (isOpen && !shippingMethodId && _shippingMethods?.length) {
+        const firstOption = _shippingMethods[0]
+        if (firstOption && firstOption.price_type !== "calculated") {
+            handleSetShippingMethod(firstOption.id, "shipping")
+        }
+    }
+  }, [availableShippingMethods, isOpen, shippingMethodId])
 
   const handleEdit = () => {
     router.push(pathname + "?step=delivery", { scroll: false })
