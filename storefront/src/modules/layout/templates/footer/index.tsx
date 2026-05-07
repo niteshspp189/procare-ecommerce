@@ -1,18 +1,18 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const s = {
-  footer: { backgroundColor: '#000', color: '#fff', paddingTop: '40px', paddingBottom: '24px' },
+  footer: { backgroundColor: '#000', color: '#ccc', paddingTop: '40px', paddingBottom: '24px' },
   inner: { maxWidth: '1488px', margin: '0 auto', padding: '0 var(--container-padding)' },
   grid: { display: 'grid', gap: '24px', marginBottom: '40px' },
-  colTitle: { fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '1px' },
-  link: { display: 'block', textDecoration: 'none', color: '#888', fontSize: '11px', marginBottom: '10px', transition: 'color 0.2s' },
+  colTitle: { fontSize: '16px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '1px', color: '#e5e7eb' },
+  link: { display: 'block', textDecoration: 'none', color: '#9ca3af', fontSize: '14px', marginBottom: '10px', transition: 'color 0.2s' },
   socials: { display: 'flex', gap: '12px', marginBottom: '24px' },
   socialIcon: {
-    width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#333',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
-    textDecoration: 'none', fontSize: '14px'
+    width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#333',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc',
+    textDecoration: 'none', fontSize: '18px'
   },
-  bottom: { display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #222', fontSize: '10px', color: '#555', gap: '16px', textAlign: 'center' },
+  bottom: { display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #222', fontSize: '14px', color: '#6b7280', gap: '16px', textAlign: 'center' },
   bottomLinks: { display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }
 }
 
@@ -22,7 +22,7 @@ export default async function Footer() {
       <div style={s.inner as any} className="px-4 sm:px-0">
         <div style={s.grid as any} className="responsive-grid-4">
           <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <h4 style={s.colTitle as any} className="text-white">CUSTOMER DESK</h4>
+            <h4 style={s.colTitle as any} className="text-gray-200">CUSTOMER DESK</h4>
             <LocalizedClientLink href="/account/orders" style={s.link} className="hover:text-white transition-colors">Track Order</LocalizedClientLink>
             <LocalizedClientLink href="/account/orders" style={s.link} className="hover:text-white transition-colors">My Orders</LocalizedClientLink>
             <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Return Or Replace</LocalizedClientLink>
@@ -30,7 +30,7 @@ export default async function Footer() {
             <LocalizedClientLink href="/faq" style={s.link} className="hover:text-white transition-colors">FAQ</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <h4 style={s.colTitle as any} className="text-white">SHOP BY COLLECTION</h4>
+            <h4 style={s.colTitle as any} className="text-gray-200">SHOP BY COLLECTION</h4>
             <LocalizedClientLink href="/collections/shoe-care" style={s.link} className="hover:text-white transition-colors">Shoe Care</LocalizedClientLink>
             <LocalizedClientLink href="/collections/insoles" style={s.link} className="hover:text-white transition-colors">Insoles</LocalizedClientLink>
             <LocalizedClientLink href="/collections/foot-care" style={s.link} className="hover:text-white transition-colors">Foot Care</LocalizedClientLink>
@@ -38,7 +38,7 @@ export default async function Footer() {
             <LocalizedClientLink href="/collections/bestsellers" style={s.link} className="hover:text-white transition-colors">Bestsellers</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <h4 style={s.colTitle as any} className="text-white">ABOUT PRO CARE</h4>
+            <h4 style={s.colTitle as any} className="text-gray-200">ABOUT PRO CARE</h4>
             <LocalizedClientLink href="/our-story" style={s.link} className="hover:text-white transition-colors">Our Story</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Career</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Our Brands</LocalizedClientLink>
@@ -46,14 +46,14 @@ export default async function Footer() {
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Quality</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <h4 style={s.colTitle as any} className="text-white">QUICK LINKS</h4>
+            <h4 style={s.colTitle as any} className="text-gray-200">QUICK LINKS</h4>
             <a href="https://mvshoecare.com" target="_blank" rel="noopener noreferrer" style={s.link} className="hover:text-white transition-colors">Contact for B2B</a>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Customer Reviews</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Media</LocalizedClientLink>
             <LocalizedClientLink href="/blog" style={s.link} className="hover:text-white transition-colors">Blogs</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-            <h4 style={s.colTitle as any} className="text-white">FOLLOW US</h4>
+            <h4 style={s.colTitle as any} className="text-gray-200">FOLLOW US</h4>
             <div className="flex gap-3 mb-6">
               <LocalizedClientLink href="/" style={s.socialIcon as any} className="hover:bg-white hover:text-black transition-all">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
@@ -68,11 +68,11 @@ export default async function Footer() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.46-5.58z" /><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" /></svg>
               </LocalizedClientLink>
             </div>
-            <h4 style={s.colTitle as any} className="text-white mt-2">NEWSLETTER</h4>
-            <p className="text-[10px] text-gray-400 mb-3 leading-relaxed">Subscribe for special offers & once-in-a-lifetime deals.</p>
+            <h4 style={s.colTitle as any} className="text-gray-200 mt-2">NEWSLETTER</h4>
+            <p className="text-[14px] text-gray-400 mb-3 leading-relaxed">Subscribe for special offers & once-in-a-lifetime deals.</p>
             <div className="flex bg-[#111] rounded-full overflow-hidden border border-gray-800 focus-within:border-gray-600 transition-colors">
-              <input type="email" placeholder="Email Address" className="bg-transparent border-none px-3 py-2 text-[11px] w-full focus:outline-none" />
-              <button className="bg-[#00b5a4] text-white px-3 py-2 text-[10px] font-bold">JOIN</button>
+              <input type="email" placeholder="Email Address" className="bg-transparent border-none px-4 py-2 text-[15px] w-full focus:outline-none" />
+              <button className="bg-[#00b5a4] text-white px-4 py-2 text-[14px] font-bold">JOIN</button>
             </div>
           </div>
         </div>

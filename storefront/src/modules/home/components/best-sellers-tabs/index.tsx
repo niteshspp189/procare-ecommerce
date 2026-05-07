@@ -42,7 +42,7 @@ export default function BestSellersTabs({
                 {products.length > 0 ? (
                     <CarouselWrapper>
                         {products.map((product) => (
-                            <div key={product.id} className="min-w-[280px] sm:min-w-[320px] snap-start shrink-0 p-2">
+                            <div key={product.id} className="w-[300px] sm:w-[440px] snap-start shrink-0 p-2">
                                 <ProductCard product={product} region={region} />
                             </div>
                         ))}

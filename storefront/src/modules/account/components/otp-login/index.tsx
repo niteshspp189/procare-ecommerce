@@ -46,7 +46,7 @@ const OTPLogin = ({ onBack }: Props) => {
           <button
             onClick={handleSendOTP}
             disabled={loading}
-            className="w-full mt-6 bg-black text-white py-2 rounded-md hover:bg-gray-800 disabled:bg-gray-400"
+            className="w-full mt-6 bg-[#00bda5] text-white py-2 rounded-md hover:bg-[#00a38f] disabled:bg-gray-400"
           >
             {loading ? "Sending..." : "Send OTP"}
           </button>
@@ -76,7 +76,7 @@ const OTPLogin = ({ onBack }: Props) => {
         onClick={onBack}
         className="text-center text-ui-fg-base text-small-regular mt-6 underline"
       >
-        Back to Password Login
+        Login with password
       </button>
     </div>
   )

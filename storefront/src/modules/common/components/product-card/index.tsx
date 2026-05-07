@@ -11,6 +11,7 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import clsx from "clsx"
+import { convertToLocale } from "@lib/util/money"
 
 interface ProductCardProps {
   product: HttpTypes.StoreProduct
@@ -102,8 +103,17 @@ export default function ProductCard({
           <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest mb-2 h-[20px] overflow-hidden">
             {product.categories?.[0]?.name || "Premium Shine"}
           </p>
-          <div className="mt-auto mb-4 h-[30px] flex items-center">
+          <div className="mt-auto mb-4 h-[30px] flex items-center gap-3">
             {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+            {cheapestPrice?.calculated_price_number && (
+              <span className="text-[12px] text-slate-400 line-through">
+                {convertToLocale({
+                  amount: cheapestPrice.calculated_price_number / 0.8,
+                  currency_code: cheapestPrice.currency_code,
+                  locale: "en-IN"
+                })}
+              </span>
+            )}
           </div>
         </div>
       </LocalizedClientLink>

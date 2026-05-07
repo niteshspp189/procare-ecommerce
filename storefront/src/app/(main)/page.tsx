@@ -194,7 +194,7 @@ export default async function StagingHome(props: {
               {firstCategoryProducts.length > 0 ? (
                 <CarouselWrapper buttonPosition="top-right">
                   {firstCategoryProducts.map(product => (
-                    <div key={product.id} className="min-w-full sm:min-w-[340px] snap-start shrink-0 p-2">
+                    <div key={product.id} className="w-full sm:w-[440px] snap-start shrink-0 p-2">
                       <ProductCard product={product} region={region} />
                     </div>
                   ))}
