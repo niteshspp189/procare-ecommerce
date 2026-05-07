@@ -344,6 +344,28 @@ export async function updatePassword(_currentState: unknown, formData: FormData)
   }
 
   try {
+    const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+    const response = await fetch(`${backendUrl}/store/customers/me/password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+        ...await getAuthHeaders(),
+      },
+      body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+    })
+
+    const result = await response.json()
+    if (response.ok) {
+      return "Password updated successfully"
+    }
+    return result.message || "Failed to update password"
+  } catch (error: any) {
+    return error.toString()
+  }
+}
+
+  try {
     // TODO: Implement password update in backend
     return "Password update is coming soon"
   } catch (error: any) {

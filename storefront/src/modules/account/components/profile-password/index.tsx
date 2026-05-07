@@ -17,6 +17,12 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
   const [state, formAction] = useActionState(updatePassword, null)
 
+  useEffect(() => {
+    if (state === "Password updated successfully") {
+      setSuccessState(true)
+    }
+  }, [state])
+
   const clearState = () => {
     setSuccessState(false)
   }
