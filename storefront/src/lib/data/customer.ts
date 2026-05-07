@@ -261,7 +261,9 @@ export const updateCustomerAddress = async (
 }
 export async function sendOTP(email: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/auth/otp/send`, {
+    const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+    console.log(`[sendOTP] Using backend URL: ${backendUrl}`)
+    const response = await fetch(`${backendUrl}/store/auth/otp/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -270,7 +272,7 @@ export async function sendOTP(email: string) {
       body: JSON.stringify({ email }),
     })
     return await response.json()
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, error: error.toString() }
   }
 }
@@ -280,7 +282,8 @@ export async function verifyOTP(_currentState: unknown, formData: FormData) {
   const code = formData.get("code") as string
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/auth/otp/verify`, {
+    const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+    const response = await fetch(`${backendUrl}/store/auth/otp/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -306,7 +309,8 @@ export async function verifyOTP(_currentState: unknown, formData: FormData) {
 
 export async function autoLogin(orderId: string, token: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/auth/auto-login`, {
+    const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+    const response = await fetch(`${backendUrl}/store/auth/auto-login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
