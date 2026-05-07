@@ -365,10 +365,3 @@ export async function updatePassword(_currentState: unknown, formData: FormData)
   }
 }
 
-  try {
-    // TODO: Implement password update in backend
-    return "Password update is coming soon"
-  } catch (error: any) {
-    return error.toString()
-  }
-}
