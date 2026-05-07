@@ -52,23 +52,48 @@ export async function POST(
       })
     }
 
-    // In Medusa 2.0, we need to generate a session for the customer.
-    // For now, we will return the customer info and a success message.
-    // The storefront will then need to handle the session creation or 
-    // we use the 'auth' module to sign a token.
-    
-    // Attempt to generate a token using Medusa's internal JWT service if available
+    // Generate token for auto-login
     const authModuleService = req.scope.resolve(Modules.AUTH)
+    let tokenValue = ""
     
-    // Medusa 2.0 auth uses providers. We'll use the customer's identity.
-    // This is complex to do manually in a route without the full auth workflow.
-    // Instead, we will return a success flag and the storefront will use a 
-    // hidden password login or we'll provide a 'one-time-login' token.
+    try {
+        // Find or create auth identity
+        const identities = await (authModuleService as any).listProviderIdentities({
+            entity_id: email,
+            provider: "emailpass"
+        })
+
+        let identity = identities[0]
+        if (!identity) {
+            const authIdentity = await authModuleService.createAuthIdentities({})
+            identity = await (authModuleService as any).createProviderIdentities([{
+                auth_identity_id: authIdentity.id,
+                entity_id: email,
+                provider: "emailpass",
+            }])
+        }
+
+        const jwt = require("jsonwebtoken")
+        const secret = process.env.JWT_SECRET || "supersecret"
+        
+        tokenValue = jwt.sign(
+            { 
+                actor_id: customer.id, 
+                actor_type: "customer", 
+                auth_identity_id: identity.auth_identity_id 
+            }, 
+            secret,
+            { expiresIn: "7d" }
+        )
+    } catch (e) {
+        console.error("[OTP Verify] Failed to generate token:", e)
+    }
     
     res.status(200).json({ 
       message: "OTP verified successfully", 
       customer_id: customer.id,
       email: customer.email,
+      token: tokenValue,
       success: true 
     })
   } catch (error: any) {

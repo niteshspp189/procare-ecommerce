@@ -295,9 +295,10 @@ export async function verifyOTP(_currentState: unknown, formData: FormData) {
     const result = await response.json()
     
     if (result.success) {
-      // For now, we'll redirect to account, 
-      // where the user will see a banner to set their password.
-      // Real session injection requires a backend-signed JWT.
+      if (result.token) {
+        await setAuthToken(result.token)
+        revalidateTag(await getCacheTag("customers"))
+      }
       redirect("/account")
     }
     
