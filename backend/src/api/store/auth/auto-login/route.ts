@@ -35,7 +35,7 @@ export async function POST(
     }
 
     // 1. Ensure Auth Identity exists
-    const [identities] = await authModuleService.listAndCountProviderIdentities({
+    const identities = await (authModuleService as any).listProviderIdentities({
         entity_id: order.email,
         provider: "emailpass"
     })
@@ -46,11 +46,11 @@ export async function POST(
         const authIdentity = await authModuleService.createAuthIdentities({})
         
         console.log(`[Auto-login] Linking Provider Identity (emailpass) for: ${order.email}`)
-        identity = await authModuleService.createProviderIdentities({
+        identity = await (authModuleService as any).createProviderIdentities([{
             auth_identity_id: authIdentity.id,
             entity_id: order.email,
             provider: "emailpass",
-        })
+        }])
     }
 
     // 2. Find Customer ID

@@ -29,7 +29,9 @@
     "@medusajs/framework": "2.13.6",
     "@medusajs/medusa": "2.13.6",
     "@types/nodemailer": "^8.0.0",
+    "@types/pdfkit": "^0.17.6",
     "nodemailer": "^8.0.7",
+    "pdfkit": "^0.18.0",
     "razorpay": "^2.9.6"
   },
   "devDependencies": {

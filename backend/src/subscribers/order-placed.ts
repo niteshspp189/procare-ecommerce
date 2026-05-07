@@ -49,16 +49,19 @@ export default async function orderPlacedHandler({
     // 2. Initialize auth identity
     if (authModuleService) {
         try {
-            const [identities] = await authModuleService.listAndCountProviderIdentities({
+            // Use listProviderIdentities instead of listAndCount
+            const identities = await (authModuleService as any).listProviderIdentities({
                 entity_id: order.email,
                 provider: "emailpass"
             })
             
             if (identities.length === 0) {
-                await authModuleService.createProviderIdentities({
-                    entity_id: order.email,
+                const authIdentity = await (authModuleService as any).createAuthIdentities({})
+                await (authModuleService as any).createProviderIdentities([{
+                    auth_identity_id: authIdentity.id,
+                    entity_id: order.email!,
                     provider: "emailpass",
-                })
+                }])
                 console.log(`[OrderPlacedSubscriber] Initialized auth identity for ${order.email}`)
             }
         } catch (e) {
@@ -82,7 +85,7 @@ export default async function orderPlacedHandler({
         const code = generateOTP()
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
         
-        const dbConnection = container.resolve("pg_connection")
+        const dbConnection = container.resolve("pg_connection") as any
         await dbConnection.query(
             "INSERT INTO otp_code (email, code, expires_at) VALUES ($1, $2, $3)",
             [order.email, code, expiresAt]

@@ -13,7 +13,7 @@ export async function POST(
   }
 
   const container = req.scope
-  const dbConnection = container.resolve("pg_connection", { allowUnregistered: true })
+  const dbConnection = container.resolve("pg_connection", { allowUnregistered: true }) as any
   
   if (!dbConnection) {
     console.error("pg_connection not found in container")

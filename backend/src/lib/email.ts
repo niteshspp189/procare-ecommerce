@@ -1,5 +1,10 @@
 import nodemailer from "nodemailer"
-import PDFDocument from "pdfkit"
+let PDFDocument: any
+try {
+  PDFDocument = require("pdfkit")
+} catch (e) {
+  console.error("[EmailService] pdfkit not found. PDF generation will be disabled.")
+}
 import { HttpTypes } from "@medusajs/types"
 
 const transporter = nodemailer.createTransport({
@@ -13,6 +18,9 @@ const transporter = nodemailer.createTransport({
 })
 
 export async function generateInvoicePDF(order: any): Promise<Buffer> {
+  if (!PDFDocument) {
+    throw new Error("PDF generation library (pdfkit) is not installed. Please run 'npm install pdfkit' in the backend.")
+  }
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50 })
     const buffers: Buffer[] = []
@@ -86,9 +94,14 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
 export async function sendOrderConfirmationEmail(order: any) {
   try {
-    const pdfBuffer = await generateInvoicePDF(order)
+    let pdfBuffer: Buffer | null = null
+    try {
+        pdfBuffer = await generateInvoicePDF(order)
+    } catch (e) {
+        console.warn("[EmailService] Continuing without PDF attachment:", e)
+    }
     
-    const mailOptions = {
+    const mailOptions: any = {
       from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM}>`,
       to: order.email,
       subject: `Order Confirmation #${order.display_id || order.id} - ProCare Store`,
@@ -97,7 +110,7 @@ export async function sendOrderConfirmationEmail(order: any) {
           <h2 style="color: #00bda5;">Thank You for Your Order!</h2>
           <p>Hello,</p>
           <p>Your order <strong>#${order.display_id || order.id}</strong> has been placed successfully.</p>
-          <p>We've attached your invoice to this email for your records.</p>
+          ${pdfBuffer ? `<p>We've attached your invoice to this email for your records.</p>` : `<p>Your invoice will be available in your dashboard shortly.</p>`}
           <div style="background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 10px;">
             <h3 style="margin-top: 0;">Order Summary</h3>
             <p>Total: <strong>INR ${(order.total / 100).toFixed(2)}</strong></p>
@@ -109,12 +122,15 @@ export async function sendOrderConfirmationEmail(order: any) {
           <p style="font-size: 12px; color: #999;">© 2026 ProCare Store. All rights reserved.</p>
         </div>
       `,
-      attachments: [
-        {
-          filename: `Invoice_${order.display_id || order.id}.pdf`,
-          content: pdfBuffer,
-        },
-      ],
+    }
+
+    if (pdfBuffer) {
+        mailOptions.attachments = [
+            {
+              filename: `Invoice_${order.display_id || order.id}.pdf`,
+              content: pdfBuffer,
+            },
+        ]
     }
 
     return await transporter.sendMail(mailOptions)

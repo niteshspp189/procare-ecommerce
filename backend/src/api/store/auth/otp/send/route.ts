@@ -18,7 +18,7 @@ export async function POST(
     // In Medusa 2.0, pg_connection might not be directly available in the scope 
     // depending on configuration. We'll use the manager or the connection if possible.
     const container = req.scope
-    const dbConnection = container.resolve("pg_connection", { allowUnregistered: true })
+    const dbConnection = container.resolve("pg_connection", { allowUnregistered: true }) as any
     
     if (!dbConnection) {
         console.error("pg_connection not found in container")

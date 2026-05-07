@@ -38,7 +38,7 @@ export const paymentInfoMap: Record<
     title: "Cash on Delivery",
     icon: <CreditCard />,
   },
-  pp_system_default: {
+  pp_system: {
     title: "Manual Payment",
     icon: <CreditCard />,
   },
@@ -59,7 +59,7 @@ export const isRazorpay = (providerId?: string) => {
   return providerId?.startsWith("pp_razorpay")
 }
 export const isManual = (providerId?: string) => {
-  return providerId?.startsWith("pp_system_default")
+  return providerId?.startsWith("pp_system")
 }
 
 // Add currencies that don't need to be divided by 100

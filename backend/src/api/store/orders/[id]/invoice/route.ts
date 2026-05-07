@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { IOrderModuleService } from "@medusajs/types"
 import { Modules } from "@medusajs/utils"
-import { generateInvoicePDF } from "../../../../lib/email"
+import { generateInvoicePDF } from "../../../../../lib/email"
 
 export const GET = async (
   req: MedusaRequest,
