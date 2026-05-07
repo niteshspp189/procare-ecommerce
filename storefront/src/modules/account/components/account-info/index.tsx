@@ -1,6 +1,6 @@
 import { Disclosure } from "@headlessui/react"
 import { Badge, Button, clx } from "@medusajs/ui"
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import { useFormStatus } from "react-dom"
@@ -28,6 +28,7 @@ const AccountInfo = ({
   'data-testid': dataTestid,
   editable = true
 }: AccountInfoProps) => {
+  const isInitialRender = React.useRef(true)
   const { state, close, toggle } = useToggleState()
 
   const { pending } = useFormStatus()
@@ -79,8 +80,8 @@ const AccountInfo = ({
           className={clx(
             "transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden",
             {
-              "max-h-[1000px] opacity-100": isSuccess,
-              "max-h-0 opacity-0": !isSuccess,
+              "max-h-[1000px] opacity-100": isSuccess && !pending,
+              "max-h-0 opacity-0": !isSuccess || pending,
             }
           )}
           data-testid="success-message"

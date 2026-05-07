@@ -12,7 +12,7 @@ type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
 }
 
-const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
+const ProfilePhone: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
 
   const updateCustomerPhone = async (
@@ -41,8 +41,8 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
   }
 
   useEffect(() => {
-    setSuccessState(state.success)
-  }, [state])
+    setSuccessState(!!state.success)
+  }, [state.success])
 
   return (
     <form action={formAction} className="w-full">
@@ -54,7 +54,7 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
         errorMessage={state.error}
         clearState={clearState}
         data-testid="account-phone-editor"
-        editable={false}
+        editable={!customer.phone}
       >
         <div className="grid grid-cols-1 gap-y-2">
           <Input
@@ -72,4 +72,4 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
   )
 }
 
-export default ProfileEmail
+export default ProfilePhone

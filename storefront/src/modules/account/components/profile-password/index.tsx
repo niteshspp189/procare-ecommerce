@@ -40,13 +40,15 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
       >
         <ErrorMessage error={state} />
         <div className="grid grid-cols-2 gap-4">
-          <Input
-            label="Old password"
-            name="old_password"
-            required
-            type="password"
-            data-testid="old-password-input"
-          />
+          {customer.phone && customer.first_name !== "User" && (
+            <Input
+              label="Old password"
+              name="old_password"
+              required
+              type="password"
+              data-testid="old-password-input"
+            />
+          )}
           <Input
             label="New password"
             type="password"

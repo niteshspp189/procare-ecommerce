@@ -42,8 +42,8 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
   }
 
   useEffect(() => {
-    setSuccessState(state.success)
-  }, [state])
+    setSuccessState(!!state.success)
+  }, [state.success])
 
   return (
     <form action={formAction} className="w-full">
