@@ -1,5 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
+import { formatDate, formatOrderDisplayId } from "@lib/util/format-date"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type OrderDetailsProps = {
   order: HttpTypes.StoreOrder
@@ -28,11 +30,11 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
       <Text className="mt-2">
         Order date:{" "}
         <span data-testid="order-date">
-          {new Date(order.created_at).toDateString()}
+          {formatDate(order.created_at)}
         </span>
       </Text>
       <Text className="mt-2 text-ui-fg-interactive">
-        Order number: <span data-testid="order-id">{order.display_id}</span>
+        Order number: <span data-testid="order-id">{formatOrderDisplayId(order.display_id ?? "")}</span>
       </Text>
 
       <div className="flex items-center text-compact-small gap-x-4 mt-4">
@@ -55,14 +57,20 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
             </Text>
           </>
         )}
-        <a 
-          href={`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/orders/${order.id}/invoice`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover font-semibold underline"
-        >
-          Download Invoice (PDF)
-        </a>
+        <div className="flex items-center gap-x-4">
+          <a 
+            href={`/api/invoice/${order.id}`}
+            className="text-[#00b5a4] hover:text-[#009d8e] font-semibold underline"
+          >
+            Download Invoice (PDF)
+          </a>
+          <LocalizedClientLink
+            href={`/account/support?order_id=${order.id}`}
+            className="text-red-600 hover:text-red-700 font-semibold underline ml-2"
+          >
+            Raise Complaint
+          </LocalizedClientLink>
+        </div>
       </div>
     </div>
   )

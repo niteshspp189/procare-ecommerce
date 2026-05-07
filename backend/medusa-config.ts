@@ -50,6 +50,9 @@ module.exports = defineConfig({
         ],
       },
     },
+    {
+      resolve: "./src/modules/support",
+    },
   ],
   admin: {
     path: "/store-backend",

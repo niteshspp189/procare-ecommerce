@@ -48,7 +48,16 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
     default:
-      return <Button disabled>Select a payment method</Button>
+      return (
+        <div className="flex justify-end">
+          <Button 
+            disabled 
+            className="bg-[#00bda5] opacity-50 hover:bg-[#00bda5] text-white border-none min-w-[200px]"
+          >
+            Pay Now
+          </Button>
+        </div>
+      )
   }
 }
 
@@ -144,21 +153,22 @@ const RazorpayPaymentButton = ({
   }
 
   return (
-    <>
+    <div className="flex flex-col items-end">
       <Button
         disabled={notReady}
         onClick={handlePayment}
         size="large"
+        className="bg-[#00bda5] hover:bg-[#008c7a] text-white border-none min-w-[200px]"
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Place order
+        Pay Now
       </Button>
       <ErrorMessage
         error={errorMessage}
         data-testid="razorpay-payment-error-message"
       />
-    </>
+    </div>
   )
 }
 
@@ -251,21 +261,22 @@ const StripePaymentButton = ({
   }
 
   return (
-    <>
+    <div className="flex flex-col items-end">
       <Button
         disabled={disabled || notReady}
         onClick={handlePayment}
         size="large"
+        className="bg-[#00bda5] hover:bg-[#008c7a] text-white border-none min-w-[200px]"
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Place order
+        Pay Now
       </Button>
       <ErrorMessage
         error={errorMessage}
         data-testid="stripe-payment-error-message"
       />
-    </>
+    </div>
   )
 }
 
@@ -290,21 +301,22 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   }
 
   return (
-    <>
+    <div className="flex flex-col items-end">
       <Button
         disabled={notReady}
         isLoading={submitting}
         onClick={handlePayment}
         size="large"
+        className="bg-[#00bda5] hover:bg-[#008c7a] text-white border-none min-w-[200px]"
         data-testid="submit-order-button"
       >
-        Place order
+        Pay Now
       </Button>
       <ErrorMessage
         error={errorMessage}
         data-testid="manual-payment-error-message"
       />
-    </>
+    </div>
   )
 }
 

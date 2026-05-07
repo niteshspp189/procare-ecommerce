@@ -42,11 +42,11 @@ const Payment = ({
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
-    if (isStripeLike(method)) {
-      await initiatePaymentSession(cart, {
-        provider_id: method,
-      })
-    }
+    
+    // Always initiate session when a method is selected (Razorpay needs this too)
+    await initiatePaymentSession(cart, {
+      provider_id: method,
+    })
   }
 
   const paidByGiftcard =
@@ -104,6 +104,14 @@ const Payment = ({
   useEffect(() => {
     setError(null)
   }, [isOpen])
+
+  // Auto-select first payment method if none selected and we are in payment step
+  useEffect(() => {
+    if (isOpen && !selectedPaymentMethod && availablePaymentMethods?.length) {
+      const firstMethod = availablePaymentMethods[0].id
+      setPaymentMethod(firstMethod)
+    }
+  }, [isOpen, availablePaymentMethods, selectedPaymentMethod])
 
   return (
     <div className="bg-white">

@@ -142,7 +142,7 @@ export default async function Nav() {
                       size={24}
                       className="transition-transform duration-200 group-hover:scale-105"
                     />
-                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold leading-none text-white">
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#00b5a4] px-1 text-[10px] font-bold leading-none text-white">
                       0
                     </span>
                   </span>

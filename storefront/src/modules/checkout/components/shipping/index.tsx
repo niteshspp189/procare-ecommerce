@@ -376,9 +376,10 @@ const Shipping: React.FC<ShippingProps> = ({
               error={error}
               data-testid="delivery-option-error-message"
             />
+          <div className="flex justify-end mt-6">
             <Button
               size="large"
-              className="mt"
+              className="bg-[#00bda5] hover:bg-[#008c7a] text-white border-none min-w-[200px]"
               onClick={handleSubmit}
               isLoading={isLoading}
               disabled={!cart.shipping_methods?.[0]}
@@ -386,6 +387,7 @@ const Shipping: React.FC<ShippingProps> = ({
             >
               Continue to payment
             </Button>
+          </div>
           </div>
         </>
       ) : (

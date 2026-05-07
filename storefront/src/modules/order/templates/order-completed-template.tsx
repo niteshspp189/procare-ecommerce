@@ -10,6 +10,8 @@ import ShippingDetails from "@modules/order/components/shipping-details"
 import PaymentDetails from "@modules/order/components/payment-details"
 import { HttpTypes } from "@medusajs/types"
 
+import { formatDate, formatOrderDisplayId } from "@lib/util/format-date"
+
 type OrderCompletedTemplateProps = {
   order: HttpTypes.StoreOrder
 }
@@ -46,16 +48,14 @@ export default async function OrderCompletedTemplate({
             </p>
             <div className="flex gap-4 mt-10">
               <a 
-                href={`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/orders/${order.id}/invoice`}
-                target="_blank"
-                rel="noreferrer"
-                className="bg-zinc-100 text-black px-8 py-4 rounded-full font-bold hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95"
+                href={`/api/invoice/${order.id}`}
+                className="bg-[#00b5a4] text-white px-8 py-4 rounded-full font-bold hover:bg-[#009d8e] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-100"
               >
                 Download Invoice
               </a>
               <a 
                 href="/account/orders" 
-                className="bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-zinc-800 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-zinc-200"
+                className="bg-white text-black border-2 border-[#00b5a4] px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-50"
               >
                 View My Orders
               </a>

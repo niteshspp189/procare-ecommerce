@@ -39,16 +39,20 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.strokeColor("#eeeeee").lineWidth(1).moveTo(50, 115).lineTo(550, 115).stroke()
 
     // Order Info
-    doc.fontSize(10).text(`Order Number: ${order.display_id || order.id}`, 50, 130)
-    doc.text(`Order Date: ${new Date(order.created_at).toLocaleDateString()}`, 50, 145)
+    doc.fontSize(10).text(`Order Number: OD${(order.display_id || order.id).toString().padStart(8, '0')}`, 50, 130)
+    
+    const d = new Date(order.created_at)
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const formattedDate = `${d.getDate()}-${monthNames[d.getMonth()]}-${d.getFullYear()}`
+    doc.text(`Order Date: ${formattedDate}`, 50, 145)
     doc.text(`Email: ${order.email}`, 50, 160)
 
     // Billing/Shipping
     doc.fontSize(12).text("Shipping Address", 50, 190)
-    doc.fontSize(10).text(`${order.shipping_address?.first_name} ${order.shipping_address?.last_name}`, 50, 210)
-    doc.text(`${order.shipping_address?.address_1}`, 50, 225)
-    doc.text(`${order.shipping_address?.city}, ${order.shipping_address?.province} ${order.shipping_address?.postal_code}`, 50, 240)
-    doc.text(`${order.shipping_address?.country_code?.toUpperCase()}`, 50, 255)
+    doc.fontSize(10).text(`${order.shipping_address?.first_name || ''} ${order.shipping_address?.last_name || ''}`, 50, 210)
+    doc.text(`${order.shipping_address?.address_1 || ''}`, 50, 225)
+    doc.text(`${order.shipping_address?.city || ''}, ${order.shipping_address?.province || ''} ${order.shipping_address?.postal_code || ''}`, 50, 240)
+    doc.text(`${order.shipping_address?.country_code?.toUpperCase() || ''}`, 50, 255)
 
     // Table Header
     const tableTop = 300
@@ -64,26 +68,43 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // Items
     let i = 0
     let currentY = tableTop + 30
+    let subtotalValue = 0
     for (const item of order.items || []) {
-      doc.text(item.title, 50, currentY)
-      doc.text(item.quantity.toString(), 280, currentY, { width: 90, align: "right" })
-      doc.text(`${(item.unit_price / 100).toFixed(2)}`, 370, currentY, { width: 90, align: "right" })
-      doc.text(`${((item.unit_price * item.quantity) / 100).toFixed(2)}`, 460, currentY, { width: 90, align: "right" })
+      const itemTotal = (item.unit_price || 0) * (item.quantity || 0)
+      subtotalValue += itemTotal
+      
+      doc.text(item.title || "Unknown Product", 50, currentY)
+      doc.text((item.quantity || 0).toString(), 280, currentY, { width: 90, align: "right" })
+      doc.text(`${((item.unit_price || 0) / 100).toFixed(2)}`, 370, currentY, { width: 90, align: "right" })
+      doc.text(`${(itemTotal / 100).toFixed(2)}`, 460, currentY, { width: 90, align: "right" })
       
       currentY += 20
       i++
     }
 
     // Totals
-    const subtotalY = currentY + 30
-    doc.strokeColor("#eeeeee").lineWidth(1).moveTo(350, subtotalY - 10).lineTo(550, subtotalY - 10).stroke()
+    const totalsY = currentY + 30
+    doc.strokeColor("#eeeeee").lineWidth(1).moveTo(350, totalsY - 10).lineTo(550, totalsY - 10).stroke()
     
-    doc.text("Subtotal:", 350, subtotalY, { width: 100, align: "right" })
-    doc.text(`${(order.total / 100).toFixed(2)}`, 450, subtotalY, { width: 100, align: "right" })
+    // Subtotal
+    doc.text("Subtotal:", 350, totalsY, { width: 100, align: "right" })
+    doc.text(`${(subtotalValue / 100).toFixed(2)}`, 450, totalsY, { width: 100, align: "right" })
     
+    // Shipping
+    const shippingTotal = order.shipping_total || 0
+    doc.text("Shipping:", 350, totalsY + 15, { width: 100, align: "right" })
+    doc.text(`${(shippingTotal / 100).toFixed(2)}`, 450, totalsY + 15, { width: 100, align: "right" })
+
+    // Taxes
+    const taxTotal = order.tax_total || 0
+    doc.text("Taxes:", 350, totalsY + 30, { width: 100, align: "right" })
+    doc.text(`${(taxTotal / 100).toFixed(2)}`, 450, totalsY + 30, { width: 100, align: "right" })
+
+    // Total
+    const finalTotal = order.total || (subtotalValue + shippingTotal + taxTotal)
     doc.font("Helvetica-Bold")
-    doc.text("Total:", 350, subtotalY + 20, { width: 100, align: "right" })
-    doc.text(`${(order.total / 100).toFixed(2)}`, 450, subtotalY + 20, { width: 100, align: "right" })
+    doc.text("Total:", 350, totalsY + 50, { width: 100, align: "right" })
+    doc.text(`INR ${(finalTotal / 100).toFixed(2)}`, 450, totalsY + 50, { width: 100, align: "right" })
 
     // Footer
     doc.fontSize(10).fillColor("#999999").text("Thank you for your purchase!", 50, 700, { align: "center", width: 500 })
@@ -101,20 +122,25 @@ export async function sendOrderConfirmationEmail(order: any) {
         console.warn("[EmailService] Continuing without PDF attachment:", e)
     }
     
+    const d = new Date(order.created_at)
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const formattedDate = `${d.getDate()}-${monthNames[d.getMonth()]}-${d.getFullYear()}`
+    const formattedId = `OD${(order.display_id || order.id).toString().padStart(8, '0')}`
+
     const mailOptions: any = {
       from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM}>`,
       to: order.email,
-      subject: `Order Confirmation #${order.display_id || order.id} - ProCare Store`,
+      subject: `Order Confirmation #${formattedId} - ProCare Store`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee;">
           <h2 style="color: #00bda5;">Thank You for Your Order!</h2>
           <p>Hello,</p>
-          <p>Your order <strong>#${order.display_id || order.id}</strong> has been placed successfully.</p>
+          <p>Your order <strong>#${formattedId}</strong> has been placed successfully on ${formattedDate}.</p>
           ${pdfBuffer ? `<p>We've attached your invoice to this email for your records.</p>` : `<p>Your invoice will be available in your dashboard shortly.</p>`}
           <div style="background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 10px;">
             <h3 style="margin-top: 0;">Order Summary</h3>
             <p>Total: <strong>INR ${(order.total / 100).toFixed(2)}</strong></p>
-            <p>Shipping to: ${order.shipping_address?.first_name} ${order.shipping_address?.last_name}</p>
+            <p>Shipping to: ${order.shipping_address?.first_name || ''} ${order.shipping_address?.last_name || ''}</p>
           </div>
           <p>You can track your order status in your account dashboard.</p>
           <a href="${process.env.STORE_URL || 'http://shop.mvshoecare.com'}/account/orders" style="display: inline-block; background: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 30px; font-weight: bold; margin-top: 10px;">View Order Status</a>
@@ -127,7 +153,7 @@ export async function sendOrderConfirmationEmail(order: any) {
     if (pdfBuffer) {
         mailOptions.attachments = [
             {
-              filename: `Invoice_${order.display_id || order.id}.pdf`,
+              filename: `Invoice_${formattedId}.pdf`,
               content: pdfBuffer,
             },
         ]

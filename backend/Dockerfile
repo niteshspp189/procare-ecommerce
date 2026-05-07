@@ -20,8 +20,16 @@ COPY . .
 # Build Medusa Admin
 RUN yarn medusa build
 
+# Debug: List contents of .medusa to find where the admin was built
+RUN find .medusa -maxdepth 4
+
 # Copy admin build output to the path Medusa server expects
-RUN mkdir -p /server/public && cp -r /server/.medusa/server/public/admin /server/public/admin
+# Try multiple common paths for v2
+RUN mkdir -p /server/public && \
+    (cp -r /server/.medusa/server/public/admin /server/public/admin 2>/dev/null || \
+     cp -r /server/.medusa/server/admin /server/public/admin 2>/dev/null || \
+     cp -r /server/.medusa/admin /server/public/admin 2>/dev/null || \
+     echo "Admin build not found in expected paths, skipping copy")
 
 RUN chmod +x start.sh
 

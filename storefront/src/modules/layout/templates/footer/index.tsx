@@ -72,7 +72,7 @@ export default async function Footer() {
             <p className="text-[10px] text-gray-400 mb-3 leading-relaxed">Subscribe for special offers & once-in-a-lifetime deals.</p>
             <div className="flex bg-[#111] rounded-full overflow-hidden border border-gray-800 focus-within:border-gray-600 transition-colors">
               <input type="email" placeholder="Email Address" className="bg-transparent border-none px-3 py-2 text-[11px] w-full focus:outline-none" />
-              <button className="bg-white text-black px-3 py-2 text-[10px] font-bold">JOIN</button>
+              <button className="bg-[#00b5a4] text-white px-3 py-2 text-[10px] font-bold">JOIN</button>
             </div>
           </div>
         </div>

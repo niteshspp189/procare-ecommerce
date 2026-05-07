@@ -83,9 +83,14 @@ const Addresses = ({
                 <BillingAddress cart={cart} />
               </div>
             )}
-            <SubmitButton className="mt-6 w-full !bg-[#00b5a4] !border-[#00b5a4] hover:!bg-[#009d8e]" data-testid="submit-address-button">
-              Continue to delivery
-            </SubmitButton>
+            <div className="flex justify-end mt-6">
+              <SubmitButton 
+                className="!w-auto min-w-[200px] !bg-[#00b5a4] !border-[#00b5a4] hover:!bg-[#009d8e]" 
+                data-testid="submit-address-button"
+              >
+                Continue to delivery
+              </SubmitButton>
+            </div>
             <ErrorMessage error={message} data-testid="address-error-message" />
           </div>
         </form>

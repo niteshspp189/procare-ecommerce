@@ -10,7 +10,11 @@ export const paymentInfoMap: Record<
   string,
   { title: string; icon: React.JSX.Element }
 > = {
-  pp_stripe_stripe: {
+  stripe: {
+    title: "Credit card",
+    icon: <CreditCard />,
+  },
+  "pp_stripe_stripe": {
     title: "Credit card",
     icon: <CreditCard />,
   },
@@ -26,20 +30,28 @@ export const paymentInfoMap: Record<
     title: "Bancontact",
     icon: <Bancontact />,
   },
-  pp_paypal_paypal: {
+  paypal: {
     title: "PayPal",
     icon: <PayPal />,
+  },
+  razorpay: {
+    title: "Razorpay",
+    icon: <CreditCard />,
   },
   pp_razorpay_razorpay: {
     title: "Razorpay",
     icon: <CreditCard />,
   },
   manual: {
-    title: "Cash on Delivery",
+    title: "Pay on Delivery (COD)",
     icon: <CreditCard />,
   },
   pp_system: {
-    title: "Manual Payment",
+    title: "Pay on Delivery (COD)",
+    icon: <CreditCard />,
+  },
+  pp_system_default: {
+    title: "Pay on Delivery (COD)",
     icon: <CreditCard />,
   },
   // Add more payment providers here
@@ -48,18 +60,24 @@ export const paymentInfoMap: Record<
 // This only checks if it is native stripe or medusa payments for card payments, it ignores the other stripe-based providers
 export const isStripeLike = (providerId?: string) => {
   return (
-    providerId?.startsWith("pp_stripe_") || providerId?.startsWith("pp_medusa-")
+    providerId?.startsWith("pp_stripe_") || 
+    providerId?.startsWith("pp_medusa-") ||
+    providerId === "stripe"
   )
 }
 
 export const isPaypal = (providerId?: string) => {
-  return providerId?.startsWith("pp_paypal")
+  return providerId?.startsWith("pp_paypal") || providerId === "paypal"
 }
 export const isRazorpay = (providerId?: string) => {
-  return providerId?.startsWith("pp_razorpay")
+  return providerId?.startsWith("pp_razorpay") || providerId === "razorpay"
 }
 export const isManual = (providerId?: string) => {
-  return providerId?.startsWith("pp_system")
+  return (
+    providerId?.startsWith("pp_system") || 
+    providerId === "manual" ||
+    providerId === "pp_system_default"
+  )
 }
 
 // Add currencies that don't need to be divided by 100
