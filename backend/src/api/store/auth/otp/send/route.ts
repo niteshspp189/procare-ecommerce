@@ -15,13 +15,14 @@ export async function POST(
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
 
   try {
-    // In Medusa 2.0, pg_connection might not be directly available in the scope 
-    // depending on configuration. We'll use the manager or the connection if possible.
-    const container = req.scope
-    const dbConnection = container.resolve("pg_connection", { allowUnregistered: true }) as any
-    
-    if (!dbConnection) {
-        console.error("pg_connection not found in container")
+    // Use direct pg Pool since pg_connection is not reliably exposed in Medusa 2.0 container
+    const { Pool } = require("pg")
+    const pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+    })
+
+    if (!pool) {
+        console.error("Failed to create pg pool")
         return res.status(500).json({ message: "Database connection failed" })
     }
 
@@ -29,7 +30,8 @@ export async function POST(
       INSERT INTO otp_code (email, code, expires_at)
       VALUES ($1, $2, $3)
     `
-    await dbConnection.query(query, [email, code, expiresAt])
+    await pool.query(query, [email, code, expiresAt])
+    await pool.end()
 
     await sendOTPEmail(email, code)
 
