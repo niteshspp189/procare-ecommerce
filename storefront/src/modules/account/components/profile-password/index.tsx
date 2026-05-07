@@ -10,13 +10,12 @@ type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
 }
 
+import { updatePassword } from "@lib/data/customer"
+import ErrorMessage from "@modules/checkout/components/error-message"
+
 const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
-
-  // TODO: Add support for password updates
-  const updatePassword = async () => {
-    toast.info("Password update is not implemented")
-  }
+  const [state, formAction] = useActionState(updatePassword, null)
 
   const clearState = () => {
     setSuccessState(false)
@@ -24,7 +23,7 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
 
   return (
     <form
-      action={updatePassword}
+      action={formAction}
       onReset={() => clearState()}
       className="w-full"
     >
@@ -34,11 +33,12 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
           <span>The password is not shown for security reasons</span>
         }
         isSuccess={successState}
-        isError={false}
-        errorMessage={undefined}
+        isError={!!state}
+        errorMessage={state}
         clearState={clearState}
         data-testid="account-password-editor"
       >
+        <ErrorMessage error={state} />
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Old password"

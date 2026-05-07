@@ -333,3 +333,20 @@ export async function autoLogin(orderId: string, token: string) {
     return { success: false, error: error.toString() }
   }
 }
+
+export async function updatePassword(_currentState: unknown, formData: FormData) {
+  const oldPassword = formData.get("old_password") as string
+  const newPassword = formData.get("new_password") as string
+  const confirmPassword = formData.get("confirm_password") as string
+
+  if (newPassword !== confirmPassword) {
+    return "Passwords do not match"
+  }
+
+  try {
+    // TODO: Implement password update in backend
+    return "Password update is coming soon"
+  } catch (error: any) {
+    return error.toString()
+  }
+}
