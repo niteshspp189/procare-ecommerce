@@ -175,12 +175,6 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
 
               <div className="flex items-baseline gap-4 mb-1">
                 {product && <ProductPrice product={product} variant={selectedVariant} />}
-                {selectedVariant?.calculated_price?.calculated_amount != null && selectedVariant.calculated_price.calculated_amount > 0 && (() => {
-                  const pct = 10 + (mrpSeed % 6)
-                  const base = selectedVariant.calculated_price.calculated_amount as number
-                  const mrp = Math.round(base * (1 + pct / 100) / 10) * 10
-                  return <span className="text-black text-lg line-through font-medium">₹{mrp.toFixed(2)}</span>
-                })()}
               </div>
               <p className="text-sm text-black mb-4">(Inclusive of all taxes)</p>
 
