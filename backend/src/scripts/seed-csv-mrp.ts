@@ -231,6 +231,27 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
         const firstRow = rows[0];
         const productSize = firstRow?.size || "";
 
+        const productMetadata: Record<string, any> = {
+            ...catalogInfo.metadata,
+            how_to_use: catalogInfo.how_to_use
+        };
+
+        if (hasColors) {
+            productMetadata.color_hex_map = {
+                "Neutral": "#e1d4c0", "neutral": "#e1d4c0",
+                "Black": "#000000", "black": "#000000",
+                "Light Brown": "#b58a5c", "light brown": "#b58a5c",
+                "Medium Brown": "#8b5a2b", "medium brown": "#8b5a2b",
+                "Dark Brown": "#3d2314", "dark brown": "#3d2314",
+                "Tan": "#b67b3e", "tan": "#b67b3e",
+                "Cognac": "#9f381d", "cognac": "#9f381d",
+                "Mahogany": "#4a150b", "mahogany": "#4a150b",
+                "Blue": "#1e3a8a", "blue": "#1e3a8a",
+                "White": "#ffffff", "white": "#ffffff",
+                "Brown": "#654321", "brown": "#654321"
+            };
+        }
+
         productsToCreate.push({
             title: catalogTitle,
             handle,
@@ -242,10 +263,7 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
             shipping_profile_id: shippingProfile.id,
             category_ids: [categoryId],
             collection_id: collections["Featured"]?.id,
-            metadata: {
-                ...catalogInfo.metadata,
-                how_to_use: catalogInfo.how_to_use
-            },
+            metadata: productMetadata,
             options,
             variants
         });
