@@ -112,3 +112,13 @@ docker exec -it procare_backend npx medusa exec src/scripts/seed-inventory.ts
 # Create collections for homepage categories
 docker exec -it procare_backend npx medusa exec src/scripts/seed-collections.ts
 ```
+Here are the products in the catalog that have multiple color variants, along with their local storefront URLs:
+
+Pro Gold Color Shoe Cream (10 color variants: Neutral, Black, Light Brown, Medium Brown, Dark Brown, Tan, Cognac, Mahogany, Blue, White)
+Local URL: http://localhost:9000/products/pro-gold-color-shoe-cream
+Pro Gold Color Shoe Cream with Applicator (3 color variants: Neutral, Light Brown, Black)
+Local URL: http://localhost:9000/products/pro-gold-color-shoe-cream-with-applicator
+Pro Gold Shine Self Shine (3 color variants: Neutral, Black, Brown)
+Local URL: http://localhost:9000/products/pro-gold-shine-self-shine
+Pro Gold Shine Instant Shine (3 color variants: Neutral, Black, Brown)
+Local URL: http://localhost:9000/products/pro-gold-shine-instant-shine

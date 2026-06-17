@@ -43,11 +43,6 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   countryCode,
   relatedProducts,
 }) => {
-  const images = useMemo(() => {
-    if (product?.images?.length) return product.images
-    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
-    return []
-  }, [product])
   const imgBase = '/images/product-detail-images/'
   const { openDrawer } = useCartDrawer()
   const [isAdding, setIsAdding] = useState(false)
@@ -72,6 +67,23 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       return isEqual(variantOptions, options)
     })
   }, [product?.variants, options])
+
+  const images = useMemo(() => {
+    // Check selected variant metadata for images first
+    if (selectedVariant?.metadata) {
+      const vImgs: HttpTypes.StoreProductImage[] = []
+      const meta = selectedVariant.metadata as Record<string, string>
+      if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
+      if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
+      if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
+      if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
+      if (vImgs.length > 0) return vImgs
+    }
+
+    if (product?.images?.length) return product.images
+    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
+    return []
+  }, [product, selectedVariant])
 
   const isSingleDefaultVariant = useMemo(() => {
     if (!product?.variants || product.variants.length !== 1) return false
@@ -117,7 +129,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     setActiveAccordion(activeAccordion === name ? null : name)
   }
 
-  const metadata = product?.metadata || {}
+  const metadata = (product?.metadata || {}) as Record<string, any>
 
   const mrpSeed = useMemo(() => {
     return product?.id?.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0) ?? 7
@@ -285,13 +297,17 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 }
                 return (
                   <div className="flex justify-between items-center py-6 border-t border-b border-gray-200 mb-5 max-w-full overflow-x-auto gap-4 no-scrollbar">
-                    {activeBadges.map((badge: { iconId: string; label: string }, idx: number) => {
-                      const svg = ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"]
+                    {activeBadges.map((badge: { iconId: string; label: string; iconUrl?: string }, idx: number) => {
+                      const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
                       return (
                         <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[72px]">
-                          <div className="w-[60px] h-[60px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300">
-                            <svg width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
-                              dangerouslySetInnerHTML={{ __html: svg }} />
+                          <div className="w-[60px] h-[60px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
+                            {isImage ? (
+                              <img src={badge.iconUrl || badge.iconId} alt={badge.label} className="w-[36px] h-[36px] object-contain" />
+                            ) : (
+                              <svg width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                                dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
+                            )}
                           </div>
                           <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
                         </div>
