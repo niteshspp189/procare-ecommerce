@@ -1,10 +1,74 @@
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
-import { Container } from "@medusajs/ui"
 import Image from "next/image"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useState, useRef, MouseEvent } from "react"
 
 type ImageGalleryProps = {
   images: HttpTypes.StoreProductImage[]
+}
+
+type ZoomableImageProps = {
+  src: string
+  alt: string
+  priority?: boolean
+  unoptimized?: boolean
+}
+
+const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) => {
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 })
+  const [isHovered, setIsHovered] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect()
+    
+    // Calculate cursor percentage coordinates relative to the image container
+    const x = Math.max(0, Math.min(100, ((e.clientX - left) / width) * 100))
+    const y = Math.max(0, Math.min(100, ((e.clientY - top) / height) * 100))
+    
+    setZoomPos({ x, y })
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative w-full h-full cursor-zoom-in overflow-hidden select-none"
+    >
+      <div
+        className="w-full h-full"
+        style={{
+          transform: isHovered ? "scale(2.2)" : "scale(1)",
+          transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+          transition: isHovered 
+            ? "transform 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94)" 
+            : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform-origin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        }}
+      >
+        <Image
+          src={src}
+          priority={priority}
+          className="absolute inset-4 md:inset-8 object-contain pointer-events-none"
+          alt={alt}
+          fill
+          sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+          unoptimized={unoptimized}
+        />
+      </div>
+      
+      {/* Zoom indicator overlay */}
+      <div 
+        className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-lg pointer-events-none uppercase transition-opacity duration-300 shadow-sm border border-white/10"
+        style={{ opacity: isHovered ? 0.9 : 0 }}
+      >
+        Live Zoom
+      </div>
+    </div>
+  )
 }
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
@@ -43,13 +107,10 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {!!image.url && (
-                <Image
+                <ZoomableImage
                   src={image.url}
-                  priority={index === 0}
-                  className="absolute inset-4 md:inset-8 object-contain"
                   alt={`Product image ${index + 1}`}
-                  fill
-                  sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                  priority={index === 0}
                   unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
                 />
               )}
