@@ -299,17 +299,27 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   <div className="flex justify-between items-center py-6 border-t border-b border-gray-200 mb-5 max-w-full overflow-x-auto gap-4 no-scrollbar">
                     {activeBadges.map((badge: { iconId: string; label: string; iconUrl?: string }, idx: number) => {
                        const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
+                       
+                       let displayLabel = badge.label;
+                       const l = displayLabel.toLowerCase();
+                       const id = badge.iconId.toLowerCase();
+                       if (l.includes("pro clean") || id.includes("pro-clean")) displayLabel = "Clean";
+                       else if (l.includes("pro fresh") || id.includes("pro-fresh")) displayLabel = "Fresh";
+                       else if (l.includes("pro care") || id.includes("pro-care")) displayLabel = "Care";
+                       else if (l.includes("pro color") || id.includes("pro-color")) displayLabel = "Color";
+                       else if (l.includes("pro shine") || id.includes("pro-shine") || id.includes("shine.png")) displayLabel = "Shine";
+
                        return (
                          <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[85px]">
                            <div className="w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
                              {isImage ? (
-                               <img src={badge.iconUrl || badge.iconId} alt={badge.label} className="w-[54px] h-[54px] object-contain" />
+                               <img src={badge.iconUrl || badge.iconId} alt={displayLabel} className="w-[54px] h-[54px] object-contain" />
                              ) : (
                                <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
                                  dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
                              )}
                            </div>
-                           <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
+                           <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{displayLabel}</span>
                          </div>
                        )
                      })}
