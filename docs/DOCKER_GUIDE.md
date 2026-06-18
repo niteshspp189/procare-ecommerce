@@ -17,7 +17,7 @@ This guide provides details on the Dockerized setup for the ProCare Ecommerce sy
 ## 🔑 Default Credentials
 
 ### ProCare Admin
-- **Email**: `admin@procareshop.com`
+- **Email**: `admin@procare.com`
 - **Password**: `Admin@2026#`
 
 ---

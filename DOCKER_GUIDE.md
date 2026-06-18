@@ -21,11 +21,9 @@ This guide contains all the daily commands, access URLs, credentials, and databa
 
 ## 🔑 Admin Credentials
 
-To log into the Admin Dashboard at [http://localhost:9000/store-backend](http://localhost:9000/store-backend), use either of the following seed accounts:
+To log into the Admin Dashboard at [http://localhost:9000/store-backend](http://localhost:9000/store-backend), use the following seed account:
 
-* **Username Options:**
-  - `admin@procareshop.com`
-  - `admin@procare.com`
+* **Email:** `admin@procare.com`
 * **Password:** `Admin@2026#`
 
 ---

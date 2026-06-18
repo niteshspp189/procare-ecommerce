@@ -120,7 +120,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-24 self-start">
+          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
@@ -236,13 +236,13 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   {activeAccordion === "description" && (
                     <div className="mt-4 text-gray-500 text-sm leading-relaxed">
                       <p className="mb-4">{product.description as string}</p>
-                      {metadata.key_benefits && (
+                      {metadata.key_benefits ? (
                         <ul className="list-disc pl-5 space-y-1">
                           {(metadata.key_benefits as any[]).map((benefit, i) => (
                             <li key={i}>{benefit as any}</li>
                           ))}
                         </ul>
-                      )}
+                      ) : null}
                     </div>
                   )}
                 </div>
@@ -267,7 +267,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     )}
                   </div>
                 )}
-                {metadata.specifications && (
+                {metadata.specifications ? (
                   <div className="border-b border-gray-100 py-4">
                     <div
                       className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black"
@@ -291,7 +291,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       </div>
                     )}
                   </div>
-                )}
+                ) : null}
                 <div className="border-b border-gray-100 py-4">
                   <div className="flex justify-between items-center font-bold text-xs uppercase tracking-widest cursor-pointer hover:text-black text-black">
                     <span>Shipping & Returns</span>

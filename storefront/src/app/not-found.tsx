@@ -1,11 +1,11 @@
-import { redirect } from "next/navigation"
-import { Metadata } from "next"
+"use client"
 
-export const metadata: Metadata = {
-  title: "404",
-  description: "Something went wrong",
-}
+import { useEffect } from "react"
 
 export default function NotFound() {
-  redirect("/")
+  useEffect(() => {
+    window.location.replace("/")
+  }, [])
+
+  return null
 }

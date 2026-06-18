@@ -62,10 +62,16 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
       
       {/* Zoom indicator overlay */}
       <div 
-        className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-lg pointer-events-none uppercase transition-opacity duration-300 shadow-sm border border-white/10"
+        className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1.5 rounded-lg pointer-events-none transition-opacity duration-300 shadow-sm border border-white/10 flex items-center gap-1.5"
         style={{ opacity: isHovered ? 0.9 : 0 }}
       >
-        Live Zoom
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          <line x1="11" y1="8" x2="11" y2="14"></line>
+          <line x1="8" y1="11" x2="14" y2="11"></line>
+        </svg>
+        <span className="text-[10px] font-bold tracking-widest uppercase">Zoom</span>
       </div>
     </div>
   )

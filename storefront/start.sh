@@ -16,6 +16,8 @@ else
   echo "Dev mode - installing dependencies..."
   corepack enable && corepack prepare yarn@4.12.0 --activate
   yarn install
+  echo "Cleaning stale Next.js cache..."
+  rm -rf .next/server .next/static .next/cache .next/types 2>/dev/null || true
   echo "Starting dev server..."
   yarn dev -p 8000
 fi

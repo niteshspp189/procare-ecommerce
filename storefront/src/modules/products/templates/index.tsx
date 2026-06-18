@@ -179,7 +179,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:flex-1 shrink-0 lg:sticky lg:top-24 self-start">
+          <div className="w-full lg:flex-1 shrink-0 lg:sticky lg:top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
@@ -298,21 +298,21 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 return (
                   <div className="flex justify-between items-center py-6 border-t border-b border-gray-200 mb-5 max-w-full overflow-x-auto gap-4 no-scrollbar">
                     {activeBadges.map((badge: { iconId: string; label: string; iconUrl?: string }, idx: number) => {
-                      const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
-                      return (
-                        <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[72px]">
-                          <div className="w-[60px] h-[60px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
-                            {isImage ? (
-                              <img src={badge.iconUrl || badge.iconId} alt={badge.label} className="w-[36px] h-[36px] object-contain" />
-                            ) : (
-                              <svg width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
-                                dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
-                            )}
-                          </div>
-                          <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
-                        </div>
-                      )
-                    })}
+                       const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
+                       return (
+                         <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[85px]">
+                           <div className="w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
+                             {isImage ? (
+                               <img src={badge.iconUrl || badge.iconId} alt={badge.label} className="w-[54px] h-[54px] object-contain" />
+                             ) : (
+                               <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                                 dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
+                             )}
+                           </div>
+                           <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{badge.label}</span>
+                         </div>
+                       )
+                     })}
                   </div>
                 )
               })()}
