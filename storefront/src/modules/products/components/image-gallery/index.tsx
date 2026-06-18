@@ -101,7 +101,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           >
             {!!image.url && (
               <Image
-                src={image.url}
+                src={encodeURI(image.url).replace(/&/g, "%26").replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\+/g, "%2B")}
                 alt={`Thumbnail ${index + 1}`}
                 fill
                 className="object-cover p-1"
@@ -126,7 +126,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
               >
                 {!!image.url && (
                   <ZoomableImage
-                    src={image.url}
+                    src={encodeURI(image.url).replace(/&/g, "%26").replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\+/g, "%2B")}
                     alt={`Product image ${index + 1}`}
                     priority={index === 0}
                     unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
@@ -154,7 +154,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
               >
                 {!!image.url && (
                   <Image
-                    src={image.url}
+                    src={encodeURI(image.url).replace(/&/g, "%26").replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\+/g, "%2B")}
                     alt={`Thumbnail ${index + 1}`}
                     fill
                     className="object-cover p-1"
