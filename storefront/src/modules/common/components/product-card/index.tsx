@@ -105,15 +105,6 @@ export default function ProductCard({
           </p>
           <div className="mt-auto mb-4 h-[30px] flex items-center gap-3">
             {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
-            {cheapestPrice?.calculated_price_number && (
-              <span className="text-[12px] text-slate-400 line-through">
-                {convertToLocale({
-                  amount: cheapestPrice.calculated_price_number / 0.8,
-                  currency_code: cheapestPrice.currency_code,
-                  locale: "en-IN"
-                })}
-              </span>
-            )}
           </div>
         </div>
       </LocalizedClientLink>

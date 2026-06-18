@@ -10,7 +10,8 @@ import ProductCard from "@modules/common/components/product-card"
 import Button from "@modules/common/components/button"
 import Section from "@modules/layout/components/section"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
+
 
 export const metadata: Metadata = {
   title: "Pro Premium Care | Staging Home",

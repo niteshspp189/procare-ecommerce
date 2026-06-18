@@ -8,7 +8,8 @@ import BestSellersTabs from "@modules/home/components/best-sellers-tabs"
 import CarouselWrapper from "@modules/products/components/related-products/carousel-wrapper"
 import ProductCard from "@modules/common/components/product-card"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
+
 
 export const metadata: Metadata = {
   title: "Pro Premium Care | Staging Home",
