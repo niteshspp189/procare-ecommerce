@@ -84,8 +84,8 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
   return (
-    <div className="flex items-start relative gap-x-4">
-      {/* Thumbnail Sidebar */}
+    <div className="flex flex-col lg:flex-row items-start relative gap-x-4 gap-y-4">
+      {/* Desktop Thumbnail Sidebar */}
       <div className="hidden lg:flex flex-col gap-y-3 sticky top-24 h-fit max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar py-2">
         {images.map((image, index) => (
           <button
@@ -113,27 +113,59 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         ))}
       </div>
 
-      {/* Main Gallery */}
-      <div className="flex flex-col flex-1 gap-y-6">
-        {images.map((image, index) => {
-          return (
-            <div
-              key={image.id}
-              className="relative aspect-square w-full overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up scroll-mt-24"
-              id={image.id}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              {!!image.url && (
-                <ZoomableImage
-                  src={image.url}
-                  alt={`Product image ${index + 1}`}
-                  priority={index === 0}
-                  unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
-                />
-              )}
-            </div>
-          )
-        })}
+      <div className="flex flex-col flex-1 w-full lg:w-auto min-w-0">
+        {/* Main Gallery */}
+        <div className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar lg:pb-0">
+          {images.map((image, index) => {
+            return (
+              <div
+                key={image.id}
+                className="relative aspect-square w-full flex-shrink-0 snap-center lg:snap-align-none overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up scroll-mt-24"
+                id={image.id}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {!!image.url && (
+                  <ZoomableImage
+                    src={image.url}
+                    alt={`Product image ${index + 1}`}
+                    priority={index === 0}
+                    unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
+                  />
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Mobile Thumbnails */}
+        {images.length > 1 && (
+          <div className="flex lg:hidden overflow-x-auto gap-x-3 no-scrollbar py-4 px-1">
+            {images.map((image, index) => (
+              <button
+                key={`mob-thumb-${image.id}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  const el = document.getElementById(image.id)
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
+                  }
+                }}
+                className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-gray-200 hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
+              >
+                {!!image.url && (
+                  <Image
+                    src={image.url}
+                    alt={`Thumbnail ${index + 1}`}
+                    fill
+                    className="object-cover p-1"
+                    sizes="64px"
+                    unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
