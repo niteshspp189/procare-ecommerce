@@ -120,7 +120,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
+          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-28 z-10 self-start">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
