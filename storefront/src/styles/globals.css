@@ -416,3 +416,12 @@ h1, h2, h3, h4, h5, h6 {
 .nav-item-animated:hover::after {
   width: 100%;
 }
+
+@media (min-width: 1024px) {
+  .sticky-product-sidebar {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 120px !important;
+    z-index: 10 !important;
+  }
+}
