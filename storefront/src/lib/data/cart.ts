@@ -49,8 +49,7 @@ export async function retrieveCart(cartId?: string, fields?: string) {
       cache: "force-cache",
     })
     .then(({ cart }: { cart: HttpTypes.StoreCart }) => cart)
-    .catch(async () => {
-      await removeCartId()
+    .catch(() => {
       return null
     })
 }
