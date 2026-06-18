@@ -58,7 +58,7 @@ export default function ProductCard({
     }
   }
 
-  const heightClass = variant === "standard" ? "h-[580px]" : "h-full"
+  const heightClass = variant === "standard" ? "h-full flex flex-col justify-between" : "h-full flex flex-col justify-between"
   const paddingClass = variant === "compact" ? "p-4" : "p-3"
 
   return (
@@ -83,7 +83,7 @@ export default function ProductCard({
             className="!p-0 object-cover w-full h-full"
           />
           {product.variants && product.variants.length > 0 && (
-            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-black shadow-sm z-10">
+            <div className="absolute top-0 left-0 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-tl-[16px] rounded-br-[16px] text-[10px] font-bold uppercase tracking-wider text-black shadow-md z-10 border-b border-r border-slate-100/50">
               {product.variants.length > 1 ? "Multi-Variant" : "In Stock"}
             </div>
           )}
@@ -100,16 +100,16 @@ export default function ProductCard({
           >
             {product.title}
           </h3>
-          <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest mb-2 h-[20px] overflow-hidden">
+          <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest mb-1 h-[20px] overflow-hidden">
             {product.categories?.[0]?.name || "Premium Shine"}
           </p>
-          <div className="mt-auto mb-4 h-[30px] flex items-center gap-3">
+          <div className="mt-2 mb-4 h-[30px] flex items-center gap-3">
             {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
           </div>
         </div>
       </LocalizedClientLink>
 
-      <div className="px-1">
+      <div className="px-1 mt-auto pt-2">
         <button
           onClick={handleAddToCart}
           disabled={isAdding}
