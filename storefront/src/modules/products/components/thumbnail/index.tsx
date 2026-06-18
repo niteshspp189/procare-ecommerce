@@ -48,11 +48,10 @@ const ImageOrPlaceholder = ({
   size,
 }: Pick<ThumbnailProps, "size"> & { image?: string }) => {
   const isLocalImage = image?.includes("/static") || image?.includes("localhost:9000")
-  const safeImage = image ? encodeURI(image).replace(/&/g, "%26").replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\+/g, "%2B") : ""
 
   return image ? (
     <Image
-      src={safeImage}
+      src={image}
       alt="Thumbnail"
       className="absolute inset-0 object-contain object-center"
       draggable={false}
