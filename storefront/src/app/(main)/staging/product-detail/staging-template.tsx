@@ -115,12 +115,12 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           <span className="text-black font-semibold">{breadcrumbName}</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-12 mt-4">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-12 mt-4">
           <div className="flex-1 min-w-0">
             <ImageGallery images={images} />
           </div>
 
-          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-28 z-10 self-start">
+          <div className="w-full lg:w-[460px] shrink-0 lg:sticky lg:top-[120px] z-10">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
               <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
