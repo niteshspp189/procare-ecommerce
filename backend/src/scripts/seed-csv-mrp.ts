@@ -305,8 +305,8 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
         if (title.includes("gloss brush")) return "Gloss Brush";
         if (title.includes("horse hair brush")) return "Horse hair Brush";
         if (title.includes("suede brush")) return "Suede Brush";
-        if (title.includes("premium shoe tree")) return "Shoe Tree/Premium Shoe Tree";
-        if (title.includes("spiral")) return "Shoe Tree/hoe Tree With Spiral";
+        if (title.includes("premium shoe tree")) return "Shoe Tree";
+        if (title.includes("spiral")) return "Shoe Tree";
         if (title.includes("nubuck 2in1") || title.includes("nubuck 2 in 1") || title.includes("suede 2in1") || title.includes("suede 2 in 1")) return "Nubuck 2 in 1 Neutral";
         if (title.includes("perfect clean gel")) return "Perfect Clean Gel 50ml Neutral";
         if (title.includes("suede and nubuck renovator")) return "Suede N Nubuck Spray 180 ml-Neutral";
@@ -404,8 +404,8 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
         else if (norm === "power sneaker cleaner -neutral") clean = "Power Sneaker Cleaner -Neutral";
         else if (norm === "power sneaker cleaner -neutral 2") clean = "Power Sneaker Cleaner -Neutral (2)";
     
-        else if (norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral (1)" || norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral") clean = "PRO GOLD Clean Power Cleaner(Cleaning Shampoo & Mini Brush) -Neutral (1)";
-        else if (norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral (2)" || norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral2") clean = "PRO GOLD Clean Power Cleaner(Cleaning Shampoo & Mini Brush) -Neutral (2)";
+        else if (norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral (1)" || norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral") return `/images/products/pro-gold-clean-power-cleaner/1.webp`;
+        else if (norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral (2)" || norm === "pro gold clean power cleaner(cleaning shampoo & mini brush) -neutral2") return `/images/products/pro-gold-clean-power-cleaner/2.webp`;
     
         else if (norm === "pro gold clean sneaker wipes-pack of 30 -neutral") clean = "PRO GOLD Clean Sneaker Wipes-Pack of 30 -Neutral";
         else if (norm === "pro gold clean sneaker wipes-pack of 30 -neutral 2" || norm === "pro gold clean sneaker wipes-pack of 30 -neutral2") clean = "PRO GOLD Clean Sneaker Wipes-Pack of 30 -Neutral 2";
@@ -696,7 +696,7 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
         };
 
         // Add color hex map for Shoe Creams
-        if (baseTitle.toLowerCase().includes("shoe cream")) {
+        if (baseTitle.toLowerCase().includes("shoe cream") || baseTitle.toLowerCase().includes("shine")) {
             productMetadata.color_hex_map = {
                 "Neutral": "#e1d4c0", "neutral": "#e1d4c0",
                 "Black": "#000000", "black": "#000000",
