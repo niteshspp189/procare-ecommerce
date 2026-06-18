@@ -54,3 +54,4 @@ playwright/.cache/
 playwright/.auth
 dump.rdb
 docker-compose.override.yml
+.local/

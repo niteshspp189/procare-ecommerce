@@ -83,10 +83,16 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       {/* Thumbnail Sidebar */}
       <div className="hidden lg:flex flex-col gap-y-3 sticky top-24 h-fit max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar py-2">
         {images.map((image, index) => (
-          <a
+          <button
             key={`thumb-${image.id}`}
-            href={`#${image.id}`}
-            className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-transparent hover:border-black transition-all bg-gray-50 flex-shrink-0"
+            onClick={(e) => {
+              e.preventDefault()
+              const el = document.getElementById(image.id)
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" })
+              }
+            }}
+            className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-transparent hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
           >
             {!!image.url && (
               <Image
@@ -98,7 +104,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
               />
             )}
-          </a>
+          </button>
         ))}
       </div>
 

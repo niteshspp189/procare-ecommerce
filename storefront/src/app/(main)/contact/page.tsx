@@ -57,7 +57,7 @@ export default function ContactPage() {
                             <div className="space-y-6 lg:space-y-10">
                                 <div>
                                     <span style={s.label}>Headquarters</span>
-                                    <span style={s.value}>A-13, Sector – 59, Noida, Uttar Pradesh 201301, India</span>
+                                    <span style={s.value}>M V SHOE CARE PVT LTD<br />A-13, Sector – 59, Noida, Uttar Pradesh 201301, India</span>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">

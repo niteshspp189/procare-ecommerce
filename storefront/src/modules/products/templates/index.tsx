@@ -350,28 +350,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     </div>
                   )}
                 </div>
-                {!!metadata.how_to_use && (
-                  <div className="border-b border-gray-200">
-                    <div
-                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
-                      onClick={() => toggleAccordion("how")}
-                    >
-                      <span>How To Use</span>
-                      <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "how" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                    </div>
-                    {activeAccordion === "how" && (
-                      <div className="px-1 pb-4 space-y-4">
-                        {howToUseSteps.map((step, i) => (
-                          <div key={i}>
-                            <h4 className="font-bold text-sm text-black mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '').replace(/^step\s*\d+[\s:.–-]*/i, '').trim()}</h4>
-                            <p className="text-sm text-black leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {metadata.specifications && (
+                {metadata.product_specifications && (
                   <div className="border-b border-gray-200">
                     <div
                       className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
@@ -384,7 +363,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <div className="px-1 pb-4">
                         <table className="w-full text-sm text-left">
                           <tbody>
-                            {Object.entries(metadata.specifications as Record<string, any>).map(([key, value], i) => (
+                            {Object.entries(metadata.product_specifications as Record<string, any>).map(([key, value], i) => (
                               <tr key={i} className="border-b border-gray-50 last:border-0">
                                 <td className="py-2 font-semibold text-black uppercase text-xs tracking-wide w-1/3">{key}</td>
                                 <td className="py-2 text-black">{value as any}</td>
@@ -396,6 +375,29 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     )}
                   </div>
                 )}
+                <div className="border-b border-gray-200">
+                  <div
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                    onClick={() => toggleAccordion("how")}
+                  >
+                    <span>How To Use</span>
+                    <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "how" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                  {activeAccordion === "how" && (
+                    <div className="px-1 pb-4 space-y-4">
+                      {howToUseSteps.length > 0 ? (
+                        howToUseSteps.map((step, i) => (
+                          <div key={i}>
+                            <h4 className="font-bold text-sm text-black mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '').replace(/^step\s*\d+[\s:.–-]*/i, '').trim()}</h4>
+                            <p className="text-sm text-black leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500 italic">No data available</p>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <div className="border-b border-gray-200">
                   <div
                     className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
@@ -415,23 +417,25 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="border-b border-gray-200">
-                  <div
-                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
-                    onClick={() => toggleAccordion("manufacturer")}
-                  >
-                    <span>Manufacturer Details</span>
-                    <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "manufacturer" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                  {activeAccordion === "manufacturer" && (
-                    <div className="px-1 pb-4 text-sm text-black space-y-2">
-                      <div><strong>Company:</strong> M V SHOE CARE PVT LTD</div>
-                      <div><strong>Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</div>
-                      <div><strong>Contact:</strong> +91-120-429-9685</div>
-                      <div><strong>Email:</strong> connect@mvscindia.com</div>
+                {!metadata.product_specifications && (
+                  <div className="border-b border-gray-200">
+                    <div
+                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                      onClick={() => toggleAccordion("manufacturer")}
+                    >
+                      <span>Manufacturer Details</span>
+                      <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "manufacturer" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
-                  )}
-                </div>
+                    {activeAccordion === "manufacturer" && (
+                      <div className="px-1 pb-4 text-sm text-black space-y-2">
+                        <div><strong>Company:</strong> M V SHOE CARE PVT LTD</div>
+                        <div><strong>Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</div>
+                        <div><strong>Contact:</strong> +91-120-429-9685</div>
+                        <div><strong>Email:</strong> connect@mvscindia.com</div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -439,91 +443,100 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       </div>
 
       {/* HOW IT WORKS */}
-      <section style={s.howSection as any}>
-        <div style={s.inner as any}>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-semibold mb-2 text-black">How It Works</h2>
-            <p className="text-gray-500 text-sm tracking-wide">Follow these simple steps for perfect results</p>
-          </div>
-          <div className="relative">
-            {/* Prev button */}
-            <button
-              onClick={() => howScrollRef.current?.scrollBy({ left: -(343 + 32), behavior: 'smooth' })}
-              className="hidden md:flex absolute left-0 top-[140px] -translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
-              aria-label="Previous"
-            >
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-          <div ref={howScrollRef} style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
-          <div className="snap-x snap-mandatory" style={{ display: 'inline-flex', gap: '32px', textAlign: 'left' } as React.CSSProperties}>
-            {product.metadata?.how_to_use ? (
-              (() => {
-                const raw = product.metadata.how_to_use
-                const steps: { title: string; description: string }[] = Array.isArray(raw)
-                  ? raw
-                  : String(raw).replace(/\*\*/g, '').split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim() }))
-                return steps.map((step, index) => (
-                <div key={index} className="text-left flex-shrink-0 w-[343px] snap-start">
-                  <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
-                    <img
-                      src={`${imgBase}how${(index % 4) + 1}.png`}
-                      alt={step.title}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                      {index + 1}
+      {(() => {
+        const raw = product.metadata?.how_to_use;
+        let steps: { title: string; description: string }[] = [];
+        let useStatic = true;
+        
+        if (raw) {
+          steps = Array.isArray(raw)
+            ? raw
+            : String(raw).replace(/\*\*/g, '').split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim() }));
+          
+          if (steps.length >= 3 && !String(raw).includes("Word Doc shared")) {
+            useStatic = false;
+          }
+        }
+
+        return (
+          <section style={s.howSection as any}>
+            <div style={s.inner as any}>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-semibold mb-2 text-black">How It Works</h2>
+                <p className="text-gray-500 text-sm tracking-wide">Follow these simple steps for perfect results</p>
+              </div>
+              <div className="relative">
+                {/* Prev button */}
+                {(!useStatic && steps.length > 3) && (
+                  <button
+                    onClick={() => howScrollRef.current?.scrollBy({ left: -(343 + 32), behavior: 'smooth' })}
+                    className="hidden md:flex absolute left-0 top-[140px] -translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
+                    aria-label="Previous"
+                  >
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                )}
+              <div ref={howScrollRef} style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
+              <div className="snap-x snap-mandatory" style={{ display: 'inline-flex', gap: '32px', textAlign: 'left' } as React.CSSProperties}>
+                {!useStatic ? (
+                  steps.map((step, index) => (
+                    <div key={index} className="text-left flex-shrink-0 w-[343px] snap-start">
+                      <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
+                        <img
+                          src={`${imgBase}how${(index % 4) + 1}.png`}
+                          alt={step.title}
+                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                          {index + 1}
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-base mb-1 text-black">{String(step.title).replace(/\*\*/g, '').replace(/^\d+\.\s*/, '')}</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
                     </div>
-                  </div>
-                  <h3 className="font-semibold text-base mb-1 text-black">{String(step.title).replace(/\*\*/g, '').replace(/^\d+\.\s*/, '')}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
-                </div>
-              ))
-              })()
-            ) : (
-              <>
-                <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                    <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <h3 className="font-semibold text-base mb-1 text-black">Clean</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">Remove dirt and debris from your shoes.</p>
-                </div>
-                <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                    <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <h3 className="font-semibold text-base mb-1 text-black">Apply</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">Use the solution with gentle circular motions.</p>
-                </div>
-                <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                    <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <h3 className="font-semibold text-base mb-1 text-black">Dry</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">Let your shoes air dry naturally.</p>
-                </div>
-                <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                  <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                    <img src="/images/product-detail-images/how4.png" alt="Protect" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <h3 className="font-semibold text-base mb-1 text-black">Protect</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">Apply protective coating for longevity.</p>
-                </div>
-              </>
-            )}
-          </div>
-          </div>
-            {/* Next button */}
-            <button
-              onClick={() => howScrollRef.current?.scrollBy({ left: 343 + 32, behavior: 'smooth' })}
-              className="hidden md:flex absolute right-0 top-[140px] translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
-              aria-label="Next"
-            >
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </div>
-        </div>
-      </section>
+                  ))
+                ) : (
+                  <>
+                    <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                      <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                        <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                      <h3 className="font-semibold text-base mb-1 text-black">Clean</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">Remove dirt and debris from your shoes.</p>
+                    </div>
+                    <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                      <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                        <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                      <h3 className="font-semibold text-base mb-1 text-black">Apply</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">Use the solution with gentle circular motions.</p>
+                    </div>
+                    <div className="text-left flex-shrink-0 w-[343px] snap-start">
+                      <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
+                        <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                      <h3 className="font-semibold text-base mb-1 text-black">Dry</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">Let your shoes air dry naturally.</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              </div>
+                {/* Next button */}
+                {(!useStatic && steps.length > 3) && (
+                  <button
+                    onClick={() => howScrollRef.current?.scrollBy({ left: 343 + 32, behavior: 'smooth' })}
+                    className="hidden md:flex absolute right-0 top-[140px] translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
+                    aria-label="Next"
+                  >
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* BRAND PROMISE SPLIT */}
       <div className="flex flex-col md:flex-row w-full bg-white mb-20 min-h-[600px]">

@@ -594,16 +594,20 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
                 return listPart;
             };
 
+            const specKeys = ["Product Type", "Suitable For", "Net Volume", "Key Ingredients", "Formula", "Safety", "Includes", "Net Content", "Material", "Design", "Function", "Fragrance", "Usage", "Bristle Type", "Handle Material", "Color Compatibility", "Features", "Color", "Key Action"];
+            const product_specifications: Record<string, string> = {};
+            for (const k of specKeys) {
+                const val = extract(k);
+                if (val) product_specifications[k] = val;
+            }
+
             catalogData[title.toLowerCase()] = {
                 description: extract("Product Type") || `Premium ${title}`,
                 how_to_use: extractList("How to Use"),
                 metadata: {
                     suitable_for: extract("Suitable For"),
-                    ingredients: extract("Key Ingredients"),
-                    formula: extract("Formula"),
-                    safety: extract("Safety"),
-                    includes: extract("Includes"),
                     key_benefits: extractList("Key Benefits"),
+                    product_specifications: Object.keys(product_specifications).length > 0 ? product_specifications : undefined,
                 }
             };
         }
