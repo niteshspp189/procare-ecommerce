@@ -94,6 +94,10 @@ jobs:
             fi
 
             echo ""
+            echo "==> [5/5] Restarting NGINX to clear IP cache..."
+            docker restart procare_nginx
+
+            echo ""
             echo "==> Final container status:"
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 

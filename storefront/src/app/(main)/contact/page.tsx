@@ -55,15 +55,9 @@ export default function ContactPage() {
                         <div>
                             <h2 className="text-2xl sm:text-4xl font-black uppercase mb-8 lg:mb-12 tracking-tight">Get In Touch</h2>
                             <div className="space-y-6 lg:space-y-10">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
-                                    <div>
-                                        <span style={s.label}>Headquarters</span>
-                                        <span style={s.value}>M V SHOE CARE PVT LTD<br />A-13, Sector – 59, Noida, Uttar Pradesh 201301, India</span>
-                                    </div>
-                                    <div>
-                                        <span style={s.label}>Manufactured & Marketed By</span>
-                                        <span style={s.value}>M V SHOE CARE PVT LTD<br />A-13, Sector – 59, Noida, Uttar Pradesh 201301, India</span>
-                                    </div>
+                                <div>
+                                    <span style={s.label}>Headquarters / Manufactured & Marketed By</span>
+                                    <span style={s.value}>M V SHOE CARE PVT LTD<br />A-13, Sector – 59, Noida, Uttar Pradesh 201301, India</span>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
