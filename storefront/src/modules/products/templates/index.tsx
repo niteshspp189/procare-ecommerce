@@ -174,16 +174,24 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           <span className="text-black font-semibold">{breadcrumbName}</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-12 mt-4">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 mt-4">
+          <div className="block lg:hidden w-full">
+            <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Home / {title}</div>
+            <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
+            {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>}
+          </div>
+
           <div className="w-full lg:w-[46%] min-w-0">
             <ImageGallery images={images} />
           </div>
 
           <div className="w-full lg:flex-1 shrink-0">
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 lg:sticky lg:top-[120px] z-10 sticky-product-sidebar">
-              <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
-              <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
-              {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>}
+            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100 lg:sticky lg:top-[120px] z-10 sticky-product-sidebar">
+              <div className="hidden lg:block">
+                <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
+                <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
+                {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>}
+              </div>
 
               <div className="flex items-baseline gap-4 mb-1">
                 {product && <ProductPrice product={product} variant={selectedVariant} />}
