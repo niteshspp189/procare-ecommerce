@@ -40,6 +40,11 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
       component: <ShippingInfoTab />,
       condition: true
     },
+    {
+      label: "Specifications",
+      component: <SpecificationsTab specifications={metadata.product_specifications} />,
+      condition: !!metadata.product_specifications && Object.keys(metadata.product_specifications).length > 0
+    },
   ]
 
   return (
@@ -84,6 +89,32 @@ const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
   )
 }
 
+const SpecificationsTab = ({ specifications }: { specifications: any }) => {
+  if (!specifications) return null;
+
+  let specsObj = specifications;
+  if (typeof specifications === 'string') {
+    try {
+      specsObj = JSON.parse(specifications);
+    } catch (e) {
+      return <MetadataTab title="Specifications" content={specifications} />;
+    }
+  }
+
+  return (
+    <div className="text-small-regular py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        {Object.entries(specsObj).map(([key, value], i) => (
+          <div key={i} className="flex flex-col gap-y-1">
+            <span className="font-semibold text-ui-fg-base">{key}</span>
+            <p className="text-ui-fg-subtle">{String(value)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const ProductDescriptionTab = ({ product }: ProductTabsProps) => {
   const metadata = product.metadata || {}
   return (
@@ -91,7 +122,7 @@ const ProductDescriptionTab = ({ product }: ProductTabsProps) => {
       <div className="grid grid-cols-1 gap-y-8">
         <div>
           <p className="mb-4">{product.description}</p>
-          {metadata.key_benefits && (
+          {!!metadata.key_benefits && (
             <div className="mt-4">
               <span className="font-semibold block mb-2">Key Benefits</span>
               <MetadataTab title="Benefits" content={metadata.key_benefits as string} />
