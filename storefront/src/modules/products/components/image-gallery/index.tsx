@@ -18,6 +18,7 @@ type ZoomableImageProps = {
 const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) => {
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 })
   const [isHovered, setIsHovered] = useState(false)
+  const [isZoomActive, setIsZoomActive] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -36,15 +37,19 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative w-full h-full cursor-zoom-in overflow-hidden select-none"
+      onMouseLeave={() => {
+        setIsHovered(false)
+        setIsZoomActive(false)
+      }}
+      onClick={() => setIsZoomActive(prev => !prev)}
+      className={`relative w-full h-full overflow-hidden select-none ${isZoomActive ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
     >
       <div
         className="w-full h-full"
         style={{
-          transform: isHovered ? "scale(2.2)" : "scale(1)",
+          transform: isZoomActive ? "scale(2.2)" : "scale(1)",
           transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-          transition: isHovered 
+          transition: isZoomActive 
             ? "transform 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94)" 
             : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform-origin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
         }}
@@ -63,7 +68,7 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
       {/* Zoom indicator overlay */}
       <div 
         className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1.5 rounded-lg pointer-events-none transition-opacity duration-300 shadow-sm border border-white/10 flex items-center gap-1.5"
-        style={{ opacity: isHovered ? 0.9 : 0 }}
+        style={{ opacity: (isHovered && !isZoomActive) ? 0.9 : 0 }}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white">
           <circle cx="11" cy="11" r="8"></circle>

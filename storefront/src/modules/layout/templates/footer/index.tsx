@@ -40,7 +40,7 @@ export default async function Footer() {
           <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <h4 style={s.colTitle as any} className="text-gray-200">ABOUT PRO CARE</h4>
             <LocalizedClientLink href="/our-story" style={s.link} className="hover:text-white transition-colors">Our Story</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Career</LocalizedClientLink>
+            <a href="https://mvshoecare.com/careers" target="_blank" rel="noopener noreferrer" style={s.link} className="hover:text-white transition-colors">Career</a>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Our Brands</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Responsibility</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Quality</LocalizedClientLink>
