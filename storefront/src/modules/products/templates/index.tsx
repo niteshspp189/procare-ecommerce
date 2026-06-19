@@ -309,14 +309,6 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                        const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
                        
                        let displayLabel = badge.label;
-                       const l = displayLabel.toLowerCase();
-                       const id = badge.iconId.toLowerCase();
-                       if (l.includes("pro clean") || id.includes("pro-clean")) displayLabel = "Clean";
-                       else if (l.includes("pro fresh") || id.includes("pro-fresh")) displayLabel = "Fresh";
-                       else if (l.includes("pro care") || id.includes("pro-care")) displayLabel = "Care";
-                       else if (l.includes("pro color") || id.includes("pro-color")) displayLabel = "Color";
-                       else if (l.includes("pro shine") || id.includes("pro-shine") || id.includes("shine.png")) displayLabel = "Shine";
-
                        return (
                          <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[85px]">
                            <div className="w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
