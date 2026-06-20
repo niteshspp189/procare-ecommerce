@@ -30,7 +30,7 @@ def main():
 
     # Query prices
     cur.execute("""
-        SELECT v.id, mp.amount, mp.currency_code 
+        SELECT v.id, mp.amount, mp.currency_code, mp.price_list_id
         FROM product_variant v
         JOIN product_variant_price_set pvps ON v.id = pvps.variant_id
         JOIN price_set ps ON pvps.price_set_id = ps.id
@@ -42,10 +42,10 @@ def main():
     conn.close()
 
     price_map = {}
-    for var_id, amount, curr in prices:
+    for var_id, amount, curr, plist_id in prices:
         if var_id not in price_map:
             price_map[var_id] = []
-        price_map[var_id].append({'amount': amount, 'currency': curr})
+        price_map[var_id].append({'amount': amount, 'currency': curr, 'price_list_id': plist_id})
 
     report_data = []
 
@@ -55,7 +55,18 @@ def main():
         v_meta = v_meta or {}
         
         var_prices = price_map.get(var_id, [])
-        inr_price = next((p['amount'] for p in var_prices if p['currency'] == 'inr'), None)
+        mrp = next((p['amount'] for p in var_prices if p['currency'] == 'inr' and p['price_list_id'] is None), None)
+        sp = next((p['amount'] for p in var_prices if p['currency'] == 'inr' and p['price_list_id'] == 'pl_online_sale'), None)
+        
+        # If there's no specific SP row, maybe SP is just MRP or maybe MRP was pushed as SP in metadata
+        if sp is None and v_meta.get('sellingPrice'):
+            sp = v_meta.get('sellingPrice')
+        if mrp is None and v_meta.get('mrp'):
+            mrp = v_meta.get('mrp')
+            
+        # Fallback to the same price if one is missing but the other exists
+        if mrp is None: mrp = sp
+        if sp is None: sp = mrp
         
         requires_attention = 'No'
         if category and category.lower() in ['insoles', 'foot care', 'insole', 'footcare']:
@@ -75,7 +86,8 @@ def main():
             'SKU': sku,
             'Category': category or 'Uncategorized',
             'URL': f"https://shop.mvshoecare.com/products/{handle}",
-            'Price (INR)': inr_price,
+            'MRP (INR)': mrp,
+            'Selling Price (INR)': sp,
             'How To Use': p_meta.get('how_to_use', ''),
             'Key Benefits': p_meta.get('key_benefits', ''),
             'Suitable For': p_meta.get('suitable_for', ''),
