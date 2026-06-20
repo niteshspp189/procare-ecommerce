@@ -2,7 +2,7 @@ import psycopg2
 import pandas as pd
 import json
 
-DB_URL = "postgres://propremiumcare:Mvsc2026%23%2356@localhost:5433/prepreimiumcare_ecommerce?sslmode=require"
+DB_URL = "postgres://propremiumcare:Mvsc2026%23%2356@localhost:5434/prepreimiumcare_ecommerce?sslmode=require"
 
 def main():
     conn = psycopg2.connect(DB_URL)
@@ -68,6 +68,11 @@ def main():
         if mrp is None: mrp = sp
         if sp is None: sp = mrp
         
+        # Fix category for foot care products
+        foot_care_keywords = ['foot', 'pumice', 'pedi', 'heel', 'nail', 'liner', 'toe']
+        if any(kw in prod_title.lower() for kw in foot_care_keywords):
+            category = 'Insoles'
+            
         requires_attention = 'No'
         if category and category.lower() in ['insoles', 'foot care', 'insole', 'footcare']:
             requires_attention = 'Yes'
