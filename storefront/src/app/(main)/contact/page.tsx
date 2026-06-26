@@ -63,7 +63,7 @@ export default function ContactPage() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
                                     <div>
                                         <span style={s.label}>Email Address</span>
-                                        <a href="mailto:connect@mvscindia.com" style={s.value} className="hover:text-gray-600 transition-colors">connect@mvscindia.com</a>
+                                        <a href="mailto:customercare@mvscindia.com" style={s.value} className="hover:text-gray-600 transition-colors">customercare@mvscindia.com</a>
                                     </div>
                                     <div>
                                         <span style={s.label}>Phone Number</span>

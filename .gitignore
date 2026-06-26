@@ -55,3 +55,6 @@ playwright/.auth
 dump.rdb
 docker-compose.override.yml
 .local/
+procare-mail/
+*.zip
+*.csv

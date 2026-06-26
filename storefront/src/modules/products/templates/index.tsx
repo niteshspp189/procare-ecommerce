@@ -25,6 +25,7 @@ type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   countryCode: string
+  images?: HttpTypes.StoreProductImage[]
   relatedProducts?: React.ReactNode
 }
 
@@ -41,6 +42,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
   countryCode,
+  images: propImages,
   relatedProducts,
 }) => {
   const imgBase = '/images/product-detail-images/'
@@ -69,6 +71,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [product?.variants, options])
 
   const images = useMemo(() => {
+    if (propImages?.length) return propImages
     // Check selected variant metadata for images first
     if (selectedVariant?.metadata) {
       const vImgs: HttpTypes.StoreProductImage[] = []
@@ -155,15 +158,29 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       }))
   }, [metadata.how_to_use])
 
-  const faqItems = [
-    { q: "Can I use this on all materials?", a: "Yes, our formula is safe for all smooth and treated leather, suede, and fabric materials." },
-    { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
-    { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
-    { q: "What is the return policy?", a: "We offer a 30-day return policy for all sealed and unused products. No questions asked." },
-    { q: "Is cash on delivery available?", a: "Yes, COD is available on select pincodes across India. You can check availability at checkout." },
-    { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
-    { q: "Are Pro Care products safe for all shoe types?", a: "Yes, our products are specially formulated to be gentle on all shoe materials including leather, canvas, suede, and synthetic fabrics." },
-  ]
+  const faqItems = useMemo(() => {
+    const base = [
+      { q: "Can I use this on all materials?", a: "Yes, our formula is safe for all smooth and treated leather, suede, and fabric materials." },
+      { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
+      { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
+      { q: "What is the return policy?", a: "We offer a 15-day return policy for all sealed and unused products. No questions asked." },
+      { q: "Is cash on delivery available?", a: "Yes, COD is available on select pincodes across India. You can check availability at checkout." },
+      { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
+      { q: "Are Pro Care products safe for all shoe types?", a: "Yes, our products are specially formulated to be gentle on all shoe materials including leather, canvas, suede, and synthetic fabrics." },
+    ]
+    if (metadata.suitable_for) {
+      const sfText = typeof metadata.suitable_for === 'string'
+        ? metadata.suitable_for
+        : Array.isArray(metadata.suitable_for)
+          ? metadata.suitable_for.join(', ')
+          : JSON.stringify(metadata.suitable_for);
+      base.unshift({
+        q: "What materials or shoe types is this product suitable for?",
+        a: sfText.replace(/\*\*/g, '')
+      })
+    }
+    return base
+  }, [metadata.suitable_for])
 
   return (
     <div style={s.container as any} className="font-sans">
@@ -290,7 +307,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 }
                 const defaultBadges = [
                   { iconId: "shipping", label: "Free Shipping" },
-                  { iconId: "return",   label: "30 Day Return" },
+                  { iconId: "return",   label: "15 Day Return" },
                   { iconId: "eco",      label: "Eco Friendly" },
                   { iconId: "kit",      label: "Complete Kit" },
                 ]
@@ -411,7 +428,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <div><strong>Delivery:</strong> Ships within 5–6 business days across India.</div>
                       <div><strong>Free Delivery:</strong> On all orders above ₹499.</div>
                       <div><strong>Cash on Delivery:</strong> Available on select pincodes.</div>
-                      <div><strong>Returns:</strong> 30-day return policy for sealed and unused products.</div>
+                      <div><strong>Returns:</strong> 15-day return policy for sealed and unused products.</div>
                       <div><strong>Exchange:</strong> Available within 7 days of delivery. Contact us at connect@mvscindia.com.</div>
                       <div><strong>Packaging:</strong> Securely packed to prevent transit damage.</div>
                     </div>

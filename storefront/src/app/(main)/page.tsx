@@ -54,10 +54,24 @@ export default async function StagingHome(props: {
       regionId: region.id,
       queryParams: {
         category_id: [category.id],
-        limit: 4
+        limit: 12
       }
     })
-    initialProducts[category.id] = response.products
+    const prods = [...(response.products || [])]
+    if (category.handle === 'shoe-care') {
+      const idx = prods.findIndex(p => p.handle === 'pro-gold-color-shoe-cream-with-applicator')
+      if (idx > 0) {
+        const [item] = prods.splice(idx, 1)
+        prods.unshift(item)
+      }
+    } else if (category.handle === 'insoles') {
+      const idx = prods.findIndex(p => p.handle === 'pro-comfort-air-walk-gel-insoles')
+      if (idx > 0) {
+        const [item] = prods.splice(idx, 1)
+        prods.unshift(item)
+      }
+    }
+    initialProducts[category.id] = prods.slice(0, 4)
   }
 
   const imgBase = '/images/landing-page-images/'
@@ -246,7 +260,7 @@ export default async function StagingHome(props: {
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3l8 3.5v5c0 4.5-3.2 8.7-8 10-4.8-1.3-8-5.5-8-10v-5L12 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" /></svg>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-base font-bold text-black tracking-widest uppercase">30-Day Guarantee</span>
+              <span className="text-base font-bold text-black tracking-widest uppercase">15-Day Guarantee</span>
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Hassle-free returns</span>
             </div>
           </div>

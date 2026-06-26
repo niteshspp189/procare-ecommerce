@@ -111,7 +111,7 @@ const RefinementList = ({
       title: string
       allLabel: string
       items: RefinementOption[]
-      value?: string
+      value: string | undefined
     } => !!section.items?.length
   )
 
@@ -144,12 +144,17 @@ const RefinementList = ({
         <FilterRadioGroup
           key={section.key}
           title={section.title}
+          defaultOpen={
+            section.key === "category" ||
+            section.key === "collection" ||
+            (!!section.value && section.value !== ALL_VALUE)
+          }
           items={[
             {
               value: ALL_VALUE,
               label: section.allLabel,
             },
-            ...section.items,
+            ...(section.items ?? []),
           ]}
           value={section.value || ALL_VALUE}
           handleChange={(value: string) => setQueryParams(section.key, value)}

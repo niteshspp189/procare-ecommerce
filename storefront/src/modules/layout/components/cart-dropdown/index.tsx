@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState, useTransition } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
-const FREE_SHIPPING_THRESHOLD = 150000
+const FREE_SHIPPING_THRESHOLD = 49900
 
 const CartDropdown = ({
   cart: cartState,
@@ -156,7 +156,7 @@ const CartDropdown = ({
               {cartState.items
                 .sort((a, b) => ((a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1))
                 .map((item) => {
-                  const hasDiscount = item.total < item.original_total
+                  const hasDiscount = (item.total ?? 0) < (item.original_total ?? 0)
                   return (
                     <div key={item.id} className="flex gap-4" data-testid="cart-item">
                       <LocalizedClientLink
@@ -195,7 +195,7 @@ const CartDropdown = ({
                               </p>
                             )}
                             <p className={`text-sm font-semibold ${hasDiscount ? "text-red-600" : "text-gray-900"}`}>
-                              {convertToLocale({ amount: item.total, currency_code: currencyCode })}
+                              {convertToLocale({ amount: item.total ?? 0, currency_code: currencyCode })}
                             </p>
                           </div>
                         </div>
