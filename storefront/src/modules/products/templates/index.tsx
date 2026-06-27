@@ -429,7 +429,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <div><strong>Free Delivery:</strong> On all orders above ₹499.</div>
                       <div><strong>Cash on Delivery:</strong> Available on select pincodes.</div>
                       <div><strong>Returns:</strong> 15-day return policy for sealed and unused products.</div>
-                      <div><strong>Exchange:</strong> Available within 7 days of delivery. Contact us at connect@mvscindia.com.</div>
+                      <div><strong>Exchange:</strong> Available within 7 days of delivery. Contact us at customercare@mvscindia.com.</div>
                       <div><strong>Packaging:</strong> Securely packed to prevent transit damage.</div>
                     </div>
                   )}
@@ -448,7 +448,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                         <div><strong>Company:</strong> M V SHOE CARE PVT LTD</div>
                         <div><strong>Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</div>
                         <div><strong>Contact:</strong> +91-120-429-9685</div>
-                        <div><strong>Email:</strong> connect@mvscindia.com</div>
+                        <div><strong>Email:</strong> customercare@mvscindia.com</div>
                       </div>
                     )}
                   </div>

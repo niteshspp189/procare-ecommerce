@@ -64,8 +64,8 @@ This document details all implemented features, optimizations, pricing calculati
 - [x] **Over ₹499**: Added items exceeding ₹499 (e.g., ₹1,566.04 or ₹318.50 + ₹180.50). Confirmed progress bar fills 100% in teal displaying **"Eligible for complimentary shipping"**.
 
 ### 9. Customer Support Email & Policies
-- [x] **URL**: [https://shop.mvshoecare.com/contact](https://shop.mvshoecare.com/contact)
-- [x] **Email Check**: Verified the direct support contact email is updated to **`customercare@mvscindia.com`**.
+- [x] **URL**: [https://shop.mvshoecare.com/contact](https://shop.mvshoecare.com/contact) & all Product Detail Pages
+- [x] **Email Check**: Verified the direct support contact email is updated to **`customercare@mvscindia.com`** across the Contact Us page, Product Shipping & Returns accordions, and Manufacturer Details.
 - [x] **Return Policy**: Verified 15-Day Return Policy applies universally across footer policies and product pages.
 
 ---
