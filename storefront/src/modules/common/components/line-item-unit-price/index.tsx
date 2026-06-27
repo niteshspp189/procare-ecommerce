@@ -38,7 +38,7 @@ const LineItemUnitPrice = ({
               currency_code: currencyCode,
             })}
           </span>
-          <span className="text-red-600 font-bold text-xs">-{percentage_diff}%</span>
+          <span className="text-emerald-600 font-bold text-xs">-{percentage_diff}%</span>
         </div>
       )}
       <span

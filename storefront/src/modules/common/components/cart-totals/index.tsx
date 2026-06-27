@@ -54,7 +54,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
             </div>
             <div className="flex items-center justify-between">
               <span>MRP Discount</span>
-              <span className="text-red-600 font-semibold">
+              <span className="text-emerald-600 font-semibold">
                 -{" "}
                 {convertToLocale({
                   amount: totalMrpSavings,

@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState, useTransition } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
-const FREE_SHIPPING_THRESHOLD = 49900
+const FREE_SHIPPING_THRESHOLD = 499
 
 const CartDropdown = ({
   cart: cartState,
@@ -156,7 +156,13 @@ const CartDropdown = ({
               {cartState.items
                 .sort((a, b) => ((a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1))
                 .map((item) => {
-                  const hasDiscount = (item.total ?? 0) < (item.original_total ?? 0)
+                  const compareAtUnit = (item as any).compare_at_unit_price
+                  const unitPrice = (item as any).unit_price || ((item.total ?? 0) / (item.quantity || 1))
+                  const originalTotal = (compareAtUnit && compareAtUnit > unitPrice)
+                    ? compareAtUnit * item.quantity
+                    : (item.original_total ?? 0)
+                  const hasDiscount = (item.total ?? 0) < originalTotal
+
                   return (
                     <div key={item.id} className="flex gap-4" data-testid="cart-item">
                       <LocalizedClientLink
@@ -191,10 +197,10 @@ const CartDropdown = ({
                           <div className="text-right flex-shrink-0">
                             {hasDiscount && (
                               <p className="text-xs text-gray-400 line-through">
-                                {convertToLocale({ amount: item.original_total ?? 0, currency_code: currencyCode })}
+                                {convertToLocale({ amount: originalTotal, currency_code: currencyCode })}
                               </p>
                             )}
-                            <p className={`text-sm font-semibold ${hasDiscount ? "text-red-600" : "text-gray-900"}`}>
+                            <p className={`text-sm font-semibold ${hasDiscount ? "text-emerald-600" : "text-gray-900"}`}>
                               {convertToLocale({ amount: item.total ?? 0, currency_code: currencyCode })}
                             </p>
                           </div>

@@ -47,7 +47,7 @@ export default function ProductPrice({
           >
             {selectedPrice.original_price}
           </span>
-          <span className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+          <span className="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
             {Math.round(
               ((selectedPrice.original_price_number! -
                 selectedPrice.calculated_price_number!) /
