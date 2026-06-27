@@ -74,7 +74,7 @@ export default function ProductCard({
         href={`/products/${product.handle}`}
         className="flex-1 flex flex-col no-underline"
       >
-        <div className="relative w-full h-[320px] rounded-[16px] overflow-hidden bg-slate-50 mb-4 transition-colors group-hover:bg-white shrink-0">
+        <div className="relative w-full h-[180px] sm:h-[240px] md:h-[320px] rounded-[16px] overflow-hidden bg-slate-50 mb-3 small:mb-4 transition-colors group-hover:bg-white shrink-0">
           <Thumbnail
             thumbnail={product.thumbnail}
             images={product.images}
@@ -91,7 +91,7 @@ export default function ProductCard({
 
         <div className="flex flex-col flex-1 px-1">
           <h3 
-            className="text-[15px] font-bold text-slate-900 mb-1 leading-tight h-[44px] overflow-hidden transition-colors group-hover:text-black"
+            className="text-[13px] small:text-[15px] font-bold text-slate-900 mb-1 leading-tight h-[38px] small:h-[44px] overflow-hidden transition-colors group-hover:text-black"
             style={{
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -114,7 +114,7 @@ export default function ProductCard({
           onClick={handleAddToCart}
           disabled={isAdding}
           className={clsx(
-            "w-full py-3 rounded-full font-bold text-[12px] uppercase tracking-wider transition-all transform active:scale-95 disabled:opacity-50",
+            "w-full py-2.5 small:py-3 px-1 rounded-full font-bold text-[11px] small:text-[12px] uppercase tracking-tight small:tracking-wider transition-all transform active:scale-95 disabled:opacity-50",
             "bg-[#00bda5] text-white hover:bg-[#00a38f] shadow-md hover:shadow-lg"
           )}
         >

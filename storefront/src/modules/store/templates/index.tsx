@@ -143,8 +143,8 @@ const StoreTemplate = async ({
         }}
       />
       <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1 data-testid="store-page-title">
+        <div className="mb-4 small:mb-8 text-2xl-semi px-1">
+          <h1 data-testid="store-page-title" className="text-xl small:text-3xl font-bold tracking-tight text-slate-900">
             {q ? `Search results for "${q}"` : "All products"}
           </h1>
         </div>
