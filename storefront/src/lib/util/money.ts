@@ -11,16 +11,17 @@ type ConvertToLocaleParams = {
 export const convertToLocale = ({
   amount,
   currency_code,
-  minimumFractionDigits,
-  maximumFractionDigits,
-  locale = "en-US",
+  minimumFractionDigits = 0,
+  maximumFractionDigits = 0,
+  locale = "en-IN",
 }: ConvertToLocaleParams) => {
+  const roundedAmount = Math.round(amount || 0)
   return currency_code && !isEmpty(currency_code)
     ? new Intl.NumberFormat(locale, {
       style: "currency",
       currency: currency_code,
       minimumFractionDigits,
       maximumFractionDigits,
-    }).format(amount)
-    : amount.toString()
+    }).format(roundedAmount)
+    : roundedAmount.toString()
 }

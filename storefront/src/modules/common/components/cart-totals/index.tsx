@@ -36,7 +36,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   }, 0)
 
   const calculatedTax =
-    tax_total || (total ? Math.round((total - total / 1.18) * 100) / 100 : 0)
+    tax_total || (total ? Math.round(total - total / 1.18) : 0)
 
   return (
     <div>
