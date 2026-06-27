@@ -25,11 +25,47 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
     discount_subtotal,
   } = totals
 
+  const items = (totals as any).items || []
+  const totalMrpSavings = items.reduce((acc: number, item: any) => {
+    const compareAt = item.compare_at_unit_price
+    const unitPrice = item.unit_price || ((item.total || 0) / (item.quantity || 1))
+    if (compareAt && compareAt > unitPrice) {
+      return acc + (compareAt - unitPrice) * item.quantity
+    }
+    return acc
+  }, 0)
+
+  const calculatedTax =
+    tax_total || (total ? Math.round((total - total / 1.18) * 100) / 100 : 0)
+
   return (
     <div>
       <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle ">
+        {totalMrpSavings > 0 && !discount_subtotal && (
+          <>
+            <div className="flex items-center justify-between">
+              <span>Total MRP</span>
+              <span className="line-through text-gray-400">
+                {convertToLocale({
+                  amount: (item_subtotal ?? 0) + totalMrpSavings,
+                  currency_code,
+                })}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>MRP Discount</span>
+              <span className="text-red-600 font-semibold">
+                -{" "}
+                {convertToLocale({
+                  amount: totalMrpSavings,
+                  currency_code,
+                })}
+              </span>
+            </div>
+          </>
+        )}
         <div className="flex items-center justify-between">
-          <span>Subtotal (excl. shipping and taxes)</span>
+          <span>Subtotal (incl. taxes)</span>
           <span data-testid="cart-subtotal" data-value={item_subtotal || 0}>
             {convertToLocale({ amount: item_subtotal ?? 0, currency_code })}
           </span>
@@ -57,9 +93,11 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
           </div>
         )}
         <div className="flex justify-between">
-          <span className="flex gap-x-1 items-center ">Taxes</span>
-          <span data-testid="cart-taxes" data-value={tax_total || 0}>
-            {convertToLocale({ amount: tax_total ?? 0, currency_code })}
+          <span className="flex gap-x-1 items-center text-ui-fg-base font-medium">
+            Taxes (18% GST inclusive)
+          </span>
+          <span data-testid="cart-taxes" data-value={calculatedTax || 0}>
+            {convertToLocale({ amount: calculatedTax ?? 0, currency_code })}
           </span>
         </div>
       </div>

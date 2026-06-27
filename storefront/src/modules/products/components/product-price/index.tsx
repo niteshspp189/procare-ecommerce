@@ -21,6 +21,12 @@ export default function ProductPrice({
     return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
   }
 
+  const hasDiscount = Boolean(
+    selectedPrice.original_price_number &&
+      selectedPrice.calculated_price_number &&
+      selectedPrice.original_price_number > selectedPrice.calculated_price_number
+  )
+
   return (
     <div className="flex items-baseline gap-3 text-ui-fg-base">
       <span className="text-2xl font-bold text-black">
@@ -32,14 +38,24 @@ export default function ProductPrice({
           {selectedPrice.calculated_price}
         </span>
       </span>
-      {selectedPrice.price_type === "sale" && (
-        <span
-          className="line-through text-lg text-slate-400 font-medium"
-          data-testid="original-product-price"
-          data-value={selectedPrice.original_price_number}
-        >
-          {selectedPrice.original_price}
-        </span>
+      {hasDiscount && (
+        <>
+          <span
+            className="line-through text-lg text-slate-400 font-medium"
+            data-testid="original-product-price"
+            data-value={selectedPrice.original_price_number}
+          >
+            {selectedPrice.original_price}
+          </span>
+          <span className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+            {Math.round(
+              ((selectedPrice.original_price_number! -
+                selectedPrice.calculated_price_number!) /
+                selectedPrice.original_price_number!) *
+                100
+            )}% OFF
+          </span>
+        </>
       )}
     </div>
   )

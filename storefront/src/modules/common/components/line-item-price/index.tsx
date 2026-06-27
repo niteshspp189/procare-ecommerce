@@ -15,7 +15,11 @@ const LineItemPrice = ({
   currencyCode,
 }: LineItemPriceProps) => {
   const { total, original_total } = item
-  const originalPrice = original_total ?? 0
+  const compareAtUnit = (item as any).compare_at_unit_price
+  const unitPrice = (item as any).unit_price || ((total ?? 0) / (item.quantity || 1))
+  const originalPrice = (compareAtUnit && compareAtUnit > unitPrice)
+    ? compareAtUnit * item.quantity
+    : (original_total ?? 0)
   const currentPrice = total ?? 0
   const hasReducedPrice = currentPrice < originalPrice
 
@@ -23,27 +27,20 @@ const LineItemPrice = ({
     <div className="flex flex-col gap-x-2 text-ui-fg-subtle items-end">
       <div className="text-left">
         {hasReducedPrice && (
-          <>
-            <p>
-              {style === "default" && (
-                <span className="text-ui-fg-subtle">Original: </span>
-              )}
-              <span
-                className="line-through text-ui-fg-muted"
-                data-testid="product-original-price"
-              >
-                {convertToLocale({
-                  amount: originalPrice,
-                  currency_code: currencyCode,
-                })}
-              </span>
-            </p>
-            {style === "default" && (
-              <span className="text-ui-fg-interactive">
-                -{getPercentageDiff(originalPrice, currentPrice || 0)}%
-              </span>
-            )}
-          </>
+          <div className="flex items-center gap-1.5 justify-end">
+            <span
+              className="line-through text-ui-fg-muted text-xs"
+              data-testid="product-original-price"
+            >
+              {convertToLocale({
+                amount: originalPrice,
+                currency_code: currencyCode,
+              })}
+            </span>
+            <span className="text-red-600 font-bold text-xs">
+              -{getPercentageDiff(originalPrice, currentPrice || 0)}%
+            </span>
+          </div>
         )}
         <span
           className={clx("text-base-regular", {
