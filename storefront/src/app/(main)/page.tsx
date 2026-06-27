@@ -109,14 +109,14 @@ export default async function StagingHome(props: {
         {/* INTRODUCTION & CATEGORY GRID */}
         <Section 
           subtitle="Extreme Comfort. Hyper Durable. Max Volume."
-          title="Show Care That Brings Comfort And Confidence"
-          className="pb-0"
+          title="Innovating Shoe Care for Everyday Ease."
+          className="pt-16 sm:pt-24 pb-0"
           fullWidth={true}
         >
           <div className="flex flex-col md:flex-row w-full animate-fade-in-up border-y border-slate-100">
             <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1 border-r border-slate-100">
               <img 
-                src={imgBase + 'img_001_4096x4096.png'} 
+                src={imgBase + 'cat-shoe-care.png'} 
                 alt="Shoe Care" 
                 className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
               />
@@ -131,7 +131,7 @@ export default async function StagingHome(props: {
             </div>
             <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1 border-r border-slate-100">
               <img 
-                src={imgBase + 'img_008_4096x4096.png'} 
+                src={imgBase + 'cat-insoles.jpg'} 
                 alt="Insoles" 
                 className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
               />
@@ -146,7 +146,7 @@ export default async function StagingHome(props: {
             </div>
             <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1 border-r border-slate-100">
               <img 
-                src={imgBase + 'img_005_1024x1024.png'} 
+                src={imgBase + 'cat-foot-care.png'} 
                 alt="Foot Care" 
                 className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
               />
@@ -161,7 +161,7 @@ export default async function StagingHome(props: {
             </div>
             <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1">
               <img 
-                src={imgBase + 'img_011_4096x4096.png'} 
+                src={imgBase + 'cat-accessories.jpg'} 
                 alt="Accessories" 
                 className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
               />
