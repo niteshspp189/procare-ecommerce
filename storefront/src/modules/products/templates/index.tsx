@@ -326,6 +326,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                        const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
                        
                        let displayLabel = badge.label;
+                       if (displayLabel && displayLabel.toLowerCase().includes("return")) {
+                         displayLabel = "15 Day Return";
+                       }
                        return (
                          <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[85px]">
                            <div className="w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
