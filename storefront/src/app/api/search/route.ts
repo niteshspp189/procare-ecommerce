@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(`${BACKEND_URL}/store/products`)
     url.searchParams.set("q", q)
-    url.searchParams.set("limit", "6")
-    url.searchParams.set("fields", "id,title,handle,thumbnail")
+    url.searchParams.set("limit", "20")
+    url.searchParams.set("fields", "id,title,handle,thumbnail,*variants")
 
     const res = await fetch(url.toString(), {
       headers: {
@@ -29,7 +29,48 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json()
-    return NextResponse.json({ products: data.products || [] })
+    const queryLower = q.toLowerCase()
+    const expandedResults: any[] = []
+
+    for (const prod of (data.products || [])) {
+      if (prod.variants && prod.variants.length > 1) {
+        const matchingVariants = prod.variants.filter((v: any) =>
+          v.title?.toLowerCase().includes(queryLower)
+        )
+        const variantsToShow = matchingVariants.length > 0 ? matchingVariants : prod.variants
+
+        for (const v of variantsToShow) {
+          const vTitle = (v.title || '').toLowerCase()
+          if (vTitle === 'default' || vTitle === 'standard' || !v.title) {
+            expandedResults.push({
+              id: prod.id,
+              title: prod.title,
+              handle: prod.handle,
+              thumbnail: prod.thumbnail,
+            })
+            break
+          }
+          const meta = (v.metadata || {}) as Record<string, string>
+          const vThumb = meta.image_1 || prod.thumbnail
+          expandedResults.push({
+            id: `${prod.id}_${v.id}`,
+            variant_id: v.id,
+            title: `${prod.title} (${v.title})`,
+            handle: prod.handle,
+            thumbnail: vThumb,
+          })
+        }
+      } else {
+        expandedResults.push({
+          id: prod.id,
+          title: prod.title,
+          handle: prod.handle,
+          thumbnail: prod.thumbnail,
+        })
+      }
+    }
+
+    return NextResponse.json({ products: expandedResults })
   } catch {
     return NextResponse.json({ products: [] })
   }

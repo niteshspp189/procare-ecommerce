@@ -10,6 +10,7 @@ import { addToCart } from "@lib/data/cart"
 import ProductPrice from "@modules/products/components/product-price"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
+import { useSearchParams } from "next/navigation"
 import Button from "@modules/common/components/button"
 
 const s = {
@@ -51,13 +52,26 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const [quantity, setQuantity] = useState(1)
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
 
-  // If there is only 1 variant, preselect the options
+  const searchParams = useSearchParams()
+  const vId = searchParams?.get("v_id")
+
   React.useEffect(() => {
+    if (vId && product?.variants) {
+      const targetVariant = product.variants.find((v) => v.id === vId)
+      if (targetVariant) {
+        const variantOptions = optionsAsKeymap(targetVariant.options)
+        setOptions(variantOptions ?? {})
+        return
+      }
+    }
     if (product?.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
+    } else if (product?.variants && product.variants.length > 1 && Object.keys(options).length === 0) {
+      const variantOptions = optionsAsKeymap(product.variants[0].options)
+      setOptions(variantOptions ?? {})
     }
-  }, [product?.variants])
+  }, [product?.variants, vId])
 
   const selectedVariant = useMemo(() => {
     if (!product?.variants || product.variants.length === 0) {
@@ -71,8 +85,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [product?.variants, options])
 
   const images = useMemo(() => {
-    if (propImages?.length) return propImages
-    // Check selected variant metadata for images first
+    // 1. Check selected variant metadata for images first
     if (selectedVariant?.metadata) {
       const vImgs: HttpTypes.StoreProductImage[] = []
       const meta = selectedVariant.metadata as Record<string, string>
@@ -83,10 +96,12 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       if (vImgs.length > 0) return vImgs
     }
 
+    // 2. Fall back to propImages or product images
+    if (propImages?.length) return propImages
     if (product?.images?.length) return product.images
     if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
     return []
-  }, [product, selectedVariant])
+  }, [product, selectedVariant, propImages])
 
   const isSingleDefaultVariant = useMemo(() => {
     if (!product?.variants || product.variants.length !== 1) return false

@@ -72,9 +72,10 @@ export default function SearchModal() {
     startTransition(() => router.push(`/shop?q=${encodeURIComponent(query.trim())}`))
   }
 
-  const handleSuggestionClick = (handle: string) => {
+  const handleSuggestionClick = (item: any) => {
     setOpen(false)
-    startTransition(() => router.push(`/products/${handle}`))
+    const url = item.variant_id ? `/products/${item.handle}?v_id=${item.variant_id}` : `/products/${item.handle}`
+    startTransition(() => router.push(url))
   }
 
   return (
@@ -155,7 +156,7 @@ export default function SearchModal() {
                   {results.map((product) => (
                     <li key={product.id}>
                       <button
-                        onClick={() => handleSuggestionClick(product.handle)}
+                        onClick={() => handleSuggestionClick(product)}
                         className="w-full flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
                       >
                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">

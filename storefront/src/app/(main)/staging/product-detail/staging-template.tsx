@@ -10,6 +10,7 @@ import { addToCart } from "@lib/data/cart"
 import ProductPrice from "@modules/products/components/product-price"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
+import { useSearchParams } from "next/navigation"
 
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
@@ -42,24 +43,32 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   countryCode,
   relatedProducts,
 }) => {
-  const images = useMemo(() => {
-    if (product?.images?.length) return product.images
-    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
-    return []
-  }, [product])
   const imgBase = '/images/product-detail-images/'
   const { openDrawer } = useCartDrawer()
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
 
-  // If there is only 1 variant, preselect the options
+  const searchParams = useSearchParams()
+  const vId = searchParams?.get("v_id")
+
   React.useEffect(() => {
+    if (vId && product?.variants) {
+      const targetVariant = product.variants.find((v) => v.id === vId)
+      if (targetVariant) {
+        const variantOptions = optionsAsKeymap(targetVariant.options)
+        setOptions(variantOptions ?? {})
+        return
+      }
+    }
     if (product?.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
+    } else if (product?.variants && product.variants.length > 1 && Object.keys(options).length === 0) {
+      const variantOptions = optionsAsKeymap(product.variants[0].options)
+      setOptions(variantOptions ?? {})
     }
-  }, [product?.variants])
+  }, [product?.variants, vId])
 
   const selectedVariant = useMemo(() => {
     if (!product?.variants || product.variants.length === 0) {
@@ -71,6 +80,22 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       return isEqual(variantOptions, options)
     })
   }, [product?.variants, options])
+
+  const images = useMemo(() => {
+    if (selectedVariant?.metadata) {
+      const vImgs: HttpTypes.StoreProductImage[] = []
+      const meta = selectedVariant.metadata as Record<string, string>
+      if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
+      if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
+      if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
+      if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
+      if (vImgs.length > 0) return vImgs
+    }
+
+    if (product?.images?.length) return product.images
+    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
+    return []
+  }, [product, selectedVariant])
 
   const setOptionValue = (optionId: string, value: string) => {
     setOptions((prev) => ({
