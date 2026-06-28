@@ -95,7 +95,7 @@ export default async function StagingHome(props: {
         <div className="text-center py-16 animate-fade-in-up">
           <p className="text-gray-500 text-sm mb-2">Extreme Comfort. Hyper Durable. Max Volume.</p>
           <h2 className="text-[clamp(24px,4vw,36px)] font-normal text-black leading-tight max-w-4xl mx-auto">
-            Show Care That Brings Comfort And Confidence
+            Innovating Shoe Care for Everyday Ease.
           </h2>
         </div>
 
