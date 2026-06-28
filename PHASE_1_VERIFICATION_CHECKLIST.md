@@ -66,7 +66,15 @@ This document details all implemented features, optimizations, pricing calculati
 ### 9. Customer Support Email & Policies
 - [x] **URL**: [https://shop.mvshoecare.com/contact](https://shop.mvshoecare.com/contact) & all Product Detail Pages
 - [x] **Email Check**: Verified the direct support contact email is updated to **`customercare@mvscindia.com`** across the Contact Us page, Product Shipping & Returns accordions, and Manufacturer Details.
-- [x] **Return Policy**: Verified 15-Day Return Policy applies universally across footer policies and product pages.
+- [x] **Return Policy**: Verified 15-Day Return Policy applies universally across footer policies and product icon badges.
+
+### 10. Footer Section Cleanup
+- [x] **URL**: [https://shop.mvshoecare.com/](https://shop.mvshoecare.com/) (Footer section)
+- [x] **Link Removal**: Confirmed `"Our Brands"` link is cleanly removed from under the **ABOUT PRO CARE** footer column as requested in client mail point 11.
+
+### 11. Whole Integer Nearest Rupee Rounding
+- [x] **URL**: Product listings, Cart Drawer, Cart Page & Order Confirmations
+- [x] **Zero Decimal Formatting**: Verified that all currency calculations and display utilities (`convertToLocale`) round amounts to the nearest whole integer (`Math.round`) with `0` fractional digits (e.g., `₹195`, `₹319`, `₹440`, `₹489`, `₹783`).
 
 ---
 
