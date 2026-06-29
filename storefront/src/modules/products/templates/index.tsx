@@ -8,6 +8,7 @@ import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-relat
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { addToCart } from "@lib/data/cart"
 import ProductPrice from "@modules/products/components/product-price"
+import { getProductPrice } from "@lib/util/get-product-price"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
 import { useSearchParams } from "next/navigation"
@@ -120,6 +121,26 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     }))
   }
 
+  const { cheapestPrice, variantPrice } = getProductPrice({
+    product,
+    variantId: selectedVariant?.id,
+  })
+  const selectedPrice = selectedVariant ? variantPrice : cheapestPrice
+  const hasDiscount = Boolean(
+    selectedPrice &&
+      selectedPrice.original_price_number &&
+      selectedPrice.calculated_price_number &&
+      selectedPrice.original_price_number > selectedPrice.calculated_price_number
+  )
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((selectedPrice!.original_price_number! -
+          selectedPrice!.calculated_price_number!) /
+          selectedPrice!.original_price_number!) *
+          100
+      )
+    : 0
+
   // Dynamic details
   const title = product?.title || "Professional Shoe Care Kit"
   const breadcrumbName = product?.title || "PRO Sport Performance Insole"
@@ -214,7 +235,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           </div>
 
           <div className="w-full lg:w-[46%] min-w-0">
-            <ImageGallery images={images} />
+            <ImageGallery images={images} discountPercentage={discountPercentage} />
           </div>
 
           <div className="w-full lg:flex-1 shrink-0">

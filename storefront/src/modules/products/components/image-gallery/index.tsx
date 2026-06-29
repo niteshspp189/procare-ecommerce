@@ -6,6 +6,7 @@ import { useState, useRef, MouseEvent } from "react"
 
 type ImageGalleryProps = {
   images: HttpTypes.StoreProductImage[]
+  discountPercentage?: number
 }
 
 type ZoomableImageProps = {
@@ -82,7 +83,7 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
   )
 }
 
-const ImageGallery = ({ images }: ImageGalleryProps) => {
+const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
   return (
     <div className="flex flex-col lg:flex-row items-start relative gap-x-4 gap-y-4">
       {/* Desktop Thumbnail Sidebar */}
@@ -124,6 +125,11 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 id={image.id}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                {index === 0 && discountPercentage && discountPercentage > 0 ? (
+                  <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-emerald-600 text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md z-20">
+                    {discountPercentage}% OFF
+                  </div>
+                ) : null}
                 {!!image.url && (
                   <ZoomableImage
                     src={image.url}
