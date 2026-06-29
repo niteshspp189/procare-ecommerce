@@ -31,6 +31,20 @@ export default function ProductCard({
   buttonLabel,
 }: ProductCardProps) {
   const { cheapestPrice } = getProductPrice({ product })
+  const hasDiscount = Boolean(
+    cheapestPrice &&
+      cheapestPrice.original_price_number &&
+      cheapestPrice.calculated_price_number &&
+      cheapestPrice.original_price_number > cheapestPrice.calculated_price_number
+  )
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((cheapestPrice!.original_price_number! - cheapestPrice!.calculated_price_number!) /
+          cheapestPrice!.original_price_number!) *
+          100
+      )
+    : 0
+
   const params = useParams()
   const countryCode = (params?.countryCode as string) || region.countries?.[0]?.iso_2 || "in"
   const [isAdding, setIsAdding] = useState(false)
@@ -85,6 +99,11 @@ export default function ProductCard({
           {product.variants && product.variants.length > 0 && (
             <div className="absolute top-0 left-0 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-tl-[16px] rounded-br-[16px] text-[10px] font-bold uppercase tracking-wider text-black shadow-md z-10 border-b border-r border-slate-100/50">
               {product.variants.length > 1 ? "Multi-Variant" : "In Stock"}
+            </div>
+          )}
+          {hasDiscount && discountPercentage > 0 && (
+            <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md z-10">
+              {discountPercentage}% OFF
             </div>
           )}
         </div>
