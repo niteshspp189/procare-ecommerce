@@ -110,68 +110,82 @@ export default async function StagingHome(props: {
         <Section 
           subtitle="Extreme Comfort. Hyper Durable. Max Volume."
           title="Innovating Shoe Care for Everyday Ease."
-          className="pt-16 sm:pt-24 pb-0"
-          fullWidth={true}
+          className="py-16 sm:py-24"
         >
-          <div className="flex flex-col md:flex-row w-full animate-fade-in-up border-y border-slate-100">
-            <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1 border-r border-slate-100">
-              <img 
-                src={imgBase + 'cat-shoe-care.png'} 
-                alt="Shoe Care" 
-                className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="text-3xl md:text-4xl font-bold mb-4 uppercase tracking-wider drop-shadow-2xl">Shoe Care</h3>
-                  <LocalizedClientLink href="/categories/shoe-care">
-                    <Button variant="primary" className="px-10 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">Explore</Button>
-                  </LocalizedClientLink>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 w-full animate-fade-in-up mt-6">
+            {/* Shoe Care */}
+            <div className="flex flex-col group">
+              <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+                <img 
+                  src={imgBase + 'cat-shoe-care.png'} 
+                  alt="Shoe Care" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                />
+              </LocalizedClientLink>
+              <div className="mt-5 flex flex-col items-center text-center">
+                <LocalizedClientLink href="/categories/shoe-care">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Shoe Care</h3>
+                </LocalizedClientLink>
+                <LocalizedClientLink href="/categories/shoe-care">
+                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                </LocalizedClientLink>
               </div>
             </div>
-            <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1 border-r border-slate-100">
-              <img 
-                src={imgBase + 'cat-insoles.jpg'} 
-                alt="Insoles" 
-                className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="text-3xl md:text-4xl font-bold mb-4 uppercase tracking-wider drop-shadow-2xl">Insoles</h3>
-                  <LocalizedClientLink href="/categories/insoles">
-                    <Button variant="primary" className="px-10 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">Explore</Button>
-                  </LocalizedClientLink>
-                </div>
+
+            {/* Insoles */}
+            <div className="flex flex-col group">
+              <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+                <img 
+                  src={imgBase + 'cat-insoles.jpg'} 
+                  alt="Insoles" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                />
+              </LocalizedClientLink>
+              <div className="mt-5 flex flex-col items-center text-center">
+                <LocalizedClientLink href="/categories/insoles">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Insoles</h3>
+                </LocalizedClientLink>
+                <LocalizedClientLink href="/categories/insoles">
+                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                </LocalizedClientLink>
               </div>
             </div>
-            <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1 border-r border-slate-100">
-              <img 
-                src={imgBase + 'cat-foot-care.png'} 
-                alt="Foot Care" 
-                className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="text-3xl md:text-4xl font-bold mb-4 uppercase tracking-wider drop-shadow-2xl">Foot Care</h3>
-                  <LocalizedClientLink href="/categories/foot-care">
-                    <Button variant="primary" className="px-10 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">Explore</Button>
-                  </LocalizedClientLink>
-                </div>
+
+            {/* Foot Care */}
+            <div className="flex flex-col group">
+              <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+                <img 
+                  src={imgBase + 'cat-foot-care.png'} 
+                  alt="Foot Care" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                />
+              </LocalizedClientLink>
+              <div className="mt-5 flex flex-col items-center text-center">
+                <LocalizedClientLink href="/categories/foot-care">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Foot Care</h3>
+                </LocalizedClientLink>
+                <LocalizedClientLink href="/categories/foot-care">
+                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                </LocalizedClientLink>
               </div>
             </div>
-            <div className="relative group overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] md:flex-1">
-              <img 
-                src={imgBase + 'cat-accessories.jpg'} 
-                alt="Accessories" 
-                className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-center items-center text-white px-4 text-center">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="text-3xl md:text-4xl font-bold mb-4 uppercase tracking-wider drop-shadow-2xl">Accessories</h3>
-                  <LocalizedClientLink href="/categories/accessories">
-                    <Button variant="primary" className="px-10 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">Explore</Button>
-                  </LocalizedClientLink>
-                </div>
+
+            {/* Accessories */}
+            <div className="flex flex-col group">
+              <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+                <img 
+                  src={imgBase + 'cat-accessories.jpg'} 
+                  alt="Accessories" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                />
+              </LocalizedClientLink>
+              <div className="mt-5 flex flex-col items-center text-center">
+                <LocalizedClientLink href="/categories/accessories">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Accessories</h3>
+                </LocalizedClientLink>
+                <LocalizedClientLink href="/categories/accessories">
+                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                </LocalizedClientLink>
               </div>
             </div>
           </div>

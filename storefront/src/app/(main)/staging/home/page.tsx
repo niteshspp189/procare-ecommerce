@@ -99,41 +99,80 @@ export default async function StagingHome(props: {
           </h2>
         </div>
 
-        {/* CATEGORY GRID V2 - 4 COLUMNS TOUCHING */}
-        <div className="flex flex-col md:flex-row w-full animate-fade-in-up h-[500px]">
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_001_4096x4096.png'} alt="Shoe Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Shoe Care</h3>
+        {/* CATEGORY GRID V2 - 4 COLUMNS WITH GAPS AND NO OVERLAY */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in-up">
+          {/* Shoe Care */}
+          <div className="flex flex-col group">
+            <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <img 
+                src={imgBase + 'cat-shoe-care.png'} 
+                alt="Shoe Care" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            </LocalizedClientLink>
+            <div className="mt-5 flex flex-col items-center text-center">
               <LocalizedClientLink href="/categories/shoe-care">
-                <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-xs hover:bg-gray-100 transition-colors">Explore</button>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Shoe Care</h3>
+              </LocalizedClientLink>
+              <LocalizedClientLink href="/categories/shoe-care">
+                <button className="bg-[#0bb799] text-white px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm hover:bg-[#099980] group-hover:shadow transition-all">Explore</button>
               </LocalizedClientLink>
             </div>
           </div>
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_008_4096x4096.png'} alt="Insoles" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Insoles</h3>
+
+          {/* Insoles */}
+          <div className="flex flex-col group">
+            <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <img 
+                src={imgBase + 'cat-insoles.jpg'} 
+                alt="Insoles" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            </LocalizedClientLink>
+            <div className="mt-5 flex flex-col items-center text-center">
               <LocalizedClientLink href="/categories/insoles">
-                <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-xs hover:bg-gray-100 transition-colors">Explore</button>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Insoles</h3>
+              </LocalizedClientLink>
+              <LocalizedClientLink href="/categories/insoles">
+                <button className="bg-[#0bb799] text-white px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm hover:bg-[#099980] group-hover:shadow transition-all">Explore</button>
               </LocalizedClientLink>
             </div>
           </div>
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_005_1024x1024.png'} alt="Foot Care" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Foot Care</h3>
+
+          {/* Foot Care */}
+          <div className="flex flex-col group">
+            <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <img 
+                src={imgBase + 'cat-foot-care.png'} 
+                alt="Foot Care" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            </LocalizedClientLink>
+            <div className="mt-5 flex flex-col items-center text-center">
               <LocalizedClientLink href="/categories/foot-care">
-                <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-xs hover:bg-gray-100 transition-colors">Explore</button>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Foot Care</h3>
+              </LocalizedClientLink>
+              <LocalizedClientLink href="/categories/foot-care">
+                <button className="bg-[#0bb799] text-white px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm hover:bg-[#099980] group-hover:shadow transition-all">Explore</button>
               </LocalizedClientLink>
             </div>
           </div>
-          <div className="relative group overflow-hidden flex-1 group">
-            <img src={imgBase + 'img_011_4096x4096.png'} alt="Accessories" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex flex-col justify-end items-center pb-12 text-white">
-              <h3 className="text-2xl font-semibold mb-3">Accessories</h3>
+
+          {/* Accessories */}
+          <div className="flex flex-col group">
+            <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[4/5] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <img 
+                src={imgBase + 'cat-accessories.jpg'} 
+                alt="Accessories" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            </LocalizedClientLink>
+            <div className="mt-5 flex flex-col items-center text-center">
               <LocalizedClientLink href="/categories/accessories">
-                <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-xs hover:bg-gray-100 transition-colors">Explore</button>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Accessories</h3>
+              </LocalizedClientLink>
+              <LocalizedClientLink href="/categories/accessories">
+                <button className="bg-[#0bb799] text-white px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm hover:bg-[#099980] group-hover:shadow transition-all">Explore</button>
               </LocalizedClientLink>
             </div>
           </div>
