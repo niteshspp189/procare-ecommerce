@@ -150,6 +150,8 @@ module.exports = defineConfig({
             '127.0.0.1',
             'backend',
             'shop.mvshoecare.com',
+            'propremiumcare.com',
+            'www.propremiumcare.com',
           ],
           hmr: {
             port: 5173,

@@ -153,7 +153,7 @@ export async function sendOrderConfirmationEmail(order: any) {
             
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">You can track your shipping and order status anytime in your account dashboard.</p>
             <div style="text-align: center; margin: 28px 0 10px 0;">
-              <a href="${process.env.STORE_URL || 'https://shop.mvshoecare.com'}/account/orders" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
+              <a href="${process.env.STORE_URL || 'https://propremiumcare.com'}/account/orders" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
             </div>
           </div>
           <!-- Footer -->

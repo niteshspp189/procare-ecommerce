@@ -16,7 +16,7 @@ services:
     environment:
       - NODE_ENV=production
       - MEDUSA_BACKEND_URL=http://procare_backend:9000
-      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://shop.mvshoecare.com
+      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://propremiumcare.com
     volumes: []
 
   nginx:

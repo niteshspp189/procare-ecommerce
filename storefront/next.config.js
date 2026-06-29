@@ -36,6 +36,26 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "shop.mvshoecare.com",
+      },
+      {
+        protocol: "http",
+        hostname: "propremiumcare.com",
+      },
+      {
+        protocol: "https",
+        hostname: "propremiumcare.com",
+      },
+      {
+        protocol: "http",
+        hostname: "www.propremiumcare.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.propremiumcare.com",
+      },
+      {
+        protocol: "https",
         hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
       },
       {
