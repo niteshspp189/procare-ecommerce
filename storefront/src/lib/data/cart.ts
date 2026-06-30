@@ -426,12 +426,28 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         province: formData.get("billing_address.province"),
         phone: formData.get("billing_address.phone"),
       }
+
     await updateCart(data)
+
+    try {
+      const currentCartId = await getCartId()
+      if (currentCartId) {
+        const res = await listCartOptions()
+        if (res?.shipping_options && res.shipping_options.length > 0) {
+          await setShippingMethod({
+            cartId: currentCartId,
+            shippingMethodId: res.shipping_options[0].id,
+          })
+        }
+      }
+    } catch (shippingError) {
+      console.warn("Could not automatically set shipping method:", shippingError)
+    }
   } catch (e: any) {
     return e.message
   }
 
-  redirect(`/checkout?step=delivery`)
+  redirect(`/checkout?step=payment`)
 }
 
 /**

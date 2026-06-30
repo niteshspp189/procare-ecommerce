@@ -197,9 +197,9 @@ export default async function StagingHome(props: {
         {/* MID BRAND PROMISE BANNER */}
         <div className="bg-[#f0f0f5] py-20 text-center animate-fade-in-up relative overflow-hidden">
           <div className="relative z-10 w-full mx-auto px-4">
-            <p className="text-sm font-normal text-gray-500 mb-2">German Precision. Indian Excellence. Trusted Worldwide.</p>
+            <p className="text-sm font-normal text-gray-500 mb-2">European Expertise. Indian Excellence. Trusted Worldwide.</p>
             <h2 className="text-[clamp(24px,3.5vw,48px)] font-normal leading-tight mb-8 whitespace-nowrap overflow-hidden text-ellipsis">Crafting World - Class Care For Every Step</h2>
-            <LocalizedClientLink href="/about">
+            <LocalizedClientLink href="/our-story">
               <button className="bg-[#0bb799] text-white px-8 py-3 rounded-full font-medium text-sm hover:bg-[#099980] transition-colors">Read More About Us</button>
             </LocalizedClientLink>
           </div>

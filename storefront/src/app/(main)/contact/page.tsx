@@ -44,7 +44,7 @@ export default function ContactPage() {
             <div style={s.hero}>
                 <div className="pro-container">
                     <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter mb-4">Contact Us</h1>
-                    <p className="text-gray-400 max-w-2xl mx-auto uppercase tracking-widest text-[10px] sm:text-[11px] font-bold">We're here to help you every step of the way</p>
+                    <p className="text-gray-400 max-w-2xl mx-auto uppercase tracking-widest text-[10px] sm:text-[11px] font-bold">We're here to help you in every step of the way</p>
                 </div>
             </div>
 
@@ -66,8 +66,8 @@ export default function ContactPage() {
                                         <a href="mailto:customercare@mvscindia.com" style={s.value} className="hover:text-gray-600 transition-colors">customercare@mvscindia.com</a>
                                     </div>
                                     <div>
-                                        <span style={s.label}>Phone Number</span>
-                                        <a href="tel:0120-4299679" style={s.value} className="hover:text-gray-600 transition-colors">0120-4299679</a>
+                                        <span style={s.label}>Phone / WhatsApp</span>
+                                        <a href="tel:9958410042" style={s.value} className="hover:text-gray-600 transition-colors">+91 9958410042<br />0120-4299679</a>
                                     </div>
                                 </div>
 
@@ -91,7 +91,7 @@ export default function ContactPage() {
                             <h3 className="text-xl lg:text-2xl font-black mb-4 uppercase italic">Live Support</h3>
                             <p className="text-gray-400 mb-6 lg:mb-8 text-sm leading-relaxed">Need immediate help with an order or have a product question? Our dedicated support team is available during working hours.</p>
                             <a
-                                href="https://wa.me/911204299679"
+                                href="https://wa.me/919958410042"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full flex items-center justify-center gap-2 bg-white text-black font-black py-3 lg:py-4 rounded-full hover:bg-gray-200 transition-all uppercase tracking-widest text-xs"

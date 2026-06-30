@@ -82,15 +82,26 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
       {/* Black Top bar for premium feel */}
-      <div style={styles.topNav as any} className="hidden lg:flex">
-        <LocalizedClientLink href="/" style={styles.topLink} className="hover:opacity-100">Home</LocalizedClientLink>
-        <LocalizedClientLink href="/faq" style={styles.topLink} className="hover:opacity-100">FAQ</LocalizedClientLink>
-        <LocalizedClientLink href="/our-story" style={styles.topLink} className="hover:opacity-100">Our Story</LocalizedClientLink>
-        <LocalizedClientLink href="/contact" style={styles.topLink} className="hover:opacity-100">Contact Us</LocalizedClientLink>
-        <LocalizedClientLink href="/blog" style={styles.topLink} className="hover:opacity-100">Blogs</LocalizedClientLink>
-        <LocalizedClientLink href="/account" style={styles.topLink} className="hover:opacity-100">
-          {customer ? "Account" : "Log In"}
-        </LocalizedClientLink>
+      <div className="hidden lg:flex justify-between items-center px-6 py-2.5 bg-[#141414] text-white text-[11px] uppercase tracking-wider border-b border-gray-800">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 font-bold text-[#0bb799]">
+            <span className="w-2 h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
+            Free Delivery Eligible On Orders Above ₹499
+          </span>
+          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2.5 py-0.5 rounded text-[10px] transition-all tracking-normal">
+            Shop Now
+          </LocalizedClientLink>
+        </div>
+        <div className="flex items-center gap-6 font-medium text-gray-300">
+          <LocalizedClientLink href="/" className="hover:text-white transition-colors">Home</LocalizedClientLink>
+          <LocalizedClientLink href="/faq" className="hover:text-white transition-colors">FAQ</LocalizedClientLink>
+          <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors">Our Story</LocalizedClientLink>
+          <LocalizedClientLink href="/contact" className="hover:text-white transition-colors">Contact Us</LocalizedClientLink>
+          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors">Blogs</LocalizedClientLink>
+          <LocalizedClientLink href="/account" className="hover:text-white transition-colors">
+            {customer ? "Account" : "Log In"}
+          </LocalizedClientLink>
+        </div>
       </div>
 
       <nav style={styles.mainNav as any} className="flex bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none">

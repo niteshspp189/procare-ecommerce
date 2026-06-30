@@ -30,10 +30,10 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.on("error", (err) => reject(err))
 
     // Header
-    doc.fillColor("#444444").fontSize(20).text("INVOICE", 50, 50)
-    doc.fillColor("#00bda5").fontSize(10).text("ProCare Store", 200, 50, { align: "right" })
-    doc.fillColor("#444444").text("MV Shoe Care Pvt Ltd", 200, 65, { align: "right" })
-    doc.text("New Delhi, India", 200, 80, { align: "right" })
+    doc.fillColor("#444444").fontSize(20).font("Helvetica-Bold").text("INVOICE", 50, 50)
+    doc.fillColor("#000000").fontSize(16).text("PRO", 200, 50, { align: "right" })
+    doc.fillColor("#666666").fontSize(10).font("Helvetica").text("MV Shoe Care Pvt Ltd", 200, 68, { align: "right" })
+    doc.text("A-13, Sector – 59, Noida, UP 201301, India", 200, 82, { align: "right" })
 
     doc.moveDown()
     doc.strokeColor("#eeeeee").lineWidth(1).moveTo(50, 115).lineTo(550, 115).stroke()
@@ -134,9 +134,8 @@ export async function sendOrderConfirmationEmail(order: any) {
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">
           <!-- Brand Header -->
-          <div style="background-color: #0f172a; padding: 28px 24px; text-align: center; border-bottom: 3px solid #d4af37;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 2px;">PRO<span style="color: #d4af37;">GOLD</span></h1>
-            <p style="color: #94a3b8; margin: 6px 0 0 0; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;">European Expertise. Indian Excellence.</p>
+          <div style="background-color: #000000; padding: 28px 24px; text-align: center; border-bottom: 3px solid #0bb799;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900; letter-spacing: 3px;">PRO</h1>
           </div>
           <!-- Content -->
           <div style="padding: 32px 24px;">

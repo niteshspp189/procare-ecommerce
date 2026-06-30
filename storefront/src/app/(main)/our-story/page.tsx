@@ -3,58 +3,78 @@ import React from "react"
 const OurStoryPage = () => {
     return (
         <div className="bg-white">
-            {/* HERO SECTION */}
-            <div className="relative h-[50vh] sm:h-[60vh] overflow-hidden flex items-center justify-center bg-black text-white">
-                <div className="absolute inset-0 opacity-40">
-                    <img src="/images/IMG_1572.webp" className="w-full h-full object-cover" alt="Our Story" />
+            {/* HERO SECTION BANNER */}
+            <div className="relative h-[45vh] sm:h-[55vh] overflow-hidden flex items-center justify-center bg-black text-white">
+                <div className="absolute inset-0 opacity-45">
+                    <img src="/images/IMG_1572.webp" className="w-full h-full object-cover" alt="Our Story Banner" />
                 </div>
-                <div className="relative z-10 text-center animate-fade-in-up px-4">
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter">Our Story</h1>
-                    <p className="text-base sm:text-xl font-medium tracking-widest mt-4 uppercase">Crafting Excellence Since 1994</p>
+                <div className="relative z-10 text-center animate-fade-in-up px-4 max-w-4xl">
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter mb-4">Our Story</h1>
+                    <p className="text-lg sm:text-2xl font-medium tracking-wide text-gray-200 italic">"Every great journey begins with a single step."</p>
                 </div>
             </div>
 
-            <div className="py-12 sm:py-24 max-w-5xl mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 items-center">
-                    <div>
-                        <h2 className="text-2xl sm:text-4xl font-black uppercase mb-6 sm:mb-8 leading-tight">Born from a Passion for <br /> Footwear Perfection</h2>
-                        <p className="text-gray-500 leading-relaxed mb-4 sm:mb-6 uppercase text-xs sm:text-sm tracking-tight text-justify">
-                            Pro Premium Care was founded with a singular vision: to provide footwear enthusiasts with the tools they need to keep their passion alive. We believe that a well-cared-for pair of shoes is more than just an accessory—it's a statement of confidence.
-                        </p>
-                        <p className="text-gray-500 leading-relaxed mb-4 sm:mb-6 uppercase text-xs sm:text-sm tracking-tight text-justify">
-                            Our journey started in a small workshop with three core principles: quality, sustainability, and transparency. Today, Pro is a global name trusted by professionals and enthusiasts alike.
+            {/* MAIN STORY TEXT (NO INLINE IMAGES) */}
+            <div className="py-16 sm:py-24 max-w-4xl mx-auto px-6 sm:px-8 text-gray-800 leading-relaxed">
+                <div className="space-y-8 text-base sm:text-lg lg:text-xl font-normal text-justify sm:text-left">
+                    <p>
+                        At <span className="font-semibold text-black">MV Shoecare</span>, our journey began in 2009 with a simple belief: footwear deserves care that matches the craftsmanship behind it.
+                    </p>
+                    <p>
+                        What started as a passion for premium shoe care soon evolved into a mission to bring world-class footwear care solutions to consumers across India and beyond. Our early association with leading international brands helped us understand global standards, advanced formulations, and the science behind preserving footwear. This foundation continues to inspire everything we create today.
+                    </p>
+                    <p>
+                        In 2016, we launched <span className="font-bold text-black">PRO</span>, our flagship brand, with a vision to make professional shoe care accessible, effective, and easy to use for everyone. From leather care and sneaker care to accessories, insoles, and foot care solutions, PRO was designed to help consumers extend the life of their footwear while looking and feeling their best.
+                    </p>
+                    <p>
+                        Today, our products are trusted by consumers, footwear brands, retailers, and partners across India and international markets. Behind every product lies a commitment to innovation, quality, and continuous improvement. We work closely with leading formulation experts, raw material partners, and laboratories to bring global expertise into every solution we create.
+                    </p>
+                    <p>
+                        From premium leather shoes and everyday sneakers to foot comfort products and accessories, our goal remains unchanged:
+                    </p>
+                    <div className="py-6 my-8 border-y border-gray-200 text-center">
+                        <p className="text-xl sm:text-2xl font-bold uppercase tracking-wide text-black">
+                            To redefine shoe care through quality, innovation, and ease of use.
                         </p>
                     </div>
-                    <div className="solid-box overflow-hidden rounded-2xl lg:rounded-3xl h-[300px] sm:h-[400px] lg:h-[500px]">
-                        <img src="/images/landing-page-images/img_008_4096x4096.png" className="w-full h-full object-cover" alt="Heritage" />
+                    <p className="font-medium text-black">
+                        As we continue to grow, we remain driven by the same values that shaped our beginnings:
+                    </p>
+                </div>
+
+                {/* VALUES GRID */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-12 pt-8 border-t border-gray-100">
+                    <div className="p-6 bg-gray-50 rounded-xl">
+                        <h3 className="font-bold uppercase text-lg text-black mb-2 tracking-wide">Quality First</h3>
+                        <p className="text-sm sm:text-base text-gray-600">Products crafted to deliver professional results you can trust.</p>
+                    </div>
+                    <div className="p-6 bg-gray-50 rounded-xl">
+                        <h3 className="font-bold uppercase text-lg text-black mb-2 tracking-wide">Innovation with Purpose</h3>
+                        <p className="text-sm sm:text-base text-gray-600">Thoughtfully designed solutions that make shoe care simple and effective.</p>
+                    </div>
+                    <div className="p-6 bg-gray-50 rounded-xl">
+                        <h3 className="font-bold uppercase text-lg text-black mb-2 tracking-wide">Global Expertise, Made in India</h3>
+                        <p className="text-sm sm:text-base text-gray-600">Combining international know-how with world-class manufacturing in India.</p>
+                    </div>
+                    <div className="p-6 bg-gray-50 rounded-xl">
+                        <h3 className="font-bold uppercase text-lg text-black mb-2 tracking-wide">Care Beyond Products</h3>
+                        <p className="text-sm sm:text-base text-gray-600">Helping consumers protect, maintain, and enjoy their footwear for longer.</p>
                     </div>
                 </div>
 
-                <div className="mt-16 sm:mt-24 lg:mt-32 text-center">
-                    <h2 className="text-2xl sm:text-4xl font-black uppercase mb-8 sm:mb-16 underline underline-offset-8">Our Philosophy</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-12">
-                        <div className="p-4 sm:p-6 lg:p-8 md:border-r border-gray-100 last:border-0 text-left">
-                            <h3 className="font-bold uppercase text-base sm:text-lg mb-3 sm:mb-4 underline">Quality</h3>
-                            <p className="text-xs sm:text-sm text-gray-500 uppercase leading-relaxed tracking-tighter">We source only the finest materials, ensuring every product meets our rigorous standards for performance and longevity.</p>
-                        </div>
-                        <div className="p-4 sm:p-6 lg:p-8 md:border-r border-gray-100 last:border-0 text-left">
-                            <h3 className="font-bold uppercase text-base sm:text-lg mb-3 sm:mb-4 underline">Innovation</h3>
-                            <p className="text-xs sm:text-sm text-gray-500 uppercase leading-relaxed tracking-tighter">Our labs are constantly developing new formulas and tools to tackle the toughest stains and provide the deepest conditioning.</p>
-                        </div>
-                        <div className="p-4 sm:p-6 lg:p-8 text-left">
-                            <h3 className="font-bold uppercase text-base sm:text-lg mb-3 sm:mb-4 underline">Eco-Conscious</h3>
-                            <p className="text-xs sm:text-sm text-gray-500 uppercase leading-relaxed tracking-tighter">Responsibility is at our core. We strive for 100% recyclable packaging and non-toxic, bio-degradable solutions.</p>
-                        </div>
-                    </div>
+                {/* CLOSING STATEMENT */}
+                <div className="mt-16 text-center space-y-2">
+                    <p className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-black">Because every pair has a story.</p>
+                    <p className="text-xl sm:text-2xl font-semibold text-[#0bb799]">And we're here to help it last.</p>
                 </div>
             </div>
 
             {/* BRAND PROMISE BANNER */}
-            <div className="mb-12 sm:mb-24 mx-4 bg-black rounded-2xl lg:rounded-3xl p-6 sm:p-12 md:p-24 text-center text-white relative overflow-hidden group">
+            <div className="mb-16 mx-4 sm:mx-8 bg-black rounded-2xl lg:rounded-3xl p-8 sm:p-16 text-center text-white relative overflow-hidden">
                 <div className="relative z-10">
-                    <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-gray-500 mb-4 sm:mb-6 uppercase">Trusted Worldwide</p>
-                    <h2 className="text-[clamp(20px,4vw,48px)] font-black uppercase leading-[1.05] mb-8 sm:mb-12">Join the Revolution in Footwear Care</h2>
-                    <a href="/shop" className="bg-white text-black px-6 sm:px-12 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg hover:bg-gray-100 transition-all shadow-xl inline-block">Shop The Collection</a>
+                    <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-gray-400 mb-4 uppercase">Trusted Worldwide</p>
+                    <h2 className="text-[clamp(22px,4vw,44px)] font-black uppercase leading-tight mb-8">Join the Revolution in Footwear Care</h2>
+                    <a href="/shop" className="bg-[#0bb799] text-white px-8 sm:px-12 py-3.5 rounded-full font-bold text-base hover:bg-[#099980] transition-all shadow-lg inline-block uppercase tracking-wider">Shop The Collection</a>
                 </div>
             </div>
         </div>

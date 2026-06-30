@@ -35,11 +35,11 @@ export const paymentInfoMap: Record<
     icon: <PayPal />,
   },
   razorpay: {
-    title: "Razorpay",
+    title: "Online Payment (Cards, UPI, NetBanking)",
     icon: <CreditCard />,
   },
   pp_razorpay_razorpay: {
-    title: "Razorpay",
+    title: "Online Payment (Cards, UPI, NetBanking)",
     icon: <CreditCard />,
   },
   manual: {

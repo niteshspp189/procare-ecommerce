@@ -266,7 +266,7 @@ export default async function StagingHome(props: {
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><circle cx="12" cy="9" r="6" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 14.5l-2.5 6L12 18l5.5 2.5L15 14.5" /></svg>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-base font-bold text-black tracking-widest uppercase">Pro-Grade Formula</span>
+              <span className="text-base font-bold text-black tracking-widest uppercase">Trusted Worldwide</span>
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Trusted by professionals</span>
             </div>
           </div>
@@ -284,7 +284,7 @@ export default async function StagingHome(props: {
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 22C6.5 22 3 17.5 3 12c0-4.5 3-8.5 9-10 0 5 2 8 6 9-1 .5-2 .8-3 .8a6 6 0 006-6c1 2 1.5 4 1.5 6.2C22.5 17.5 17.5 22 12 22z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 22V14" /></svg>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-base font-bold text-black tracking-widest uppercase">Eco-Certified</span>
+              <span className="text-base font-bold text-black tracking-widest uppercase">ISO 9001:2015 Certified</span>
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Safe for you & the planet</span>
             </div>
           </div>

@@ -25,6 +25,16 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
     discount_subtotal,
   } = totals
 
+  const isBelowThreshold = (item_subtotal ?? 0) < 499
+  const effectiveShipping =
+    isBelowThreshold && (!shipping_subtotal || shipping_subtotal === 0)
+      ? 80
+      : shipping_subtotal ?? 0
+  const effectiveTotal =
+    isBelowThreshold && (!shipping_subtotal || shipping_subtotal === 0)
+      ? (total ?? 0) + 80
+      : total ?? 0
+
   const items = (totals as any).items || []
   const totalMrpSavings = items.reduce((acc: number, item: any) => {
     const compareAt = item.compare_at_unit_price
@@ -36,7 +46,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   }, 0)
 
   const calculatedTax =
-    tax_total || (total ? Math.round(total - total / 1.18) : 0)
+    tax_total || (effectiveTotal ? Math.round(effectiveTotal - effectiveTotal / 1.18) : 0)
 
   return (
     <div>
@@ -72,8 +82,10 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
         </div>
         <div className="flex items-center justify-between">
           <span>Shipping</span>
-          <span data-testid="cart-shipping" data-value={shipping_subtotal || 0}>
-            {convertToLocale({ amount: shipping_subtotal ?? 0, currency_code })}
+          <span data-testid="cart-shipping" data-value={effectiveShipping}>
+            {effectiveShipping === 0
+              ? "Free"
+              : convertToLocale({ amount: effectiveShipping, currency_code })}
           </span>
         </div>
         {!!discount_subtotal && (
@@ -107,9 +119,9 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
         <span
           className="txt-xlarge-plus"
           data-testid="cart-total"
-          data-value={total || 0}
+          data-value={effectiveTotal}
         >
-          {convertToLocale({ amount: total ?? 0, currency_code })}
+          {convertToLocale({ amount: effectiveTotal, currency_code })}
         </span>
       </div>
       <div className="h-px w-full border-b border-gray-200 mt-4" />

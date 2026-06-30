@@ -21,6 +21,10 @@ const Payment = ({
   cart: any
   availablePaymentMethods: any[]
 }) => {
+  const filteredPaymentMethods = (availablePaymentMethods ?? []).filter(
+    (pm: any) => !pm.id?.includes("manual") && !pm.id?.includes("system")
+  )
+
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"
   )
@@ -107,11 +111,11 @@ const Payment = ({
 
   // Auto-select first payment method if none selected and we are in payment step
   useEffect(() => {
-    if (isOpen && !selectedPaymentMethod && availablePaymentMethods?.length) {
-      const firstMethod = availablePaymentMethods[0].id
+    if (isOpen && !selectedPaymentMethod && filteredPaymentMethods?.length) {
+      const firstMethod = filteredPaymentMethods[0].id
       setPaymentMethod(firstMethod)
     }
-  }, [isOpen, availablePaymentMethods, selectedPaymentMethod])
+  }, [isOpen, filteredPaymentMethods, selectedPaymentMethod])
 
   return (
     <div className="bg-white">
@@ -143,13 +147,13 @@ const Payment = ({
       </div>
       <div>
         <div className={isOpen ? "block" : "hidden"}>
-          {!paidByGiftcard && availablePaymentMethods?.length && (
+          {!paidByGiftcard && filteredPaymentMethods?.length && (
             <>
               <RadioGroup
                 value={selectedPaymentMethod}
                 onChange={(value: string) => setPaymentMethod(value)}
               >
-                {availablePaymentMethods.map((paymentMethod) => (
+                {filteredPaymentMethods.map((paymentMethod) => (
                   <div key={paymentMethod.id}>
                     {isStripeLike(paymentMethod.id) ? (
                       <StripeCardContainer

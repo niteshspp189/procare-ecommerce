@@ -31,23 +31,21 @@ export default async function Footer() {
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <h4 style={s.colTitle as any} className="text-gray-200">SHOP BY COLLECTION</h4>
-            <LocalizedClientLink href="/collections/shoe-care" style={s.link} className="hover:text-white transition-colors">Shoe Care</LocalizedClientLink>
-            <LocalizedClientLink href="/collections/insoles" style={s.link} className="hover:text-white transition-colors">Insoles</LocalizedClientLink>
-            <LocalizedClientLink href="/collections/foot-care" style={s.link} className="hover:text-white transition-colors">Foot Care</LocalizedClientLink>
-            <LocalizedClientLink href="/collections/accessories" style={s.link} className="hover:text-white transition-colors">Accessories</LocalizedClientLink>
-            <LocalizedClientLink href="/collections/bestsellers" style={s.link} className="hover:text-white transition-colors">Bestsellers</LocalizedClientLink>
+            <LocalizedClientLink href="/categories/shoe-care" style={s.link} className="hover:text-white transition-colors">Shoe Care</LocalizedClientLink>
+            <LocalizedClientLink href="/categories/insoles" style={s.link} className="hover:text-white transition-colors">Insoles</LocalizedClientLink>
+            <LocalizedClientLink href="/categories/foot-care" style={s.link} className="hover:text-white transition-colors">Foot Care</LocalizedClientLink>
+            <LocalizedClientLink href="/categories/accessories" style={s.link} className="hover:text-white transition-colors">Accessories</LocalizedClientLink>
+            <LocalizedClientLink href="/shop" style={s.link} className="hover:text-white transition-colors">Bestsellers</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <h4 style={s.colTitle as any} className="text-gray-200">ABOUT PRO CARE</h4>
+            <h4 style={s.colTitle as any} className="text-gray-200">ABOUT PRO</h4>
             <LocalizedClientLink href="/our-story" style={s.link} className="hover:text-white transition-colors">Our Story</LocalizedClientLink>
-            <a href="https://mvshoecare.com/careers" target="_blank" rel="noopener noreferrer" style={s.link} className="hover:text-white transition-colors">Career</a>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Responsibility</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Quality</LocalizedClientLink>
+            <a href="#" style={s.link} className="hover:text-white transition-colors">Retailer</a>
+            <LocalizedClientLink href="/compliance-certifications" style={s.link} className="hover:text-white transition-colors">Compliance and Certification</LocalizedClientLink>
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <h4 style={s.colTitle as any} className="text-gray-200">QUICK LINKS</h4>
             <a href="https://mvshoecare.com" target="_blank" rel="noopener noreferrer" style={s.link} className="hover:text-white transition-colors">Contact for B2B</a>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Customer Reviews</LocalizedClientLink>
             <LocalizedClientLink href="/" style={s.link} className="hover:text-white transition-colors">Media</LocalizedClientLink>
             <LocalizedClientLink href="/blog" style={s.link} className="hover:text-white transition-colors">Blogs</LocalizedClientLink>
           </div>
