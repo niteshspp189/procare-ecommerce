@@ -218,7 +218,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* PRODUCT CAROUSEL & MEDIA SECTION */}
-        <Section>
+        <Section innerClassName="!pt-8 sm:!pt-12">
           <div className="flex flex-col lg:flex-row w-full gap-12 items-center">
             <div className="flex-1 w-full lg:w-1/2 overflow-hidden h-full">
               {firstCategoryProducts.length > 0 ? (
@@ -272,19 +272,24 @@ export default async function StagingHome(props: {
           </div>
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-20 h-20 text-[#00bda5] bg-slate-50 p-5 rounded-[24px] shadow-sm transition-transform hover:scale-110">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3l8 3.5v5c0 4.5-3.2 8.7-8 10-4.8-1.3-8-5.5-8-10v-5L12 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" /></svg>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-base font-bold text-black tracking-widest uppercase">15-Day Guarantee</span>
-              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Hassle-free returns</span>
+              <span className="text-base font-bold text-black tracking-widest uppercase">ISO Compliance</span>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">ISO 9001:2015 Certified</span>
             </div>
           </div>
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-20 h-20 text-[#00bda5] bg-slate-50 p-5 rounded-[24px] shadow-sm transition-transform hover:scale-110">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 22C6.5 22 3 17.5 3 12c0-4.5 3-8.5 9-10 0 5 2 8 6 9-1 .5-2 .8-3 .8a6 6 0 006-6c1 2 1.5 4 1.5 6.2C22.5 17.5 17.5 22 12 22z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 22V14" /></svg>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 22C6.5 22 3 17.5 3 12c0-4.5 3-8.5 9-10 0 5 2 8 6 9-1 .5-2 .8-3 .8a6 6 0 006-6c1 2 1.5 4 1.5 6.2C22.5 17.5 17.5 22 12 22z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 22V14" />
+              </svg>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-base font-bold text-black tracking-widest uppercase">ISO 9001:2015 Certified</span>
+              <span className="text-base font-bold text-black tracking-widest uppercase">Eco-Certified</span>
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Safe for you & the planet</span>
             </div>
           </div>

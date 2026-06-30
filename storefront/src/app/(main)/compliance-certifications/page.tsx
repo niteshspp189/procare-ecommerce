@@ -39,9 +39,9 @@ export default function ComplianceCertificationsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Card 1 */}
           <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_35px_rgba(0,189,165,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-start">
-            <div className="w-14 h-14 rounded-2xl bg-[#f59e0b] flex items-center justify-center text-white mb-6 shadow-lg shadow-amber-500/20">
+            <div className="w-14 h-14 rounded-2xl bg-[#00bda5] flex items-center justify-center text-white mb-6 shadow-lg shadow-[#00bda5]/20">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">ISO 9001:2015 Certified</h3>
@@ -52,7 +52,7 @@ export default function ComplianceCertificationsPage() {
 
           {/* Card 2 */}
           <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_35px_rgba(0,189,165,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-start">
-            <div className="w-14 h-14 rounded-2xl bg-[#f59e0b] flex items-center justify-center text-white mb-6 shadow-lg shadow-amber-500/20">
+            <div className="w-14 h-14 rounded-2xl bg-[#00bda5] flex items-center justify-center text-white mb-6 shadow-lg shadow-[#00bda5]/20">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
@@ -65,7 +65,7 @@ export default function ComplianceCertificationsPage() {
 
           {/* Card 3 */}
           <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_35px_rgba(0,189,165,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-start">
-            <div className="w-14 h-14 rounded-2xl bg-[#f59e0b] flex items-center justify-center text-white mb-6 shadow-lg shadow-amber-500/20">
+            <div className="w-14 h-14 rounded-2xl bg-[#00bda5] flex items-center justify-center text-white mb-6 shadow-lg shadow-[#00bda5]/20">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
@@ -99,7 +99,7 @@ export default function ComplianceCertificationsPage() {
 
           <div className="space-y-8">
             {/* Item 1 */}
-            <div className="pl-6 sm:pl-8 border-l-4 border-[#f59e0b] py-2">
+            <div className="pl-6 sm:pl-8 border-l-4 border-[#00bda5] py-2">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 ISO 9001 – Quality Management System
               </h3>
@@ -109,7 +109,7 @@ export default function ComplianceCertificationsPage() {
             </div>
 
             {/* Item 2 */}
-            <div className="pl-6 sm:pl-8 border-l-4 border-[#f59e0b] py-2">
+            <div className="pl-6 sm:pl-8 border-l-4 border-[#00bda5] py-2">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 SEDEX – Ethical &amp; Responsible Sourcing
               </h3>
@@ -119,7 +119,7 @@ export default function ComplianceCertificationsPage() {
             </div>
 
             {/* Item 3 */}
-            <div className="pl-6 sm:pl-8 border-l-4 border-[#f59e0b] py-2">
+            <div className="pl-6 sm:pl-8 border-l-4 border-[#00bda5] py-2">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 Internal Quality Management System (QMS)
               </h3>
