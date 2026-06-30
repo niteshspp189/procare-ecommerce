@@ -100,10 +100,10 @@ export default async function StagingHome(props: {
         </div>
 
         {/* CATEGORY GRID V2 - 4 COLUMNS WITH GAPS AND NO OVERLAY */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 w-full max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-fade-in-up">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-3.5 w-full max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-fade-in-up">
           {/* Shoe Care */}
           <div className="flex flex-col group">
-            <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+            <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
               <img 
                 src={imgBase + 'cat-shoe-care.png'} 
                 alt="Shoe Care" 
@@ -122,7 +122,7 @@ export default async function StagingHome(props: {
 
           {/* Insoles */}
           <div className="flex flex-col group">
-            <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+            <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
               <img 
                 src={imgBase + 'cat-insoles.jpg'} 
                 alt="Insoles" 
@@ -141,7 +141,7 @@ export default async function StagingHome(props: {
 
           {/* Foot Care */}
           <div className="flex flex-col group">
-            <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+            <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
               <img 
                 src={imgBase + 'cat-foot-care.png'} 
                 alt="Foot Care" 
@@ -160,7 +160,7 @@ export default async function StagingHome(props: {
 
           {/* Accessories */}
           <div className="flex flex-col group">
-            <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[24px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+            <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
               <img 
                 src={imgBase + 'cat-accessories.jpg'} 
                 alt="Accessories" 
