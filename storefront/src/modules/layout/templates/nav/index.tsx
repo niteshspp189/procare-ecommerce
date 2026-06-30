@@ -82,17 +82,18 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
       {/* Black Top bar for premium feel */}
-      <div className="hidden lg:flex justify-between items-center px-6 py-2.5 bg-[#141414] text-white text-[11px] uppercase tracking-wider border-b border-gray-800">
-        <div className="flex items-center gap-3">
+      <div className="flex justify-between items-center px-4 sm:px-6 py-2.5 bg-[#141414] text-white text-[11px] uppercase tracking-wider border-b border-gray-800">
+        <div className="hidden lg:block flex-1"></div>
+        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-1 lg:flex-auto mx-auto text-center">
           <span className="inline-flex items-center gap-1.5 font-bold text-[#0bb799]">
             <span className="w-2 h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
             Free Delivery Eligible On Orders Above ₹499
           </span>
-          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2.5 py-0.5 rounded text-[10px] transition-all tracking-normal">
+          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2.5 py-0.5 rounded text-[10px] transition-all tracking-normal whitespace-nowrap">
             Shop Now
           </LocalizedClientLink>
         </div>
-        <div className="flex items-center gap-6 font-medium text-gray-300">
+        <div className="hidden lg:flex items-center justify-end gap-6 font-medium text-gray-300 flex-1">
           <LocalizedClientLink href="/" className="hover:text-white transition-colors">Home</LocalizedClientLink>
           <LocalizedClientLink href="/faq" className="hover:text-white transition-colors">FAQ</LocalizedClientLink>
           <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors">Our Story</LocalizedClientLink>

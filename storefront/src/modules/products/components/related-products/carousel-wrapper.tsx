@@ -58,7 +58,7 @@ export default function CarouselWrapper({
             )}
 
             {buttonPosition === 'top-right' && (
-                <div className="absolute top-4 right-4 z-20 flex gap-2">
+                <div className="absolute top-0 right-4 z-20 flex gap-2">
                     <button
                         onClick={() => scroll('left')}
                         className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-black border border-gray-100 hover:scale-110 transition-transform opacity-80 hover:opacity-100"
@@ -76,7 +76,7 @@ export default function CarouselWrapper({
 
             <div
                 ref={scrollRef}
-                className="flex overflow-x-auto snap-x snap-mandatory gap-6 no-scrollbar pb-6 h-full items-stretch"
+                className={`flex overflow-x-auto snap-x snap-mandatory gap-6 no-scrollbar pb-6 h-full items-stretch ${buttonPosition === 'top-right' ? 'pt-14' : ''}`}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
                 {children}

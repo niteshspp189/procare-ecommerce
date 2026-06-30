@@ -11,6 +11,10 @@ export default function PageProgress() {
 
   // 1. Reset progress when navigation completes
   useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "auto"
+      document.documentElement.style.overflow = "auto"
+    }
     if (loading) {
       setProgress(100)
       const timer = setTimeout(() => {
