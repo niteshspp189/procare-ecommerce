@@ -91,17 +91,23 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.text(`${(subtotalValue / 100).toFixed(2)}`, 450, totalsY, { width: 100, align: "right" })
     
     // Shipping
-    const shippingTotal = order.shipping_total || 0
+    let shippingTotal = order.shipping_total ?? order.summary?.shipping_total ?? 0
+    if (subtotalValue > 0 && subtotalValue < 49900 && (!shippingTotal || shippingTotal === 0)) {
+      shippingTotal = 8000
+    }
     doc.text("Shipping:", 350, totalsY + 15, { width: 100, align: "right" })
     doc.text(`${(shippingTotal / 100).toFixed(2)}`, 450, totalsY + 15, { width: 100, align: "right" })
 
     // Taxes
-    const taxTotal = order.tax_total || 0
+    const taxTotal = order.tax_total ?? order.summary?.tax_total ?? 0
     doc.text("Taxes:", 350, totalsY + 30, { width: 100, align: "right" })
     doc.text(`${(taxTotal / 100).toFixed(2)}`, 450, totalsY + 30, { width: 100, align: "right" })
 
     // Total
-    const finalTotal = order.total || (subtotalValue + shippingTotal + taxTotal)
+    const rawTotal = order.total ?? order.summary?.total ?? (subtotalValue + shippingTotal + taxTotal)
+    const finalTotal = (rawTotal === subtotalValue && subtotalValue < 49900 && shippingTotal === 8000)
+      ? subtotalValue + 8000
+      : rawTotal
     doc.font("Helvetica-Bold")
     doc.text("Total:", 350, totalsY + 50, { width: 100, align: "right" })
     doc.text(`INR ${(finalTotal / 100).toFixed(2)}`, 450, totalsY + 50, { width: 100, align: "right" })
@@ -122,10 +128,27 @@ export async function sendOrderConfirmationEmail(order: any) {
         console.warn("[EmailService] Continuing without PDF attachment:", e)
     }
     
-    const d = new Date(order.created_at)
+    const d = new Date(order.created_at || Date.now())
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     const formattedDate = `${d.getDate()}-${monthNames[d.getMonth()]}-${d.getFullYear()}`
-    const formattedId = `OD${(order.display_id || order.id).toString().padStart(8, '0')}`
+    const formattedId = `OD${(order.display_id || order.id || '0001').toString().padStart(8, '0')}`
+
+    const itemsSubtotal = (order.items || []).reduce((acc: number, item: any) => {
+      return acc + (item.unit_price || 0) * (item.quantity || 1)
+    }, 0)
+    let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? 0
+    if (itemsSubtotal > 0 && itemsSubtotal < 49900 && (!shippingFee || shippingFee === 0)) {
+      shippingFee = 8000
+    }
+    const rawTotal = order.total ?? order.summary?.total ?? (itemsSubtotal + shippingFee)
+    const effectiveTotal = (rawTotal === itemsSubtotal && itemsSubtotal < 49900 && shippingFee === 8000)
+      ? itemsSubtotal + 8000
+      : rawTotal
+    const displayTotalAmount = typeof effectiveTotal === "number" && !isNaN(effectiveTotal)
+      ? (effectiveTotal / 100).toFixed(2)
+      : "0.00"
+
+    const storeUrl = process.env.STORE_URL || 'https://propremiumcare.com'
 
     const mailOptions: any = {
       from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'team@webclixs.in'}>`,
@@ -134,8 +157,10 @@ export async function sendOrderConfirmationEmail(order: any) {
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">
           <!-- Brand Header -->
-          <div style="background-color: #000000; padding: 28px 24px; text-align: center; border-bottom: 3px solid #0bb799;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900; letter-spacing: 3px;">PRO</h1>
+          <div style="background-color: #000000; padding: 24px; text-align: center; border-bottom: 3px solid #0bb799;">
+            <a href="${storeUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
+              <img src="${storeUrl}/images/logos/logo.png" alt="PRO" style="height: 48px; width: auto; max-width: 200px; display: inline-block; vertical-align: middle;" />
+            </a>
           </div>
           <!-- Content -->
           <div style="padding: 32px 24px;">
@@ -146,13 +171,13 @@ export async function sendOrderConfirmationEmail(order: any) {
             
             <div style="background: #f8fafc; padding: 20px; margin: 24px 0; border: 1px solid #e2e8f0; border-radius: 10px;">
               <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Order Summary</h3>
-              <p style="margin: 8px 0; color: #475569; font-size: 14px;">Total Amount: <strong style="color: #0f172a; font-size: 16px;">INR ${(order.total / 100).toFixed(2)}</strong></p>
+              <p style="margin: 8px 0; color: #475569; font-size: 14px;">Total Amount: <strong style="color: #0f172a; font-size: 16px;">INR ${displayTotalAmount}</strong></p>
               <p style="margin: 8px 0; color: #475569; font-size: 14px;">Shipping To: <strong style="color: #334155;">${order.shipping_address?.first_name || ''} ${order.shipping_address?.last_name || ''}</strong></p>
             </div>
             
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">You can track your shipping and order status anytime in your account dashboard.</p>
             <div style="text-align: center; margin: 28px 0 10px 0;">
-              <a href="${process.env.STORE_URL || 'https://propremiumcare.com'}/account/orders" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
+              <a href="${storeUrl}/account/orders" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
             </div>
           </div>
           <!-- Footer -->
