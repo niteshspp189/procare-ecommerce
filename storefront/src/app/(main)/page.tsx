@@ -209,7 +209,7 @@ export default async function StagingHome(props: {
         {/* BRAND PROMISE BANNER */}
         <Section className="bg-[#f0f0f5]">
           <div className="text-center">
-            <p className="text-sm font-normal text-gray-500 mb-2 uppercase tracking-[0.2em]">German Precision. Indian Excellence. Trusted Worldwide.</p>
+            <p className="text-sm font-normal text-gray-500 mb-2 uppercase tracking-[0.2em]">European Expertise. Indian Excellence. Trusted Worldwide.</p>
             <h2 className="text-[clamp(28px,5vw,56px)] font-normal leading-tight mb-10 max-w-5xl mx-auto">Crafting World-Class Care For Every Step</h2>
             <LocalizedClientLink href="/about">
               <Button variant="primary" className="px-10">Read More About Us</Button>
