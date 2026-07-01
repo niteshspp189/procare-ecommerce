@@ -238,12 +238,12 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>}
           </div>
 
-          <div className="w-full lg:w-[46%] min-w-0">
+          <div className="w-full lg:w-[46%] min-w-0 lg:sticky lg:top-[120px] self-start z-10">
             <ImageGallery images={images} discountPercentage={discountPercentage} />
           </div>
 
-          <div className="w-full lg:flex-1 shrink-0 lg:sticky lg:top-[120px] self-start z-10">
-            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100 sticky-product-sidebar">
+          <div className="w-full lg:flex-1 shrink-0">
+            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100">
               <div className="hidden lg:block">
                 <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
                 <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>

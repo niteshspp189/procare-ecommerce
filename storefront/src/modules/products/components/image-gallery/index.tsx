@@ -93,9 +93,10 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
             key={`thumb-${image.id}`}
             onClick={(e) => {
               e.preventDefault()
+              const container = document.getElementById('main-gallery-container')
               const el = document.getElementById(image.id)
-              if (el) {
-                el.scrollIntoView({ behavior: "smooth" })
+              if (container && el) {
+                container.scrollTo({ top: el.offsetTop, behavior: 'smooth' })
               }
             }}
             className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-transparent hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
@@ -116,7 +117,10 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
 
       <div className="flex flex-col flex-1 w-full lg:w-auto min-w-0">
         {/* Main Gallery */}
-        <div className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar lg:pb-0">
+        <div 
+          id="main-gallery-container"
+          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] lg:relative snap-x snap-mandatory no-scrollbar lg:pb-0"
+        >
           {images.map((image, index) => {
             return (
               <div
