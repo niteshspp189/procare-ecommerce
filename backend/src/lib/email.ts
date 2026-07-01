@@ -265,7 +265,7 @@ export async function sendOrderConfirmationEmail(order: any) {
             <h2 style="color: #0f172a; margin-top: 0; font-size: 22px; text-align: center;">Thank You for Your Order!</h2>
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">Hello ${order.shipping_address?.first_name || ''},</p>
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">Your order <strong style="color: #0f172a;">#${formattedId}</strong> has been placed successfully on ${formattedDate}.</p>
-            ${pdfBuffer ? \`<p style="color: #334155; font-size: 15px; line-height: 1.6;">We've attached your official invoice to this email for your records.</p>\` : \`<p style="color: #334155; font-size: 15px; line-height: 1.6;">Your invoice will be available in your dashboard shortly.</p>\`}
+            ${pdfBuffer ? `<p style="color: #334155; font-size: 15px; line-height: 1.6;">We've attached your official invoice to this email for your records.</p>` : `<p style="color: #334155; font-size: 15px; line-height: 1.6;">Your invoice will be available in your dashboard shortly.</p>`}
             
             <div style="background: #f8fafc; padding: 20px; margin: 24px 0; border: 1px solid #e2e8f0; border-radius: 10px;">
               <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Order Summary</h3>
@@ -289,7 +289,7 @@ export async function sendOrderConfirmationEmail(order: any) {
     if (pdfBuffer) {
         mailOptions.attachments = [
             {
-              filename: \`Invoice_${formattedId}.pdf\`,
+              filename: `Invoice_${formattedId}.pdf`,
               content: pdfBuffer,
             },
         ]
