@@ -85,9 +85,9 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
 
 const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
   return (
-    <div className="flex flex-col lg:flex-row items-start relative gap-x-4 gap-y-4">
+    <div className="flex flex-col lg:flex-row items-start relative w-full lg:h-[calc(100vh-120px)] lg:overflow-hidden">
       {/* Desktop Thumbnail Sidebar */}
-      <div className="hidden lg:flex flex-col gap-y-3 sticky top-24 h-fit max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar py-2">
+      <div className="hidden lg:flex flex-col gap-y-3 h-full overflow-y-auto no-scrollbar py-2">
         {images.map((image, index) => (
           <button
             key={`thumb-${image.id}`}
@@ -123,11 +123,11 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
         ))}
       </div>
 
-      <div className="flex flex-col flex-1 w-full lg:w-auto min-w-0">
+      <div className="flex flex-col flex-1 w-full lg:w-auto h-full min-w-0">
         {/* Main Gallery */}
         <div 
           id="main-gallery-container"
-          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] min-h-0 lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar lg:pb-0"
+          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto h-full min-h-0 lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar lg:pb-0"
         >
           {images.map((image, index) => {
             return (
