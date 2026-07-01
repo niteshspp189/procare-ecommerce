@@ -86,22 +86,26 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [product?.variants, options])
 
   const images = useMemo(() => {
-    // 1. Check selected variant metadata for images first
+    let vImgs: HttpTypes.StoreProductImage[] = []
     if (selectedVariant?.metadata) {
-      const vImgs: HttpTypes.StoreProductImage[] = []
       const meta = selectedVariant.metadata as Record<string, string>
       if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
       if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
       if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
-      if (vImgs.length > 0) return vImgs
     }
 
-    // 2. Fall back to propImages or product images
-    if (propImages?.length) return propImages
-    if (product?.images?.length) return product.images
-    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
-    return []
+    let baseImages = propImages?.length ? propImages : (product?.images?.length ? product.images : [])
+    if (baseImages.length === 0 && product?.thumbnail) {
+      baseImages = [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
+    }
+
+    if (vImgs.length > 0) {
+      const additional = baseImages.filter(bImg => !vImgs.some(vImg => vImg.url === bImg.url))
+      return [...vImgs, ...additional]
+    }
+
+    return baseImages
   }, [product, selectedVariant, propImages])
 
   const isSingleDefaultVariant = useMemo(() => {
