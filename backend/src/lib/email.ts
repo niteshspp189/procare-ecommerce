@@ -56,8 +56,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     }
 
     // TAX INVOICE Title
-    doc.moveDown(1)
-    doc.fillColor("#000000").fontSize(14).font(KELSON_BOLD).text("TAX INVOICE", { align: "center" })
+    doc.y = 120
+    doc.fillColor("#000000").fontSize(14).font(KELSON_BOLD).text("TAX INVOICE", 0, 120, { align: "center" })
     doc.moveDown(0.5)
     doc.strokeColor("#000000").lineWidth(1).moveTo(40, doc.y).lineTo(width - 40, doc.y).stroke()
     doc.moveDown(1)
