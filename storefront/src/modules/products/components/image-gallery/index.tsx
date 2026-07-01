@@ -93,10 +93,18 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
             key={`thumb-${image.id}`}
             onClick={(e) => {
               e.preventDefault()
+              const startTime = performance.now()
+              console.log(`[Gallery] Thumbnail clicked: ${image.id}`)
               const container = document.getElementById('main-gallery-container')
               const el = document.getElementById(`gallery-img-${image.id}`)
               if (container && el) {
+                console.log(`[Gallery] Current scrollTop: ${container.scrollTop}, Target offsetTop: ${el.offsetTop}`)
                 container.scrollTop = el.offsetTop
+                setTimeout(() => {
+                  console.log(`[Gallery] Scroll execution time: ${(performance.now() - startTime).toFixed(2)}ms. Final scrollTop: ${container.scrollTop}`)
+                }, 100)
+              } else {
+                console.log(`[Gallery] Element missing! container: ${!!container}, el: ${!!el}`)
               }
             }}
             className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-transparent hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
@@ -119,7 +127,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
         {/* Main Gallery */}
         <div 
           id="main-gallery-container"
-          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] lg:relative snap-x lg:snap-y snap-mandatory no-scrollbar lg:pb-0 scroll-smooth"
+          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar lg:pb-0 scroll-smooth"
         >
           {images.map((image, index) => {
             return (
@@ -140,6 +148,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                     alt={`Product image ${index + 1}`}
                     priority={index === 0}
                     unoptimized={true}
+                    onLoad={() => console.log(`[Gallery] Main image loaded: ${image.id}`)}
                   />
                 )}
               </div>

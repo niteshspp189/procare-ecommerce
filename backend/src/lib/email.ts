@@ -139,7 +139,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.fontSize(6).font(KELSON_BOLD)
     doc.text("S.NO.", 40, thY)
     doc.text("PRODUCT NAME", 70, thY)
-    doc.text("HSN", 220, thY, { align: "center", width: 40 })
+    // doc.text("HSN", 220, thY, { align: "center", width: 40 })
     doc.text("QTY", 260, thY, { align: "center", width: 30 })
     doc.text("UNIT PRICE", 290, thY, { align: "center", width: 50 })
     doc.text("UNIT DISCOUNT", 340, thY, { align: "center", width: 60 })
@@ -169,11 +169,11 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       subtotalValue += total
       
       doc.text(i.toString(), 40, currentY)
-      doc.text(item.title || "Unknown Product", 70, currentY, { width: 140 })
+      doc.text(item.title || "Unknown Product", 70, currentY, { width: 180 })
       
-      const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 140, fontSize: 6 })
+      const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 180, fontSize: 6 })
       
-      doc.text(hsn, 220, currentY, { align: "center", width: 40 })
+      // doc.text(hsn, 220, currentY, { align: "center", width: 40 })
       doc.text(qty.toString(), 260, currentY, { align: "center", width: 30 })
       doc.text(unitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
       doc.text(discount.toFixed(2), 340, currentY, { align: "center", width: 60 })
@@ -196,8 +196,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     const finalShipping = shippingFee / 100
     if (finalShipping > 0) {
       doc.text("-", 40, currentY)
-      doc.text("Shipping Fee", 70, currentY, { width: 140 })
-      doc.text("-", 220, currentY, { align: "center", width: 40 })
+      doc.text("Shipping Fee", 70, currentY, { width: 180 })
+      // doc.text("-", 220, currentY, { align: "center", width: 40 })
       doc.text("1", 260, currentY, { align: "center", width: 30 })
       doc.text(finalShipping.toFixed(2), 290, currentY, { align: "center", width: 50 })
       doc.text("0.00", 340, currentY, { align: "center", width: 60 })
