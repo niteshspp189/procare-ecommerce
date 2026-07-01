@@ -99,7 +99,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
               const el = document.getElementById(`gallery-img-${image.id}`)
               if (container && el) {
                 console.log(`[Gallery] Current scrollTop: ${container.scrollTop}, Target offsetTop: ${el.offsetTop}`)
-                container.scrollTop = el.offsetTop
+                container.scrollTo({ top: el.offsetTop, behavior: 'smooth' })
                 setTimeout(() => {
                   console.log(`[Gallery] Scroll execution time: ${(performance.now() - startTime).toFixed(2)}ms. Final scrollTop: ${container.scrollTop}`)
                 }, 100)
@@ -127,7 +127,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
         {/* Main Gallery */}
         <div 
           id="main-gallery-container"
-          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar lg:pb-0 scroll-smooth"
+          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] min-h-0 lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar lg:pb-0"
         >
           {images.map((image, index) => {
             return (
@@ -148,7 +148,6 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                     alt={`Product image ${index + 1}`}
                     priority={index === 0}
                     unoptimized={true}
-                    onLoad={() => console.log(`[Gallery] Main image loaded: ${image.id}`)}
                   />
                 )}
               </div>
