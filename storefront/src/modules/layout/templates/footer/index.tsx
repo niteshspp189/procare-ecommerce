@@ -79,10 +79,10 @@ export default async function Footer() {
             <span>© {new Date().getFullYear()} Pro Premium Care. All rights reserved.</span>
           </div>
           <div style={s.bottomLinks as any}>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Terms &amp; Conditions</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Shipping &amp; Exchange</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Privacy Policy</LocalizedClientLink>
-            <LocalizedClientLink href="/" style={s.link} className="hover:text-white mb-0">Refund Policy</LocalizedClientLink>
+            <LocalizedClientLink href="/terms-and-conditions" style={s.link} className="hover:text-white mb-0">Terms &amp; Conditions</LocalizedClientLink>
+            <LocalizedClientLink href="/shipping-and-exchange" style={s.link} className="hover:text-white mb-0">Shipping &amp; Exchange</LocalizedClientLink>
+            <LocalizedClientLink href="/privacy-policy" style={s.link} className="hover:text-white mb-0">Privacy Policy</LocalizedClientLink>
+            <LocalizedClientLink href="/refund-policy" style={s.link} className="hover:text-white mb-0">Refund Policy</LocalizedClientLink>
           </div>
         </div>
       </div>
