@@ -94,10 +94,9 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
             onClick={(e) => {
               e.preventDefault()
               const container = document.getElementById('main-gallery-container')
-              const el = document.getElementById(image.id)
+              const el = document.getElementById(`gallery-img-${image.id}`)
               if (container && el) {
-                const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop
-                container.scrollTo({ top, behavior: 'smooth' })
+                container.scrollTop = el.offsetTop
               }
             }}
             className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-transparent hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
@@ -120,14 +119,14 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
         {/* Main Gallery */}
         <div 
           id="main-gallery-container"
-          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] lg:relative snap-x snap-mandatory no-scrollbar lg:pb-0"
+          className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto lg:h-[calc(100vh-120px)] lg:relative snap-x lg:snap-y snap-mandatory no-scrollbar lg:pb-0 scroll-smooth"
         >
           {images.map((image, index) => {
             return (
               <div
                 key={image.id}
                 className="relative aspect-square w-full flex-shrink-0 snap-center lg:snap-align-none overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up"
-                id={image.id}
+                id={`gallery-img-${image.id}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {index === 0 && discountPercentage && discountPercentage > 0 ? (
@@ -157,10 +156,9 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                 onClick={(e) => {
                   e.preventDefault()
                   const container = document.getElementById('main-gallery-container')
-                  const el = document.getElementById(image.id)
+                  const el = document.getElementById(`gallery-img-${image.id}`)
                   if (container && el) {
-                    const left = el.getBoundingClientRect().left - container.getBoundingClientRect().left + container.scrollLeft
-                    container.scrollTo({ left, behavior: 'smooth' })
+                    container.scrollLeft = el.offsetLeft
                   }
                 }}
                 className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-gray-200 hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
