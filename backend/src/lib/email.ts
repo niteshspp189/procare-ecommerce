@@ -35,8 +35,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     const fontBoldPath = path.join(process.cwd(), "public", "KelsonSans-Bold.otf")
     const fontRegPath = path.join(process.cwd(), "public", "KelsonSans-Regular.otf")
-    let KELSON_BOLD = KELSON_BOLD
-    let KELSON_REGULAR = KELSON_REGULAR
+    let KELSON_BOLD = "Helvetica-Bold"
+    let KELSON_REGULAR = "Helvetica"
     try {
       doc.registerFont('Kelson-Bold', fontBoldPath)
       doc.registerFont('Kelson-Regular', fontRegPath)
