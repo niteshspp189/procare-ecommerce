@@ -41,7 +41,7 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
 
     try {
       const order = await this.razorpay_.orders.create({
-        amount: Math.round(amount * 100),
+        amount: Math.round(amount) * 100,
         currency: currency_code.toUpperCase(),
         receipt: resource_id,
         payment_capture: 1,
@@ -91,7 +91,7 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
     
     try {
       await this.razorpay_.payments.refund(paymentId, {
-        amount: Math.round(amount * 100),
+        amount: Math.round(amount) * 100,
       })
       
       return {

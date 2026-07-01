@@ -95,7 +95,7 @@ export default function QuickBuy({
                 quantity: 1,
                 countryCode
             })
-            router.push(`/${countryCode}/checkout`)
+            router.push(`/checkout?step=address`)
         } catch (err) {
             console.error(err)
         } finally {
