@@ -85,7 +85,7 @@ const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) 
 
 const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
   return (
-    <div className="flex flex-col lg:flex-row items-start relative w-full lg:h-[calc(100vh-120px)] lg:overflow-hidden">
+    <div className="flex flex-col lg:flex-row items-start relative w-full lg:absolute lg:inset-0 lg:overflow-hidden gap-x-4">
       {/* Desktop Thumbnail Sidebar */}
       <div className="hidden lg:flex flex-col gap-y-3 h-full overflow-y-auto no-scrollbar py-2">
         {images.map((image, index) => (

@@ -238,7 +238,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>}
           </div>
 
-          <div className="w-full lg:w-[46%] min-w-0 lg:sticky lg:top-[120px] self-start z-10">
+          <div className="w-full lg:w-[46%] min-w-0 relative z-10">
             <ImageGallery images={images} discountPercentage={discountPercentage} />
           </div>
 
