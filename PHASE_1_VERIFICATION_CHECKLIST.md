@@ -114,6 +114,16 @@ Once the client approves the staging environment (`shop.mvshoecare.com`), the fo
 
 ---
 
+## 🛠️ Part 4: Recent Bug Fixes & Refinements (July Updates)
+
+- [x] **Product Page Gallery Math & Scroll**: Fixed the CSS layout constraints so the left side (images) and right side (product info) dynamically stretch to the exact same height on desktop. The images scroll internally without leaving empty white space at the bottom.
+- [x] **Scroll to Top on Thumbnail Click**: Ensured that clicking a thumbnail (mobile or desktop) auto-scrolls the main window to the top to immediately bring the selected image into view.
+- [x] **Mobile Pinch-to-Zoom Isolation**: Integrated `react-zoom-pan-pinch` so users can perform native two-finger zoom gestures directly on the mobile images without accidentally zooming the entire webpage layout.
+- [x] **PDF Invoice Clean-Up**: Hidden the unused "HSN" column in the email PDF invoices and proportionally expanded the "Product Name" column to utilize the extra width.
+- [x] **Our Story Banner**: Updated the primary banner image on the "Our Story" page with the new client-provided high-resolution asset.
+
+---
+
 ## 📋 Summary of Codebase & DevOps Health
 - **TypeScript Compilation**: `npx tsc --noEmit` resolved across all modules (**0 errors**).
 - **Production RDS Sync**: Live AWS PostgreSQL database fully synchronized with local 45-product catalog.
