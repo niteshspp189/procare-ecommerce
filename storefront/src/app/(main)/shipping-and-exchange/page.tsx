@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function ShippingAndExchange() {
   return (
-    <div className="py-12 flex flex-col items-center justify-center min-h-[50vh] px-4">
+    <div className="py-12 flex flex-col items-center justify-center min-h-[50vh] px-4 font-sans">
       <h1 className="text-4xl font-bold mb-4 text-center">Shipping & Exchange</h1>
       <p className="text-gray-600 max-w-3xl text-center mb-6">
         Thank you for visiting and shopping with us. Following are the terms and conditions that constitute our Shipping & Exchange Policy. All orders are processed within 2-3 business days. Orders are not shipped or delivered on weekends or holidays.

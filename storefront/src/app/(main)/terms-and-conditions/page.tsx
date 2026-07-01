@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function TermsAndConditions() {
   return (
-    <div className="py-12 flex flex-col items-center justify-center min-h-[50vh] px-4">
+    <div className="py-12 flex flex-col items-center justify-center min-h-[50vh] px-4 font-sans">
       <h1 className="text-4xl font-bold mb-4 text-center">Terms & Conditions</h1>
       <p className="text-gray-600 max-w-3xl text-center mb-6">
         Welcome to our website. If you continue to browse and use this website, you are agreeing to comply with and be bound by the following terms and conditions of use, which together with our privacy policy govern our relationship with you in relation to this website.

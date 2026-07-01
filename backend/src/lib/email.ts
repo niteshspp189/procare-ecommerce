@@ -95,6 +95,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.text("GSTIN No. 09AAFC M8351 G1Z9", { lineGap: 1 })
     doc.text("Website: http://www.propremiumcare.com", { lineGap: 1 })
     doc.text("Email: mktg2@mvscindia.com", { lineGap: 1 })
+    const soldByMaxY = doc.y
 
     // 3. INVOICE DETAILS
     const d = new Date(order.created_at)
@@ -131,7 +132,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.moveDown(3)
 
     // TABLE HEADERS
-    const tableTop = Math.max(doc.y, sectionY + 120)
+    const tableTop = Math.max(doc.y, soldByMaxY, sectionY + 120) + 15
     doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, tableTop).lineTo(width - 40, tableTop).stroke()
     
     const thY = tableTop + 5
