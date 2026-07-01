@@ -96,7 +96,8 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
               const container = document.getElementById('main-gallery-container')
               const el = document.getElementById(image.id)
               if (container && el) {
-                container.scrollTo({ top: el.offsetTop, behavior: 'smooth' })
+                const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop
+                container.scrollTo({ top, behavior: 'smooth' })
               }
             }}
             className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-transparent hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
@@ -108,7 +109,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                 fill
                 className="object-cover p-1"
                 sizes="64px"
-                unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
+                unoptimized={true}
               />
             )}
           </button>
@@ -125,7 +126,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
             return (
               <div
                 key={image.id}
-                className="relative aspect-square w-full flex-shrink-0 snap-center lg:snap-align-none overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up scroll-mt-24"
+                className="relative aspect-square w-full flex-shrink-0 snap-center lg:snap-align-none overflow-hidden bg-white solid-box p-4 md:p-8 animate-fade-in-up"
                 id={image.id}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -139,7 +140,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                     src={image.url}
                     alt={`Product image ${index + 1}`}
                     priority={index === 0}
-                    unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
+                    unoptimized={true}
                   />
                 )}
               </div>
@@ -155,9 +156,11 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                 key={`mob-thumb-${image.id}`}
                 onClick={(e) => {
                   e.preventDefault()
+                  const container = document.getElementById('main-gallery-container')
                   const el = document.getElementById(image.id)
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
+                  if (container && el) {
+                    const left = el.getBoundingClientRect().left - container.getBoundingClientRect().left + container.scrollLeft
+                    container.scrollTo({ left, behavior: 'smooth' })
                   }
                 }}
                 className="relative w-16 aspect-[1/1] rounded-lg overflow-hidden border border-gray-200 hover:border-black transition-all bg-gray-50 flex-shrink-0 cursor-pointer"
@@ -169,7 +172,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                     fill
                     className="object-cover p-1"
                     sizes="64px"
-                    unoptimized={image.url?.includes("/static") || image.url?.includes("localhost:9000")}
+                    unoptimized={true}
                   />
                 )}
               </button>
