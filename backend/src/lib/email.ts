@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer"
+import path from "path"
+
 let PDFDocument: any
 try {
   PDFDocument = require("pdfkit")
@@ -22,98 +24,194 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     throw new Error("PDF generation library (pdfkit) is not installed. Please run 'npm install pdfkit' in the backend.")
   }
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50 })
+    const doc = new PDFDocument({ margin: 40, size: 'A4' })
     const buffers: Buffer[] = []
 
     doc.on("data", (chunk) => buffers.push(chunk))
     doc.on("end", () => resolve(Buffer.concat(buffers)))
     doc.on("error", (err) => reject(err))
 
-    // Header
-    doc.fillColor("#444444").fontSize(20).font("Helvetica-Bold").text("INVOICE", 50, 50)
-    doc.fillColor("#000000").fontSize(16).text("PRO", 200, 50, { align: "right" })
-    doc.fillColor("#666666").fontSize(10).font("Helvetica").text("MV Shoe Care Pvt Ltd", 200, 68, { align: "right" })
-    doc.text("A-13, Sector – 59, Noida, UP 201301, India", 200, 82, { align: "right" })
+    const width = doc.page.width
 
-    doc.moveDown()
-    doc.strokeColor("#eeeeee").lineWidth(1).moveTo(50, 115).lineTo(550, 115).stroke()
+    // Logo (Centered Top)
+    try {
+      doc.image(path.join(__dirname, "..", "..", "public", "logo.png"), (width - 100) / 2, 40, { width: 100 })
+    } catch(e) {
+      // fallback if logo not found
+      doc.fillColor("#000").fontSize(24).font("Helvetica-Bold").text("PRO>", 0, 40, { align: "center" })
+    }
 
-    // Order Info
-    doc.fontSize(10).text(`Order Number: OD${(order.display_id || order.id).toString().padStart(8, '0')}`, 50, 130)
-    
-    const d = new Date(order.created_at)
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    const formattedDate = `${d.getDate()}-${monthNames[d.getMonth()]}-${d.getFullYear()}`
-    doc.text(`Order Date: ${formattedDate}`, 50, 145)
-    doc.text(`Email: ${order.email}`, 50, 160)
+    // TAX INVOICE Title
+    doc.moveDown(1)
+    doc.fillColor("#000000").fontSize(14).font("Helvetica-Bold").text("TAX INVOICE", { align: "center" })
+    doc.moveDown(0.5)
+    doc.strokeColor("#000000").lineWidth(1).moveTo(40, doc.y).lineTo(width - 40, doc.y).stroke()
+    doc.moveDown(1)
 
-    // Billing/Shipping
-    doc.fontSize(12).text("Shipping Address", 50, 190)
-    doc.fontSize(10).text(`${order.shipping_address?.first_name || ''} ${order.shipping_address?.last_name || ''}`, 50, 210)
-    doc.text(`${order.shipping_address?.address_1 || ''}`, 50, 225)
-    doc.text(`${order.shipping_address?.city || ''}, ${order.shipping_address?.province || ''} ${order.shipping_address?.postal_code || ''}`, 50, 240)
-    doc.text(`${order.shipping_address?.country_code?.toUpperCase() || ''}`, 50, 255)
+    const sectionY = doc.y
 
-    // Table Header
-    const tableTop = 300
-    doc.fontSize(10).font("Helvetica-Bold")
-    doc.text("Item", 50, tableTop)
-    doc.text("Quantity", 280, tableTop, { width: 90, align: "right" })
-    doc.text("Unit Price", 370, tableTop, { width: 90, align: "right" })
-    doc.text("Total", 460, tableTop, { width: 90, align: "right" })
-
-    doc.strokeColor("#eeeeee").lineWidth(1).moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke()
+    // 1. SHIPPING ADDRESS
+    doc.fontSize(8).font("Helvetica-Bold").text("SHIPPING ADDRESS:", 40, sectionY)
     doc.font("Helvetica")
+    const addr = order.shipping_address || {}
+    doc.text(`${addr.first_name || ''} ${addr.last_name || ''}`, 40, doc.y + 5)
+    if (addr.address_1) doc.text(addr.address_1)
+    if (addr.address_2) doc.text(addr.address_2)
+    if (addr.city || addr.province) doc.text(`${addr.city || ''}, ${addr.province || ''} ${addr.postal_code || ''}`)
+    if (addr.country_code) doc.text(addr.country_code.toUpperCase())
 
-    // Items
-    let i = 0
-    let currentY = tableTop + 30
+    // 2. SOLD BY
+    doc.font("Helvetica-Bold").text("SOLD BY:", 200, sectionY)
+    doc.font("Helvetica")
+    doc.text("M.V. Shoe Care Pvt. Ltd.", 200, doc.y + 5)
+    doc.text("Sector 59, Noida, Uttar Pradesh, India")
+    doc.text("A-13")
+    doc.text("Gautam Buddha Nagar 201301")
+    doc.text("Uttar Pradesh")
+    doc.text("India")
+    doc.text("State Code : 09")
+    doc.text("Ph: 8588834954")
+    doc.text("GSTIN No. 09AAFC M8351 G1Z9")
+    doc.text("Website: http://www.propremiumcare.com")
+    doc.text("Email: mktg2@mvscindia.com")
+
+    // 3. INVOICE DETAILS
+    const d = new Date(order.created_at)
+    const formattedDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`
+    const formattedId = `OD${(order.display_id || order.id || '0001').toString().padStart(8, '0')}`
+    
+    doc.font("Helvetica-Bold").text("INVOICE DETAILS:", 380, sectionY)
+    doc.font("Helvetica")
+    
+    const detailsTop = doc.y + 5
+    const labelX = 380
+    const valueX = 460
+    
+    doc.text("INVOICE NO.", labelX, detailsTop)
+    doc.text(`: ${formattedId}`, valueX, detailsTop)
+    doc.text("INVOICE DATE", labelX, doc.y)
+    doc.text(`: ${formattedDate}`, valueX, doc.y - 9)
+    doc.text("ORDER NO.", labelX, doc.y)
+    doc.text(`: ${formattedId}`, valueX, doc.y - 9)
+    doc.text("ORDER DATE", labelX, doc.y)
+    doc.text(`: ${formattedDate}`, valueX, doc.y - 9)
+    doc.text("CHANNEL", labelX, doc.y)
+    doc.text(`: Propremiumcare`, valueX, doc.y - 9)
+    doc.text("PAYMENT METHOD", labelX, doc.y)
+    // simplistic check for payment method
+    let payMethod = "Prepaid"
+    if (order.payments && order.payments.length > 0) {
+      if (order.payments[0].provider_id?.includes("cod") || order.payments[0].provider_id?.includes("manual")) {
+        payMethod = "COD"
+      }
+    }
+    doc.text(`: ${payMethod}`, valueX, doc.y - 9)
+
+    doc.moveDown(3)
+
+    // TABLE HEADERS
+    const tableTop = Math.max(doc.y, sectionY + 120)
+    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, tableTop).lineTo(width - 40, tableTop).stroke()
+    
+    const thY = tableTop + 5
+    doc.fontSize(6).font("Helvetica-Bold")
+    doc.text("S.NO.", 40, thY)
+    doc.text("PRODUCT NAME", 70, thY)
+    doc.text("HSN", 220, thY, { align: "center", width: 40 })
+    doc.text("QTY", 260, thY, { align: "center", width: 30 })
+    doc.text("UNIT PRICE", 290, thY, { align: "center", width: 50 })
+    doc.text("UNIT DISCOUNT", 340, thY, { align: "center", width: 60 })
+    doc.text("TAXABLE VALUE", 400, thY, { align: "center", width: 60 })
+    doc.text("IGST (Value | %)", 460, thY, { align: "center", width: 50 })
+    doc.text("TOTAL", 510, thY, { align: "right", width: 45 })
+
+    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, thY + 12).lineTo(width - 40, thY + 12).stroke()
+    
+    // TABLE ROWS
+    doc.font("Helvetica")
+    let currentY = thY + 20
     let subtotalValue = 0
+    let i = 1
+
     for (const item of order.items || []) {
-      const itemTotal = (item.unit_price || 0) * (item.quantity || 0)
-      subtotalValue += itemTotal
+      const qty = item.quantity || 1
+      const unitPrice = (item.unit_price || 0) / 100
+      const discount = (item.discount_total || 0) / 100 / qty // approx per unit
+      const tax = (item.tax_total || 0) / 100
+      const taxRate = item.tax_rate || 18
+      const taxable = (item.subtotal || ((unitPrice - discount) * qty * 100)) / 100
+      const total = (item.total || ((taxable + tax) * 100)) / 100
       
-      doc.text(item.title || "Unknown Product", 50, currentY)
-      doc.text((item.quantity || 0).toString(), 280, currentY, { width: 90, align: "right" })
-      doc.text(`${((item.unit_price || 0) / 100).toFixed(2)}`, 370, currentY, { width: 90, align: "right" })
-      doc.text(`${(itemTotal / 100).toFixed(2)}`, 460, currentY, { width: 90, align: "right" })
+      const hsn = item.variant?.sku || "34051000"
       
-      currentY += 20
+      subtotalValue += total
+      
+      doc.text(i.toString(), 40, currentY)
+      doc.text(item.title || "Unknown Product", 70, currentY, { width: 140 })
+      
+      const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 140, fontSize: 6 })
+      
+      doc.text(hsn, 220, currentY, { align: "center", width: 40 })
+      doc.text(qty.toString(), 260, currentY, { align: "center", width: 30 })
+      doc.text(unitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
+      doc.text(discount.toFixed(2), 340, currentY, { align: "center", width: 60 })
+      doc.text(taxable.toFixed(2), 400, currentY, { align: "center", width: 60 })
+      doc.text(`${tax.toFixed(2)} | ${taxRate}%`, 460, currentY, { align: "center", width: 50 })
+      doc.text(total.toFixed(2), 510, currentY, { align: "right", width: 45 })
+      
+      currentY += Math.max(15, titleHeight + 5)
       i++
     }
 
-    // Totals
-    const totalsY = currentY + 30
-    doc.strokeColor("#eeeeee").lineWidth(1).moveTo(350, totalsY - 10).lineTo(550, totalsY - 10).stroke()
+    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, currentY).lineTo(width - 40, currentY).stroke()
+    currentY += 5
     
-    // Subtotal
-    doc.text("Subtotal:", 350, totalsY, { width: 100, align: "right" })
-    doc.text(`${(subtotalValue / 100).toFixed(2)}`, 450, totalsY, { width: 100, align: "right" })
-    
-    // Shipping
-    let shippingTotal = order.shipping_total ?? order.summary?.shipping_total ?? 0
-    if (subtotalValue > 0 && subtotalValue < 49900 && (!shippingTotal || shippingTotal === 0)) {
-      shippingTotal = 8000
+    // Add Shipping if any
+    let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? 0
+    if (subtotalValue > 0 && subtotalValue < 499 && (!shippingFee || shippingFee === 0)) {
+        shippingFee = 8000
     }
-    doc.text("Shipping:", 350, totalsY + 15, { width: 100, align: "right" })
-    doc.text(`${(shippingTotal / 100).toFixed(2)}`, 450, totalsY + 15, { width: 100, align: "right" })
+    const finalShipping = shippingFee / 100
+    if (finalShipping > 0) {
+      doc.text("-", 40, currentY)
+      doc.text("Shipping Fee", 70, currentY, { width: 140 })
+      doc.text("-", 220, currentY, { align: "center", width: 40 })
+      doc.text("1", 260, currentY, { align: "center", width: 30 })
+      doc.text(finalShipping.toFixed(2), 290, currentY, { align: "center", width: 50 })
+      doc.text("0.00", 340, currentY, { align: "center", width: 60 })
+      doc.text(finalShipping.toFixed(2), 400, currentY, { align: "center", width: 60 })
+      doc.text(`0.00 | 0%`, 460, currentY, { align: "center", width: 50 })
+      doc.text(finalShipping.toFixed(2), 510, currentY, { align: "right", width: 45 })
+      currentY += 15
+      doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, currentY).lineTo(width - 40, currentY).stroke()
+      currentY += 5
+      subtotalValue += finalShipping
+    }
 
-    // Taxes
-    const taxTotal = order.tax_total ?? order.summary?.tax_total ?? 0
-    doc.text("Taxes:", 350, totalsY + 30, { width: 100, align: "right" })
-    doc.text(`${(taxTotal / 100).toFixed(2)}`, 450, totalsY + 30, { width: 100, align: "right" })
-
-    // Total
-    const rawTotal = order.total ?? order.summary?.total ?? (subtotalValue + shippingTotal + taxTotal)
-    const finalTotal = (rawTotal === subtotalValue && subtotalValue < 49900 && shippingTotal === 8000)
-      ? subtotalValue + 8000
-      : rawTotal
-    doc.font("Helvetica-Bold")
-    doc.text("Total:", 350, totalsY + 50, { width: 100, align: "right" })
-    doc.text(`INR ${(finalTotal / 100).toFixed(2)}`, 450, totalsY + 50, { width: 100, align: "right" })
-
-    // Footer
-    doc.fontSize(10).fillColor("#999999").text("Thank you for your purchase!", 50, 700, { align: "center", width: 500 })
+    // NET TOTAL
+    doc.font("Helvetica-Bold").fontSize(8)
+    doc.text("NET TOTAL (In Value)", 340, currentY, { align: "right", width: 120 })
+    doc.text(`Rs. ${subtotalValue.toFixed(2)}`, 510, currentY, { align: "right", width: 45 })
+    currentY += 15
+    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(340, currentY).lineTo(width - 40, currentY).stroke()
+    
+    // REVERSE CHARGE TEXT
+    currentY += 5
+    doc.font("Helvetica").fontSize(7)
+    doc.text("Whether tax is payable under reverse charge- No", 380, currentY, { align: "right", width: 175 })
+    
+    // SIGNATURE BOX
+    currentY += 30
+    const sigWidth = 140
+    const sigHeight = 50
+    doc.strokeColor("#aaaaaa").lineWidth(1).rect(40, currentY, sigWidth, sigHeight).stroke()
+    try {
+      doc.image(path.join(__dirname, "..", "..", "public", "akumar-signature.png"), 45, currentY + 5, { width: sigWidth - 10, align: 'center', valign: 'center' })
+    } catch(e) {
+      doc.fontSize(10).text("Akumar", 40, currentY + 20, { width: sigWidth, align: "center" })
+    }
+    
+    doc.fontSize(7).fillColor("#333333").text("Authorized Signature for M.V. Shoe Care Pvt. Ltd.", 40, currentY + sigHeight + 5, { width: sigWidth })
 
     doc.end()
   })
@@ -157,17 +255,17 @@ export async function sendOrderConfirmationEmail(order: any) {
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">
           <!-- Brand Header -->
-          <div style="background-color: #000000; padding: 24px; text-align: center; border-bottom: 3px solid #0bb799;">
+          <div style="background-color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #00bda5;">
             <a href="${storeUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
               <img src="${storeUrl}/images/logos/logo.png" alt="PRO" style="height: 48px; width: auto; max-width: 200px; display: inline-block; vertical-align: middle;" />
             </a>
           </div>
           <!-- Content -->
           <div style="padding: 32px 24px;">
-            <h2 style="color: #0f172a; margin-top: 0; font-size: 22px;">Thank You for Your Order!</h2>
-            <p style="color: #334155; font-size: 15px; line-height: 1.6;">Hello,</p>
+            <h2 style="color: #0f172a; margin-top: 0; font-size: 22px; text-align: center;">Thank You for Your Order!</h2>
+            <p style="color: #334155; font-size: 15px; line-height: 1.6;">Hello ${order.shipping_address?.first_name || ''},</p>
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">Your order <strong style="color: #0f172a;">#${formattedId}</strong> has been placed successfully on ${formattedDate}.</p>
-            ${pdfBuffer ? `<p style="color: #334155; font-size: 15px; line-height: 1.6;">We've attached your official invoice to this email for your records.</p>` : `<p style="color: #334155; font-size: 15px; line-height: 1.6;">Your invoice will be available in your dashboard shortly.</p>`}
+            ${pdfBuffer ? \`<p style="color: #334155; font-size: 15px; line-height: 1.6;">We've attached your official invoice to this email for your records.</p>\` : \`<p style="color: #334155; font-size: 15px; line-height: 1.6;">Your invoice will be available in your dashboard shortly.</p>\`}
             
             <div style="background: #f8fafc; padding: 20px; margin: 24px 0; border: 1px solid #e2e8f0; border-radius: 10px;">
               <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Order Summary</h3>
@@ -177,7 +275,7 @@ export async function sendOrderConfirmationEmail(order: any) {
             
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">You can track your shipping and order status anytime in your account dashboard.</p>
             <div style="text-align: center; margin: 28px 0 10px 0;">
-              <a href="${storeUrl}/account/orders" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
+              <a href="${storeUrl}/account/orders" style="display: inline-block; background: #00bda5; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
             </div>
           </div>
           <!-- Footer -->
@@ -191,7 +289,7 @@ export async function sendOrderConfirmationEmail(order: any) {
     if (pdfBuffer) {
         mailOptions.attachments = [
             {
-              filename: `Invoice_${formattedId}.pdf`,
+              filename: \`Invoice_${formattedId}.pdf\`,
               content: pdfBuffer,
             },
         ]
