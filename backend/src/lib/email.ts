@@ -228,12 +228,12 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     const sigHeight = 50
     doc.strokeColor("#aaaaaa").lineWidth(1).rect(40, currentY, sigWidth, sigHeight).stroke()
     try {
-      doc.image(path.join(process.cwd(), "public", "akumar-signature.png"), 45, currentY + 5, { width: sigWidth - 10, align: 'center', valign: 'center' })
+      doc.image(path.join(process.cwd(), "public", "akumar-signature.png"), 45, currentY + 5, { fit: [sigWidth - 10, sigHeight - 10], align: 'center', valign: 'center' })
     } catch(e) {
       doc.fontSize(10).text("Akumar", 40, currentY + 20, { width: sigWidth, align: "center" })
     }
     
-    doc.fontSize(7).fillColor("#333333").text("Authorized Signature for M.V. Shoe Care Pvt. Ltd.", 40, currentY + sigHeight + 5, { width: sigWidth })
+    doc.fontSize(7).fillColor("#333333").text("Authorized Signature for M.V. Shoe Care Pvt. Ltd.", 40, currentY + sigHeight + 15, { width: sigWidth })
 
     doc.end()
   })
