@@ -150,10 +150,6 @@ export default async function CategoryTemplate({
             style={s.heroBg as any} 
             alt="Banner" 
           />
-          <div style={s.heroContent as any}>
-            <h1 style={s.heroTitle as any} className="animate-fade-in-up">{category.name}</h1>
-            <p style={s.heroSub as any} className="animate-fade-in-up delay-100">{category.description || "Finish line rich results every day"}</p>
-          </div>
         </div>
 
         <div style={s.body as any} className="hero-flex">
