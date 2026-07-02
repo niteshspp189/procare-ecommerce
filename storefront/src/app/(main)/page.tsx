@@ -128,7 +128,7 @@ export default async function StagingHome(props: {
                   <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Shoe Care</h3>
                 </LocalizedClientLink>
                 <LocalizedClientLink href="/categories/shoe-care">
-                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                  <Button variant="secondary" className="border-black text-black bg-transparent px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all hover:bg-black hover:text-white">Explore</Button>
                 </LocalizedClientLink>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default async function StagingHome(props: {
                   <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Insoles</h3>
                 </LocalizedClientLink>
                 <LocalizedClientLink href="/categories/insoles">
-                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                  <Button variant="secondary" className="border-black text-black bg-transparent px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all hover:bg-black hover:text-white">Explore</Button>
                 </LocalizedClientLink>
               </div>
             </div>
@@ -166,7 +166,7 @@ export default async function StagingHome(props: {
                   <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Foot Care</h3>
                 </LocalizedClientLink>
                 <LocalizedClientLink href="/categories/foot-care">
-                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                  <Button variant="secondary" className="border-black text-black bg-transparent px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all hover:bg-black hover:text-white">Explore</Button>
                 </LocalizedClientLink>
               </div>
             </div>
@@ -185,7 +185,7 @@ export default async function StagingHome(props: {
                   <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Accessories</h3>
                 </LocalizedClientLink>
                 <LocalizedClientLink href="/categories/accessories">
-                  <Button variant="primary" className="px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all">Explore</Button>
+                  <Button variant="secondary" className="border-black text-black bg-transparent px-8 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm group-hover:shadow transition-all hover:bg-black hover:text-white">Explore</Button>
                 </LocalizedClientLink>
               </div>
             </div>

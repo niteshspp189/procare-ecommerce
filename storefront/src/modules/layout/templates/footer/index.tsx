@@ -1,4 +1,5 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { retrieveCustomer } from "@lib/data/customer"
 
 const s = {
   footer: { backgroundColor: '#000', color: '#ccc', paddingTop: '40px', paddingBottom: '24px' },
@@ -17,14 +18,16 @@ const s = {
 }
 
 export default async function Footer() {
+  const customer = await retrieveCustomer().catch(() => null)
+
   return (
     <footer style={s.footer as any} className="animate-fade-in border-t border-gray-900">
       <div style={s.inner as any} className="px-4 sm:px-0">
         <div style={s.grid as any} className="responsive-grid-4">
           <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <h4 style={s.colTitle as any} className="text-gray-200">CUSTOMER DESK</h4>
-            <LocalizedClientLink href="/account/orders" style={s.link} className="hover:text-white transition-colors">Track Order</LocalizedClientLink>
-            <LocalizedClientLink href="/account/orders" style={s.link} className="hover:text-white transition-colors">My Orders</LocalizedClientLink>
+            <LocalizedClientLink href={customer ? "/account/orders" : "/account"} style={s.link} className="hover:text-white transition-colors">Track Order</LocalizedClientLink>
+            <LocalizedClientLink href={customer ? "/account/orders" : "/account"} style={s.link} className="hover:text-white transition-colors">My Orders</LocalizedClientLink>
             <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Return Or Replace</LocalizedClientLink>
             <LocalizedClientLink href="/contact" style={s.link} className="hover:text-white transition-colors">Help / Contact</LocalizedClientLink>
             <LocalizedClientLink href="/faq" style={s.link} className="hover:text-white transition-colors">FAQ</LocalizedClientLink>

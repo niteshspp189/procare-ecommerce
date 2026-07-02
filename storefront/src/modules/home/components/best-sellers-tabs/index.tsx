@@ -56,10 +56,10 @@ export default function BestSellersTabs({
                 {activeCategory && (
                     <div className="text-center mt-12">
                         <a
-                            href={`/categories/${activeCategory.handle}`}
-                            className="inline-block bg-[#00b5a4] text-white px-8 py-3 rounded-full font-bold text-sm hover:bg-[#009d8e] transition-all"
+                            href={`/shop`}
+                            className="inline-block border border-black bg-transparent text-black px-8 py-3 rounded-full font-bold text-sm hover:bg-black hover:text-white transition-all"
                         >
-                            View All {activeCategory.name}
+                            View All
                         </a>
                     </div>
                 )}
