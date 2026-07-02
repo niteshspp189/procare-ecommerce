@@ -253,9 +253,9 @@ export default async function StagingHome(props: {
         {/* CUSTOMER REVIEWS CAROUSEL */}
         <Section title="What Our Customers Say" className="bg-white overflow-hidden !py-4">
           <div className="w-full relative max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <CarouselWrapper>
               {[1, 2, 3, 4, 5].map((num) => (
-                <div key={num} className="snap-center shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] flex items-center justify-center">
+                <div key={num} className="snap-center shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] flex items-center justify-center p-2">
                   <img 
                     src={`/images/landing-page-images/review-${num}.png`} 
                     alt={`Customer Review ${num}`} 
@@ -263,13 +263,7 @@ export default async function StagingHome(props: {
                   />
                 </div>
               ))}
-            </div>
-            {/* Simple CSS to hide scrollbar while keeping functionality */}
-            <style dangerouslySetInnerHTML={{__html: `
-              .hide-scrollbar::-webkit-scrollbar {
-                display: none;
-              }
-            `}} />
+            </CarouselWrapper>
           </div>
         </Section>
 
