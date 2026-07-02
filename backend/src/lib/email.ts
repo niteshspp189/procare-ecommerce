@@ -157,12 +157,12 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     for (const item of order.items || []) {
       const qty = item.quantity || 1
-      const unitPrice = (item.unit_price || 0) / 100
-      const discount = (item.discount_total || 0) / 100 / qty // approx per unit
-      const tax = (item.tax_total || 0) / 100
+      const unitPrice = (item.unit_price || 0)
+      const discount = (item.discount_total || 0) / qty // approx per unit
+      const tax = (item.tax_total || 0)
       const taxRate = item.tax_rate || 18
-      const taxable = (item.subtotal || ((unitPrice - discount) * qty * 100)) / 100
-      const total = (item.total || ((taxable + tax) * 100)) / 100
+      const taxable = (item.subtotal || ((unitPrice - discount) * qty))
+      const total = (item.total || (taxable + tax))
       
       const hsn = item.variant?.sku || "34051000"
       
@@ -191,9 +191,9 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // Add Shipping if any
     let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? 0
     if (subtotalValue > 0 && subtotalValue < 499 && (!shippingFee || shippingFee === 0)) {
-        shippingFee = 8000 // In case there's genuinely 0 in DB but we know it should have been charged
+        shippingFee = 80 // In case there's genuinely 0 in DB but we know it should have been charged
     }
-    const finalShipping = shippingFee / 100
+    const finalShipping = shippingFee
     if (finalShipping > 0) {
       doc.text("-", 40, currentY)
       doc.text("Shipping Fee", 70, currentY, { width: 180 })
