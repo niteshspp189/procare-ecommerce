@@ -218,7 +218,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* PRODUCT CAROUSEL & MEDIA SECTION */}
-        <Section innerClassName="!pt-2 !pb-0">
+        <Section innerClassName="!pt-2 !pb-6">
           <div className="flex flex-col lg:flex-row w-full gap-12 items-center">
             <div className="flex-1 w-full lg:w-1/2 overflow-hidden h-full">
               {firstCategoryProducts.length > 0 ? (
@@ -251,7 +251,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* CUSTOMER REVIEWS CAROUSEL */}
-        <Section title="What Our Customers Say" className="bg-white overflow-hidden" innerClassName="!pt-4 !pb-0">
+        <Section title="What Our Customers Say" className="bg-white overflow-hidden" innerClassName="!pt-12 !pb-12">
           <div className="w-full relative max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8">
             <CarouselWrapper>
               {[1, 2, 3, 4, 5].map((num) => (
