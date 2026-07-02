@@ -196,7 +196,7 @@ export default async function StagingHome(props: {
         <Section 
           title="Our Best Sellers" 
           className="bg-slate-50/50"
-          innerClassName="!py-12"
+          innerClassName="!py-4"
         >
           <BestSellersTabs
             categories={bestSellerCategories}
@@ -207,7 +207,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* BRAND PROMISE BANNER */}
-        <Section className="bg-[#f0f0f5]">
+        <Section className="bg-[#f0f0f5]" innerClassName="!py-8">
           <div className="text-center">
             <p className="text-sm font-normal text-gray-500 mb-2 uppercase tracking-[0.2em]">European Expertise. Indian Excellence. Trusted Worldwide.</p>
             <h2 className="text-[clamp(28px,5vw,56px)] font-normal leading-tight mb-10 max-w-5xl mx-auto">Crafting World-Class Care For Every Step</h2>
@@ -218,7 +218,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* PRODUCT CAROUSEL & MEDIA SECTION */}
-        <Section innerClassName="!pt-4 sm:!pt-6">
+        <Section innerClassName="!py-4 sm:!py-6">
           <div className="flex flex-col lg:flex-row w-full gap-12 items-center">
             <div className="flex-1 w-full lg:w-1/2 overflow-hidden h-full">
               {firstCategoryProducts.length > 0 ? (
@@ -251,7 +251,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* CUSTOMER REVIEWS CAROUSEL */}
-        <Section title="What Our Customers Say" className="bg-white overflow-hidden py-8">
+        <Section title="What Our Customers Say" className="bg-white overflow-hidden !py-4">
           <div className="w-full relative max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {[1, 2, 3, 4, 5].map((num) => (
@@ -274,7 +274,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* FEATURE ICONS ROW */}
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 py-12 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 py-6 px-6 border-t border-gray-100">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-20 h-20 text-[#00bda5] bg-slate-50 p-5 rounded-[24px] shadow-sm transition-transform hover:scale-110">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M1.5 8.5h13v9H1.5V8.5zM14.5 11.5h3l3 3v3h-6v-6z" /><circle cx="5.5" cy="18" r="1.5" /><circle cx="17.5" cy="18" r="1.5" /></svg>
