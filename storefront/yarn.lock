@@ -8263,6 +8263,7 @@ __metadata:
     react: "npm:19.0.5"
     react-country-flag: "npm:^3.1.0"
     react-dom: "npm:19.0.5"
+    react-zoom-pan-pinch: "npm:^3.6.1"
     server-only: "npm:^0.0.1"
     tailwindcss: "npm:^3.0.23"
     tailwindcss-radix: "npm:^2.8.0"
@@ -8565,6 +8566,16 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10/62498094ff3877a37f351b29e6cad9e38b2eb1ac3c0cb27ebf80aee96554f80b35e17bdb552bcd7ac8b7cb9904fea93ea5668f2057c73d38f90b5d46bb9b27ab
+  languageName: node
+  linkType: hard
+
+"react-zoom-pan-pinch@npm:^3.6.1":
+  version: 3.7.0
+  resolution: "react-zoom-pan-pinch@npm:3.7.0"
+  peerDependencies:
+    react: "*"
+    react-dom: "*"
+  checksum: 10/5ae7f1ffea86fd19ae57f7b4c6818b282e13e00523200d23759db95a1518333044017583c2af3c179b2634c88c76162aa0ce8de79cd26359f07339415842ba34
   languageName: node
   linkType: hard
 

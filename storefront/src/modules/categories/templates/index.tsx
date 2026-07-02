@@ -145,7 +145,11 @@ export default async function CategoryTemplate({
         </div>
 
         <div style={s.heroBanner as any} className="animate-scale-in">
-          <img src={imgBase + 'top-side-banner-background.png'} style={s.heroBg as any} alt="Banner" />
+          <img 
+            src={imgBase + (['shoe-care', 'insoles', 'foot-care', 'accessories'].includes(category.handle) ? `banner-${category.handle}.png` : 'top-side-banner-background.png')} 
+            style={s.heroBg as any} 
+            alt="Banner" 
+          />
           <div style={s.heroContent as any}>
             <h1 style={s.heroTitle as any} className="animate-fade-in-up">{category.name}</h1>
             <p style={s.heroSub as any} className="animate-fade-in-up delay-100">{category.description || "Finish line rich results every day"}</p>

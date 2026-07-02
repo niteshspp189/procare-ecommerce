@@ -110,15 +110,15 @@ export default async function StagingHome(props: {
         <Section 
           subtitle="Extreme Comfort. Hyper Durable. Max Volume."
           title="Innovating Shoe Care for Everyday Ease."
-          className="py-16 sm:py-24"
+          className="py-8 sm:py-12"
           fullWidth={true}
         >
           <div className="max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-3.5 w-full animate-fade-in-up mt-6">
             {/* Shoe Care */}
             <div className="flex flex-col group">
-              <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-shoe-care.png'} 
+                  src={imgBase + 'cat-shoecare-new.webp'} 
                   alt="Shoe Care" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -135,9 +135,9 @@ export default async function StagingHome(props: {
 
             {/* Insoles */}
             <div className="flex flex-col group">
-              <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-insoles.jpg'} 
+                  src={imgBase + 'cat-insoles-new.webp'} 
                   alt="Insoles" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -154,9 +154,9 @@ export default async function StagingHome(props: {
 
             {/* Foot Care */}
             <div className="flex flex-col group">
-              <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-foot-care.png'} 
+                  src={imgBase + 'cat-footcare-new.webp'} 
                   alt="Foot Care" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -173,9 +173,9 @@ export default async function StagingHome(props: {
 
             {/* Accessories */}
             <div className="flex flex-col group">
-              <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-accessories.jpg'} 
+                  src={imgBase + 'cat-accessories-new.webp'} 
                   alt="Accessories" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -196,7 +196,7 @@ export default async function StagingHome(props: {
         <Section 
           title="Our Best Sellers" 
           className="bg-slate-50/50"
-          innerClassName="!py-24"
+          innerClassName="!py-12"
         >
           <BestSellersTabs
             categories={bestSellerCategories}
@@ -218,7 +218,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* PRODUCT CAROUSEL & MEDIA SECTION */}
-        <Section innerClassName="!pt-8 sm:!pt-12">
+        <Section innerClassName="!pt-4 sm:!pt-6">
           <div className="flex flex-col lg:flex-row w-full gap-12 items-center">
             <div className="flex-1 w-full lg:w-1/2 overflow-hidden h-full">
               {firstCategoryProducts.length > 0 ? (
@@ -250,8 +250,31 @@ export default async function StagingHome(props: {
           </div>
         </Section>
 
+        {/* CUSTOMER REVIEWS CAROUSEL */}
+        <Section title="What Our Customers Say" className="bg-white overflow-hidden py-8">
+          <div className="w-full relative max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <div key={num} className="snap-center shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] flex items-center justify-center">
+                  <img 
+                    src={`/images/landing-page-images/review-${num}.png`} 
+                    alt={`Customer Review ${num}`} 
+                    className="w-full h-auto rounded-[16px] shadow-lg border border-gray-100 object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+            {/* Simple CSS to hide scrollbar while keeping functionality */}
+            <style dangerouslySetInnerHTML={{__html: `
+              .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+            `}} />
+          </div>
+        </Section>
+
         {/* FEATURE ICONS ROW */}
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 py-24 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 py-12 px-6 border-t border-gray-100">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-20 h-20 text-[#00bda5] bg-slate-50 p-5 rounded-[24px] shadow-sm transition-transform hover:scale-110">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M1.5 8.5h13v9H1.5V8.5zM14.5 11.5h3l3 3v3h-6v-6z" /><circle cx="5.5" cy="18" r="1.5" /><circle cx="17.5" cy="18" r="1.5" /></svg>
