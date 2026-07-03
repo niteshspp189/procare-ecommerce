@@ -17,26 +17,47 @@ type ZoomableImageProps = {
   unoptimized?: boolean
 }
 
+const getFormattedUrl = (url: string) => {
+  let formattedUrl = url || "/images/polish.jpeg"
+  if (!formattedUrl.startsWith("http") && !formattedUrl.startsWith("/")) {
+    formattedUrl = "/" + formattedUrl
+  }
+  return encodeURI(formattedUrl)
+}
+
 const ZoomableImage = ({ src, alt, priority, unoptimized }: ZoomableImageProps) => {
   return (
-    <TransformWrapper
-      initialScale={1}
-      minScale={1}
-      maxScale={4}
-      wheel={{ step: 0.1 }}
-    >
-      <TransformComponent wrapperClass="!w-full !h-full" contentClass="!w-full !h-full relative">
-        <Image
-          src={src}
-          priority={priority}
-          className="absolute inset-4 md:inset-8 object-contain"
-          alt={alt}
-          fill
-          sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-          unoptimized={unoptimized}
-        />
-      </TransformComponent>
-    </TransformWrapper>
+    <div className="w-full h-full relative group cursor-zoom-in">
+      <TransformWrapper
+        initialScale={1}
+        minScale={1}
+        maxScale={4}
+        wheel={{ step: 0.1 }}
+      >
+        <TransformComponent wrapperClass="!w-full !h-full" contentClass="!w-full !h-full relative">
+          <Image
+            src={getFormattedUrl(src)}
+            priority={priority}
+            className="absolute inset-4 md:inset-8 object-contain"
+            alt={alt}
+            fill
+            sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+            unoptimized={unoptimized}
+          />
+        </TransformComponent>
+      </TransformWrapper>
+      
+      {/* Zoom instruction overlay on hover */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur text-xs font-semibold px-4 py-2 rounded-full shadow-md text-gray-800 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center gap-2 z-10 hidden md:flex border border-gray-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          <line x1="11" y1="8" x2="11" y2="14"></line>
+          <line x1="8" y1="11" x2="14" y2="11"></line>
+        </svg>
+        Double-click or scroll to zoom
+      </div>
+    </div>
   )
 }
 
@@ -69,7 +90,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
           >
             {!!image.url && (
               <Image
-                src={encodeURI(image.url)}
+                src={getFormattedUrl(image.url)}
                 alt={`Thumbnail ${index + 1}`}
                 fill
                 className="object-cover p-1"
@@ -132,7 +153,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
               >
                 {!!image.url && (
                   <Image
-                    src={encodeURI(image.url)}
+                    src={getFormattedUrl(image.url)}
                     alt={`Thumbnail ${index + 1}`}
                     fill
                     className="object-cover p-1"

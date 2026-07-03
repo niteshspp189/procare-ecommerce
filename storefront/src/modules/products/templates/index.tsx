@@ -99,6 +99,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     if (baseImages.length === 0 && product?.thumbnail) {
       baseImages = [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
     }
+    if (baseImages.length === 0) {
+      baseImages = [{ id: 'placeholder', url: '/images/polish.jpeg' } as HttpTypes.StoreProductImage]
+    }
 
     if (vImgs.length > 0) {
       const additional = baseImages.filter(bImg => !vImgs.some(vImg => vImg.url === bImg.url))
