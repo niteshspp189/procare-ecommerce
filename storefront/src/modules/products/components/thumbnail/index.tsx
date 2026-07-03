@@ -53,7 +53,7 @@ const ImageOrPlaceholder = ({
 
   return image ? (
     <Image
-      src={image}
+      src={encodeURI(image)}
       alt="Thumbnail"
       className={`absolute inset-0 ${objectFitClass} object-center`}
       draggable={false}

@@ -69,7 +69,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
           >
             {!!image.url && (
               <Image
-                src={image.url}
+                src={encodeURI(image.url)}
                 alt={`Thumbnail ${index + 1}`}
                 fill
                 className="object-cover p-1"
@@ -102,7 +102,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                 ) : null}
                 {!!image.url && (
                   <ZoomableImage
-                    src={image.url}
+                    src={encodeURI(image.url)}
                     alt={`Product image ${index + 1}`}
                     priority={index === 0}
                     unoptimized={true}
@@ -132,7 +132,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
               >
                 {!!image.url && (
                   <Image
-                    src={image.url}
+                    src={encodeURI(image.url)}
                     alt={`Thumbnail ${index + 1}`}
                     fill
                     className="object-cover p-1"
