@@ -63,8 +63,16 @@ const ImageOrPlaceholder = ({
       unoptimized={isLocalImage}
     />
   ) : (
-    <div className="w-full h-full absolute inset-0 flex items-center justify-center">
-      <PlaceholderImage size={size === "small" ? 16 : 24} />
+    <div className="w-full h-full absolute inset-0 flex items-center justify-center bg-slate-50">
+      <Image
+        src="/images/placeholder.webp"
+        alt="Image Coming Soon"
+        className={`absolute inset-0 ${objectFitClass} object-center`}
+        draggable={false}
+        quality={50}
+        sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+        fill
+      />
     </div>
   )
 }
