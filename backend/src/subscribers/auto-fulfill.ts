@@ -9,6 +9,11 @@ export default async function autoFulfillOrderHandler({
 }: SubscriberArgs<{ id: string }>) {
   console.log(`[AutoFulfillSubscriber] Attempting automatic Shiprocket fulfillment for Order: ${data.id}`)
   
+  if (process.env.SHIPROCKET_ENV !== "production") {
+    console.log(`[AutoFulfillSubscriber] Skipped: SHIPROCKET_ENV is not 'production'`)
+    return
+  }
+  
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
   
   const order = await orderModuleService.retrieveOrder(data.id, {
