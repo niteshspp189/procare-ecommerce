@@ -272,6 +272,7 @@ export async function sendOrderConfirmationEmail(order: any) {
 
     const mailOptions: any = {
       from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'team@webclixs.in'}>`,
+      replyTo: 'customercare@mvscindia.com',
       to: order.email,
       bcc: 'customercare@mvscindia.com',
       subject: `Order Confirmation #${formattedId} - ProCare Store`,

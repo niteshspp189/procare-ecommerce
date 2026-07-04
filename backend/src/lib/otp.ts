@@ -13,6 +13,7 @@ const transporter = nodemailer.createTransport({
 export async function sendOTPEmail(email: string, code: string) {
   const mailOptions = {
     from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'team@webclixs.in'}>`,
+    replyTo: "customercare@mvscindia.com",
     to: email,
     subject: `Your Login OTP - ProCare Store`,
     html: `
