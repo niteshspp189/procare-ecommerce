@@ -65,8 +65,8 @@ const ImageOrPlaceholder = ({
   ) : (
     <div className="w-full h-full absolute inset-0 flex items-center justify-center bg-slate-50">
       <Image
-        src="/images/placeholder.webp"
-        alt="Image Coming Soon"
+        src="/images/polish.jpeg"
+        alt="No picture"
         className={`absolute inset-0 ${objectFitClass} object-center`}
         draggable={false}
         quality={50}
