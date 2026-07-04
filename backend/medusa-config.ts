@@ -53,6 +53,21 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/support",
     },
+    {
+      resolve: "@medusajs/medusa/fulfillment",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/fulfillment-manual",
+            id: "manual",
+          },
+          {
+            resolve: "./src/modules/shiprocket",
+            id: "shiprocket",
+          },
+        ],
+      },
+    },
   ],
   admin: {
     path: "/store-backend",

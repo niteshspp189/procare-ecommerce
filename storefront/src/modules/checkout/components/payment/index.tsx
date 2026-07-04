@@ -1,7 +1,7 @@
 "use client"
 
 import { RadioGroup } from "@headlessui/react"
-import { isStripeLike, paymentInfoMap } from "@lib/constants"
+import { isStripeLike, paymentInfoMap, isManual } from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
@@ -21,7 +21,9 @@ const Payment = ({
   cart: any
   availablePaymentMethods: any[]
 }) => {
-  const filteredPaymentMethods = availablePaymentMethods ?? []
+  const filteredPaymentMethods = availablePaymentMethods?.filter(
+    (method) => !isManual(method.id)
+  ) ?? []
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"

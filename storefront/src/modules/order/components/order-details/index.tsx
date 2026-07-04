@@ -58,6 +58,28 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
           </>
         )}
         <div className="flex items-center gap-x-4">
+          {(() => {
+            let trackingUrl = ""
+            if (order.fulfillments && order.fulfillments.length > 0) {
+              const fulfillment: any = order.fulfillments[0]
+              if (fulfillment.labels && fulfillment.labels.length > 0) {
+                trackingUrl = fulfillment.labels[0].tracking_url || ""
+              }
+            }
+            if (trackingUrl) {
+              return (
+                <a 
+                  href={trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#00b5a4] text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-[#009d8e]"
+                >
+                  Track Order
+                </a>
+              )
+            }
+            return null
+          })()}
           <a 
             href={`/api/invoice/${order.id}`}
             className="text-[#00b5a4] hover:text-[#009d8e] font-semibold underline"
