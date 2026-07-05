@@ -48,7 +48,7 @@ const ImageOrPlaceholder = ({
   size,
   className,
 }: Pick<ThumbnailProps, "size" | "className"> & { image?: string }) => {
-  const isLocalImage = image?.includes("/static") || image?.includes("localhost:9000")
+  const isLocalImage = image?.includes("/static") || image?.includes("/images") || image?.includes("localhost:9000")
   const objectFitClass = className?.includes("object-cover") || size === "full" ? "object-cover" : "object-contain"
 
   return image ? (
