@@ -12,6 +12,9 @@ type CartTotalsProps = {
     item_subtotal?: number | null
     shipping_subtotal?: number | null
     discount_subtotal?: number | null
+    shipping_total?: number | null
+    discount_total?: number | null
+    item_total?: number | null
   }
 }
 
@@ -19,67 +22,42 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   const {
     currency_code,
     total,
-    tax_total,
-    item_subtotal,
+    shipping_total,
     shipping_subtotal,
+    discount_total,
     discount_subtotal,
+    item_total,
+    item_subtotal,
   } = totals
 
+  // Use tax-inclusive shipping_total if available, else fallback to 80 if threshold applies
   const isBelowThreshold = (item_subtotal ?? 0) < 499
   const effectiveShipping =
     isBelowThreshold && (!shipping_subtotal || shipping_subtotal === 0)
       ? 80
-      : shipping_subtotal ?? 0
+      : shipping_total ?? shipping_subtotal ?? 0
+      
   const effectiveTotal =
     isBelowThreshold && (!shipping_subtotal || shipping_subtotal === 0)
       ? (total ?? 0) + 80
       : total ?? 0
+      
+  const effectiveDiscount = discount_total ?? discount_subtotal ?? 0
 
-  const items = (totals as any).items || []
-  const totalMrpSavings = items.reduce((acc: number, item: any) => {
-    const compareAt = item.compare_at_unit_price
-    const unitPrice = item.unit_price || ((item.total || 0) / (item.quantity || 1))
-    if (compareAt && compareAt > unitPrice) {
-      return acc + (compareAt - unitPrice) * item.quantity
-    }
-    return acc
-  }, 0)
-
-  const calculatedTax =
-    tax_total || (effectiveTotal ? Math.round(effectiveTotal - effectiveTotal / 1.18) : 0)
+  // The Selling Price Subtotal (inc. taxes)
+  // Derived from Final Total minus Shipping plus Discount
+  const spSubtotal = item_total ?? (effectiveTotal - effectiveShipping + effectiveDiscount)
 
   return (
     <div>
       <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle ">
-        {totalMrpSavings > 0 && !discount_subtotal && (
-          <>
-            <div className="flex items-center justify-between">
-              <span>Total MRP</span>
-              <span className="line-through text-gray-400">
-                {convertToLocale({
-                  amount: (item_subtotal ?? 0) + totalMrpSavings,
-                  currency_code,
-                })}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>MRP Discount</span>
-              <span className="text-emerald-600 font-semibold">
-                -{" "}
-                {convertToLocale({
-                  amount: totalMrpSavings,
-                  currency_code,
-                })}
-              </span>
-            </div>
-          </>
-        )}
         <div className="flex items-center justify-between">
-          <span>Subtotal (incl. taxes)</span>
-          <span data-testid="cart-subtotal" data-value={item_subtotal || 0}>
-            {convertToLocale({ amount: item_subtotal ?? 0, currency_code })}
+          <span>Subtotal</span>
+          <span data-testid="cart-subtotal" data-value={spSubtotal}>
+            {convertToLocale({ amount: spSubtotal, currency_code })}
           </span>
         </div>
+        
         <div className="flex items-center justify-between">
           <span>Shipping</span>
           <span data-testid="cart-shipping" data-value={effectiveShipping}>
@@ -88,30 +66,23 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
               : convertToLocale({ amount: effectiveShipping, currency_code })}
           </span>
         </div>
-        {!!discount_subtotal && (
+
+        {!!effectiveDiscount && (
           <div className="flex items-center justify-between">
             <span>Discount</span>
             <span
               className="text-ui-fg-interactive"
               data-testid="cart-discount"
-              data-value={discount_subtotal || 0}
+              data-value={effectiveDiscount}
             >
               -{" "}
               {convertToLocale({
-                amount: discount_subtotal ?? 0,
+                amount: effectiveDiscount,
                 currency_code,
               })}
             </span>
           </div>
         )}
-        <div className="flex justify-between">
-          <span className="flex gap-x-1 items-center text-ui-fg-base font-medium">
-            Taxes (18% GST inclusive)
-          </span>
-          <span data-testid="cart-taxes" data-value={calculatedTax || 0}>
-            {convertToLocale({ amount: calculatedTax ?? 0, currency_code })}
-          </span>
-        </div>
       </div>
       <div className="h-px w-full border-b border-gray-200 my-4" />
       <div className="flex items-center justify-between text-ui-fg-base mb-2 txt-medium ">
