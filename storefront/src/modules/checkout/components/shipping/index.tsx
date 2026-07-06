@@ -174,6 +174,10 @@ const Shipping: React.FC<ShippingProps> = ({
     setError(null)
   }, [isOpen])
 
+  if (!isOpen && _shippingMethods?.length === 1 && !hasPickupOptions) {
+    return null
+  }
+
   return (
     <div className="bg-white">
       <div className="flex flex-row items-center justify-between mb-6">
