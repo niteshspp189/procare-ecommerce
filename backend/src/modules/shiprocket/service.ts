@@ -62,15 +62,15 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       name: item.title,
       sku: item.sku || "PRO-SKU",
       units: item.quantity,
-      selling_price: (item.unit_price || 0) / 100,
+      selling_price: item.unit_price || 0, // Medusa v2 stores prices directly in INR
       discount: 0
     }))
 
     let subTotal = 0
     orderItems.forEach(i => subTotal += (i.selling_price * i.units))
 
-    const shippingFee = order?.shipping_total ?? order?.summary?.shipping_total ?? order?.shipping_methods?.[0]?.amount ?? 8000
-    const shippingCharges = shippingFee / 100
+    const shippingFee = order?.shipping_total ?? order?.summary?.shipping_total ?? order?.shipping_methods?.[0]?.amount ?? 0
+    const shippingCharges = shippingFee // Medusa v2 stores directly in INR
 
     const orderData = {
       order_id: `PRO-${order?.id?.substring(order.id.length - 8) || Date.now()}`,

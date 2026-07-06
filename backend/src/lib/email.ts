@@ -158,16 +158,15 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     for (const item of order.items || []) {
       const qty = item.quantity || 1
-      const rawUnitPrice = (item.unit_price || 0) / 100 // Medusa prices are in cents
-      const rawDiscount = (item.discount_total || 0) / 100 / qty // unit discount
+      const unitPrice = item.unit_price || 0 // Medusa v2 stores prices directly in INR
+      const discountPerUnit = (item.discount_total || 0) / qty
       
-      const taxRate = 18 // Default to 18% inclusive GST
+      const taxRate = 18 // 18% inclusive GST
       
-      // Calculate inclusive tax breakdown
-      const inclusiveUnitPrice = rawUnitPrice
-      const taxableUnitPrice = inclusiveUnitPrice / (1 + (taxRate / 100))
+      // Calculate inclusive tax breakdown: price already includes GST
+      const taxableUnitPrice = unitPrice / (1 + (taxRate / 100))
       
-      const taxableValue = (taxableUnitPrice - rawDiscount) * qty
+      const taxableValue = (taxableUnitPrice - discountPerUnit) * qty
       const taxValue = taxableValue * (taxRate / 100)
       const total = taxableValue + taxValue
       
@@ -179,8 +178,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 180, fontSize: 6 })
       
       doc.text(qty.toString(), 260, currentY, { align: "center", width: 30 })
-      doc.text(inclusiveUnitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
-      doc.text(rawDiscount.toFixed(2), 340, currentY, { align: "center", width: 50 })
+      doc.text(unitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
+      doc.text(discountPerUnit.toFixed(2), 340, currentY, { align: "center", width: 50 })
       doc.text(taxableValue.toFixed(2), 390, currentY, { align: "center", width: 60 })
       doc.text(`${taxValue.toFixed(2)} | ${taxRate}%`, 450, currentY, { align: "center", width: 60 })
       doc.text(total.toFixed(2), 510, currentY, { align: "right", width: 45 })
@@ -193,8 +192,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     currentY += 5
     
     // Add Shipping if any
-    let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
-    const finalShipping = shippingFee / 100 // Convert cents to INR for invoice
+    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
+    const finalShipping = shippingFee // Medusa v2 stores directly in INR
     if (finalShipping > 0) {
       const shipTaxRate = 18
       const shipTaxable = finalShipping / (1 + (shipTaxRate / 100))
@@ -263,10 +262,10 @@ export async function sendOrderConfirmationEmail(order: any) {
     
     const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
     
-    // Total is calculated directly
+    // Total is calculated directly - Medusa v2 stores directly in INR
     const rawTotal = order.total ?? order.summary?.total ?? (itemsSubtotal + shippingFee)
     const displayTotalAmount = typeof rawTotal === "number" && !isNaN(rawTotal)
-      ? (rawTotal / 100).toFixed(2)
+      ? rawTotal.toFixed(2)
       : "0.00"
 
     const storeUrl = process.env.STORE_URL || 'https://propremiumcare.com'

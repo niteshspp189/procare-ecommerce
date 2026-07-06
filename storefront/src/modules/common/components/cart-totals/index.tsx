@@ -30,22 +30,13 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
     item_subtotal,
   } = totals
 
-  // Use tax-inclusive shipping_total if available, else fallback to 80 if threshold applies
-  const isBelowThreshold = (item_subtotal ?? 0) < 499
-  const effectiveShipping =
-    isBelowThreshold && (!shipping_subtotal || shipping_subtotal === 0)
-      ? 80
-      : shipping_total ?? shipping_subtotal ?? 0
-      
-  const effectiveTotal =
-    isBelowThreshold && (!shipping_subtotal || shipping_subtotal === 0)
-      ? (total ?? 0) + 80
-      : total ?? 0
-      
+  // Use actual shipping and total values from the cart
+  const effectiveShipping = shipping_total ?? shipping_subtotal ?? 0
+  const effectiveTotal = total ?? 0
+       
   const effectiveDiscount = discount_total ?? discount_subtotal ?? 0
 
   // The Selling Price Subtotal (inc. taxes)
-  // Derived from Final Total minus Shipping plus Discount
   const spSubtotal = item_total ?? (effectiveTotal - effectiveShipping + effectiveDiscount)
 
   return (
