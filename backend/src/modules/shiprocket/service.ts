@@ -51,6 +51,8 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let phoneVal = fulfillment.delivery_address?.phone || order?.shipping_address?.phone
     let displayId = order?.display_id
     let isCOD = false
+    let dbItems: any[] = []
+    let dbShippingFee = 0
 
     let fullOrder = order
     if (order && order.id && this.container) {
@@ -74,35 +76,37 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
         
         // pgConnection Fallback query
         try {
-          const pgConnection = this.container.pgConnection || this.container.pg_connection
+          const pgConnection = this.container.__pg_connection__ || this.container.resolve("__pg_connection__", { allowUnregistered: true })
           if (pgConnection) {
-            console.log("[ShiprocketService] Attempting raw SQL fallback via pgConnection...")
-            let orderRow: any = null
-            if (typeof pgConnection.query === 'function') {
-              const res = await pgConnection.query('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = $1', [order.id])
-              orderRow = res?.rows?.[0]
-              if (orderRow?.shipping_address_id) {
-                const addrRes = await pgConnection.query('SELECT phone FROM "order_address" WHERE id = $1', [orderRow.shipping_address_id])
-                phoneVal = addrRes?.rows?.[0]?.phone || phoneVal
-              }
-              const paymentRes = await pgConnection.query('SELECT provider_id FROM "payment" WHERE order_id = $1 LIMIT 1', [order.id])
-              isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
-            } else if (typeof pgConnection.raw === 'function') {
-              const res = await pgConnection.raw('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = ?', [order.id])
-              orderRow = res?.rows?.[0] || res?.[0]
-              if (orderRow?.shipping_address_id) {
-                const addrRes = await pgConnection.raw('SELECT phone FROM "order_address" WHERE id = ?', [order.id])
-                phoneVal = (addrRes?.rows?.[0]?.phone || addrRes?.[0]?.phone) || phoneVal
-              }
-              const paymentRes = await pgConnection.raw('SELECT provider_id FROM "payment" WHERE order_id = ? LIMIT 1', [order.id])
-              const row = paymentRes?.rows?.[0] || paymentRes?.[0]
-              isCOD = row?.provider_id === 'manual'
-            }
+            console.log("[ShiprocketService] Attempting raw SQL fallback via pgConnection (__pg_connection__)...")
+            
+            // Query Order
+            const orderRes = await pgConnection.raw('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = ?', [order.id])
+            const orderRow = orderRes?.rows?.[0]
             
             if (orderRow) {
               displayId = orderRow.display_id
               email = orderRow.email
-              console.log("[ShiprocketService] Successfully retrieved details via pgConnection:", { displayId, email, phoneVal, isCOD })
+              
+              // Query Address
+              if (orderRow.shipping_address_id) {
+                const addrRes = await pgConnection.raw('SELECT phone FROM "order_address" WHERE id = ?', [orderRow.shipping_address_id])
+                phoneVal = addrRes?.rows?.[0]?.phone || phoneVal
+              }
+              
+              // Query Payment
+              const paymentRes = await pgConnection.raw('SELECT provider_id FROM "payment" WHERE order_id = ? LIMIT 1', [order.id])
+              isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
+              
+              // Query Line Items
+              const itemsRes = await pgConnection.raw('SELECT oli.title, oli.variant_sku, oli.unit_price, oi.quantity FROM "order_item" oi JOIN "order_line_item" oli ON oi.item_id = oli.id WHERE oi.order_id = ?', [order.id])
+              dbItems = itemsRes?.rows || []
+              
+              // Query Shipping Method
+              const shippingRes = await pgConnection.raw('SELECT asm.amount FROM "order_shipping" os JOIN "order_shipping_method" asm ON os.shipping_method_id = asm.id WHERE os.order_id = ?', [order.id])
+              dbShippingFee = parseFloat(shippingRes?.rows?.[0]?.amount?.toString() || "0")
+              
+              console.log("[ShiprocketService] Successfully retrieved details via pgConnection:", { displayId, email, phoneVal, isCOD, dbItemsCount: dbItems.length, dbShippingFee })
             }
           }
         } catch (dbErr: any) {
@@ -126,24 +130,32 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     const country = address?.country_code || shippingAddress?.country_code || "IN"
     
     const rawPhone = phoneVal || address?.phone || shippingAddress?.phone || "8588834954"
-    const cleanPhone = rawPhone.replace(/\D/g, "")
-    const phone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : "8588834954"
+    let cleanPhone = rawPhone.replace(/\D/g, "")
+    
+    // Strip leading country code if present
+    if (cleanPhone.startsWith("91") && cleanPhone.length > 10) {
+      cleanPhone = cleanPhone.slice(2)
+    } else if (cleanPhone.startsWith("0") && cleanPhone.length > 10) {
+      cleanPhone = cleanPhone.slice(1)
+    }
+    
+    let phone = cleanPhone
+    if (phone.length !== 10) {
+      console.warn(`[ShiprocketService] Phone number '${rawPhone}' (cleaned: '${cleanPhone}') is not 10 digits. Falling back to default customer care phone.`)
+      phone = "8588834954"
+    }
     
     const emailVal = email || fullOrder?.email || order?.email || "customer@example.com"
 
     let subTotal = 0
     let totalTax = 0
 
-    const orderItems = items.map(item => {
-      const orderItem = fullOrder?.items?.find((oi: any) => 
-        oi.sku === item.sku || 
-        oi.title === item.title || 
-        oi.id === item.line_item_id ||
-        oi.item_id === item.line_item_id
-      )
-      
-      const inclusivePrice = orderItem?.unit_price ?? orderItem?.item?.unit_price ?? item.unit_price ?? 0
-      const qty = item.quantity || 1
+    // Map items from database if available, otherwise fall back to items parameter
+    const orderItems = (dbItems.length > 0 ? dbItems : items).map(item => {
+      const title = item.title || item.name || "Product"
+      const sku = item.variant_sku || item.sku || "PRO-SKU"
+      const qty = parseInt(item.quantity?.toString() || "1")
+      const inclusivePrice = parseFloat((item.unit_price || item.selling_price || 0).toString())
       
       // Calculate 18% inclusive tax
       const taxRate = 18
@@ -157,16 +169,21 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       totalTax += itemTax
       
       return {
-        name: item.title || orderItem?.title || orderItem?.item?.title || "Product",
-        sku: item.sku || orderItem?.sku || orderItem?.item?.variant_sku || "PRO-SKU",
+        name: title,
+        sku: sku,
         units: qty,
-        selling_price: parseFloat(taxablePrice.toFixed(2)),
-        tax: parseFloat(itemTax.toFixed(2)),
+        selling_price: parseFloat(inclusivePrice.toFixed(2)), // Shiprocket expects inclusive price!
+        tax: 18, // Tax percentage rate
         discount: 0
       }
     })
 
-    const shippingFee = fullOrder?.shipping_total ?? fullOrder?.summary?.shipping_total ?? fullOrder?.shipping_methods?.[0]?.amount ?? 0
+    // Resolve shipping fee: use dbShippingFee first, then fall back to fullOrder or order methods
+    const shippingFee = dbShippingFee > 0 ? dbShippingFee :
+                        (fullOrder?.shipping_methods?.[0]?.amount ?? 
+                         order?.shipping_methods?.[0]?.amount ?? 
+                         fullOrder?.shipping_total ?? 
+                         0)
     const shippingCharges = parseFloat(shippingFee.toString())
 
     const orderData = {
@@ -189,7 +206,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       giftwrap_charges: 0,
       transaction_charges: 0,
       total_discount: 0,
-      sub_total: parseFloat(subTotal.toFixed(2)),
+      sub_total: parseFloat((subTotal + totalTax).toFixed(2)), // top level sub_total is inclusive item totals
       tax: parseFloat(totalTax.toFixed(2)),
       grand_total: parseFloat((subTotal + totalTax + shippingCharges).toFixed(2)),
       length: 10,
