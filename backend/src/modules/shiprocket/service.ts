@@ -69,6 +69,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let subTotal = 0
     orderItems.forEach(i => subTotal += (i.selling_price * i.units))
 
+    const shippingFee = order?.shipping_total ?? order?.summary?.shipping_total ?? order?.shipping_methods?.[0]?.amount ?? 8000
+    const shippingCharges = shippingFee / 100
+
     const orderData = {
       order_id: `PRO-${order?.id?.substring(order.id.length - 8) || Date.now()}`,
       order_date: new Date().toISOString().split('T')[0],
@@ -85,7 +88,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       shipping_is_billing: true,
       order_items: orderItems,
       payment_method: paymentMethod,
-      shipping_charges: 80,
+      shipping_charges: shippingCharges,
       giftwrap_charges: 0,
       transaction_charges: 0,
       total_discount: 0,

@@ -191,8 +191,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     currentY += 5
     
     // Add Shipping if any
-    let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? 0
-    const finalShipping = shippingFee
+    let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
+    const finalShipping = shippingFee / 100 // Convert cents to INR for invoice
     if (finalShipping > 0) {
       doc.text("-", 40, currentY)
       doc.text("Shipping Fee", 70, currentY, { width: 180 })
@@ -255,16 +255,13 @@ export async function sendOrderConfirmationEmail(order: any) {
     const itemsSubtotal = (order.items || []).reduce((acc: number, item: any) => {
       return acc + (item.unit_price || 0) * (item.quantity || 1)
     }, 0)
-    let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? 0
-    if (itemsSubtotal > 0 && itemsSubtotal < 49900 && (!shippingFee || shippingFee === 0)) {
-      shippingFee = 8000
-    }
+    
+    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
+    
+    // Total is calculated directly
     const rawTotal = order.total ?? order.summary?.total ?? (itemsSubtotal + shippingFee)
-    const effectiveTotal = (rawTotal === itemsSubtotal && itemsSubtotal < 49900 && shippingFee === 8000)
-      ? itemsSubtotal + 8000
-      : rawTotal
-    const displayTotalAmount = typeof effectiveTotal === "number" && !isNaN(effectiveTotal)
-      ? (effectiveTotal / 100).toFixed(2)
+    const displayTotalAmount = typeof rawTotal === "number" && !isNaN(rawTotal)
+      ? (rawTotal / 100).toFixed(2)
       : "0.00"
 
     const storeUrl = process.env.STORE_URL || 'https://propremiumcare.com'
