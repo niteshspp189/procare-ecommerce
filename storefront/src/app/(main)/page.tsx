@@ -108,7 +108,7 @@ export default async function StagingHome(props: {
       <div className="w-full">
         {/* INTRODUCTION & CATEGORY GRID */}
         <Section 
-          subtitle="Extreme Comfort. Hyper Durable. Max Volume."
+          subtitle="Extream Conform, Higher Durable Best In Class"
           title="Innovating Shoe Care for Everyday Ease."
           className="py-8 sm:py-12"
           fullWidth={true}
@@ -199,7 +199,7 @@ export default async function StagingHome(props: {
           <div className="text-center">
             <p className="text-sm font-normal text-gray-500 mb-2 uppercase tracking-[0.2em]">European Expertise. Indian Excellence. Trusted Worldwide.</p>
             <h2 className="text-[clamp(28px,5vw,56px)] font-normal leading-tight mb-10 max-w-5xl mx-auto">Crafting World-Class Care For Every Step</h2>
-            <LocalizedClientLink href="/about">
+            <LocalizedClientLink href="/our-story">
               <Button variant="primary" className="px-10">Read More About Us</Button>
             </LocalizedClientLink>
           </div>
