@@ -58,13 +58,22 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     const phone = address?.phone || order?.shipping_address?.phone || "9876543210"
     const email = order?.email || "customer@example.com"
 
-    const orderItems = items.map(item => ({
-      name: item.title,
-      sku: item.sku || "PRO-SKU",
-      units: item.quantity,
-      selling_price: item.unit_price || 0, // Medusa v2 stores prices directly in INR
-      discount: 0
-    }))
+    const orderItems = items.map(item => {
+      const orderItem = order?.items?.find((oi: any) => 
+        oi.sku === item.sku || 
+        oi.title === item.title || 
+        oi.item_id === item.line_item_id ||
+        oi.id === item.line_item_id
+      )
+      const price = orderItem?.unit_price ?? orderItem?.item?.unit_price ?? item.unit_price ?? 0
+      return {
+        name: item.title || orderItem?.title || orderItem?.item?.title || "Product",
+        sku: item.sku || orderItem?.sku || orderItem?.item?.variant_sku || "PRO-SKU",
+        units: item.quantity,
+        selling_price: price,
+        discount: 0
+      }
+    })
 
     let subTotal = 0
     orderItems.forEach(i => subTotal += (i.selling_price * i.units))

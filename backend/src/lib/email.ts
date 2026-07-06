@@ -160,7 +160,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     for (const item of order.items || []) {
       const qty = item.quantity || 1
-      const unitPrice = item.unit_price || 0 // Medusa v2 stores prices directly in INR
+      const unitPrice = item.unit_price ?? item.item?.unit_price ?? 0 // Check nested item relation if unit_price is null
       const discountPerUnit = (item.discount_total || 0) / qty
       
       const taxRate = 18 // 18% inclusive GST
@@ -259,7 +259,8 @@ export async function sendOrderConfirmationEmail(order: any) {
     const formattedId = `OD${(order.display_id || order.id || '0001').toString().padStart(8, '0')}`
 
     const itemsSubtotal = (order.items || []).reduce((acc: number, item: any) => {
-      return acc + (item.unit_price || 0) * (item.quantity || 1)
+      const price = item.unit_price ?? item.item?.unit_price ?? 0
+      return acc + price * (item.quantity || 1)
     }, 0)
     
     const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.shipping_method?.amount ?? 0
