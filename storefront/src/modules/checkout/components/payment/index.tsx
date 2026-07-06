@@ -41,6 +41,40 @@ const Payment = ({
 
   const isOpen = searchParams.get("step") === "payment"
 
+  const [isServiceable, setIsServiceable] = useState<boolean | null>(null)
+  const [checkingServiceability, setCheckingServiceability] = useState(false)
+  const [pincodeChecked, setPincodeChecked] = useState<string | null>(null)
+
+  const postalCode = cart?.shipping_address?.postal_code
+
+  useEffect(() => {
+    const checkPostcode = async () => {
+      if (!postalCode || pincodeChecked === postalCode) return
+      
+      setCheckingServiceability(true)
+      setPincodeChecked(postalCode)
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
+        const response = await fetch(`${backendUrl}/store/shiprocket/check-serviceability?pincode=${postalCode}`)
+        if (response.ok) {
+          const result = await response.json()
+          setIsServiceable(result?.serviceable !== false)
+        } else {
+          setIsServiceable(true)
+        }
+      } catch (e) {
+        console.warn("Failed to check Shiprocket serviceability:", e)
+        setIsServiceable(true)
+      } finally {
+        setCheckingServiceability(false)
+      }
+    }
+
+    if (isOpen && postalCode) {
+      checkPostcode()
+    }
+  }, [isOpen, postalCode, pincodeChecked])
+
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
@@ -145,6 +179,19 @@ const Payment = ({
       </div>
       <div>
         <div className={isOpen ? "block" : "hidden"}>
+          {isServiceable === false && (
+            <div className="mb-6 p-4 rounded-lg bg-orange-50 border border-orange-200 text-orange-800 text-sm">
+              <p className="font-bold flex items-center gap-x-2 mb-1">
+                <span>⚠️</span> Courier Serviceability Alert
+              </p>
+              <p>
+                Our courier partner (Shiprocket) indicates that the delivery pincode <strong>{postalCode}</strong> may have serviceability limitations.
+              </p>
+              <p className="mt-1.5">
+                <strong>Don't worry!</strong> You can still complete your payment and place the order. We will manually resolve this with the courier or arrange an alternative shipping partner after your payment is received.
+              </p>
+            </div>
+          )}
           {!paidByGiftcard && filteredPaymentMethods?.length && (
             <>
               <RadioGroup

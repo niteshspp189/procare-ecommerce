@@ -54,6 +54,32 @@ export class ShiprocketClient {
 
     return await response.json()
   }
+
+  public async checkServiceability(deliveryPostcode: string, isCod: boolean = false) {
+    const token = await this.authenticate()
+    const url = new URL(`${this.baseUrl}/courier/serviceability/`)
+    url.searchParams.append("pickup_postcode", "201301")
+    url.searchParams.append("delivery_postcode", deliveryPostcode)
+    url.searchParams.append("cod", isCod ? "1" : "0")
+    url.searchParams.append("weight", "1")
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const err = await response.text()
+      console.warn("Shiprocket serviceability check failed:", err)
+      return { serviceable: false, error: err }
+    }
+
+    const result = await response.json() as any
+    const serviceable = !!(result?.status === 200 && result?.data?.available_courier_companies?.length > 0)
+    return { serviceable, data: result }
+  }
 }
 
 export const shiprocketClient = new ShiprocketClient()
