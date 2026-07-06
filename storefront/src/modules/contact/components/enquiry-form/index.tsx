@@ -80,7 +80,7 @@ export default function EnquiryForm() {
 
                 <button
                     type="submit"
-                    className="w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-all uppercase tracking-widest text-xs shadow-lg transform active:scale-[0.98]"
+                    className="w-full bg-[#0bb799] text-white font-bold py-4 rounded-xl hover:bg-[#099980] transition-all uppercase tracking-widest text-xs shadow-lg shadow-[#0bb799]/30 transform active:scale-[0.98]"
                 >
                     Send Message
                 </button>
