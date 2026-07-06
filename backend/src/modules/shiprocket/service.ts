@@ -81,36 +81,62 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
             console.log("[ShiprocketService] Attempting raw SQL fallback via pgConnection (__pg_connection__)...")
             
             // Query Order
-            const orderRes = await pgConnection.raw('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = ?', [order.id])
-            const orderRow = orderRes?.rows?.[0]
-            
-            if (orderRow) {
-              displayId = orderRow.display_id
-              email = orderRow.email
+            try {
+              const orderRes = await pgConnection.raw('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = ?', [order.id])
+              const orderRow = orderRes?.rows?.[0]
               
-              // Query Address
-              if (orderRow.shipping_address_id) {
-                const addrRes = await pgConnection.raw('SELECT phone FROM "order_address" WHERE id = ?', [orderRow.shipping_address_id])
-                phoneVal = addrRes?.rows?.[0]?.phone || phoneVal
+              if (orderRow) {
+                displayId = orderRow.display_id
+                email = orderRow.email
+                
+                // Query Address
+                if (orderRow.shipping_address_id) {
+                  try {
+                    const addrRes = await pgConnection.raw('SELECT phone FROM "order_address" WHERE id = ?', [orderRow.shipping_address_id])
+                    phoneVal = addrRes?.rows?.[0]?.phone || phoneVal
+                  } catch (addrErr: any) {
+                    console.error("[ShiprocketService] Failed to query address from DB:", addrErr.message)
+                  }
+                }
               }
-              
-              // Query Payment
-              const paymentRes = await pgConnection.raw('SELECT provider_id FROM "payment" WHERE order_id = ? LIMIT 1', [order.id])
+            } catch (orderErr: any) {
+              console.error("[ShiprocketService] Failed to query order from DB:", orderErr.message)
+            }
+            
+            // Query Payment
+            try {
+              const paymentRes = await pgConnection.raw('SELECT p.provider_id FROM "payment" p JOIN "order_payment_collection" opc ON p.payment_collection_id = opc.payment_collection_id WHERE opc.order_id = ? LIMIT 1', [order.id])
               isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
-              
-              // Query Line Items
+            } catch (payErr: any) {
+              console.warn("[ShiprocketService] Failed to query payment details from DB, trying direct payment table lookup:", payErr.message)
+              try {
+                const paymentRes = await pgConnection.raw('SELECT provider_id FROM "payment" WHERE order_id = ? LIMIT 1', [order.id])
+                isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
+              } catch (payErr2: any) {
+                console.warn("[ShiprocketService] Direct payment table lookup failed:", payErr2.message)
+              }
+            }
+            
+            // Query Line Items
+            try {
               const itemsRes = await pgConnection.raw('SELECT oli.title, oli.variant_sku, oli.unit_price, oi.quantity FROM "order_item" oi JOIN "order_line_item" oli ON oi.item_id = oli.id WHERE oi.order_id = ?', [order.id])
               dbItems = itemsRes?.rows || []
-              
-              // Query Shipping Method
+            } catch (itemsErr: any) {
+              console.error("[ShiprocketService] Failed to query line items from DB:", itemsErr.message)
+            }
+            
+            // Query Shipping Method
+            try {
               const shippingRes = await pgConnection.raw('SELECT asm.amount FROM "order_shipping" os JOIN "order_shipping_method" asm ON os.shipping_method_id = asm.id WHERE os.order_id = ?', [order.id])
               dbShippingFee = parseFloat(shippingRes?.rows?.[0]?.amount?.toString() || "0")
-              
-              console.log("[ShiprocketService] Successfully retrieved details via pgConnection:", { displayId, email, phoneVal, isCOD, dbItemsCount: dbItems.length, dbShippingFee })
+            } catch (shipErr: any) {
+              console.error("[ShiprocketService] Failed to query shipping from DB:", shipErr.message)
             }
+            
+            console.log("[ShiprocketService] Fallback retrieval complete:", { displayId, email, phoneVal, isCOD, dbItemsCount: dbItems.length, dbShippingFee })
           }
         } catch (dbErr: any) {
-          console.error("[ShiprocketService] pgConnection fallback query failed:", dbErr.message)
+          console.error("[ShiprocketService] pgConnection fallback wrapper failed:", dbErr.message)
         }
       }
     }
