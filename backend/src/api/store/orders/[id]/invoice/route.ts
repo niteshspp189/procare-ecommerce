@@ -13,7 +13,7 @@ export const GET = async (
   try {
     console.log(`[BackendInvoice] Fetching invoice for order ID: ${id}`)
     const order = await orderModuleService.retrieveOrder(id, {
-      relations: ["shipping_address", "items", "billing_address", "shipping_methods.shipping_method"]
+      relations: ["shipping_address", "items", "billing_address", "shipping_methods"]
     })
 
     if (!order) {

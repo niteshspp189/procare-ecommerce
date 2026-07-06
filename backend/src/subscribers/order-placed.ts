@@ -114,7 +114,7 @@ export default async function orderPlacedHandler({
     const { sendOrderConfirmationEmail } = require("../lib/email")
     // Retrieve full order with items and addresses for the invoice
     const fullOrder = await orderModuleService.retrieveOrder(data.id, {
-        relations: ["shipping_address", "items.item", "billing_address", "shipping_methods.shipping_method"]
+        relations: ["shipping_address", "items.item", "billing_address", "shipping_methods"]
     })
     await sendOrderConfirmationEmail(fullOrder)
     console.log(`[OrderPlacedSubscriber] Sent order confirmation email for ${data.id}`)

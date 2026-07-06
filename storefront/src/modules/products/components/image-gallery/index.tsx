@@ -123,7 +123,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                 ) : null}
                 {!!image.url && (
                   <ZoomableImage
-                    src={encodeURI(image.url)}
+                    src={image.url}
                     alt={`Product image ${index + 1}`}
                     priority={index === 0}
                     unoptimized={true}

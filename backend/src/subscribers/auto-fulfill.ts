@@ -17,7 +17,7 @@ export default async function autoFulfillOrderHandler({
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
   
   const order = await orderModuleService.retrieveOrder(data.id, {
-    relations: ["items.item", "shipping_methods.shipping_method"]
+    relations: ["items.item", "shipping_methods"]
   })
 
   // We check if it's already fulfilled

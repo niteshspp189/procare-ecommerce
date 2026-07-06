@@ -1,12 +1,15 @@
 import { AbstractFulfillmentProviderService } from "@medusajs/framework/utils"
 import { CalculatedShippingOptionPrice, CreateFulfillmentResult } from "@medusajs/types"
+import { Modules } from "@medusajs/utils"
 import { shiprocketClient } from "./shiprocket-client"
 
 export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderService {
   static identifier = "shiprocket"
+  protected container: any
 
-  constructor() {
+  constructor(container: any) {
     super()
+    this.container = container
   }
 
   async getFulfillmentOptions(): Promise<any[]> {
@@ -47,43 +50,77 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     // We assume online payment since COD is disabled.
     const paymentMethod = "Prepaid"
     
+    let fullOrder = order
+    if (order && order.id && this.container) {
+      try {
+        const orderModuleService = this.container.resolve(Modules.ORDER)
+        fullOrder = await orderModuleService.retrieveOrder(order.id, {
+          relations: ["shipping_address", "items", "billing_address", "shipping_methods"]
+        })
+        console.log("[ShiprocketService] Successfully retrieved full order details:", fullOrder.id)
+      } catch (err: any) {
+        console.warn("[ShiprocketService] Failed to retrieve full order details, falling back to passed order:", err.message)
+      }
+    }
+    
     const address = fulfillment.delivery_address
-    const name = address?.first_name || order?.shipping_address?.first_name || "Customer"
-    const lastName = address?.last_name || order?.shipping_address?.last_name || ""
-    const addressLine1 = address?.address_1 || order?.shipping_address?.address_1 || "Unknown"
-    const city = address?.city || order?.shipping_address?.city || "Unknown"
-    const pin = address?.postal_code || order?.shipping_address?.postal_code || "000000"
-    const state = address?.province || order?.shipping_address?.province || "Unknown"
-    const country = address?.country_code || order?.shipping_address?.country_code || "IN"
-    const phone = address?.phone || order?.shipping_address?.phone || "9876543210"
-    const email = order?.email || "customer@example.com"
+    const shippingAddress = fullOrder?.shipping_address || order?.shipping_address || {}
+    
+    const name = address?.first_name || shippingAddress?.first_name || "Customer"
+    const lastName = address?.last_name || shippingAddress?.last_name || ""
+    const addressLine1 = address?.address_1 || shippingAddress?.address_1 || "Unknown"
+    const city = address?.city || shippingAddress?.city || "Unknown"
+    const pin = address?.postal_code || shippingAddress?.postal_code || "000000"
+    const state = address?.province || shippingAddress?.province || "Unknown"
+    const country = address?.country_code || shippingAddress?.country_code || "IN"
+    
+    const rawPhone = address?.phone || shippingAddress?.phone || "9876543210"
+    const cleanPhone = rawPhone.replace(/\D/g, "")
+    const phone = cleanPhone.length > 10 ? cleanPhone.slice(-10) : cleanPhone
+    
+    const email = fullOrder?.email || order?.email || "customer@example.com"
+
+    let subTotal = 0
+    let totalTax = 0
 
     const orderItems = items.map(item => {
-      const orderItem = order?.items?.find((oi: any) => 
+      const orderItem = fullOrder?.items?.find((oi: any) => 
         oi.sku === item.sku || 
         oi.title === item.title || 
-        oi.item_id === item.line_item_id ||
-        oi.id === item.line_item_id
+        oi.id === item.line_item_id ||
+        oi.item_id === item.line_item_id
       )
-      const price = orderItem?.unit_price ?? orderItem?.item?.unit_price ?? item.unit_price ?? 0
+      
+      const inclusivePrice = orderItem?.unit_price ?? orderItem?.item?.unit_price ?? item.unit_price ?? 0
+      const qty = item.quantity || 1
+      
+      // Calculate 18% inclusive tax
+      const taxRate = 18
+      const taxablePrice = inclusivePrice / (1 + (taxRate / 100))
+      const taxPerUnit = inclusivePrice - taxablePrice
+      
+      const itemSubtotal = parseFloat((taxablePrice * qty).toFixed(2))
+      const itemTax = parseFloat((taxPerUnit * qty).toFixed(2))
+      
+      subTotal += itemSubtotal
+      totalTax += itemTax
+      
       return {
         name: item.title || orderItem?.title || orderItem?.item?.title || "Product",
         sku: item.sku || orderItem?.sku || orderItem?.item?.variant_sku || "PRO-SKU",
-        units: item.quantity,
-        selling_price: price,
+        units: qty,
+        selling_price: parseFloat(taxablePrice.toFixed(2)),
+        tax: parseFloat(itemTax.toFixed(2)),
         discount: 0
       }
     })
 
-    let subTotal = 0
-    orderItems.forEach(i => subTotal += (i.selling_price * i.units))
-
-    const shippingFee = order?.shipping_total ?? order?.summary?.shipping_total ?? order?.shipping_methods?.[0]?.shipping_method?.amount ?? 0
-    const shippingCharges = shippingFee // Medusa v2 stores directly in INR
+    const shippingFee = fullOrder?.shipping_total ?? fullOrder?.summary?.shipping_total ?? fullOrder?.shipping_methods?.[0]?.amount ?? 0
+    const shippingCharges = parseFloat(shippingFee.toString())
 
     const orderData = {
-      order_id: `PRO-${order?.id?.substring(order.id.length - 8) || Date.now()}`,
-      order_date: new Date().toISOString().split('T')[0],
+      order_id: `OD${(fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,
+      order_date: new Date(fullOrder?.created_at || Date.now()).toISOString().split('T')[0],
       pickup_location: "Primary",
       billing_customer_name: name,
       billing_last_name: lastName,
@@ -101,7 +138,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       giftwrap_charges: 0,
       transaction_charges: 0,
       total_discount: 0,
-      sub_total: subTotal,
+      sub_total: parseFloat(subTotal.toFixed(2)),
+      tax: parseFloat(totalTax.toFixed(2)),
+      grand_total: parseFloat((subTotal + totalTax + shippingCharges).toFixed(2)),
       length: 10,
       breadth: 10,
       height: 10,
