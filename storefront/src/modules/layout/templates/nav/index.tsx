@@ -82,24 +82,30 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
       {/* Black Top bar for premium feel */}
-      <div className="flex justify-between items-center px-4 sm:px-6 py-2.5 bg-[#141414] text-white text-[11px] uppercase tracking-wider border-b border-gray-800">
-        <div className="hidden lg:block flex-1"></div>
-        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-1 lg:flex-auto mx-auto text-center">
-          <span className="inline-flex items-center gap-1.5 font-bold text-[#0bb799]">
-            <span className="w-2 h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
-            Free Delivery Eligible On Orders Above ₹499
+      <div className="flex justify-between items-center px-4 sm:px-6 py-2.5 bg-[#141414] text-white text-[9px] lg:text-[10px] xl:text-[11px] uppercase tracking-wider border-b border-gray-800">
+        {/* Left spacer for perfect centering on large screens */}
+        <div className="hidden xl:block flex-1"></div>
+        
+        {/* Promo text and Shop Now button */}
+        <div className="flex items-center justify-start xl:justify-center gap-2 sm:gap-3 xl:flex-1 shrink-0">
+          <span className="inline-flex items-center gap-1.5 font-bold text-[#0bb799] whitespace-nowrap">
+            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
+            <span className="hidden sm:inline">Free Delivery Eligible On Orders Above ₹499</span>
+            <span className="sm:hidden">Free Delivery &gt; ₹499</span>
           </span>
-          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2.5 py-0.5 rounded text-[10px] transition-all tracking-normal whitespace-nowrap">
+          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-0.5 rounded transition-all whitespace-nowrap shrink-0">
             Shop Now
           </LocalizedClientLink>
         </div>
-        <div className="hidden lg:flex items-center justify-end gap-4 xl:gap-6 font-medium text-gray-300 flex-1">
-          <LocalizedClientLink href="/" className="hover:text-white transition-colors whitespace-nowrap">Home</LocalizedClientLink>
-          <LocalizedClientLink href="/faq" className="hover:text-white transition-colors whitespace-nowrap">FAQ</LocalizedClientLink>
-          <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors whitespace-nowrap">Our Story</LocalizedClientLink>
-          <LocalizedClientLink href="/contact" className="hover:text-white transition-colors whitespace-nowrap">Contact Us</LocalizedClientLink>
-          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors whitespace-nowrap">Blogs</LocalizedClientLink>
-          <LocalizedClientLink href="/account" className="hover:text-white transition-colors whitespace-nowrap">
+
+        {/* Right Navigation Links */}
+        <div className="hidden md:flex items-center justify-end gap-3 lg:gap-4 xl:gap-6 font-medium text-gray-300 xl:flex-1 whitespace-nowrap">
+          <LocalizedClientLink href="/" className="hover:text-white transition-colors shrink-0">Home</LocalizedClientLink>
+          <LocalizedClientLink href="/faq" className="hover:text-white transition-colors shrink-0">FAQ</LocalizedClientLink>
+          <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors shrink-0">Our Story</LocalizedClientLink>
+          <LocalizedClientLink href="/contact" className="hover:text-white transition-colors shrink-0">Contact Us</LocalizedClientLink>
+          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors shrink-0">Blogs</LocalizedClientLink>
+          <LocalizedClientLink href="/account" className="hover:text-white transition-colors shrink-0">
             {customer ? "Account" : "Log In"}
           </LocalizedClientLink>
         </div>
