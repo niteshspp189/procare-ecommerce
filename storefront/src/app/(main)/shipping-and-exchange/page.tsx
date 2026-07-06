@@ -10,7 +10,7 @@ export default function ShippingAndExchange() {
     <div className="py-16 px-4 md:px-8 max-w-4xl mx-auto min-h-[50vh]">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-900">Shipping & Exchange Policy</h1>
       <div className="prose prose-slate max-w-none text-gray-700">
-        <p className="font-semibold mb-4 text-gray-900">Effective Date: 29-June-2026</p>
+
 
         <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Shipping</h2>
         <ul className="list-disc pl-6 mb-8 space-y-2">
