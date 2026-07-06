@@ -15,6 +15,7 @@ type CartTotalsProps = {
     shipping_total?: number | null
     discount_total?: number | null
     item_total?: number | null
+    shipping_methods?: any[] | null
   }
 }
 
@@ -28,6 +29,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
     discount_subtotal,
     item_total,
     item_subtotal,
+    shipping_methods,
   } = totals
 
   // Use actual shipping and total values from the cart
@@ -36,8 +38,18 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
        
   const effectiveDiscount = discount_total ?? discount_subtotal ?? 0
 
+  // Check if a shipping method has actually been selected
+  const hasShippingMethod = (shipping_methods?.length ?? 0) > 0
+
   // The Selling Price Subtotal (inc. taxes)
   const spSubtotal = item_total ?? (effectiveTotal - effectiveShipping + effectiveDiscount)
+
+  // Determine shipping display text
+  const shippingDisplay = !hasShippingMethod
+    ? "Calculated at next step"
+    : effectiveShipping === 0
+      ? "Free"
+      : convertToLocale({ amount: effectiveShipping, currency_code })
 
   return (
     <div>
@@ -52,9 +64,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
         <div className="flex items-center justify-between">
           <span>Shipping</span>
           <span data-testid="cart-shipping" data-value={effectiveShipping}>
-            {effectiveShipping === 0
-              ? "Free"
-              : convertToLocale({ amount: effectiveShipping, currency_code })}
+            {shippingDisplay}
           </span>
         </div>
 
