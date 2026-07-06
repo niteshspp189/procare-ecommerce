@@ -1,4 +1,5 @@
 import React from "react"
+import CustomVideoPlayer from "./CustomVideoPlayer"
 
 const CheckCircle = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -53,15 +54,7 @@ const OurStoryPage = () => {
                 <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                     {/* VIDEO LEFT */}
                     <div className="w-full lg:w-[55%] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative aspect-video bg-gray-50 flex-shrink-0 self-start hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-500">
-                        <iframe 
-                            className="absolute top-0 left-0 w-full h-full rounded-3xl scale-[1.2]"
-                            src="https://www.youtube.com/embed/iRgOQn3acBs?rel=0" 
-                            title="MV Shoecare corporate video" 
-                            frameBorder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            referrerPolicy="strict-origin-when-cross-origin" 
-                            allowFullScreen
-                        ></iframe>
+                        <CustomVideoPlayer videoId="iRgOQn3acBs" />
                     </div>
 
                     {/* TEXT RIGHT */}
