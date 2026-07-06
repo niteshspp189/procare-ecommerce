@@ -194,7 +194,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     currentY += 5
     
     // Add Shipping if any
-    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
+    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.shipping_method?.amount ?? 0
     const finalShipping = shippingFee // Medusa v2 stores directly in INR
     if (finalShipping > 0) {
       const shipTaxRate = 18
@@ -262,7 +262,7 @@ export async function sendOrderConfirmationEmail(order: any) {
       return acc + (item.unit_price || 0) * (item.quantity || 1)
     }, 0)
     
-    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
+    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.shipping_method?.amount ?? 0
     
     // Total is calculated directly - Medusa v2 stores directly in INR
     const rawTotal = order.total ?? order.summary?.total ?? (itemsSubtotal + shippingFee)

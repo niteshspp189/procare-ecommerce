@@ -69,7 +69,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let subTotal = 0
     orderItems.forEach(i => subTotal += (i.selling_price * i.units))
 
-    const shippingFee = order?.shipping_total ?? order?.summary?.shipping_total ?? order?.shipping_methods?.[0]?.amount ?? 0
+    const shippingFee = order?.shipping_total ?? order?.summary?.shipping_total ?? order?.shipping_methods?.[0]?.shipping_method?.amount ?? 0
     const shippingCharges = shippingFee // Medusa v2 stores directly in INR
 
     const orderData = {
