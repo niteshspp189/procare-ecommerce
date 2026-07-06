@@ -190,7 +190,7 @@ const OurStoryPage = () => {
                         Join the Revolution in Footwear Care
                     </h2>
                     
-                    <a href="/store" className="bg-[#0bb799] text-white px-10 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-[#099980] hover:-translate-y-1 transition-all shadow-[0_0_20px_rgba(11,183,153,0.4)] hover:shadow-[0_0_30px_rgba(11,183,153,0.6)] inline-block uppercase tracking-wider">
+                    <a href="/shop" className="bg-[#0bb799] text-white px-10 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-[#099980] hover:-translate-y-1 transition-all shadow-[0_0_20px_rgba(11,183,153,0.4)] hover:shadow-[0_0_30px_rgba(11,183,153,0.6)] inline-block uppercase tracking-wider">
                         Shop The Collection
                     </a>
                 </div>
