@@ -66,3 +66,21 @@ export const calculatePriceForShippingOption = async (
       return null
     })
 }
+
+export const getShippingThreshold = async () => {
+  return sdk.client
+    .fetch<{ threshold: number; shipping_fee: number }>(
+      `/store/shipping-threshold`,
+      {
+        method: "GET",
+        next: {
+          revalidate: 60, // Cache for 60 seconds
+          tags: ["shipping-threshold"],
+        },
+      }
+    )
+    .catch(() => {
+      return { threshold: 499, shipping_fee: 1 }
+    })
+}
+

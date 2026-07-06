@@ -12,8 +12,6 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState, useTransition } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
-const FREE_SHIPPING_THRESHOLD = 499
-
 const CartDropdown = ({
   cart: cartState,
 }: {
@@ -22,9 +20,22 @@ const CartDropdown = ({
   const { isOpen, openDrawer, closeDrawer } = useCartDrawer()
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [localQuantities, setLocalQuantities] = useState<Record<string, number>>({})
+  const [threshold, setThreshold] = useState(499)
   const itemRef = useRef<number>(0)
   const router = useRouter()
   const [, startTransition] = useTransition()
+
+  useEffect(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
+    fetch(`${backendUrl}/store/shipping-threshold`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data.threshold === "number") {
+          setThreshold(data.threshold)
+        }
+      })
+      .catch((err) => console.error("Error fetching shipping threshold:", err))
+  }, [])
 
   // Sync local quantities when cart prop changes (after router.refresh)
   useEffect(() => {
@@ -43,9 +54,9 @@ const CartDropdown = ({
     return acc + unitPrice * qty
   }, 0) ?? 0
   const currencyCode = cartState?.currency_code ?? "inr"
-  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
-  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)
-  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
+  const amountToFreeShipping = Math.max(0, threshold - subtotal)
+  const freeShippingProgress = Math.min(100, (subtotal / threshold) * 100)
+  const hasFreeShipping = subtotal >= threshold
 
   const pathname = usePathname()
   const isInitialRender = useRef(true)

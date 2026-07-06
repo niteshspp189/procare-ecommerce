@@ -9,7 +9,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { HttpTypes } from "@medusajs/types"
 import { convertToLocale } from "@lib/util/money"
 
-const FREE_SHIPPING_THRESHOLD = 499
+import { useEffect, useState } from "react"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {
@@ -26,11 +26,25 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
 }
 
 const Summary = ({ cart }: SummaryProps) => {
+  const [threshold, setThreshold] = useState(499)
+
+  useEffect(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
+    fetch(`${backendUrl}/store/shipping-threshold`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data.threshold === "number") {
+          setThreshold(data.threshold)
+        }
+      })
+      .catch((err) => console.error("Error fetching shipping threshold:", err))
+  }, [])
+
   const step = getCheckoutStep(cart)
   const subtotal = cart.subtotal ?? 0
-  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
-  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)
-  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
+  const amountToFreeShipping = Math.max(0, threshold - subtotal)
+  const freeShippingProgress = Math.min(100, (subtotal / threshold) * 100)
+  const hasFreeShipping = subtotal >= threshold
 
   return (
     <div className="flex flex-col gap-y-4">

@@ -10,6 +10,8 @@ import ProductCard from "@modules/common/components/product-card"
 import Button from "@modules/common/components/button"
 import Section from "@modules/layout/components/section"
 
+import { getShippingThreshold } from "@lib/data/fulfillment"
+
 export const revalidate = 60
 
 
@@ -23,11 +25,16 @@ export default async function StagingHome(props: {
 }) {
   const params = await props.params
   const { countryCode } = params
-  const region = await getRegion(countryCode)
-  const productCategories = await listCategories()
-  const { collections } = await listCollections({
-    limit: "100"
-  })
+  
+  const [region, productCategories, collectionsData, thresholdData] = await Promise.all([
+    getRegion(countryCode),
+    listCategories(),
+    listCollections({ limit: "100" }),
+    getShippingThreshold(),
+  ])
+
+  const { collections } = collectionsData || { collections: [] }
+  const threshold = thresholdData?.threshold ?? 499
 
   if (!region) {
     const regions = await listRegions()
@@ -263,7 +270,7 @@ export default async function StagingHome(props: {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-base font-bold text-black tracking-widest uppercase">Free Delivery</span>
-              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">On all orders above ₹499</span>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">On all orders above ₹{threshold}</span>
             </div>
           </div>
           <div className="flex flex-col items-center text-center gap-4">

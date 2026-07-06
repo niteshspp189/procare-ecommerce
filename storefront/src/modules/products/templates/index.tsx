@@ -52,9 +52,22 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
+  const [threshold, setThreshold] = useState(499)
 
   const searchParams = useSearchParams()
   const vId = searchParams?.get("v_id")
+
+  React.useEffect(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
+    fetch(`${backendUrl}/store/shipping-threshold`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data.threshold === "number") {
+          setThreshold(data.threshold)
+        }
+      })
+      .catch((err) => console.error("Error fetching shipping threshold:", err))
+  }, [])
 
   React.useEffect(() => {
     if (vId && product?.variants) {
@@ -472,7 +485,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   {activeAccordion === "shipping" && (
                     <div className="px-1 pb-4 space-y-2 text-sm text-black">
                       <div><strong>Delivery:</strong> Ships within 5–6 business days across India.</div>
-                      <div><strong>Free Delivery:</strong> On all orders above ₹499.</div>
+                      <div><strong>Free Delivery:</strong> On all orders above ₹{threshold}.</div>
                       <div><strong>Cash on Delivery:</strong> Available on select pincodes.</div>
                       <div><strong>Returns:</strong> 15-day return policy for sealed and unused products.</div>
                       <div><strong>Exchange:</strong> Available within 7 days of delivery. Contact us at customercare@mvscindia.com.</div>

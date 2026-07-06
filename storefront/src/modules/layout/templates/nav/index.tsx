@@ -11,6 +11,8 @@ import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
 import SearchModal from "@modules/layout/components/search-modal"
 
+import { getShippingThreshold } from "@lib/data/fulfillment"
+
 const styles = {
   topNav: {
     justifyContent: 'flex-end',
@@ -72,12 +74,15 @@ const styles = {
 }
 
 export default async function Nav() {
-  const [regions, locales, currentLocale, customer] = await Promise.all([
+  const [regions, locales, currentLocale, customer, thresholdData] = await Promise.all([
     listRegions().then((regions: StoreRegion[]) => regions),
     listLocales(),
     getLocale(),
     retrieveCustomer().catch(() => null),
+    getShippingThreshold(),
   ])
+
+  const threshold = thresholdData?.threshold ?? 499
 
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
@@ -90,8 +95,8 @@ export default async function Nav() {
         <div className="flex items-center justify-start xl:justify-center gap-2 sm:gap-3 xl:flex-1 shrink-0">
           <span className="inline-flex items-center gap-1.5 font-bold text-[#0bb799] whitespace-nowrap">
             <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
-            <span className="hidden sm:inline">Free Delivery Eligible On Orders Above ₹499</span>
-            <span className="sm:hidden">Free Delivery &gt; ₹499</span>
+            <span className="hidden sm:inline">Free Delivery Eligible On Orders Above ₹{threshold}</span>
+            <span className="sm:hidden">Free Delivery &gt; ₹{threshold}</span>
           </span>
           <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-0.5 rounded transition-all whitespace-nowrap shrink-0">
             Shop Now
@@ -110,6 +115,7 @@ export default async function Nav() {
           </LocalizedClientLink>
         </div>
       </div>
+
 
       <nav style={styles.mainNav as any} className="flex bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none">
         <div className="flex items-center">
