@@ -53,16 +53,7 @@ export default function BestSellersTabs({
                     </div>
                 )}
 
-                {activeCategory && (
-                    <div className="text-center mt-12">
-                        <a
-                            href={`/shop`}
-                            className="inline-block border border-black bg-transparent text-black px-8 py-3 rounded-full font-bold text-sm hover:bg-black hover:text-white transition-all"
-                        >
-                            View All
-                        </a>
-                    </div>
-                )}
+                {/* View All button removed as requested */}
             </div>
         </div>
     )
