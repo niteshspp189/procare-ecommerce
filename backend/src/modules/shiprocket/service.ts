@@ -47,9 +47,11 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     fulfillment: any
   ): Promise<CreateFulfillmentResult> {
     
-    // We assume online payment since COD is disabled.
-    const paymentMethod = "Prepaid"
-    
+    let email = order?.email
+    let phoneVal = fulfillment.delivery_address?.phone || order?.shipping_address?.phone
+    let displayId = order?.display_id
+    let isCOD = false
+
     let fullOrder = order
     if (order && order.id && this.container) {
       try {
@@ -59,13 +61,58 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
           throw new Error("ORDER module service not found on injected container.")
         }
         fullOrder = await orderModuleService.retrieveOrder(order.id, {
-          relations: ["shipping_address", "items", "billing_address", "shipping_methods"]
+          relations: ["shipping_address", "items", "billing_address", "shipping_methods", "payment_collections.payments"]
         })
         console.log("[ShiprocketService] Successfully retrieved full order details:", fullOrder.id)
+        email = fullOrder.email || email
+        phoneVal = fullOrder.shipping_address?.phone || phoneVal
+        displayId = fullOrder.display_id || displayId
+        isCOD = fullOrder.payment_collections?.[0]?.payments?.[0]?.provider_id === "manual" ||
+                order?.payment_collections?.[0]?.payments?.[0]?.provider_id === "manual"
       } catch (err: any) {
-        console.warn("[ShiprocketService] Failed to retrieve full order details, falling back to passed order:", err.message)
+        console.warn("[ShiprocketService] Failed to retrieve full order details via orderModuleService, trying pgConnection fallback:", err.message)
+        
+        // pgConnection Fallback query
+        try {
+          const pgConnection = this.container.pgConnection || this.container.pg_connection
+          if (pgConnection) {
+            console.log("[ShiprocketService] Attempting raw SQL fallback via pgConnection...")
+            let orderRow: any = null
+            if (typeof pgConnection.query === 'function') {
+              const res = await pgConnection.query('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = $1', [order.id])
+              orderRow = res?.rows?.[0]
+              if (orderRow?.shipping_address_id) {
+                const addrRes = await pgConnection.query('SELECT phone FROM "order_address" WHERE id = $1', [orderRow.shipping_address_id])
+                phoneVal = addrRes?.rows?.[0]?.phone || phoneVal
+              }
+              const paymentRes = await pgConnection.query('SELECT provider_id FROM "payment" WHERE order_id = $1 LIMIT 1', [order.id])
+              isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
+            } else if (typeof pgConnection.raw === 'function') {
+              const res = await pgConnection.raw('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = ?', [order.id])
+              orderRow = res?.rows?.[0] || res?.[0]
+              if (orderRow?.shipping_address_id) {
+                const addrRes = await pgConnection.raw('SELECT phone FROM "order_address" WHERE id = ?', [order.id])
+                phoneVal = (addrRes?.rows?.[0]?.phone || addrRes?.[0]?.phone) || phoneVal
+              }
+              const paymentRes = await pgConnection.raw('SELECT provider_id FROM "payment" WHERE order_id = ? LIMIT 1', [order.id])
+              const row = paymentRes?.rows?.[0] || paymentRes?.[0]
+              isCOD = row?.provider_id === 'manual'
+            }
+            
+            if (orderRow) {
+              displayId = orderRow.display_id
+              email = orderRow.email
+              console.log("[ShiprocketService] Successfully retrieved details via pgConnection:", { displayId, email, phoneVal, isCOD })
+            }
+          }
+        } catch (dbErr: any) {
+          console.error("[ShiprocketService] pgConnection fallback query failed:", dbErr.message)
+        }
       }
     }
+    
+    // We assume COD if the payment method was manual (Cash on Delivery)
+    const paymentMethod = isCOD ? "COD" : "Prepaid"
     
     const address = fulfillment.delivery_address
     const shippingAddress = fullOrder?.shipping_address || order?.shipping_address || {}
@@ -78,11 +125,11 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     const state = address?.province || shippingAddress?.province || "Unknown"
     const country = address?.country_code || shippingAddress?.country_code || "IN"
     
-    const rawPhone = address?.phone || shippingAddress?.phone || "9876543210"
+    const rawPhone = phoneVal || address?.phone || shippingAddress?.phone || "8588834954"
     const cleanPhone = rawPhone.replace(/\D/g, "")
-    const phone = cleanPhone.length > 10 ? cleanPhone.slice(-10) : cleanPhone
+    const phone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : "8588834954"
     
-    const email = fullOrder?.email || order?.email || "customer@example.com"
+    const emailVal = email || fullOrder?.email || order?.email || "customer@example.com"
 
     let subTotal = 0
     let totalTax = 0
@@ -123,8 +170,8 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     const shippingCharges = parseFloat(shippingFee.toString())
 
     const orderData = {
-      order_id: `OD${(fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,
-      order_date: new Date(fullOrder?.created_at || Date.now()).toISOString().split('T')[0],
+      order_id: `OD${(displayId || fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,
+      order_date: new Date(fullOrder?.created_at || order?.created_at || Date.now()).toISOString().split('T')[0],
       pickup_location: "Primary",
       billing_customer_name: name,
       billing_last_name: lastName,
@@ -133,7 +180,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       billing_pincode: pin,
       billing_state: state,
       billing_country: country,
-      billing_email: email,
+      billing_email: emailVal,
       billing_phone: phone,
       shipping_is_billing: true,
       order_items: orderItems,
@@ -152,7 +199,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     }
 
     try {
+      console.log("[ShiprocketService] Pushing order payload to Shiprocket:", JSON.stringify(orderData, null, 2))
       const result = await shiprocketClient.createOrder(orderData)
+      console.log("[ShiprocketService] Shiprocket response:", JSON.stringify(result, null, 2))
       
       const externalId = result?.order_id?.toString() || ""
       const awbCode = result?.awb_code || ""

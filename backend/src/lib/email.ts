@@ -155,7 +155,9 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // TABLE ROWS
     doc.font(KELSON_REGULAR)
     let currentY = thY + 20
-    let subtotalValue = 0
+    let itemsTaxableSubtotal = 0
+    let itemsTaxSubtotal = 0
+    let itemsTotalSubtotal = 0
     let i = 1
 
     for (const item of order.items || []) {
@@ -172,7 +174,9 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       const taxValue = taxableValue * (taxRate / 100)
       const total = taxableValue + taxValue
       
-      subtotalValue += total
+      itemsTaxableSubtotal += taxableValue
+      itemsTaxSubtotal += taxValue
+      itemsTotalSubtotal += total
       
       doc.text(i.toString(), 40, currentY)
       doc.text(item.title || "Unknown Product", 70, currentY, { width: 180 })
@@ -191,36 +195,52 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     }
 
     doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, currentY).lineTo(width - 40, currentY).stroke()
+    currentY += 10
+    
+    // Add Shipping and Discount
+    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
+    const discountTotal = order.discount_total ?? order.summary?.discount_total ?? 0
+    const netTotal = itemsTotalSubtotal + shippingFee - discountTotal
+
+    // Summary block fields
+    const summaryX = 350
+    const valueX = 510
+    const labelWidth = 140
+    
+    // Subtotal (Excl. Tax)
+    doc.font(KELSON_BOLD).fontSize(7).fillColor("#333333")
+    doc.text("Subtotal (Excl. Tax)", summaryX, currentY, { align: "right", width: labelWidth })
+    doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    currentY += 12
+    
+    // CGST/SGST Tax (GST 18%)
+    doc.text("GST (18% Inclusive)", summaryX, currentY, { align: "right", width: labelWidth })
+    doc.text(`Rs. ${itemsTaxSubtotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    currentY += 12
+    
+    // Shipping Charges
+    doc.text("Shipping Charges", summaryX, currentY, { align: "right", width: labelWidth })
+    doc.text(`Rs. ${shippingFee.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    currentY += 12
+    
+    // Discount
+    if (discountTotal > 0) {
+      doc.text("Discount", summaryX, currentY, { align: "right", width: labelWidth })
+      doc.text(`-Rs. ${discountTotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+      currentY += 12
+    }
+    
+    // Line separator
+    currentY += 2
+    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(summaryX + 30, currentY).lineTo(width - 40, currentY).stroke()
     currentY += 5
     
-    // Add Shipping if any
-    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
-    const finalShipping = shippingFee // Medusa v2 stores directly in INR
-    if (finalShipping > 0) {
-      const shipTaxRate = 0
-      const shipTaxable = finalShipping
-      const shipTax = 0
-      
-      doc.text("-", 40, currentY)
-      doc.text("Shipping Fee", 70, currentY, { width: 180 })
-      doc.text("1", 260, currentY, { align: "center", width: 30 })
-      doc.text(finalShipping.toFixed(2), 290, currentY, { align: "center", width: 50 })
-      doc.text("0.00", 340, currentY, { align: "center", width: 50 })
-      doc.text(shipTaxable.toFixed(2), 390, currentY, { align: "center", width: 60 })
-      doc.text(`${shipTax.toFixed(2)} | ${shipTaxRate}%`, 450, currentY, { align: "center", width: 60 })
-      doc.text(finalShipping.toFixed(2), 510, currentY, { align: "right", width: 45 })
-      currentY += 15
-      doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, currentY).lineTo(width - 40, currentY).stroke()
-      currentY += 5
-      subtotalValue += finalShipping
-    }
-
-    // NET TOTAL
-    doc.font(KELSON_BOLD).fontSize(8)
-    doc.text("NET TOTAL (In Value)", 340, currentY, { align: "right", width: 120 })
-    doc.text(`Rs. ${subtotalValue.toFixed(2)}`, 510, currentY, { align: "right", width: 45 })
+    // Net Total / Grand Total
+    doc.font(KELSON_BOLD).fontSize(8).fillColor("#000000")
+    doc.text("NET TOTAL (In Value)", summaryX, currentY, { align: "right", width: labelWidth })
+    doc.text(`Rs. ${netTotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
     currentY += 15
-    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(340, currentY).lineTo(width - 40, currentY).stroke()
+    doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(summaryX + 30, currentY).lineTo(width - 40, currentY).stroke()
     
     // REVERSE CHARGE TEXT
     currentY += 5
