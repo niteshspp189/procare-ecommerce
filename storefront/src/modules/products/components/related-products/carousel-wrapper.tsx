@@ -21,8 +21,12 @@ export default function CarouselWrapper({
         }
     }
 
+    const [isHovered, setIsHovered] = useState(false)
+
     // Auto-scroll logic matching "slide in auto mode"
     useEffect(() => {
+        if (isHovered) return; // Pause auto-scroll when mouse is hovering
+
         const timer = setInterval(() => {
             if (scrollRef.current) {
                 const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
@@ -36,10 +40,14 @@ export default function CarouselWrapper({
         }, 4000)
 
         return () => clearInterval(timer)
-    }, [])
+    }, [isHovered])
 
     return (
-        <div className="relative group h-full">
+        <div 
+            className="relative group h-full"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             {buttonPosition === 'center' && (
                 <>
                     <button
