@@ -47,6 +47,14 @@ const Payment = ({
 
   const postalCode = cart?.shipping_address?.postal_code
 
+  const emailVal = cart?.email || ""
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)
+
+  const phoneVal = cart?.shipping_address?.phone || ""
+  const cleanPhone = phoneVal.replace(/\D/g, "")
+  const strippedPhone = (cleanPhone.startsWith("91") && cleanPhone.length > 10) ? cleanPhone.slice(2) : cleanPhone
+  const isPhoneValid = strippedPhone.length === 10
+
   useEffect(() => {
     const checkPostcode = async () => {
       if (!postalCode || pincodeChecked === postalCode) return
@@ -179,16 +187,49 @@ const Payment = ({
       </div>
       <div>
         <div className={isOpen ? "block" : "hidden"}>
-          {isServiceable === false && (
-            <div className="mb-6 p-4 rounded-lg bg-orange-50 border border-orange-200 text-orange-800 text-sm">
+          {checkingServiceability && (
+            <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm animate-pulse">
+              <p className="font-bold flex items-center gap-x-2">
+                <span>ℹ️</span> Verifying Shipping Details...
+              </p>
+              <p className="mt-1">
+                Checking delivery serviceability for pincode <strong>{postalCode}</strong> with our courier partner.
+              </p>
+            </div>
+          )}
+
+          {!checkingServiceability && isServiceable === true && isPhoneValid && isEmailValid && (
+            <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm">
               <p className="font-bold flex items-center gap-x-2 mb-1">
-                <span>⚠️</span> Courier Serviceability Alert
+                <span>✅</span> Details Verified & Deliverable
               </p>
               <p>
-                Our courier partner (Shiprocket) indicates that the delivery pincode <strong>{postalCode}</strong> may have serviceability limitations.
+                Your delivery pincode <strong>{postalCode}</strong> and contact details are verified and serviceable by our courier partners.
               </p>
-              <p className="mt-1.5">
-                <strong>Don't worry!</strong> You can still complete your payment and place the order. We will manually resolve this with the courier or arrange an alternative shipping partner after your payment is received.
+            </div>
+          )}
+
+          {!checkingServiceability && (isServiceable === false || !isPhoneValid || !isEmailValid) && (
+            <div className="mb-6 p-4 rounded-lg bg-orange-50 border border-orange-200 text-orange-800 text-sm">
+              <p className="font-bold flex items-center gap-x-2 mb-1">
+                <span>⚠️</span> Delivery Review Required
+              </p>
+              <p>
+                We found potential delivery or courier routing items:
+              </p>
+              <ul className="list-disc pl-5 mt-2 space-y-1.5 font-medium">
+                {isServiceable === false && (
+                  <li>Our courier partner (Shiprocket) indicates that the pincode <strong>{postalCode}</strong> has serviceability limitations or might require custom routing.</li>
+                )}
+                {!isPhoneValid && (
+                  <li>Your phone number (<strong>{phoneVal}</strong>) must be exactly 10 digits (excluding +91). Currently it has {strippedPhone.length} digits.</li>
+                )}
+                {!isEmailValid && (
+                  <li>Your email address (<strong>{emailVal}</strong>) format appears to be invalid or incomplete.</li>
+                )}
+              </ul>
+              <p className="mt-3">
+                <strong>Don't worry!</strong> You can still complete your payment and place the order. We will manually correct this address or contact you after payment is received.
               </p>
             </div>
           )}
