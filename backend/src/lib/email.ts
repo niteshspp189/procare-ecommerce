@@ -267,7 +267,7 @@ export async function sendOrderConfirmationEmail(order: any) {
     const storeUrl = process.env.STORE_URL || 'https://propremiumcare.com'
 
     const mailOptions: any = {
-      from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'team@webclixs.in'}>`,
+      from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'orders@propremiumcare.com'}>`,
       replyTo: 'customercare@mvscindia.com',
       to: order.email,
       bcc: 'customercare@mvscindia.com',
