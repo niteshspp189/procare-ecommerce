@@ -93,13 +93,13 @@ export default async function Nav() {
             Shop Now
           </LocalizedClientLink>
         </div>
-        <div className="hidden lg:flex items-center justify-end gap-6 font-medium text-gray-300 flex-1">
-          <LocalizedClientLink href="/" className="hover:text-white transition-colors">Home</LocalizedClientLink>
-          <LocalizedClientLink href="/faq" className="hover:text-white transition-colors">FAQ</LocalizedClientLink>
-          <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors">Our Story</LocalizedClientLink>
-          <LocalizedClientLink href="/contact" className="hover:text-white transition-colors">Contact Us</LocalizedClientLink>
-          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors">Blogs</LocalizedClientLink>
-          <LocalizedClientLink href="/account" className="hover:text-white transition-colors">
+        <div className="hidden lg:flex items-center justify-end gap-4 xl:gap-6 font-medium text-gray-300 flex-1">
+          <LocalizedClientLink href="/" className="hover:text-white transition-colors whitespace-nowrap">Home</LocalizedClientLink>
+          <LocalizedClientLink href="/faq" className="hover:text-white transition-colors whitespace-nowrap">FAQ</LocalizedClientLink>
+          <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors whitespace-nowrap">Our Story</LocalizedClientLink>
+          <LocalizedClientLink href="/contact" className="hover:text-white transition-colors whitespace-nowrap">Contact Us</LocalizedClientLink>
+          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors whitespace-nowrap">Blogs</LocalizedClientLink>
+          <LocalizedClientLink href="/account" className="hover:text-white transition-colors whitespace-nowrap">
             {customer ? "Account" : "Log In"}
           </LocalizedClientLink>
         </div>
