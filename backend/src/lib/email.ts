@@ -47,17 +47,19 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     }
 
 
+    const blockX = (width - 100) / 2
+
     // Logo (Centered Top)
     try {
-      doc.image(path.join(process.cwd(), "public", "logo.png"), (width - 100) / 2, 40, { width: 100 })
+      doc.image(path.join(process.cwd(), "public", "logo.png"), blockX, 40, { width: 100 })
     } catch(e) {
       // fallback if logo not found
-      doc.fillColor("#000").fontSize(24).font(KELSON_BOLD).text("PRO>", 0, 40, { align: "center" })
+      doc.fillColor("#000").fontSize(24).font(KELSON_BOLD).text("PRO>", blockX, 40)
     }
 
     // TAX INVOICE Title
     doc.y = 120
-    doc.fillColor("#000000").fontSize(14).font(KELSON_BOLD).text("TAX INVOICE", 0, 120, { align: "center" })
+    doc.fillColor("#000000").fontSize(14).font(KELSON_BOLD).text("TAX INVOICE", blockX, 120)
     doc.moveDown(0.5)
     doc.strokeColor("#000000").lineWidth(1).moveTo(40, doc.y).lineTo(width - 40, doc.y).stroke()
     doc.moveDown(1)
@@ -190,9 +192,6 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     
     // Add Shipping if any
     let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? 0
-    if (subtotalValue > 0 && subtotalValue < 499 && (!shippingFee || shippingFee === 0)) {
-        shippingFee = 80 // In case there's genuinely 0 in DB but we know it should have been charged
-    }
     const finalShipping = shippingFee
     if (finalShipping > 0) {
       doc.text("-", 40, currentY)
