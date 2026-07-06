@@ -41,11 +41,11 @@ export default function ContactPage() {
     return (
         <div className="animate-fade-in bg-white">
             {/* HERO */}
-            <div className="py-16 sm:py-24 bg-gradient-to-r from-gray-900 via-[#0bb799] to-[#099980] text-center text-white relative overflow-hidden">
+            <div className="py-16 sm:py-24 bg-gradient-to-r from-black via-gray-900 to-black text-center text-white relative overflow-hidden">
                 <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 <div className="pro-container relative z-10">
                     <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter mb-4 drop-shadow-md">Contact Us</h1>
-                    <p className="text-gray-100 max-w-2xl mx-auto uppercase tracking-widest text-[10px] sm:text-[11px] font-bold">We're here to help you in every step of the way</p>
+                    <p className="text-gray-400 max-w-2xl mx-auto uppercase tracking-widest text-[10px] sm:text-[11px] font-bold">We're here to help you in every step of the way</p>
                 </div>
             </div>
 
