@@ -532,6 +532,6 @@ export async function listCartOptions() {
     query: { cart_id: cartId },
     next,
     headers,
-    cache: "force-cache",
+    cache: "no-store",
   })
 }
