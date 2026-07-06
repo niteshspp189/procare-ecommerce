@@ -63,23 +63,27 @@ const OurStoryPage = () => {
                     </div>
 
                     {/* TEXT RIGHT */}
-                    <div className="w-full lg:w-[45%] space-y-5 text-base sm:text-lg font-normal text-justify sm:text-left self-center">
+                    <div className="w-full lg:w-[45%] space-y-6 text-base sm:text-lg lg:text-xl font-normal text-justify sm:text-left self-center">
                         <p>
                             At <span className="font-semibold text-black">MV Shoecare</span>, our journey began in 2009 with a simple belief: footwear deserves care that matches the craftsmanship behind it.
                         </p>
                         <p>
                             What started as a passion for premium shoe care soon evolved into a mission to bring world-class footwear care solutions to consumers across India and beyond. Our early association with leading international brands helped us understand global standards, advanced formulations, and the science behind preserving footwear. This foundation continues to inspire everything we create today.
                         </p>
-                        <p>
-                            In 2016, we launched <span className="font-bold text-black">PRO</span>, our flagship brand, with a vision to make professional shoe care accessible, effective, and easy to use for everyone. From leather care and sneaker care to accessories, insoles, and foot care solutions, PRO was designed to help consumers extend the life of their footwear while looking and feeling their best.
-                        </p>
-                        <p>
-                            Today, our products are trusted by consumers, footwear brands, retailers, and partners across India and international markets. Behind every product lies a commitment to innovation, quality, and continuous improvement. We work closely with leading formulation experts, raw material partners, and laboratories to bring global expertise into every solution we create.
-                        </p>
-                        <p>
-                            From premium leather shoes and everyday sneakers to foot comfort products and accessories, our goal remains unchanged:
-                        </p>
                     </div>
+                </div>
+
+                {/* ADDITIONAL STORY TEXT (BELOW VIDEO) */}
+                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg lg:text-xl font-normal text-justify sm:text-left max-w-4xl mx-auto">
+                    <p>
+                        In 2016, we launched <span className="font-bold text-black">PRO</span>, our flagship brand, with a vision to make professional shoe care accessible, effective, and easy to use for everyone. From leather care and sneaker care to accessories, insoles, and foot care solutions, PRO was designed to help consumers extend the life of their footwear while looking and feeling their best.
+                    </p>
+                    <p>
+                        Today, our products are trusted by consumers, footwear brands, retailers, and partners across India and international markets. Behind every product lies a commitment to innovation, quality, and continuous improvement. We work closely with leading formulation experts, raw material partners, and laboratories to bring global expertise into every solution we create.
+                    </p>
+                    <p>
+                        From premium leather shoes and everyday sneakers to foot comfort products and accessories, our goal remains unchanged:
+                    </p>
                 </div>
 
                 {/* REDEFINE BANNER */}
