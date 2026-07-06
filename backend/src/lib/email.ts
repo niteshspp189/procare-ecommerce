@@ -141,12 +141,11 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.fontSize(6).font(KELSON_BOLD)
     doc.text("S.NO.", 40, thY)
     doc.text("PRODUCT NAME", 70, thY)
-    // doc.text("HSN", 220, thY, { align: "center", width: 40 })
     doc.text("QTY", 260, thY, { align: "center", width: 30 })
-    doc.text("UNIT PRICE", 290, thY, { align: "center", width: 50 })
-    doc.text("UNIT DISCOUNT", 340, thY, { align: "center", width: 60 })
-    doc.text("TAXABLE VALUE", 400, thY, { align: "center", width: 60 })
-    doc.text("IGST (Value | %)", 460, thY, { align: "center", width: 50 })
+    doc.text("MRP (INCL)", 290, thY, { align: "center", width: 50 })
+    doc.text("DISCOUNT", 340, thY, { align: "center", width: 50 })
+    doc.text("TAXABLE VAL", 390, thY, { align: "center", width: 60 })
+    doc.text("GST (Amt|%)", 450, thY, { align: "center", width: 60 })
     doc.text("TOTAL", 510, thY, { align: "right", width: 45 })
 
     doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, thY + 12).lineTo(width - 40, thY + 12).stroke()
@@ -159,14 +158,18 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     for (const item of order.items || []) {
       const qty = item.quantity || 1
-      const unitPrice = (item.unit_price || 0)
-      const discount = (item.discount_total || 0) / qty // approx per unit
-      const tax = (item.tax_total || 0)
-      const taxRate = item.tax_rate || 18
-      const taxable = (item.subtotal || ((unitPrice - discount) * qty))
-      const total = (item.total || (taxable + tax))
+      const rawUnitPrice = (item.unit_price || 0) / 100 // Medusa prices are in cents
+      const rawDiscount = (item.discount_total || 0) / 100 / qty // unit discount
       
-      const hsn = item.variant?.sku || "34051000"
+      const taxRate = 18 // Default to 18% inclusive GST
+      
+      // Calculate inclusive tax breakdown
+      const inclusiveUnitPrice = rawUnitPrice
+      const taxableUnitPrice = inclusiveUnitPrice / (1 + (taxRate / 100))
+      
+      const taxableValue = (taxableUnitPrice - rawDiscount) * qty
+      const taxValue = taxableValue * (taxRate / 100)
+      const total = taxableValue + taxValue
       
       subtotalValue += total
       
@@ -175,12 +178,11 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       
       const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 180, fontSize: 6 })
       
-      // doc.text(hsn, 220, currentY, { align: "center", width: 40 })
       doc.text(qty.toString(), 260, currentY, { align: "center", width: 30 })
-      doc.text(unitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
-      doc.text(discount.toFixed(2), 340, currentY, { align: "center", width: 60 })
-      doc.text(taxable.toFixed(2), 400, currentY, { align: "center", width: 60 })
-      doc.text(`${tax.toFixed(2)} | ${taxRate}%`, 460, currentY, { align: "center", width: 50 })
+      doc.text(inclusiveUnitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
+      doc.text(rawDiscount.toFixed(2), 340, currentY, { align: "center", width: 50 })
+      doc.text(taxableValue.toFixed(2), 390, currentY, { align: "center", width: 60 })
+      doc.text(`${taxValue.toFixed(2)} | ${taxRate}%`, 450, currentY, { align: "center", width: 60 })
       doc.text(total.toFixed(2), 510, currentY, { align: "right", width: 45 })
       
       currentY += Math.max(15, titleHeight + 5)
@@ -194,14 +196,17 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     let shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
     const finalShipping = shippingFee / 100 // Convert cents to INR for invoice
     if (finalShipping > 0) {
+      const shipTaxRate = 18
+      const shipTaxable = finalShipping / (1 + (shipTaxRate / 100))
+      const shipTax = finalShipping - shipTaxable
+      
       doc.text("-", 40, currentY)
       doc.text("Shipping Fee", 70, currentY, { width: 180 })
-      // doc.text("-", 220, currentY, { align: "center", width: 40 })
       doc.text("1", 260, currentY, { align: "center", width: 30 })
       doc.text(finalShipping.toFixed(2), 290, currentY, { align: "center", width: 50 })
-      doc.text("0.00", 340, currentY, { align: "center", width: 60 })
-      doc.text(finalShipping.toFixed(2), 400, currentY, { align: "center", width: 60 })
-      doc.text(`0.00 | 0%`, 460, currentY, { align: "center", width: 50 })
+      doc.text("0.00", 340, currentY, { align: "center", width: 50 })
+      doc.text(shipTaxable.toFixed(2), 390, currentY, { align: "center", width: 60 })
+      doc.text(`${shipTax.toFixed(2)} | ${shipTaxRate}%`, 450, currentY, { align: "center", width: 60 })
       doc.text(finalShipping.toFixed(2), 510, currentY, { align: "right", width: 45 })
       currentY += 15
       doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, currentY).lineTo(width - 40, currentY).stroke()
