@@ -114,8 +114,8 @@ const RazorpayPaymentButton = ({
     }
 
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-      amount: Math.round(cart.total) * 100, // Amount is in currency subunits, rounded to nearest integer
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || "rzp_test_RtoniMCuUpyCFR",
+      amount: session.data.amount ?? Math.round(cart.total) * 100, // Fallback to cart.total if session.data.amount is missing
       currency: cart.region?.currency_code.toUpperCase(),
       name: "ProCare Store",
       description: `Order ${cart.id}`,
