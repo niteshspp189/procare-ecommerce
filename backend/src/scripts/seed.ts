@@ -142,11 +142,14 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       locations: [
         {
-          name: "European Warehouse",
+          name: "India Warehouse",
           address: {
-            city: "Copenhagen",
-            country_code: "DK",
-            address_1: "",
+            address_1: "A-13, Sector - 59",
+            city: "Noida",
+            country_code: "IN",
+            province: "Uttar Pradesh",
+            postal_code: "201301",
+            phone: "+91 9958410042",
           },
         },
       ],
@@ -257,16 +260,8 @@ export default async function seedDemoData({ container }: ExecArgs) {
         },
         prices: [
           {
-            currency_code: "usd",
-            amount: 10,
-          },
-          {
-            currency_code: "eur",
-            amount: 10,
-          },
-          {
             region_id: region.id,
-            amount: 10,
+            amount: 1, // ₹1 default - updated via admin panel for free shipping threshold
           },
         ],
         rules: [
@@ -282,44 +277,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
           },
         ],
       },
-      {
-        name: "Express Shipping",
-        price_type: "flat",
-        provider_id: "manual_manual",
-        service_zone_id: fulfillmentSet.service_zones[0].id,
-        shipping_profile_id: shippingProfile.id,
-        type: {
-          label: "Express",
-          description: "Ship in 24 hours.",
-          code: "express",
-        },
-        prices: [
-          {
-            currency_code: "usd",
-            amount: 10,
-          },
-          {
-            currency_code: "eur",
-            amount: 10,
-          },
-          {
-            region_id: region.id,
-            amount: 10,
-          },
-        ],
-        rules: [
-          {
-            attribute: "enabled_in_store",
-            value: "true",
-            operator: "eq",
-          },
-          {
-            attribute: "is_return",
-            value: "false",
-            operator: "eq",
-          },
-        ],
-      },
+      // Express Shipping removed - only Standard Shipping is available
     ],
   });
   logger.info("Finished seeding fulfillment data.");
