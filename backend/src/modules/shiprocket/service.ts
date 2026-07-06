@@ -55,14 +55,14 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     const pin = address?.postal_code || order?.shipping_address?.postal_code || "000000"
     const state = address?.province || order?.shipping_address?.province || "Unknown"
     const country = address?.country_code || order?.shipping_address?.country_code || "IN"
-    const phone = address?.phone || order?.shipping_address?.phone || "0000000000"
+    const phone = address?.phone || order?.shipping_address?.phone || "9876543210"
     const email = order?.email || "customer@example.com"
 
     const orderItems = items.map(item => ({
       name: item.title,
       sku: item.sku || "PRO-SKU",
       units: item.quantity,
-      selling_price: item.unit_price || 0,
+      selling_price: (item.unit_price || 0) / 100,
       discount: 0
     }))
 
