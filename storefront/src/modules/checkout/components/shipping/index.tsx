@@ -114,6 +114,24 @@ const Shipping: React.FC<ShippingProps> = ({
     }
   }, [availableShippingMethods, isOpen, shippingMethodId])
 
+  useEffect(() => {
+    const autoSelectAndTransition = async () => {
+      if (isOpen && _shippingMethods?.length === 1 && !hasPickupOptions) {
+        const singleOption = _shippingMethods[0]
+        const currentSelectedOptionId = cart.shipping_methods?.[0]?.shipping_option_id
+        
+        if (currentSelectedOptionId === singleOption.id) {
+          router.push(pathname + "?step=payment", { scroll: false })
+        } else if (!isLoading) {
+          await handleSetShippingMethod(singleOption.id, "shipping")
+          router.push(pathname + "?step=payment", { scroll: false })
+        }
+      }
+    }
+    
+    autoSelectAndTransition()
+  }, [isOpen, availableShippingMethods, cart.shipping_methods, isLoading])
+
   const handleEdit = () => {
     router.push(pathname + "?step=delivery", { scroll: false })
   }
@@ -179,13 +197,15 @@ const Shipping: React.FC<ShippingProps> = ({
           cart?.billing_address &&
           cart?.email && (
             <Text>
-              <button
-                onClick={handleEdit}
-                className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
-                data-testid="edit-delivery-button"
-              >
-                Edit
-              </button>
+              {((_shippingMethods?.length || 0) > 1 || hasPickupOptions) && (
+                <button
+                  onClick={handleEdit}
+                  className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+                  data-testid="edit-delivery-button"
+                >
+                  Edit
+                </button>
+              )}
             </Text>
           )}
       </div>
