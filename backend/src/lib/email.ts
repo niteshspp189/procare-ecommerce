@@ -204,29 +204,29 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     // Summary block fields
     const summaryX = 350
-    const valueX = 510
+    const summaryValueX = 510
     const labelWidth = 140
     
     // Subtotal (Excl. Tax)
     doc.font(KELSON_BOLD).fontSize(7).fillColor("#333333")
     doc.text("Subtotal (Excl. Tax)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
     // CGST/SGST Tax (GST 18%)
     doc.text("GST (18% Inclusive)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${itemsTaxSubtotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${itemsTaxSubtotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
     // Shipping Charges
     doc.text("Shipping Charges", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${shippingFee.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${shippingFee.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
     // Discount
     if (discountTotal > 0) {
       doc.text("Discount", summaryX, currentY, { align: "right", width: labelWidth })
-      doc.text(`-Rs. ${discountTotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+      doc.text(`-Rs. ${discountTotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
       currentY += 12
     }
     
@@ -238,7 +238,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // Net Total / Grand Total
     doc.font(KELSON_BOLD).fontSize(8).fillColor("#000000")
     doc.text("NET TOTAL (In Value)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${netTotal.toFixed(2)}`, valueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${netTotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 15
     doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(summaryX + 30, currentY).lineTo(width - 40, currentY).stroke()
     
