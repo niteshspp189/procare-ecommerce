@@ -9,10 +9,12 @@ try {
 }
 import { HttpTypes } from "@medusajs/types"
 
+const smtpPort = parseInt(process.env.SMTP_PORT || "587")
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "465"),
-  secure: process.env.SMTP_PORT === "465",
+  host: process.env.SMTP_HOST || "email-smtp.us-east-1.amazonaws.com",
+  port: smtpPort,
+  secure: smtpPort === 465, // true for 465 (implicit TLS), false for 587 (STARTTLS)
+  requireTLS: smtpPort !== 465, // force STARTTLS for port 587 (AWS SES)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
