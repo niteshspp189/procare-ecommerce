@@ -53,7 +53,11 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let fullOrder = order
     if (order && order.id && this.container) {
       try {
-        const orderModuleService = this.container.resolve(Modules.ORDER)
+        console.log("[ShiprocketService] Attempting to resolve ORDER service from container keys:", Object.keys(this.container || {}))
+        const orderModuleService = this.container.order || this.container.orderModuleService
+        if (!orderModuleService) {
+          throw new Error("ORDER module service not found on injected container.")
+        }
         fullOrder = await orderModuleService.retrieveOrder(order.id, {
           relations: ["shipping_address", "items", "billing_address", "shipping_methods"]
         })

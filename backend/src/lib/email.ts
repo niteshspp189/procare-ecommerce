@@ -197,9 +197,9 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
     const finalShipping = shippingFee // Medusa v2 stores directly in INR
     if (finalShipping > 0) {
-      const shipTaxRate = 18
-      const shipTaxable = finalShipping / (1 + (shipTaxRate / 100))
-      const shipTax = finalShipping - shipTaxable
+      const shipTaxRate = 0
+      const shipTaxable = finalShipping
+      const shipTax = 0
       
       doc.text("-", 40, currentY)
       doc.text("Shipping Fee", 70, currentY, { width: 180 })
