@@ -322,7 +322,37 @@ export async function sendOrderConfirmationEmail(order: any) {
         ]
     }
 
-    return await transporter.sendMail(mailOptions)
+    try {
+      console.log(`[EmailService] Attempting to send order confirmation email via SES...`)
+      return await transporter.sendMail(mailOptions)
+    } catch (sesError: any) {
+      console.warn(`[EmailService] Primary SES SMTP failed (${sesError.message}). Attempting fallback to Gmail SMTP...`)
+      try {
+        const fallbackTransporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          auth: {
+            user: "team@webclixs.in",
+            pass: "wsek gghl znno gedt",
+          },
+        })
+        
+        // Gmail forces the sender 'From' address to match the authenticated user.
+        // We set 'replyTo' so that if customers reply, it goes to your customercare.
+        const fallbackMailOptions = {
+          ...mailOptions,
+          from: `"ProCare Store" <team@webclixs.in>`
+        }
+        
+        const info = await fallbackTransporter.sendMail(fallbackMailOptions)
+        console.log(`[EmailService] Fallback order confirmation email sent successfully via Gmail!`)
+        return info
+      } catch (gmailError: any) {
+        console.error(`[EmailService] Both primary SES and fallback Gmail SMTP failed:`, gmailError.message)
+        throw new Error(`Email sending failed. Primary SES error: ${sesError.message}. Fallback Gmail error: ${gmailError.message}`)
+      }
+    }
   } catch (error) {
     console.error("[EmailService] Failed to send order confirmation:", error)
     throw error
