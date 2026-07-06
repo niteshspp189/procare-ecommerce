@@ -36,24 +36,26 @@ const OurStoryPage = () => {
     return (
         <div className="bg-white">
             {/* HERO SECTION BANNER */}
-            <div className="relative h-[45vh] sm:h-[55vh] overflow-hidden flex items-center justify-center bg-black text-white">
+            <div className="relative h-[300px] overflow-hidden flex items-center justify-center bg-black text-white">
                 <div className="absolute inset-0 opacity-45">
                     <img src="/images/our-story-banner-new.jpeg" className="w-full h-full object-cover" alt="Our Story Banner" />
                 </div>
+                {/* 
                 <div className="relative z-10 text-center animate-fade-in-up px-4 max-w-4xl">
                     <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter mb-4">Our Story</h1>
                     <p className="text-lg sm:text-2xl font-medium tracking-wide text-gray-200 italic">"Every great journey begins with a single step."</p>
-                </div>
+                </div> 
+                */}
             </div>
 
             {/* MAIN STORY TEXT & VIDEO */}
             <div className="py-16 sm:py-24 max-w-7xl mx-auto px-6 sm:px-8 text-gray-800 leading-relaxed">
                 <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                     {/* VIDEO LEFT */}
-                    <div className="w-full lg:w-[55%] rounded-2xl overflow-hidden shadow-2xl relative aspect-video bg-gray-100 flex-shrink-0 self-start">
+                    <div className="w-full lg:w-[55%] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative aspect-video bg-gray-50 flex-shrink-0 self-start hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-500">
                         <iframe 
-                            className="absolute top-0 left-0 w-full h-full"
-                            src="https://www.youtube.com/embed/iRgOQn3acBs?autoplay=1&mute=1&loop=1&playlist=iRgOQn3acBs" 
+                            className="absolute top-0 left-0 w-full h-full rounded-3xl"
+                            src="https://www.youtube.com/embed/iRgOQn3acBs?rel=0" 
                             title="MV Shoecare corporate video" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
@@ -63,7 +65,7 @@ const OurStoryPage = () => {
                     </div>
 
                     {/* TEXT RIGHT */}
-                    <div className="w-full lg:w-[45%] space-y-6 text-base sm:text-lg lg:text-xl font-normal text-justify sm:text-left self-center">
+                    <div className="w-full lg:w-[45%] space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left self-center font-['Inter',system-ui,sans-serif] text-gray-600">
                         <p>
                             At <span className="font-semibold text-black">MV Shoecare</span>, our journey began in 2009 with a simple belief: footwear deserves care that matches the craftsmanship behind it.
                         </p>
@@ -74,7 +76,7 @@ const OurStoryPage = () => {
                 </div>
 
                 {/* ADDITIONAL STORY TEXT (BELOW VIDEO) */}
-                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg lg:text-xl font-normal text-justify sm:text-left max-w-4xl mx-auto">
+                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left max-w-4xl mx-auto font-['Inter',system-ui,sans-serif] text-gray-600">
                     <p>
                         In 2016, we launched <span className="font-bold text-black">PRO</span>, our flagship brand, with a vision to make professional shoe care accessible, effective, and easy to use for everyone. From leather care and sneaker care to accessories, insoles, and foot care solutions, PRO was designed to help consumers extend the life of their footwear while looking and feeling their best.
                     </p>
