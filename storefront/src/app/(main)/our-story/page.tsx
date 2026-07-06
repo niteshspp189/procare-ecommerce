@@ -54,7 +54,7 @@ const OurStoryPage = () => {
                     {/* VIDEO LEFT */}
                     <div className="w-full lg:w-[55%] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative aspect-video bg-gray-50 flex-shrink-0 self-start hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-500">
                         <iframe 
-                            className="absolute top-0 left-0 w-full h-full rounded-3xl"
+                            className="absolute top-0 left-0 w-full h-full rounded-3xl scale-[1.2]"
                             src="https://www.youtube.com/embed/iRgOQn3acBs?rel=0" 
                             title="MV Shoecare corporate video" 
                             frameBorder="0" 
@@ -76,7 +76,7 @@ const OurStoryPage = () => {
                 </div>
 
                 {/* ADDITIONAL STORY TEXT (BELOW VIDEO) */}
-                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left max-w-4xl mx-auto font-['Inter',system-ui,sans-serif] text-gray-600">
+                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left font-['Inter',system-ui,sans-serif] text-gray-600">
                     <p>
                         In 2016, we launched <span className="font-bold text-black">PRO</span>, our flagship brand, with a vision to make professional shoe care accessible, effective, and easy to use for everyone. From leather care and sneaker care to accessories, insoles, and foot care solutions, PRO was designed to help consumers extend the life of their footwear while looking and feeling their best.
                     </p>
