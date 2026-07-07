@@ -21,6 +21,11 @@ const transporter = nodemailer.createTransport({
   },
 })
 
+function isUttarPradesh(province: string): boolean {
+  const p = (province || "").toLowerCase().replace(/\s/g, "").replace(/\./g, "");
+  return p === "up" || p === "uttarpradesh";
+}
+
 export async function generateInvoicePDF(order: any): Promise<Buffer> {
   if (!PDFDocument) {
     throw new Error("PDF generation library (pdfkit) is not installed. Please run 'npm install pdfkit' in the backend.")
@@ -207,16 +212,31 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     const summaryValueX = 510
     const labelWidth = 140
     
-    // Subtotal (Excl. Tax)
+    // Subtotal
     doc.font(KELSON_BOLD).fontSize(7).fillColor("#333333")
-    doc.text("Subtotal (Excl. Tax)", summaryX, currentY, { align: "right", width: labelWidth })
+    doc.text("Subtotal", summaryX, currentY, { align: "right", width: labelWidth })
     doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
-    // CGST/SGST Tax (GST 18%)
-    doc.text("GST (18% Inclusive)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${itemsTaxSubtotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
-    currentY += 12
+    // CGST/SGST Tax (GST 18%) or IGST (GST 18%) depending on state
+    const stateStr = order.shipping_address?.province || "";
+    const isUP = isUttarPradesh(stateStr);
+    if (isUP) {
+      const cgst = Math.round(itemsTaxSubtotal / 2);
+      const sgst = itemsTaxSubtotal - cgst;
+      
+      doc.text("CGST (9%)", summaryX, currentY, { align: "right", width: labelWidth })
+      doc.text(`Rs. ${cgst.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
+      currentY += 12
+      
+      doc.text("SGST (9%)", summaryX, currentY, { align: "right", width: labelWidth })
+      doc.text(`Rs. ${sgst.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
+      currentY += 12
+    } else {
+      doc.text("IGST (18%)", summaryX, currentY, { align: "right", width: labelWidth })
+      doc.text(`Rs. ${itemsTaxSubtotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
+      currentY += 12
+    }
     
     // Shipping Charges
     doc.text("Shipping Charges", summaryX, currentY, { align: "right", width: labelWidth })
