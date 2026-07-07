@@ -231,15 +231,17 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     const stateStr = order.shipping_address?.province || "";
     const isUP = isUttarPradesh(stateStr);
     if (isUP) {
-      const cgst = Math.round(itemsTaxSubtotal / 2);
-      const sgst = itemsTaxSubtotal - cgst;
+      const cgst = itemsTaxSubtotal / 2;
+      const sgst = itemsTaxSubtotal / 2;
+      
+      const formatTax = (val: number) => Number.isInteger(val) ? val.toFixed(0) : val.toFixed(1);
       
       doc.text("CGST (9%)", summaryX, currentY, { align: "right", width: labelWidth })
-      doc.text(`Rs. ${cgst.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
+      doc.text(`Rs. ${formatTax(cgst)}`, summaryValueX, currentY, { align: "right", width: 45 })
       currentY += 12
       
       doc.text("SGST (9%)", summaryX, currentY, { align: "right", width: labelWidth })
-      doc.text(`Rs. ${sgst.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
+      doc.text(`Rs. ${formatTax(sgst)}`, summaryValueX, currentY, { align: "right", width: 45 })
       currentY += 12
     } else {
       doc.text("IGST (18%)", summaryX, currentY, { align: "right", width: labelWidth })
