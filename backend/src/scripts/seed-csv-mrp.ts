@@ -506,8 +506,8 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
             let image4 = "";
             
             if (formatType === "phase1") {
-                mrp = parseFloat(parts[3]) || 0;
-                sellingPrice = parseFloat(parts[8]) || 0;
+                mrp = Math.round(parseFloat(parts[3])) || 0;
+                sellingPrice = Math.round(parseFloat(parts[8])) || 0;
                 category = parts[9] ? parts[9].trim() : "";
                 gst = parts[10] ? parts[10].trim() : "";
                 size = parts[11] ? parts[11].trim() : "";
@@ -518,8 +518,8 @@ export default async function seedCsvMrp({ container }: ExecArgs) {
                 image3 = parts[17] ? parts[17].trim() : "";
                 image4 = parts[18] ? parts[18].trim() : "";
             } else {
-                mrp = parseFloat(parts[3]) || 0;
-                sellingPrice = parseFloat(parts[4]) || 0;
+                mrp = Math.round(parseFloat(parts[3])) || 0;
+                sellingPrice = Math.round(parseFloat(parts[4])) || 0;
                 category = parts[5] ? parts[5].trim() : "";
                 gst = parts[6] ? parts[6].trim() : "";
                 size = parts[7] ? parts[7].trim() : "";
