@@ -116,7 +116,7 @@ export default async function StagingHome(props: {
         {/* INTRODUCTION & CATEGORY GRID */}
         <Section 
           subtitle="Extream Conform, Higher Durable Best In Class"
-          title="Innovating Shoe Care for Everyday Ease."
+          title="Crafted for Performance. Designed for Everyday Care."
           className="py-8 sm:py-12"
           fullWidth={true}
         >
@@ -173,7 +173,7 @@ export default async function StagingHome(props: {
             <div className="flex flex-col group">
               <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-accessories-new.webp'} 
+                  src={imgBase + 'cat-accessories-new.png'} 
                   alt="Accessories" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />

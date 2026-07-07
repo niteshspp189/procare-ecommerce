@@ -95,7 +95,7 @@ export default async function StagingHome(props: {
         <div className="text-center py-16 animate-fade-in-up">
           <p className="text-gray-500 text-sm mb-2">Extreme Comfort. Hyper Durable. Max Volume.</p>
           <h2 className="text-[clamp(24px,4vw,36px)] font-normal text-black leading-tight max-w-4xl mx-auto">
-            Innovating Shoe Care for Everyday Ease.
+            Crafted for Performance. Designed for Everyday Care.
           </h2>
         </div>
 
@@ -162,7 +162,7 @@ export default async function StagingHome(props: {
           <div className="flex flex-col group">
             <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/16] shadow-md group-hover:shadow-xl transition-all duration-500">
               <img 
-                src={imgBase + 'cat-accessories.jpg'} 
+                src={imgBase + 'cat-accessories-new.png'} 
                 alt="Accessories" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               />
