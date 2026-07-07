@@ -80,7 +80,7 @@ export default function SearchModal() {
 
   return (
     <>
-      {/* Search trigger button */}
+      {/* Search trigger button (desktop) */}
       <button
         onClick={() => setOpen(true)}
         className="hidden lg:flex items-center gap-2 bg-gray-50 hover:bg-gray-100 rounded-full py-2 pl-3 pr-5 text-sm text-gray-400 transition-colors group w-[200px]"
@@ -90,6 +90,17 @@ export default function SearchModal() {
           <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
         </svg>
         <span className="text-[13px]">Search products...</span>
+      </button>
+
+      {/* Search trigger button (mobile/tablet) */}
+      <button
+        onClick={() => setOpen(true)}
+        className="flex lg:hidden hover:scale-110 text-black dark:text-gray-100 transition-transform duration-200 p-2"
+        aria-label="Search products"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+        </svg>
       </button>
 
       {/* Overlay */}

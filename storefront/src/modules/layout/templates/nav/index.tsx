@@ -87,17 +87,32 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
       {/* Black Top bar for premium feel */}
-      <div className="flex justify-between items-center px-4 sm:px-6 py-2.5 bg-[#141414] text-white text-[9px] lg:text-[10px] xl:text-[11px] uppercase tracking-wider border-b border-gray-800">
+      <div className="flex justify-between items-center px-4 sm:px-6 py-2.5 bg-[#141414] text-white text-[9px] lg:text-[10px] xl:text-[11px] uppercase tracking-wider border-b border-gray-800 overflow-hidden">
         {/* Left spacer for perfect centering on large screens */}
         <div className="hidden xl:block flex-1"></div>
         
         {/* Promo text and Shop Now button */}
-        <div className="flex items-center justify-start xl:justify-center gap-2 sm:gap-3 xl:flex-1 shrink-0">
-          <span className="inline-flex items-center gap-1.5 font-bold text-[#0bb799] whitespace-nowrap">
-            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
-            <span className="hidden sm:inline">Free Delivery Eligible On Orders Above ₹{threshold}</span>
-            <span className="sm:hidden">Free Delivery &gt; ₹{threshold}</span>
+        <div className="flex items-center justify-between sm:justify-start xl:justify-center gap-2 sm:gap-3 w-full sm:w-auto xl:flex-1 overflow-hidden shrink-0">
+          {/* Mobile scrolling version */}
+          <div className="flex sm:hidden overflow-hidden relative flex-1 items-center">
+            <div className="flex whitespace-nowrap animate-marquee font-bold text-[#0bb799] text-[10px] items-center">
+              <div className="flex shrink-0 items-center gap-2 pr-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0bb799] animate-pulse"></span>
+                <span>Free Delivery Eligible On Orders Above ₹{threshold}</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-2 pr-6" aria-hidden="true">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0bb799] animate-pulse"></span>
+                <span>Free Delivery Eligible On Orders Above ₹{threshold}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop static version */}
+          <span className="hidden sm:inline-flex items-center gap-1.5 font-bold text-[#0bb799] whitespace-nowrap">
+            <span className="w-2 h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
+            <span>Free Delivery Eligible On Orders Above ₹{threshold}</span>
           </span>
+
           <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-0.5 rounded transition-all whitespace-nowrap shrink-0">
             Shop Now
           </LocalizedClientLink>
@@ -143,7 +158,7 @@ export default async function Nav() {
         </div>
 
         <div style={styles.rightSection as any} className="flex">
-          <div style={styles.searchContainer as any} className="hidden md:flex group">
+          <div style={styles.searchContainer as any} className="flex group">
             <SearchModal />
           </div>
 
@@ -178,7 +193,7 @@ export default async function Nav() {
             </Suspense>
           </div>
           <div className="flex lg:hidden ml-3">
-            <SideMenu regions={regions} locales={locales} currentLocale={currentLocale} />
+            <SideMenu regions={regions} locales={locales} currentLocale={currentLocale} customer={customer} />
           </div>
         </div>
       </nav>

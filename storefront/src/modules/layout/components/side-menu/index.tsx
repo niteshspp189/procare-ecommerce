@@ -1,35 +1,34 @@
 "use client"
 
 import { Popover, PopoverPanel, Transition } from "@headlessui/react"
-import { ArrowRightMini, XMark } from "@medusajs/icons"
-import { Text, clx, useToggleState } from "@medusajs/ui"
+import { XMark } from "@medusajs/icons"
 import { Fragment } from "react"
+import { useParams } from "next/navigation"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CountrySelect from "../country-select"
-import LanguageSelect from "../language-select"
 import { HttpTypes } from "@medusajs/types"
 import { Locale } from "@lib/data/locales"
+import { signout } from "@lib/data/customer"
 
 const SideMenuItems = {
   Home: "/",
-  ShopAll: "/shop",
-  ShoeCare: "/categories/shoe-care",
+  "Shop All": "/shop",
+  "Shoe Care": "/categories/shoe-care",
   Insoles: "/categories/insoles",
-  FootCare: "/categories/foot-care",
+  "Foot Care": "/categories/foot-care",
   Accessories: "/categories/accessories",
-  OurStory: "/our-story",
+  "Our Story": "/our-story",
 }
 
 type SideMenuProps = {
   regions: HttpTypes.StoreRegion[] | null
   locales: Locale[] | null
   currentLocale: string | null
+  customer: HttpTypes.StoreCustomer | null
 }
 
-const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
-  const countryToggleState = useToggleState()
-  const languageToggleState = useToggleState()
+const SideMenu = ({ regions, locales, currentLocale, customer }: SideMenuProps) => {
+  const { countryCode } = useParams() as { countryCode: string }
 
   return (
     <div className="h-full">
@@ -74,8 +73,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                     data-testid="nav-menu-popup"
                     className="flex flex-col h-full bg-black/95 backdrop-blur-xl justify-between p-6 overflow-y-auto"
                   >
-                    <div className="flex justify-between items-center" id="xmark">
-                      <span className="text-white font-bold text-lg">Menu</span>
+                    <div className="flex justify-end items-center" id="xmark">
                       <button data-testid="close-menu-button" onClick={close} className="text-white hover:text-gray-300">
                         <XMark />
                       </button>
@@ -88,55 +86,83 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                               href={href}
                               className="text-xl sm:text-2xl font-bold leading-8 hover:text-gray-400 transition-colors"
                               onClick={close}
-                              data-testid={`${name.toLowerCase()}-link`}
+                              data-testid={`${name.toLowerCase().replace(/\s+/g, "-")}-link`}
                             >
                               {name}
                             </LocalizedClientLink>
                           </li>
                         )
                       })}
-                    </ul>
-                    <div className="flex flex-col gap-y-4 mt-auto pt-6 border-t border-gray-700">
-                      {!!locales?.length && (
-                        <div
-                          className="flex justify-between text-white"
-                          onMouseEnter={languageToggleState.open}
-                          onMouseLeave={languageToggleState.close}
-                        >
-                          <LanguageSelect
-                            toggleState={languageToggleState}
-                            locales={locales}
-                            currentLocale={currentLocale}
-                          />
-                          <ArrowRightMini
-                            className={clx(
-                              "transition-transform duration-150",
-                              languageToggleState.state ? "-rotate-90" : ""
-                            )}
-                          />
-                        </div>
+
+                      {/* Divider and Account Links */}
+                      <li className="w-full border-t border-gray-800 my-2" />
+
+                      {customer ? (
+                        <>
+                          <li className="text-gray-400 text-xs font-bold uppercase tracking-wider mt-2 mb-1">
+                            My Account
+                          </li>
+                          <li>
+                            <LocalizedClientLink
+                              href="/account"
+                              className="text-xl font-bold leading-8 text-white hover:text-gray-400 transition-colors"
+                              onClick={close}
+                            >
+                              Overview
+                            </LocalizedClientLink>
+                          </li>
+                          <li>
+                            <LocalizedClientLink
+                              href="/account/profile"
+                              className="text-xl font-bold leading-8 text-white hover:text-gray-400 transition-colors"
+                              onClick={close}
+                            >
+                              Profile
+                            </LocalizedClientLink>
+                          </li>
+                          <li>
+                            <LocalizedClientLink
+                              href="/account/addresses"
+                              className="text-xl font-bold leading-8 text-white hover:text-gray-400 transition-colors"
+                              onClick={close}
+                            >
+                              Addresses
+                            </LocalizedClientLink>
+                          </li>
+                          <li>
+                            <LocalizedClientLink
+                              href="/account/orders"
+                              className="text-xl font-bold leading-8 text-white hover:text-gray-400 transition-colors"
+                              onClick={close}
+                            >
+                              Orders
+                            </LocalizedClientLink>
+                          </li>
+                          <li className="mt-2">
+                            <button
+                              onClick={async () => {
+                                await signout(countryCode)
+                                close()
+                              }}
+                              className="text-xl font-bold leading-8 text-[#0bb799] hover:text-[#09a086] transition-colors text-left"
+                            >
+                              Log out
+                            </button>
+                          </li>
+                        </>
+                      ) : (
+                        <li>
+                          <LocalizedClientLink
+                            href="/account"
+                            className="text-xl sm:text-2xl font-bold leading-8 hover:text-gray-400 transition-colors"
+                            onClick={close}
+                          >
+                            Log In
+                          </LocalizedClientLink>
+                        </li>
                       )}
-                      <div
-                        className="flex justify-between text-white"
-                        onMouseEnter={countryToggleState.open}
-                        onMouseLeave={countryToggleState.close}
-                      >
-                        {regions && (
-                          <CountrySelect
-                            toggleState={countryToggleState}
-                            regions={regions}
-                          />
-                        )}
-                        <ArrowRightMini
-                          className={clx(
-                            "transition-transform duration-150",
-                            countryToggleState.state ? "-rotate-90" : ""
-                          )}
-                        />
-                      </div>
-                      <Text className="flex justify-between txt-compact-small text-gray-400">
-                        © {new Date().getFullYear()} Pro Premium Care. All rights reserved.
-                      </Text>
+                    </ul>
+                    <div>
                     </div>
                   </div>
                 </PopoverPanel>

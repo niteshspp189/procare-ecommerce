@@ -59,7 +59,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
 
   React.useEffect(() => {
     const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
-    fetch(`${backendUrl}/store/shipping-threshold`)
+    fetch(`${backendUrl}/store/shipping-threshold`, {
+      headers: {
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data && typeof data.threshold === "number") {
