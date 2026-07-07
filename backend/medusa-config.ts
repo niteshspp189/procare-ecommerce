@@ -79,10 +79,33 @@ module.exports = defineConfig({
             transformIndexHtml(html: string) {
               return html.replace(
                 "</body>",
-                `<script>
+                                `<script>
                   if (window.location.pathname === '/store-backend' || window.location.pathname === '/store-backend/') {
                     window.location.href = '/store-backend/orders';
                   }
+
+                  // Force Light Mode immediately and keep monitoring changes
+                  function forceLightMode() {
+                    if (document.documentElement.classList.contains('dark')) {
+                      document.documentElement.classList.remove('dark');
+                    }
+                    if (document.documentElement.getAttribute('data-theme') !== 'light') {
+                      document.documentElement.setAttribute('data-theme', 'light');
+                    }
+                    if (document.body && document.body.classList.contains('dark')) {
+                      document.body.classList.remove('dark');
+                    }
+                  }
+                  
+                  forceLightMode();
+                  var observer = new MutationObserver(forceLightMode);
+                  observer.observe(document.documentElement, { attributes: true });
+                  window.addEventListener('DOMContentLoaded', function() {
+                    forceLightMode();
+                    if (document.body) {
+                      observer.observe(document.body, { attributes: true });
+                    }
+                  });
 
                   // ProCare Admin UI Refinement v3.0
                   function applyBranding() {
@@ -115,11 +138,51 @@ module.exports = defineConfig({
                   setInterval(applyBranding, 1000);
                   setInterval(hideDevTools, 500);
                 </script><style>
-                  :root {
+                  /* Force color scheme to light on browser-level */
+                  html, body, :root {
+                    color-scheme: light !important;
+                    background-color: #f8fafc !important;
+                    color: #1e293b !important;
+                  }
+                  
+                  /* Force UI Variable resets to light palette */
+                  :root, [data-theme="light"], .light, [data-theme="dark"], .dark {
                     --bg-ui-bg-base: #ffffff !important;
                     --bg-ui-bg-subtle: #f8fafc !important;
+                    --bg-ui-bg-component: #ffffff !important;
+                    --bg-ui-bg-field: #ffffff !important;
+                    --bg-ui-bg-field-hover: #f1f5f9 !important;
+                    --bg-ui-bg-disabled: #f1f5f9 !important;
+                    --bg-ui-bg-overlay: rgba(0, 0, 0, 0.4) !important;
+                    
                     --text-ui-fg-base: #1e293b !important;
+                    --text-ui-fg-subtle: #475569 !important;
+                    --text-ui-fg-muted: #64748b !important;
+                    --text-ui-fg-interactive: #0f172a !important;
+                    
                     --border-ui-border-base: #e2e8f0 !important;
+                    --border-ui-border-strong: #cbd5e1 !important;
+                    --border-ui-border-interactive: #0f172a !important;
+                  }
+
+                  @media (prefers-color-scheme: dark) {
+                    :root, [data-theme="dark"], .dark {
+                      --bg-ui-bg-base: #ffffff !important;
+                      --bg-ui-bg-subtle: #f8fafc !important;
+                      --bg-ui-bg-component: #ffffff !important;
+                      --bg-ui-bg-field: #ffffff !important;
+                      --bg-ui-bg-field-hover: #f1f5f9 !important;
+                      --bg-ui-bg-disabled: #f1f5f9 !important;
+                      
+                      --text-ui-fg-base: #1e293b !important;
+                      --text-ui-fg-subtle: #475569 !important;
+                      --text-ui-fg-muted: #64748b !important;
+                      --text-ui-fg-interactive: #0f172a !important;
+                      
+                      --border-ui-border-base: #e2e8f0 !important;
+                      --border-ui-border-strong: #cbd5e1 !important;
+                      --border-ui-border-interactive: #0f172a !important;
+                    }
                   }
                   
                   body, html, * {
@@ -151,6 +214,7 @@ module.exports = defineConfig({
                   button[class*="bg-ui-button-inverted"] {
                     background-color: #0f172a !important;
                     border-radius: 8px !important;
+                    color: #ffffff !important;
                   }
                 </style></body>`
               )

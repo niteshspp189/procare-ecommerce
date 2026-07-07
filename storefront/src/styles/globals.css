@@ -33,6 +33,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ─── Design Token CSS Variables ─────────────────────────────────────────── */
+:root, html, body {
+  color-scheme: light !important;
+}
+
 :root {
   --pc-bg:           #ffffff;
   --pc-bg-subtle:    #f9fafb;
