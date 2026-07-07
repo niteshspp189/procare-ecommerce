@@ -147,13 +147,14 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     const thY = tableTop + 5
     doc.fontSize(6).font(KELSON_BOLD)
     doc.text("S.NO.", 40, thY)
-    doc.text("PRODUCT NAME", 70, thY)
-    doc.text("QTY", 260, thY, { align: "center", width: 30 })
-    doc.text("MRP (INCL)", 290, thY, { align: "center", width: 50 })
-    doc.text("DISCOUNT", 340, thY, { align: "center", width: 50 })
-    doc.text("TAXABLE VAL", 390, thY, { align: "center", width: 60 })
-    doc.text("GST (Amt|%)", 450, thY, { align: "center", width: 60 })
-    doc.text("TOTAL", 510, thY, { align: "right", width: 45 })
+    doc.text("PRODUCT NAME", 65, thY)
+    doc.text("HSN", 240, thY, { align: "center", width: 45 })
+    doc.text("QTY", 285, thY, { align: "center", width: 25 })
+    doc.text("UNIT PRICE", 310, thY, { align: "center", width: 50 })
+    doc.text("UNIT DISCOUNT", 360, thY, { align: "center", width: 50 })
+    doc.text("TAXABLE VALUE", 410, thY, { align: "center", width: 50 })
+    doc.text("GST", 460, thY, { align: "center", width: 45 })
+    doc.text("TOTAL", 505, thY, { align: "right", width: 50 })
 
     doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(40, thY + 12).lineTo(width - 40, thY + 12).stroke()
     
@@ -184,18 +185,26 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       itemsTotalSubtotal += total
       
       doc.text(i.toString(), 40, currentY)
-      doc.text(item.title || "Unknown Product", 70, currentY, { width: 180 })
+      doc.text(item.title || "Unknown Product", 65, currentY, { width: 170 })
       
-      const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 180, fontSize: 6 })
+      const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 170, fontSize: 6 })
+      const sku = item.variant_sku || item.sku || "";
+      if (sku) {
+        doc.fillColor("#666666").fontSize(5).text(`SKU : ${sku}`, 65, currentY + titleHeight + 1, { width: 170 })
+        doc.fillColor("#000000").fontSize(6) // restore color/size
+      }
       
-      doc.text(qty.toString(), 260, currentY, { align: "center", width: 30 })
-      doc.text(roundedUnitPrice.toFixed(0), 290, currentY, { align: "center", width: 50 })
-      doc.text(roundedDiscountPerUnit.toFixed(0), 340, currentY, { align: "center", width: 50 })
-      doc.text(taxableValue.toFixed(0), 390, currentY, { align: "center", width: 60 })
-      doc.text(`${taxValue.toFixed(0)} | ${taxRate}%`, 450, currentY, { align: "center", width: 60 })
-      doc.text(total.toFixed(0), 510, currentY, { align: "right", width: 45 })
+      const totalItemHeight = sku ? titleHeight + 8 : titleHeight;
       
-      currentY += Math.max(15, titleHeight + 5)
+      doc.text("34051000", 240, currentY, { align: "center", width: 45 })
+      doc.text(qty.toString(), 285, currentY, { align: "center", width: 25 })
+      doc.text(roundedUnitPrice.toFixed(0), 310, currentY, { align: "center", width: 50 })
+      doc.text(roundedDiscountPerUnit.toFixed(0), 360, currentY, { align: "center", width: 50 })
+      doc.text(taxableValue.toFixed(0), 410, currentY, { align: "center", width: 50 })
+      doc.text(taxValue.toFixed(0), 460, currentY, { align: "center", width: 45 })
+      doc.text(total.toFixed(0), 505, currentY, { align: "right", width: 50 })
+      
+      currentY += Math.max(15, totalItemHeight + 5)
       i++
     }
 
