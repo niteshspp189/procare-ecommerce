@@ -167,12 +167,12 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       
       const taxRate = 18 // 18% inclusive GST
       
-      // Calculate inclusive tax breakdown: price already includes GST
-      const taxableUnitPrice = unitPrice / (1 + (taxRate / 100))
-      
-      const taxableValue = (taxableUnitPrice - discountPerUnit) * qty
-      const taxValue = taxableValue * (taxRate / 100)
-      const total = taxableValue + taxValue
+      const roundedUnitPrice = Math.round(unitPrice)
+      const roundedDiscountPerUnit = Math.round(discountPerUnit)
+
+      const total = roundedUnitPrice * qty
+      const taxableValue = Math.round((roundedUnitPrice / (1 + (taxRate / 100)) - roundedDiscountPerUnit) * qty)
+      const taxValue = total - taxableValue
       
       itemsTaxableSubtotal += taxableValue
       itemsTaxSubtotal += taxValue
@@ -184,11 +184,11 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 180, fontSize: 6 })
       
       doc.text(qty.toString(), 260, currentY, { align: "center", width: 30 })
-      doc.text(unitPrice.toFixed(2), 290, currentY, { align: "center", width: 50 })
-      doc.text(discountPerUnit.toFixed(2), 340, currentY, { align: "center", width: 50 })
-      doc.text(taxableValue.toFixed(2), 390, currentY, { align: "center", width: 60 })
-      doc.text(`${taxValue.toFixed(2)} | ${taxRate}%`, 450, currentY, { align: "center", width: 60 })
-      doc.text(total.toFixed(2), 510, currentY, { align: "right", width: 45 })
+      doc.text(roundedUnitPrice.toFixed(0), 290, currentY, { align: "center", width: 50 })
+      doc.text(roundedDiscountPerUnit.toFixed(0), 340, currentY, { align: "center", width: 50 })
+      doc.text(taxableValue.toFixed(0), 390, currentY, { align: "center", width: 60 })
+      doc.text(`${taxValue.toFixed(0)} | ${taxRate}%`, 450, currentY, { align: "center", width: 60 })
+      doc.text(total.toFixed(0), 510, currentY, { align: "right", width: 45 })
       
       currentY += Math.max(15, titleHeight + 5)
       i++
@@ -198,8 +198,8 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     currentY += 10
     
     // Add Shipping and Discount
-    const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
-    const discountTotal = order.discount_total ?? order.summary?.discount_total ?? 0
+    const shippingFee = Math.round(order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0)
+    const discountTotal = Math.round(order.discount_total ?? order.summary?.discount_total ?? 0)
     const netTotal = itemsTotalSubtotal + shippingFee - discountTotal
 
     // Summary block fields
@@ -210,23 +210,23 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // Subtotal (Excl. Tax)
     doc.font(KELSON_BOLD).fontSize(7).fillColor("#333333")
     doc.text("Subtotal (Excl. Tax)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
     // CGST/SGST Tax (GST 18%)
     doc.text("GST (18% Inclusive)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${itemsTaxSubtotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${itemsTaxSubtotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
     // Shipping Charges
     doc.text("Shipping Charges", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${shippingFee.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${shippingFee.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
     
     // Discount
     if (discountTotal > 0) {
       doc.text("Discount", summaryX, currentY, { align: "right", width: labelWidth })
-      doc.text(`-Rs. ${discountTotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
+      doc.text(`-Rs. ${discountTotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
       currentY += 12
     }
     
@@ -238,7 +238,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // Net Total / Grand Total
     doc.font(KELSON_BOLD).fontSize(8).fillColor("#000000")
     doc.text("NET TOTAL (In Value)", summaryX, currentY, { align: "right", width: labelWidth })
-    doc.text(`Rs. ${netTotal.toFixed(2)}`, summaryValueX, currentY, { align: "right", width: 45 })
+    doc.text(`Rs. ${netTotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 15
     doc.strokeColor("#cccccc").lineWidth(0.5).moveTo(summaryX + 30, currentY).lineTo(width - 40, currentY).stroke()
     
@@ -288,8 +288,8 @@ export async function sendOrderConfirmationEmail(order: any) {
     // Total is calculated directly - Medusa v2 stores directly in INR
     const rawTotal = order.total ?? order.summary?.total ?? (itemsSubtotal + shippingFee)
     const displayTotalAmount = typeof rawTotal === "number" && !isNaN(rawTotal)
-      ? rawTotal.toFixed(2)
-      : "0.00"
+      ? Math.round(rawTotal).toFixed(0)
+      : "0"
 
     const storeUrl = process.env.STORE_URL || 'https://propremiumcare.com'
 

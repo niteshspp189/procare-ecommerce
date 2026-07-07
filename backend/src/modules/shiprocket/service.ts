@@ -185,15 +185,15 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       const title = item.title || item.name || "Product"
       const sku = item.variant_sku || item.sku || "PRO-SKU"
       const qty = parseInt(item.quantity?.toString() || "1")
-      const inclusivePrice = parseFloat((item.unit_price || item.selling_price || 0).toString())
+      const inclusivePrice = Math.round(parseFloat((item.unit_price || item.selling_price || 0).toString()))
       
-      // Calculate 18% inclusive tax
+      // Calculate 18% inclusive tax using rounded inclusivePrice
       const taxRate = 18
       const taxablePrice = inclusivePrice / (1 + (taxRate / 100))
       const taxPerUnit = inclusivePrice - taxablePrice
       
-      const itemSubtotal = parseFloat((taxablePrice * qty).toFixed(2))
-      const itemTax = parseFloat((taxPerUnit * qty).toFixed(2))
+      const itemSubtotal = taxablePrice * qty
+      const itemTax = taxPerUnit * qty
       
       subTotal += itemSubtotal
       totalTax += itemTax
@@ -202,7 +202,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
         name: title,
         sku: sku,
         units: qty,
-        selling_price: parseFloat(inclusivePrice.toFixed(2)), // Shiprocket expects inclusive price!
+        selling_price: inclusivePrice, // Shiprocket expects inclusive price!
         tax: 18, // Tax percentage rate
         discount: 0
       }
@@ -214,7 +214,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
                          order?.shipping_methods?.[0]?.amount ?? 
                          fullOrder?.shipping_total ?? 
                          0)
-    const shippingCharges = parseFloat(shippingFee.toString())
+    const shippingCharges = Math.round(parseFloat(shippingFee.toString()))
 
     const orderData = {
       order_id: `OD${(displayId || fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,
@@ -236,9 +236,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       giftwrap_charges: 0,
       transaction_charges: 0,
       total_discount: 0,
-      sub_total: parseFloat((subTotal + totalTax).toFixed(2)), // top level sub_total is inclusive item totals
-      tax: parseFloat(totalTax.toFixed(2)),
-      grand_total: parseFloat((subTotal + totalTax + shippingCharges).toFixed(2)),
+      sub_total: Math.round(subTotal + totalTax), // top level sub_total is inclusive item totals
+      tax: Math.round(totalTax),
+      grand_total: Math.round(subTotal + totalTax + shippingCharges),
       length: 10,
       breadth: 10,
       height: 10,
