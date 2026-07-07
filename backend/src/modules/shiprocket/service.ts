@@ -69,8 +69,10 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
         email = fullOrder.email || email
         phoneVal = fullOrder.shipping_address?.phone || phoneVal
         displayId = fullOrder.display_id || displayId
-        isCOD = fullOrder.payment_collections?.[0]?.payments?.[0]?.provider_id === "manual" ||
-                order?.payment_collections?.[0]?.payments?.[0]?.provider_id === "manual"
+        const pid1 = fullOrder.payment_collections?.[0]?.payments?.[0]?.provider_id
+        const pid2 = order?.payment_collections?.[0]?.payments?.[0]?.provider_id
+        isCOD = pid1 === "manual" || pid1 === "pp_system_default" || pid1?.startsWith("pp_system") ||
+                pid2 === "manual" || pid2 === "pp_system_default" || pid2?.startsWith("pp_system")
       } catch (err: any) {
         console.warn("[ShiprocketService] Failed to retrieve full order details via orderModuleService, trying pgConnection fallback:", err.message)
         
@@ -106,12 +108,14 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
             // Query Payment
             try {
               const paymentRes = await pgConnection.raw('SELECT p.provider_id FROM "payment" p JOIN "order_payment_collection" opc ON p.payment_collection_id = opc.payment_collection_id WHERE opc.order_id = ? LIMIT 1', [order.id])
-              isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
+              const dbPid = paymentRes?.rows?.[0]?.provider_id
+              isCOD = dbPid === 'manual' || dbPid === 'pp_system_default' || (dbPid && dbPid.startsWith('pp_system'))
             } catch (payErr: any) {
               console.warn("[ShiprocketService] Failed to query payment details from DB, trying direct payment table lookup:", payErr.message)
               try {
                 const paymentRes = await pgConnection.raw('SELECT provider_id FROM "payment" WHERE order_id = ? LIMIT 1', [order.id])
-                isCOD = paymentRes?.rows?.[0]?.provider_id === 'manual'
+                const dbPid = paymentRes?.rows?.[0]?.provider_id
+                isCOD = dbPid === 'manual' || dbPid === 'pp_system_default' || (dbPid && dbPid.startsWith('pp_system'))
               } catch (payErr2: any) {
                 console.warn("[ShiprocketService] Direct payment table lookup failed:", payErr2.message)
               }
