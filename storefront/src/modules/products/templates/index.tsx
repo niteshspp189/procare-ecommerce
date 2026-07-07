@@ -121,6 +121,10 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     }
 
     if (vImgs.length > 0) {
+      const hasColorOptions = product?.options?.some(o => o.title.toLowerCase() === 'color')
+      if (hasColorOptions) {
+        return vImgs
+      }
       const additional = baseImages.filter(bImg => !vImgs.some(vImg => vImg.url === bImg.url))
       return [...vImgs, ...additional]
     }

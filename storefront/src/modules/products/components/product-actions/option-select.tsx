@@ -21,8 +21,22 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   disabled,
   colorHexMap,
 }) => {
-  const filteredOptions = (option.values ?? []).map((v) => v.value)
   const isColorOption = title.toLowerCase() === "color"
+  const isSizeOption = title.toLowerCase() === "size" || title.toLowerCase() === "sizes"
+
+  const filteredOptions = React.useMemo(() => {
+    const vals = (option.values ?? []).map((v) => v.value)
+    if (!isSizeOption) return vals
+
+    return [...vals].sort((a, b) => {
+      const numA = parseInt(a.match(/\d+/)?.[0] || '0', 10)
+      const numB = parseInt(b.match(/\d+/)?.[0] || '0', 10)
+      if (numA !== numB) {
+        return numA - numB
+      }
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    })
+  }, [option.values, isSizeOption])
 
   return (
     <div className="flex flex-col gap-y-3">
