@@ -12,9 +12,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = new URL(`${BACKEND_URL}/store/products`)
-    url.searchParams.set("q", q)
-    url.searchParams.set("limit", "20")
-    url.searchParams.set("fields", "id,title,handle,thumbnail,*variants")
+    url.searchParams.set("limit", "100")
+    url.searchParams.set("fields", "id,title,handle,thumbnail,description,*variants")
 
     const res = await fetch(url.toString(), {
       headers: {
@@ -29,14 +28,30 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json()
-    const queryLower = q.toLowerCase()
+    const queryLower = q.toLowerCase().replace(/[^a-z0-9\s]/g, "")
+    const queryWords = queryLower.split(/\s+/).filter(Boolean)
     const expandedResults: any[] = []
 
-    for (const prod of (data.products || [])) {
+    const matchedProducts = (data.products || []).filter((prod: any) => {
+      const titleLower = (prod.title || "").toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "")
+      const descLower = (prod.description || "").toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "")
+      const handleLower = (prod.handle || "").toLowerCase().replace(/[^a-z0-9]/g, "")
+
+      return queryWords.every(word => {
+        const cleanWord = word.replace(/\s+/g, "")
+        return titleLower.includes(cleanWord) || 
+               descLower.includes(cleanWord) || 
+               handleLower.includes(cleanWord)
+      })
+    })
+
+    for (const prod of matchedProducts) {
       if (prod.variants && prod.variants.length > 1) {
-        const matchingVariants = prod.variants.filter((v: any) =>
-          v.title?.toLowerCase().includes(queryLower)
-        )
+        // If query is broad, show the variants that match best, or show all
+        const matchingVariants = prod.variants.filter((v: any) => {
+          const vTitle = (v.title || '').toLowerCase().replace(/[^a-z0-9]/g, "")
+          return queryWords.some(word => vTitle.includes(word.replace(/\s+/g, "")))
+        })
         const variantsToShow = matchingVariants.length > 0 ? matchingVariants : prod.variants
 
         for (const v of variantsToShow) {
