@@ -38,10 +38,14 @@ export async function GET(req: NextRequest) {
       const handleLower = (prod.handle || "").toLowerCase().replace(/[^a-z0-9]/g, "")
 
       return queryWords.every(word => {
-        const cleanWord = word.replace(/\s+/g, "")
-        return titleLower.includes(cleanWord) || 
-               descLower.includes(cleanWord) || 
-               handleLower.includes(cleanWord)
+        const cleanWord = word.replace(/\s+/g, "").replace(/navy/g, "naivy")
+        const cleanTitle = titleLower.replace(/navy/g, "naivy")
+        const cleanDesc = descLower.replace(/navy/g, "naivy")
+        const cleanHandle = handleLower.replace(/navy/g, "naivy")
+
+        return cleanTitle.includes(cleanWord) || 
+               cleanDesc.includes(cleanWord) || 
+               cleanHandle.includes(cleanWord)
       })
     })
 

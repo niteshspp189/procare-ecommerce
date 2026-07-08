@@ -107,6 +107,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
         <div 
           id="main-gallery-container"
           className="flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto h-full min-h-0 lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar lg:pb-0"
+          style={{ paddingBottom: "800px" }}
         >
           {images.map((image, index) => {
             return (
@@ -132,8 +133,6 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
               </div>
             )
           })}
-          {/* Scroll spacer on desktop to allow the last item to scroll to the top */}
-          <div className="hidden lg:block w-full h-[80vh] flex-shrink-0" />
         </div>
 
         {/* Mobile Thumbnails */}
