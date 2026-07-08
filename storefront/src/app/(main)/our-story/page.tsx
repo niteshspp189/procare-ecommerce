@@ -37,7 +37,7 @@ const OurStoryPage = () => {
     return (
         <div className="bg-white">
             {/* HERO SECTION BANNER */}
-            <div className="relative h-[300px] overflow-hidden flex items-center justify-center bg-black text-white">
+            <div className="relative h-[360px] overflow-hidden flex items-center justify-center bg-black text-white">
                 <div className="absolute inset-0 opacity-45">
                     <img src="/images/our-story-banner-new.jpeg" className="w-full h-full object-cover" alt="Our Story Banner" />
                 </div>
