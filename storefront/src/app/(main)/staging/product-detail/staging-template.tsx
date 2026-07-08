@@ -90,6 +90,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
       if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
       if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
+      if (meta.image_5) vImgs.push({ id: 'v5', url: meta.image_5 } as any)
       if (vImgs.length > 0) return vImgs
     }
 
