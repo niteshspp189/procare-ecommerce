@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /server
 
-RUN apk add --no-cache python3 make g++ openjdk11-jre-headless
+RUN apk add --no-cache python3 make g++ openjdk11-jre-headless postgresql-client
 
 # Enable Corepack for Yarn v4
 RUN corepack enable && corepack prepare yarn@4.12.0 --activate
@@ -16,6 +16,9 @@ RUN yarn install
 
 # Copy source code
 COPY . .
+
+# Run the patch script to support AVIF uploads in admin dashboard
+RUN node scripts/patch-media-upload.js
 
 # Build Medusa Admin
 RUN yarn medusa build

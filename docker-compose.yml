@@ -50,7 +50,6 @@ services:
       - "5173:5173"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
-      - DATABASE_URL=postgres://procare_ecommerce:procare_ecommerce@postgres:5432/procare_ecommerce
       - REDIS_URL=redis://redis:6379
     env_file:
       - ./backend/.env
@@ -62,6 +61,8 @@ services:
       timeout: 30s
       retries: 8
       start_period: 300s
+    volumes:
+      - /var/www/procare-ecommerce/backend-static:/server/static
 
   storefront:
     build:

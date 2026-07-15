@@ -7,6 +7,7 @@ import { Button, Text, Heading, clx } from "@medusajs/ui"
 import { addToCart } from "@lib/data/cart"
 import { useParams, useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
+import { isSimpleProduct, isDummyValue } from "@lib/util/product"
 
 const s = {
     btnQuick: {
@@ -45,9 +46,47 @@ export default function QuickBuy({
             onExternalOpenHandled?.()
         }
     }, [externalOpen])
-    const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-        product.variants?.[0]?.id || null
-    )
+    const sortedVariants = React.useMemo(() => {
+        if (!product.variants) return []
+        
+        const sizeWeights: Record<string, number> = {
+            "xs": 1, "s": 2, "m": 3, "l": 4, "xl": 5, "xxl": 6, "3xl": 7,
+            "small": 2, "medium": 3, "large": 4,
+            "default": 100, "universal": 101, "default size": 102, "default variant": 103
+        }
+
+        return [...product.variants].sort((a: any, b: any) => {
+            const aTitle = a.title || ""
+            const bTitle = b.title || ""
+            const aLower = aTitle.toLowerCase().trim()
+            const bLower = bTitle.toLowerCase().trim()
+
+            const weightA = sizeWeights[aLower]
+            const weightB = sizeWeights[bLower]
+
+            if (weightA !== undefined && weightB !== undefined) {
+                return weightA - weightB
+            }
+            if (weightA !== undefined) return -1
+            if (weightB !== undefined) return 1
+
+            const numA = parseInt(aTitle.match(/\d+/)?.[0] || '0', 10)
+            const numB = parseInt(bTitle.match(/\d+/)?.[0] || '0', 10)
+            if (numA !== numB) {
+                return numA - numB
+            }
+            return aTitle.localeCompare(bTitle, undefined, { numeric: true, sensitivity: 'base' })
+        })
+    }, [product.variants])
+
+    const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null)
+
+    React.useEffect(() => {
+        if (sortedVariants.length > 0 && !selectedVariantId) {
+            setSelectedVariantId(sortedVariants[0].id)
+        }
+    }, [sortedVariants, selectedVariantId])
+
     const [isAdding, setIsAdding] = useState(false)
     const [isBuying, setIsBuying] = useState(false)
 
@@ -117,11 +156,11 @@ export default function QuickBuy({
 
             <Modal isOpen={isOpen} close={close} size="large">
                 <Modal.Title>
-                    <Heading className="text-xl font-bold uppercase tracking-widest">{product.title}</Heading>
+                    <Heading className="text-base sm:text-xl font-bold uppercase tracking-widest pr-8 leading-snug">{product.title}</Heading>
                 </Modal.Title>
                 <Modal.Body>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 w-full">
-                        <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
+                    <div className="flex flex-col md:grid md:grid-cols-2 gap-5 sm:gap-8 py-4 sm:py-6 w-full max-h-[70vh] overflow-y-auto">
+                        <div className="relative w-full h-48 sm:h-64 md:aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                             {product.thumbnail && (
                                 <img
                                     src={product.thumbnail}
@@ -130,43 +169,40 @@ export default function QuickBuy({
                                 />
                             )}
                         </div>
-                        <div className="flex flex-col gap-y-4">
+                        <div className="flex flex-col gap-y-3 sm:gap-y-4">
                             <Text className="text-gray-500 text-sm leading-relaxed">
                                 {product.description || "Experience the ultimate care for your footwear with Pro Premium Care. Our products are designed for high-performance protection and maintenance."}
                             </Text>
 
-                            <div className="mt-4 pt-4 border-t border-gray-100">
-                                <Text className="font-bold text-base mb-3 uppercase tracking-wider">Select Option</Text>
-                                <div className="flex flex-wrap gap-3">
-                                    {product.variants?.map((v: any) => (
-                                        <button
-                                            key={v.id}
-                                            onClick={() => setSelectedVariantId(v.id)}
-                                            className={clx(
-                                                "px-4 py-2 border rounded-full text-xs font-bold transition-all uppercase tracking-widest",
-                                                selectedVariantId === v.id
-                                                    ? "border-[#00bda5] bg-[#00bda5] text-white"
-                                                    : "border-gray-200 bg-white text-gray-500 hover:border-gray-400"
-                                            )}
-                                        >
-                                            {v.title}
-                                        </button>
-                                    ))}
-                                    {(!product.variants || product.variants.length === 0) && (
-                                        <div className="px-4 py-2 border border-[#00bda5] bg-[#00bda5] text-white rounded-full text-xs font-bold uppercase tracking-widest">
-                                            Default
-                                        </div>
-                                    )}
+                            {!isSimpleProduct(product) && sortedVariants.length > 1 && !sortedVariants.every((v: any) => isDummyValue(v.title)) && (
+                                <div className="pt-3 sm:pt-4 border-t border-gray-100">
+                                    <Text className="font-bold text-sm mb-3 uppercase tracking-wider">Select Option</Text>
+                                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                                        {sortedVariants.map((v: any) => (
+                                            <button
+                                                key={v.id}
+                                                onClick={() => setSelectedVariantId(v.id)}
+                                                className={clx(
+                                                    "px-3 sm:px-4 py-1.5 sm:py-2 border rounded-full text-xs font-bold transition-all uppercase tracking-widest",
+                                                    selectedVariantId === v.id
+                                                        ? "border-[#00bda5] bg-[#00bda5] text-white"
+                                                        : "border-gray-200 bg-white text-gray-500 hover:border-gray-400"
+                                                )}
+                                            >
+                                                {v.title}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
-                            <div className="mt-auto pt-6 flex flex-col gap-3">
-                                <div className="grid grid-cols-2 gap-3">
+                            <div className="pt-4 flex flex-col gap-3 mt-auto">
+                                <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
                                     <Button
                                         onClick={handleAddToCart}
                                         isLoading={isAdding}
                                         disabled={!selectedVariantId || isBuying}
-                                        className="rounded-full bg-white text-[#00bda5] border-2 border-[#00bda5] hover:bg-gray-50 h-12 uppercase tracking-widest text-xs font-black"
+                                        className="rounded-full bg-white text-[#00bda5] border-2 border-[#00bda5] hover:bg-gray-50 h-12 uppercase tracking-widest text-xs font-black w-full"
                                     >
                                         Add To Cart
                                     </Button>
@@ -174,14 +210,14 @@ export default function QuickBuy({
                                         onClick={handleBuyNow}
                                         isLoading={isBuying}
                                         disabled={!selectedVariantId || isAdding}
-                                        className="rounded-full bg-[#00bda5] text-white h-12 uppercase tracking-widest text-xs font-black hover:bg-[#00a38f]"
+                                        className="rounded-full bg-[#00bda5] text-white h-12 uppercase tracking-widest text-xs font-black hover:bg-[#00a38f] w-full"
                                     >
                                         Buy Now
                                     </Button>
                                 </div>
                                 <a
                                     href={`/products/${product.handle}`}
-                                    className="w-full text-center py-2 text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest mt-2 underline"
+                                    className="w-full text-center py-2 text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest mt-1 underline"
                                 >
                                     View Full Details
                                 </a>

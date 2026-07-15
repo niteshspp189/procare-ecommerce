@@ -21,7 +21,9 @@ const Payment = ({
   cart: any
   availablePaymentMethods: any[]
 }) => {
-  const filteredPaymentMethods = availablePaymentMethods ?? []
+  const filteredPaymentMethods = (availablePaymentMethods ?? []).filter(
+    (method: any) => !isManual(method.id)
+  )
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"

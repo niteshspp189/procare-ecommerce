@@ -46,16 +46,16 @@ export default async function OrderCompletedTemplate({
             <p className="text-ui-fg-subtle mt-4 text-lg max-w-md">
               Your order has been placed successfully. We've sent a confirmation email to <span className="font-bold text-ui-fg-base">{order.email}</span>
             </p>
-            <div className="flex gap-4 mt-10">
+            <div className="flex flex-col sm:flex-row gap-3 mt-10 w-full sm:w-auto">
               <a 
                 href={`/api/invoice/${order.id}`}
-                className="bg-[#00b5a4] text-white px-8 py-4 rounded-full font-bold hover:bg-[#009d8e] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-100"
+                className="w-full sm:w-auto text-center bg-[#00b5a4] text-white px-8 py-4 rounded-full font-bold hover:bg-[#009d8e] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-100"
               >
                 Download Invoice
               </a>
               <a 
                 href="/account/orders" 
-                className="bg-white text-black border-2 border-[#00b5a4] px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-50"
+                className="w-full sm:w-auto text-center bg-white text-black border-2 border-[#00b5a4] px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-50"
               >
                 View My Orders
               </a>

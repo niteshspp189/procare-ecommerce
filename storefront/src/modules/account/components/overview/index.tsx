@@ -12,9 +12,9 @@ type OverviewProps = {
 
 const Overview = ({ customer, orders }: OverviewProps) => {
   return (
-    <div data-testid="overview-page-wrapper">
-      <div className="hidden small:block">
-        <div className="text-xl-semi flex justify-between items-center mb-4">
+    <div data-testid="overview-page-wrapper" className="px-4 small:px-0">
+      <div className="w-full">
+        <div className="text-xl-semi flex flex-col gap-y-2 small:flex-row small:justify-between small:items-center mb-4">
           <span data-testid="welcome-message" data-value={customer?.first_name}>
             Hello {customer?.first_name}
           </span>
@@ -33,13 +33,13 @@ const Overview = ({ customer, orders }: OverviewProps) => {
         {/* Password Reminder Banner */}
         {/* Profile Completion Banner for New Users */}
         {(!customer?.phone || customer?.first_name === "User") && (
-          <div className="bg-orange-50 border border-orange-200 p-4 rounded-md mb-8 flex flex-col gap-y-4">
-              <div className="flex justify-between items-center">
+          <div className="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-8">
+              <div className="flex flex-col gap-y-4 small:flex-row small:justify-between small:items-center">
                 <div className="flex flex-col">
                     <span className="text-orange-800 font-semibold">Complete your profile</span>
                     <span className="text-orange-700 text-small-regular">Please provide your name and phone number to secure your account.</span>
                 </div>
-                <LocalizedClientLink href="/account/profile" className="bg-orange-600 text-white px-4 py-2 rounded-md text-small-regular hover:bg-orange-700 transition-colors">
+                <LocalizedClientLink href="/account/profile" className="bg-orange-600 text-white px-4 py-2 rounded-md text-small-regular hover:bg-orange-700 transition-colors text-center flex-shrink-0">
                     Go to Profile
                 </LocalizedClientLink>
               </div>
@@ -47,7 +47,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
         )}
         <div className="flex flex-col py-8 border-t border-gray-200">
           <div className="flex flex-col gap-y-4 h-full col-span-1 row-span-2 flex-1">
-            <div className="flex items-start gap-x-16 mb-6">
+            <div className="flex items-start gap-x-8 small:gap-x-16 mb-6">
               <div className="flex flex-col gap-y-4">
                 <h3 className="text-large-semi">Profile</h3>
                 <div className="flex items-end gap-x-2">
@@ -101,32 +101,34 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                           href={`/account/orders/details/${order.id}`}
                         >
                           <Container className="bg-gray-50 flex justify-between items-center p-4">
-                            <div className="grid grid-cols-3 grid-rows-2 text-small-regular gap-x-4 flex-1">
-                              <span className="font-semibold">Date placed</span>
-                              <span className="font-semibold">
-                                Order number
-                              </span>
-                              <span className="font-semibold">
-                                Total amount
-                              </span>
-                              <span data-testid="order-created-date">
-                                {new Date(order.created_at).toDateString()}
-                              </span>
-                              <span
-                                data-testid="order-id"
-                                data-value={order.display_id}
-                              >
-                                #{order.display_id}
-                              </span>
-                              <span data-testid="order-amount">
-                                {convertToLocale({
-                                  amount: order.total,
-                                  currency_code: order.currency_code,
-                                })}
-                              </span>
+                            <div className="grid grid-cols-2 small:grid-cols-3 gap-y-4 text-small-regular gap-x-2 small:gap-x-4 flex-1">
+                              <div className="flex flex-col">
+                                <span className="font-semibold">Date placed</span>
+                                <span data-testid="order-created-date">
+                                  {new Date(order.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-semibold">Order number</span>
+                                <span
+                                  data-testid="order-id"
+                                  data-value={order.display_id}
+                                >
+                                  #{order.display_id}
+                                </span>
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-semibold">Total amount</span>
+                                <span data-testid="order-amount">
+                                  {convertToLocale({
+                                    amount: order.total,
+                                    currency_code: order.currency_code,
+                                  })}
+                                </span>
+                              </div>
                             </div>
                             <button
-                              className="flex items-center justify-between"
+                              className="flex items-center justify-between ml-2"
                               data-testid="open-order-button"
                             >
                               <span className="sr-only">

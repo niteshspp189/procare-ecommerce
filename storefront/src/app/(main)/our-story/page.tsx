@@ -54,11 +54,11 @@ const OurStoryPage = () => {
                 <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                     {/* VIDEO LEFT */}
                     <div className="w-full lg:w-[55%] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative aspect-video bg-gray-50 flex-shrink-0 self-start hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-500">
-                        <CustomVideoPlayer videoId="iRgOQn3acBs" />
+                        <CustomVideoPlayer videoId="rCl2DY4quFI" />
                     </div>
 
                     {/* TEXT RIGHT */}
-                    <div className="w-full lg:w-[45%] space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left self-center font-['Inter',system-ui,sans-serif] text-gray-600">
+                    <div className="w-full lg:w-[45%] space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left self-center text-gray-600">
                         <p>
                             At <span className="font-semibold text-black">MV Shoecare</span>, our journey began in 2009 with a simple belief: footwear deserves care that matches the craftsmanship behind it.
                         </p>
@@ -69,7 +69,7 @@ const OurStoryPage = () => {
                 </div>
 
                 {/* ADDITIONAL STORY TEXT (BELOW VIDEO) */}
-                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left font-['Inter',system-ui,sans-serif] text-gray-600">
+                <div className="mt-12 lg:mt-16 space-y-6 text-base sm:text-lg font-normal text-justify sm:text-left text-gray-600">
                     <p>
                         In 2016, we launched <span className="font-bold text-black">PRO</span>, our flagship brand, with a vision to make professional shoe care accessible, effective, and easy to use for everyone. From leather care and sneaker care to accessories, insoles, and foot care solutions, PRO was designed to help consumers extend the life of their footwear while looking and feeling their best.
                     </p>

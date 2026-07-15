@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "./design-system.css";
 @import "tailwindcss/base";
 @import "tailwindcss/components";
@@ -24,12 +25,12 @@
   font-style: normal;
 }
 
-body {
-  font-family: 'KelsonSans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+*, ::before, ::after {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'KelsonSans', sans-serif !important;
+code, pre, kbd, samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 
 /* ─── Design Token CSS Variables ─────────────────────────────────────────── */
@@ -444,4 +445,17 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   width: max-content;
   animation: marquee 20s linear infinite;
+}
+
+/* Custom highly readable pulse animation for the top promo bar */
+@keyframes promoPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+.animate-promo-pulse {
+  animation: promoPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

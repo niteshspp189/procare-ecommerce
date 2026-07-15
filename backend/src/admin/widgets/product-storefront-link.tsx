@@ -1,29 +1,34 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
-import { Button, Container } from "@medusajs/ui"
+import { Button, Container, Heading } from "@medusajs/ui"
 import { ArrowUpRightOnBox } from "@medusajs/icons"
 
 export const config = defineWidgetConfig({
-  zone: "product.details.before",
+  zone: "product.details.side.before",
 })
 
 const StorefrontLinkWidget = ({ data }: any) => {
   const openStorefront = () => {
-    const storefrontUrl = `${window.location.origin.replace(':9000', ':8000')}/products/${data.handle}`
+    let origin = window.location.origin
+    if (origin.includes("localhost")) {
+      origin = origin.replace(':9000', ':8000')
+    }
+    const storefrontUrl = `${origin}/products/${data.handle}`
     window.open(storefrontUrl, '_blank')
   }
 
   return (
-    <div className="flex justify-end mb-4">
+    <Container className="p-4 mb-4 flex flex-col gap-y-3">
+      <Heading level="h2" className="text-sm font-semibold">🔗 Storefront Link</Heading>
       <Button 
         variant="secondary" 
         size="small" 
         onClick={openStorefront}
-        className="flex items-center gap-x-2"
+        className="flex items-center justify-center gap-x-2 w-full"
       >
         <ArrowUpRightOnBox />
-        View on Storefront
+        View Product on Storefront
       </Button>
-    </div>
+    </Container>
   )
 }
 

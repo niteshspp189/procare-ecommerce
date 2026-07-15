@@ -80,6 +80,42 @@ export class ShiprocketClient {
     const serviceable = !!(result?.status === 200 && result?.data?.available_courier_companies?.length > 0)
     return { serviceable, data: result }
   }
+
+  public async getTrackingDetails(awbCode: string) {
+    const token = await this.authenticate()
+    const response = await fetch(`${this.baseUrl}/courier/track/awb/${awbCode}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const err = await response.text()
+      console.warn("Shiprocket tracking check failed:", err)
+      return { success: false, error: err }
+    }
+
+    return await response.json()
+  }
+
+  public async getShipmentTracking(shipmentId: string) {
+    const token = await this.authenticate()
+    const response = await fetch(`${this.baseUrl}/courier/track?shipment_id=${shipmentId}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const err = await response.text()
+      console.warn("Shiprocket shipment tracking check failed:", err)
+      return { success: false, error: err }
+    }
+
+    return await response.json()
+  }
 }
 
 export const shiprocketClient = new ShiprocketClient()

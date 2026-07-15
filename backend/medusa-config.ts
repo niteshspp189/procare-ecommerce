@@ -44,7 +44,7 @@ module.exports = defineConfig({
             id: "local",
             options: {
               upload_dir: "static",
-              backend_url: "http://localhost:9000/static"
+              backend_url: "https://propremiumcare.com/store-backend/static"
             },
           },
         ],

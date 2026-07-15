@@ -51,11 +51,27 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const { openDrawer } = useCartDrawer()
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
-  const [options, setOptions] = useState<Record<string, string | undefined>>({})
-  const [threshold, setThreshold] = useState(499)
 
   const searchParams = useSearchParams()
   const vId = searchParams?.get("v_id")
+
+  const initialOptions = useMemo(() => {
+    if (vId && product?.variants) {
+      const targetVariant = product.variants.find((v) => v.id === vId)
+      if (targetVariant) {
+        return optionsAsKeymap(targetVariant.options) ?? {}
+      }
+    }
+    if (product?.variants?.length === 1) {
+      return optionsAsKeymap(product.variants[0].options) ?? {}
+    } else if (product?.variants && product.variants.length > 1) {
+      return optionsAsKeymap(product.variants[0].options) ?? {}
+    }
+    return {}
+  }, [product?.variants, vId])
+
+  const [options, setOptions] = useState<Record<string, string | undefined>>(initialOptions)
+  const [threshold, setThreshold] = useState(499)
 
   React.useEffect(() => {
     const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
@@ -104,7 +120,13 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
 
   const images = useMemo(() => {
     let vImgs: HttpTypes.StoreProductImage[] = []
-    if (selectedVariant?.metadata) {
+    
+    const hasColorOption = product.options?.some(opt => {
+      const name = opt.title?.toLowerCase() || ""
+      return name.includes("color") || name.includes("bristle") || name.includes("type")
+    })
+
+    if (hasColorOption && selectedVariant?.metadata) {
       const meta = selectedVariant.metadata as Record<string, string>
       if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
@@ -135,7 +157,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     if (opts.length === 0) return true
     return (opts as any[]).every((opt: any) => {
       const val = (opt.value || '').toLowerCase()
-      return val === 'default' || val === 'standard' || val === ''
+      return val === 'default' || val === 'default variant' || val === 'standard' || val === ''
     })
   }, [product?.variants])
 
@@ -170,6 +192,49 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const title = product?.title || "Professional Shoe Care Kit"
   const breadcrumbName = product?.title || "PRO Sport Performance Insole"
   const subtitle = product?.subtitle || product?.description?.slice(0, 100) || "A stain & water repellent that performs and is earth friendly"
+  const sizeDisplay = useMemo(() => {
+    const meta = (product?.metadata || {}) as Record<string, any>
+    const specs = (meta.product_specifications || {}) as Record<string, any>
+    if (meta.size && typeof meta.size === "string" && meta.size.trim() !== "") {
+      return meta.size.trim()
+    }
+    const specSize = specs["Net Volume"] || specs["Volume"] || specs["Size"] || specs["Net Weight"] || specs["Weight"] || specs["Pack Size"] || specs["Quantity"]
+    if (specSize && typeof specSize === "string" && specSize.trim() !== "") {
+      return specSize.trim()
+    }
+    for (const [key, val] of Object.entries(specs)) {
+      if (val && typeof val === "string" && (key.toLowerCase().includes("volume") || key.toLowerCase().includes("size") || key.toLowerCase().includes("weight") || key.toLowerCase().includes("quantity"))) {
+        return val.trim()
+      }
+    }
+    const varTitle = product?.variants?.[0]?.title
+    if (varTitle && !varTitle.toLowerCase().includes("default") && varTitle.trim() !== "") {
+      return varTitle.trim()
+    }
+    const optVal = product?.variants?.[0]?.options?.[0]?.value
+    if (optVal && !optVal.toLowerCase().includes("default") && optVal.trim() !== "") {
+      return optVal.trim()
+    }
+    if (product?.subtitle && typeof product.subtitle === "string" && product.subtitle.trim() !== "" && product.subtitle.trim().length <= 25 && !product.subtitle.toLowerCase().includes("stain & water") && !product.subtitle.toLowerCase().includes("repellent")) {
+      return product.subtitle.trim()
+    }
+    return "One Size"
+  }, [product])
+
+  const hasGenuineSize = useMemo(() => {
+    if (!sizeDisplay || typeof sizeDisplay !== "string") return false
+    const cleaned = sizeDisplay.trim().toLowerCase()
+    if (!cleaned) return false
+    const nonGenuineKeywords = [
+      "one size", "default", "default variant", "standard", "regular", "universal",
+      "kit", "carekit", "care kit", "pediroller", "fileturqouise", "heelliner",
+      "clipperturqouise", "bufferturqouise", "pumice-turqouise", "combo-turqouise",
+      "pack-black", "pack-neutral", "single", "n/a", "none"
+    ]
+    if (nonGenuineKeywords.includes(cleaned)) return false
+    if (product?.title && cleaned === product.title.trim().toLowerCase()) return false
+    return true
+  }, [sizeDisplay, product?.title])
 
   const handleAddToCart = async () => {
     setIsAdding(true)
@@ -244,7 +309,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [metadata.suitable_for])
 
   return (
-    <div style={s.container as any} className="font-sans">
+    <div style={{ ...(s.container as any), overflowAnchor: 'none' }} className="font-sans">
       <div style={s.inner as any}>
         <div style={s.breadcrumb as any}>
           <LocalizedClientLink href="/" className="hover:text-black">Home</LocalizedClientLink>
@@ -257,6 +322,20 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
             <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Home / {title}</div>
             <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
             {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>}
+            {(product?.categories ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {(product.categories ?? []).map((cat: any) => (
+                  <LocalizedClientLink
+                    key={cat.id}
+                    href={`/categories/${cat.handle}`}
+                    className="inline-flex items-center gap-1 bg-[#f0faf9] border border-[#00b5a4]/30 text-[#00b5a4] text-[11px] font-bold px-3 py-1 rounded-full hover:bg-[#00b5a4] hover:text-white transition-all"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+                    {cat.name}
+                  </LocalizedClientLink>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="w-full lg:w-[46%] min-w-0 relative z-10">
@@ -264,11 +343,25 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
           </div>
 
           <div className="w-full lg:flex-1 shrink-0">
-            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100">
               <div className="hidden lg:block">
                 <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
                 <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
-                {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-6 font-medium">{subtitle}</p>}
+                {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-3 font-medium">{subtitle}</p>}
+                {(product?.categories ?? []).length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {(product.categories ?? []).map((cat: any) => (
+                      <LocalizedClientLink
+                        key={cat.id}
+                        href={`/categories/${cat.handle}`}
+                        className="inline-flex items-center gap-1 bg-[#f0faf9] border border-[#00b5a4]/30 text-[#00b5a4] text-[11px] font-bold px-3 py-1 rounded-full hover:bg-[#00b5a4] hover:text-white transition-all"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+                        {cat.name}
+                      </LocalizedClientLink>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-baseline gap-4 mb-1">
@@ -277,13 +370,15 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               <p className="text-sm text-black mb-4">(Inclusive of all taxes)</p>
 
               <div className="mb-6">
-                {isSingleDefaultVariant ? (
-                  <div>
-                    <div className="text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">Size</div>
-                    <div className="inline-flex items-center border-2 border-black rounded-full px-5 py-2 bg-white">
-                      <span className="text-sm font-bold text-black">{subtitle}</span>
+                {isSingleDefaultVariant || (product?.variants?.length === 1) ? (
+                  hasGenuineSize ? (
+                    <div>
+                      <div className="text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">Size</div>
+                      <div className="inline-flex items-center border-2 border-black rounded-full px-5 py-2 bg-white">
+                        <span className="text-sm font-bold text-black">{sizeDisplay}</span>
+                      </div>
                     </div>
-                  </div>
+                  ) : null
                 ) : (product?.options || []).length > 0 ? (
                   (product?.options || []).map((option) => (
                     <div key={option.id} className="mb-4">
@@ -334,7 +429,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 >+</button>
               </div>
 
-              <div className="flex gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <Button variant="primary" className="!w-full" onClick={handleAddToCart} disabled={isAdding}>
                   {isAdding ? "Processing..." : "Buy Now"}
                 </Button>
@@ -382,44 +477,80 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                   } catch {}
                 }
                 return (
-                  <div className="flex justify-between items-center py-6 border-t border-b border-gray-200 mb-5 max-w-full overflow-x-auto gap-4 no-scrollbar">
+                  <div className="flex justify-between items-center py-4 border-t border-b border-gray-200 mb-5 w-full gap-1">
                     {activeBadges.map((badge: { iconId: string; label: string; iconUrl?: string }, idx: number) => {
-                       const isImage = badge.iconUrl || badge.iconId.startsWith("/") || badge.iconId.includes(".");
-                       
-                       let displayLabel = badge.label;
-                       if (displayLabel && displayLabel.toLowerCase().includes("return")) {
-                         displayLabel = "15 Day Return";
-                       }
-                       return (
-                         <div key={idx} className="text-center flex flex-col items-center gap-2 min-w-[85px]">
-                           <div className="w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden">
-                             {isImage ? (
-                               <img src={badge.iconUrl || badge.iconId} alt={displayLabel} className="w-[54px] h-[54px] object-contain" />
-                             ) : (
-                               <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
-                                 dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
-                             )}
-                           </div>
-                           <span className="text-[11px] font-bold text-black tracking-widest uppercase whitespace-nowrap">{displayLabel}</span>
-                         </div>
-                       )
-                     })}
+                      let displayLabel = badge.label;
+                      if (displayLabel && displayLabel.toLowerCase().includes("return")) {
+                        displayLabel = "15 Day Return";
+                      }
+                      
+                      let mappedIconUrl = badge.iconUrl;
+                      if (!mappedIconUrl) {
+                        const norm = (displayLabel || "").toLowerCase().trim();
+                        const id = (badge.iconId || "").toLowerCase().trim();
+                        if (norm === "pro clean" || norm === "proclean" || id === "pro-clean") {
+                          mappedIconUrl = "/images/icons/pro-clean.png";
+                        } else if (norm === "pro fresh" || norm === "profresh" || id === "pro-fresh") {
+                          mappedIconUrl = "/images/icons/pro-fresh.png";
+                        } else if (norm === "pro care" || norm === "procare" || id === "pro-care") {
+                          mappedIconUrl = "/images/icons/pro-care.png";
+                        } else if (norm === "pro shine" || norm === "proshine" || id === "pro-shine") {
+                          mappedIconUrl = "/images/icons/pro-shine.png";
+                        } else if (norm === "pro color" || norm === "procolor" || id === "pro-color" || id === "pro-color-green") {
+                          mappedIconUrl = "/images/icons/pro-color-green.png";
+                        } else if (norm.includes("european exper") || norm.includes("euro exper") || norm.includes("europe") || norm.includes("euro tech") || id === "european-expertise" || id === "europian-experts") {
+                          mappedIconUrl = "/images/icons/europian-experts.png";
+                        } else if (norm === "color refreshing" || norm === "color refresh" || norm === "colour" || norm.includes("color restore") || id === "color-refreshing") {
+                          mappedIconUrl = "/images/icons/color-refreshing.png";
+                        } else if (norm === "fight fungi" || id === "helps-fight-fungi-and-bacteria") {
+                          mappedIconUrl = "/images/icons/helps-fight-fungi-and-bacteria.png";
+                        } else if (norm.includes("freshness") || id === "long-lasting-freshness") {
+                          mappedIconUrl = "/images/icons/long-lasting-freshness.png";
+                        } else if (norm === "effective clean" || norm === "effective cleaning agent" || id === "effective-clean" || id === "effective-cleaning-agent") {
+                          mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
+                        } else if (norm === "cleaning" || id === "cleaning") {
+                          mappedIconUrl = "/images/icons/cleaning.png";
+                        } else if (norm === "shine" || norm === "natural shine" || id === "shine") {
+                          mappedIconUrl = "/images/icons/shine.png";
+                        } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("wood") || norm.includes("steel") || id === "contain-high-quality") {
+                          mappedIconUrl = "/images/icons/contain-high-quality.png";
+                        }
+                      }
+
+                      const finalIconSource = mappedIconUrl || badge.iconId;
+                      const isImage = Boolean(finalIconSource && (finalIconSource.startsWith("/") || finalIconSource.includes(".")));
+
+                      return (
+                        <div key={idx} className="text-center flex flex-col items-center gap-1.5 flex-1 min-w-0">
+                          <div className="w-[58px] h-[58px] sm:w-[70px] sm:h-[70px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden mx-auto">
+                            {isImage ? (
+                              <img src={finalIconSource} alt={displayLabel} className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] object-contain" />
+                            ) : (
+                              <svg width="26" height="26" className="sm:w-[32px] sm:h-[32px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                                dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
+                            )}
+                          </div>
+                          <span className="text-[9px] sm:text-[10px] font-bold text-black tracking-wider uppercase leading-tight">{displayLabel}</span>
+                        </div>
+                      )
+                    })}
                   </div>
                 )
               })()}
 
-              {/* ACCORDIONS */}
-              <div className="space-y-0 border border-gray-200 rounded-xl overflow-hidden">
+              {/* ACCORDIONS — overflow-anchor:none prevents browser scroll-anchoring from
+                  jumping to the "How It Works" section when an accordion expands */}
+              <div className="space-y-0 border border-gray-200 rounded-xl overflow-hidden" style={{ overflowAnchor: 'none' }}>
                 <div className="border-b border-gray-200">
                   <div
-                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-3 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("description")}
                   >
                     <span>Product Description</span>
                     <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "description" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "description" && (
-                    <div className="px-1 pb-4 text-black text-sm leading-relaxed">
+                    <div className="pl-4 pr-2 pb-4 text-black text-sm leading-relaxed">
                       <p className="mb-3">{String(product.description || '').replace(/\*\*/g, '')}</p>
                       {metadata.key_benefits && (
                         <ul className="space-y-2 mt-2">
@@ -434,14 +565,14 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 {metadata.product_specifications && (
                   <div className="border-b border-gray-200">
                     <div
-                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-3 py-4 hover:bg-gray-50 text-black"
                       onClick={() => toggleAccordion("specs")}
                     >
                       <span>Specifications</span>
                       <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "specs" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
                     {activeAccordion === "specs" && (
-                      <div className="px-1 pb-4">
+                      <div className="pl-4 pr-2 pb-4">
                         <table className="w-full text-sm text-left">
                           <tbody>
                             {Object.entries(metadata.product_specifications as Record<string, any>).map(([key, value], i) => (
@@ -458,14 +589,14 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 )}
                 <div className="border-b border-gray-200">
                   <div
-                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-3 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("how")}
                   >
                     <span>How To Use</span>
                     <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "how" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "how" && (
-                    <div className="px-1 pb-4 space-y-4">
+                    <div className="pl-4 pr-2 pb-4 space-y-4">
                       {howToUseSteps.length > 0 ? (
                         howToUseSteps.map((step, i) => (
                           <div key={i}>
@@ -481,14 +612,14 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 </div>
                 <div className="border-b border-gray-200">
                   <div
-                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                    className="flex justify-between items-center font-semibold text-sm cursor-pointer px-3 py-4 hover:bg-gray-50 text-black"
                     onClick={() => toggleAccordion("shipping")}
                   >
                     <span>Shipping & Returns</span>
                     <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "shipping" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                   {activeAccordion === "shipping" && (
-                    <div className="px-1 pb-4 space-y-2 text-sm text-black">
+                    <div className="pl-4 pr-2 pb-4 space-y-2 text-sm text-black">
                       <div><strong>Delivery:</strong> Ships within 5–6 business days across India.</div>
                       <div><strong>Free Delivery:</strong> On all orders above ₹{threshold}.</div>
                       <div><strong>Cash on Delivery:</strong> Available on select pincodes.</div>
@@ -501,14 +632,14 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 {!metadata.product_specifications && (
                   <div className="border-b border-gray-200">
                     <div
-                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-1 py-4 hover:bg-gray-50 text-black"
+                      className="flex justify-between items-center font-semibold text-sm cursor-pointer px-3 py-4 hover:bg-gray-50 text-black"
                       onClick={() => toggleAccordion("manufacturer")}
                     >
                       <span>Manufacturer Details</span>
                       <svg className={`w-4 h-4 transition-transform text-gray-400 flex-shrink-0 ${activeAccordion === "manufacturer" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
                     {activeAccordion === "manufacturer" && (
-                      <div className="px-1 pb-4 text-sm text-black space-y-2">
+                      <div className="pl-4 pr-2 pb-4 text-sm text-black space-y-2">
                         <div><strong>Company:</strong> M V SHOE CARE PVT LTD</div>
                         <div><strong>Address:</strong> A-13, SECTOR-59, NOIDA, UTTAR PRADESH – 201301, INDIA</div>
                         <div><strong>Contact:</strong> +91-120-429-9685</div>

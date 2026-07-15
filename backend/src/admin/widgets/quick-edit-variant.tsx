@@ -12,23 +12,50 @@ import {
 import { useEffect, useState } from "react"
 
 export const config = defineWidgetConfig({
-  zone: "product.details.before",
+  zone: "product.details.after",
 })
 
 const QuickEditVariantWidget = ({ data }: any) => {
-  const [product, setProduct] = useState<any>(null)
   const [variants, setVariants] = useState<any[]>([])
+  // Map of variantId -> { id: priceId, amount: number } for selling prices
+  const [sellPriceMap, setSellPriceMap] = useState<Record<string, { id: string; amount: number } | null>>({})
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`/admin/products/${data.id}?fields=*variants,*variants.prices`, {
-        credentials: "include",
-      })
-      const resData = await response.json()
-      setProduct(resData.product)
-      setVariants(resData.product.variants || [])
+      // 1. Fetch product variants (for MRP / default INR price)
+      const productRes = await fetch(
+        `/admin/products/${data.id}?fields=*variants,*variants.prices`,
+        { credentials: "include" }
+      )
+      const productData = await productRes.json()
+      const fetchedVariants: any[] = productData.product?.variants || []
+      setVariants(fetchedVariants)
+
+      // 2. Fetch selling prices from pl_online_sale price list separately
+      //    The API returns: { prices: [{ id, amount, currency_code, price_set: { variant: { id } } }] }
+      const spRes = await fetch(
+        `/admin/price-lists/pl_online_sale/prices?limit=500&fields=id,amount,currency_code,price_set.variant.id`,
+        { credentials: "include" }
+      )
+      const spData = await spRes.json()
+      const spPrices: any[] = spData.prices || []
+
+      // Build a map: variantId -> { id, amount }
+      const map: Record<string, { id: string; amount: number } | null> = {}
+      // Initialize all variants as null (no SP yet)
+      for (const v of fetchedVariants) {
+        map[v.id] = null
+      }
+      for (const sp of spPrices) {
+        if (sp.currency_code !== "inr") continue
+        const variantId = sp.price_set?.variant?.id
+        if (variantId && map.hasOwnProperty(variantId)) {
+          map[variantId] = { id: sp.id, amount: sp.amount }
+        }
+      }
+      setSellPriceMap(map)
     } catch (error) {
       console.error("Error fetching product data:", error)
     } finally {
@@ -43,7 +70,6 @@ const QuickEditVariantWidget = ({ data }: any) => {
   const handleUpdatePrice = async (variantId: string, priceAmount: number) => {
     setUpdating(variantId)
     try {
-      // Find the price for INR
       const variant = variants.find(v => v.id === variantId)
       const inrPrice = variant?.prices?.find((p: any) => p.currency_code === "inr")
       
@@ -56,26 +82,63 @@ const QuickEditVariantWidget = ({ data }: any) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prices: [
-            {
-              id: inrPrice.id,
-              amount: priceAmount,
-              currency_code: "inr"
-            }
-          ]
+          prices: [{ id: inrPrice.id, amount: priceAmount, currency_code: "inr" }]
         }),
         credentials: "include",
       })
 
       if (response.ok) {
-        toast.success("Price updated successfully")
+        toast.success("MRP updated successfully")
         fetchData()
       } else {
-        toast.error("Failed to update price")
+        toast.error("Failed to update MRP")
       }
     } catch (error) {
       console.error("Update error:", error)
       toast.error("An error occurred while updating")
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const handleUpdateSellingPrice = async (variantId: string, priceAmount: number) => {
+    setUpdating(variantId)
+    try {
+      const existing = sellPriceMap[variantId]
+      let body: any = {}
+
+      if (existing) {
+        // Update existing SP price entry
+        body = { update: [{ id: existing.id, amount: priceAmount }] }
+      } else {
+        // Create new SP price entry — requires variant_id so Medusa can link price_set
+        body = {
+          create: [{
+            variant_id: variantId,
+            amount: priceAmount,
+            currency_code: "inr"
+          }]
+        }
+      }
+
+      const response = await fetch(`/admin/price-lists/pl_online_sale/prices/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        credentials: "include",
+      })
+
+      if (response.ok) {
+        toast.success("Selling price updated successfully")
+        fetchData()
+      } else {
+        const errBody = await response.text()
+        console.error("SP update failed:", errBody)
+        toast.error("Failed to update selling price")
+      }
+    } catch (error) {
+      console.error("Update selling price error:", error)
+      toast.error("An error occurred while updating selling price")
     } finally {
       setUpdating(null)
     }
@@ -101,13 +164,17 @@ const QuickEditVariantWidget = ({ data }: any) => {
             <Table.HeaderCell>Variant</Table.HeaderCell>
             <Table.HeaderCell>SKU</Table.HeaderCell>
             <Table.HeaderCell>Inventory</Table.HeaderCell>
-            <Table.HeaderCell>Price (INR)</Table.HeaderCell>
+            <Table.HeaderCell>MRP (INR)</Table.HeaderCell>
+            <Table.HeaderCell>Selling Price (INR)</Table.HeaderCell>
             <Table.HeaderCell className="text-right">Action</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {variants.map((variant) => {
-            const inrPrice = variant.prices?.find((p: any) => p.currency_code === "inr")?.amount || 0
+            const mrpPrice = variant.prices?.find((p: any) => p.currency_code === "inr")?.amount || 0
+            const spEntry = sellPriceMap[variant.id]
+            const sellingPrice = spEntry?.amount ?? 0
+
             return (
               <Table.Row key={variant.id}>
                 <Table.Cell>
@@ -118,7 +185,7 @@ const QuickEditVariantWidget = ({ data }: any) => {
                 </Table.Cell>
                 <Table.Cell>
                   <Badge color={variant.inventory_quantity > 0 ? "blue" : "red"}>
-                    {variant.inventory_quantity} in stock
+                    {variant.inventory_quantity > 0 ? "in stock" : "out of stock"}
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
@@ -126,29 +193,46 @@ const QuickEditVariantWidget = ({ data }: any) => {
                     <span className="text-ui-fg-muted">₹</span>
                     <Input 
                       type="number" 
-                      defaultValue={inrPrice} 
+                      defaultValue={mrpPrice} 
                       className="w-24 h-8"
                       onBlur={(e) => {
                         const val = parseFloat(e.target.value)
-                        if (val !== inrPrice) {
+                        if (val !== mrpPrice) {
                           handleUpdatePrice(variant.id, val)
                         }
                       }}
                     />
                   </div>
                 </Table.Cell>
+                <Table.Cell>
+                  <div className="flex items-center gap-x-2">
+                    <span className="text-ui-fg-muted">₹</span>
+                    <Input 
+                      key={`sp-${variant.id}-${sellingPrice}`}
+                      type="number" 
+                      defaultValue={sellingPrice || undefined}
+                      placeholder="Add SP"
+                      className="w-24 h-8"
+                      onBlur={(e) => {
+                        const val = parseFloat(e.target.value)
+                        if (!isNaN(val) && val !== sellingPrice) {
+                          handleUpdateSellingPrice(variant.id, val)
+                        }
+                      }}
+                    />
+                  </div>
+                </Table.Cell>
                 <Table.Cell className="text-right">
-                   <Button 
+                  <Button 
                     variant="secondary" 
                     size="small"
-                    loading={updating === variant.id}
+                    isLoading={updating === variant.id}
                     onClick={() => {
-                      // Navigate to edit variant if needed, but for now we have quick actions
                       window.location.href = `/store-backend/products/${data.id}/variants/${variant.id}`
                     }}
-                   >
-                     Manage
-                   </Button>
+                  >
+                    Manage
+                  </Button>
                 </Table.Cell>
               </Table.Row>
             )

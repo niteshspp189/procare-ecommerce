@@ -1,3 +1,233 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client"
 
 import React, { Suspense, useState, useMemo } from "react"
@@ -99,6 +329,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     return []
   }, [product, selectedVariant])
 
+  const isSingleDefaultVariant = useMemo(() => {
+    if (!product?.variants || product.variants.length !== 1) return false
+    const opts = product.variants[0].options || []
+    if (opts.length === 0) return true
+    return (opts as any[]).every((opt: any) => {
+      const val = (opt.value || '').toLowerCase()
+      return val === 'default' || val === 'default variant' || val === 'standard' || val === ''
+    })
+  }, [product?.variants])
+
   const setOptionValue = (optionId: string, value: string) => {
     setOptions((prev) => ({
       ...prev,
@@ -130,6 +370,49 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const title = product?.title || "Professional Shoe Care Kit"
   const breadcrumbName = product?.title || "PRO Sport Performance Insole"
   const subtitle = product?.subtitle || product?.description?.slice(0, 100) || "A stain & water repellent that performs and is earth friendly"
+  const sizeDisplay = useMemo(() => {
+    const meta = (product?.metadata || {}) as Record<string, any>
+    const specs = (meta.product_specifications || {}) as Record<string, any>
+    if (meta.size && typeof meta.size === "string" && meta.size.trim() !== "") {
+      return meta.size.trim()
+    }
+    const specSize = specs["Net Volume"] || specs["Volume"] || specs["Size"] || specs["Net Weight"] || specs["Weight"] || specs["Pack Size"] || specs["Quantity"]
+    if (specSize && typeof specSize === "string" && specSize.trim() !== "") {
+      return specSize.trim()
+    }
+    for (const [key, val] of Object.entries(specs)) {
+      if (val && typeof val === "string" && (key.toLowerCase().includes("volume") || key.toLowerCase().includes("size") || key.toLowerCase().includes("weight") || key.toLowerCase().includes("quantity"))) {
+        return val.trim()
+      }
+    }
+    const varTitle = product?.variants?.[0]?.title
+    if (varTitle && !varTitle.toLowerCase().includes("default") && varTitle.trim() !== "") {
+      return varTitle.trim()
+    }
+    const optVal = product?.variants?.[0]?.options?.[0]?.value
+    if (optVal && !optVal.toLowerCase().includes("default") && optVal.trim() !== "") {
+      return optVal.trim()
+    }
+    if (product?.subtitle && typeof product.subtitle === "string" && product.subtitle.trim() !== "" && product.subtitle.trim().length <= 25 && !product.subtitle.toLowerCase().includes("stain & water") && !product.subtitle.toLowerCase().includes("repellent")) {
+      return product.subtitle.trim()
+    }
+    return "One Size"
+  }, [product])
+
+  const hasGenuineSize = useMemo(() => {
+    if (!sizeDisplay || typeof sizeDisplay !== "string") return false
+    const cleaned = sizeDisplay.trim().toLowerCase()
+    if (!cleaned) return false
+    const nonGenuineKeywords = [
+      "one size", "default", "default variant", "standard", "regular", "universal",
+      "kit", "carekit", "care kit", "pediroller", "fileturqouise", "heelliner",
+      "clipperturqouise", "bufferturqouise", "pumice-turqouise", "combo-turqouise",
+      "pack-black", "pack-neutral", "single", "n/a", "none"
+    ]
+    if (nonGenuineKeywords.includes(cleaned)) return false
+    if (product?.title && cleaned === product.title.trim().toLowerCase()) return false
+    return true
+  }, [sizeDisplay, product?.title])
 
   const handleAddToCart = async () => {
     setIsAdding(true)
@@ -178,7 +461,16 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
               </div>
 
               <div className="mb-6">
-                {(product?.options || []).length > 0 ? (
+                {isSingleDefaultVariant || (product?.variants?.length === 1) ? (
+                  hasGenuineSize ? (
+                    <div>
+                      <div className="text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">Size</div>
+                      <div className="inline-flex items-center border-2 border-black rounded-full px-5 py-2 bg-white">
+                        <span className="text-sm font-bold text-black">{sizeDisplay}</span>
+                      </div>
+                    </div>
+                  ) : null
+                ) : (product?.options || []).length > 0 ? (
                   (product?.options || []).map((option) => (
                     <div key={option.id} className="mb-4">
                       <OptionSelect

@@ -26,99 +26,78 @@ const AccountNav = ({
 
   return (
     <div>
-      <div className="small:hidden" data-testid="mobile-account-nav">
-        {route !== `/${countryCode}/account` ? (
+      <div className="small:hidden mb-6" data-testid="mobile-account-nav">
+        <div 
+          className="flex items-center justify-start overflow-x-auto flex-nowrap gap-x-2 pb-3 border-b border-gray-100 px-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <style jsx global>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           <LocalizedClientLink
             href="/account"
-            className="flex items-center gap-x-2 text-small-regular py-2"
-            data-testid="account-main-link"
+            className={clx(
+              "px-4 py-1.5 rounded-full text-xs font-bold transition-all border uppercase tracking-wider flex-shrink-0",
+              (route === `/${countryCode}/account` || route === "/account")
+                ? "bg-[#00b5a4] text-white border-[#00b5a4]"
+                : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+            )}
           >
-            <>
-              <ChevronDown className="transform rotate-90" />
-              <span>Account</span>
-            </>
+            Overview
           </LocalizedClientLink>
-        ) : (
-          <>
-            <div className="text-xl-semi mb-4 px-8">
-              Hello {customer?.first_name}
-            </div>
-            <div className="text-base-regular">
-              <ul>
-                <li>
-                  <LocalizedClientLink
-                    href="/account/profile"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
-                    data-testid="profile-link"
-                  >
-                    <>
-                      <div className="flex items-center gap-x-2">
-                        <User size={20} />
-                        <span>Profile</span>
-                      </div>
-                      <ChevronDown className="transform -rotate-90" />
-                    </>
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink
-                    href="/account/addresses"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
-                    data-testid="addresses-link"
-                  >
-                    <>
-                      <div className="flex items-center gap-x-2">
-                        <MapPin size={20} />
-                        <span>Addresses</span>
-                      </div>
-                      <ChevronDown className="transform -rotate-90" />
-                    </>
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink
-                    href="/account/orders"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
-                    data-testid="orders-link"
-                  >
-                    <div className="flex items-center gap-x-2">
-                      <Package size={20} />
-                      <span>Orders</span>
-                    </div>
-                    <ChevronDown className="transform -rotate-90" />
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink
-                    href="/account/support"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
-                    data-testid="support-link"
-                  >
-                    <div className="flex items-center gap-x-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                      <span>Support / Complaints</span>
-                    </div>
-                    <ChevronDown className="transform -rotate-90" />
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
-                    onClick={handleLogout}
-                    data-testid="logout-button"
-                  >
-                    <div className="flex items-center gap-x-2">
-                      <ArrowRightOnRectangle />
-                      <span>Log out</span>
-                    </div>
-                    <ChevronDown className="transform -rotate-90" />
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </>
-        )}
+          <LocalizedClientLink
+            href="/account/orders"
+            className={clx(
+              "px-4 py-1.5 rounded-full text-xs font-bold transition-all border uppercase tracking-wider flex-shrink-0",
+              route.includes("/account/orders")
+                ? "bg-[#00b5a4] text-white border-[#00b5a4]"
+                : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+            )}
+          >
+            Orders
+          </LocalizedClientLink>
+          <LocalizedClientLink
+            href="/account/profile"
+            className={clx(
+              "px-4 py-1.5 rounded-full text-xs font-bold transition-all border uppercase tracking-wider flex-shrink-0",
+              route.includes("/account/profile")
+                ? "bg-[#00b5a4] text-white border-[#00b5a4]"
+                : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+            )}
+          >
+            Profile
+          </LocalizedClientLink>
+          <LocalizedClientLink
+            href="/account/addresses"
+            className={clx(
+              "px-4 py-1.5 rounded-full text-xs font-bold transition-all border uppercase tracking-wider flex-shrink-0",
+              route.includes("/account/addresses")
+                ? "bg-[#00b5a4] text-white border-[#00b5a4]"
+                : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+            )}
+          >
+            Addresses
+          </LocalizedClientLink>
+          <LocalizedClientLink
+            href="/account/support"
+            className={clx(
+              "px-4 py-1.5 rounded-full text-xs font-bold transition-all border uppercase tracking-wider flex-shrink-0",
+              route.includes("/account/support")
+                ? "bg-[#00b5a4] text-white border-[#00b5a4]"
+                : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+            )}
+          >
+            Support
+          </LocalizedClientLink>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-1.5 rounded-full text-xs font-bold transition-all border uppercase tracking-wider bg-white text-red-600 border-red-200 hover:bg-red-50 flex-shrink-0"
+          >
+            Log out
+          </button>
+        </div>
       </div>
       <div className="hidden small:block" data-testid="account-nav">
         <div>
@@ -138,6 +117,15 @@ const AccountNav = ({
               </li>
               <li>
                 <AccountNavLink
+                  href="/account/orders"
+                  route={route!}
+                  data-testid="orders-link"
+                >
+                  Orders
+                </AccountNavLink>
+              </li>
+              <li>
+                <AccountNavLink
                   href="/account/profile"
                   route={route!}
                   data-testid="profile-link"
@@ -152,15 +140,6 @@ const AccountNav = ({
                   data-testid="addresses-link"
                 >
                   Addresses
-                </AccountNavLink>
-              </li>
-              <li>
-                <AccountNavLink
-                  href="/account/orders"
-                  route={route!}
-                  data-testid="orders-link"
-                >
-                  Orders
                 </AccountNavLink>
               </li>
               <li>

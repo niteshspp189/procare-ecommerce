@@ -61,13 +61,13 @@ const Login = ({ setCurrentView }: Props) => {
       </button>
 
       <span className="text-center text-ui-fg-base text-small-regular mt-6">
-        Not a member?{" "}
+        New here?{" "}
         <button
           onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
           className="underline"
           data-testid="register-button"
         >
-          Join us
+          Sign Up
         </button>
         .
       </span>

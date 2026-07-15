@@ -329,7 +329,7 @@ export async function sendOrderConfirmationEmail(order: any) {
       replyTo: 'customercare@mvscindia.com',
       to: order.email,
       bcc: 'customercare@mvscindia.com',
-      subject: `Order Confirmation #${formattedId} - ProCare Store`,
+      subject: `Order Confirmation #${formattedId} - ProPremium Care`,
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">
           <!-- Brand Header -->
@@ -358,7 +358,7 @@ export async function sendOrderConfirmationEmail(order: any) {
           </div>
           <!-- Footer -->
           <div style="background-color: #f8fafc; padding: 20px 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <p style="font-size: 12px; color: #64748b; margin: 0;">© 2026 ProCare Store • MV Shoe Care Pvt Ltd. All rights reserved.</p>
+            <p style="font-size: 12px; color: #64748b; margin: 0;">© 2026 ProPremium Care • MV Shoe Care Pvt Ltd. All rights reserved.</p>
           </div>
         </div>
       `,

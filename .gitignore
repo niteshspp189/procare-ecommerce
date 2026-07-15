@@ -58,3 +58,8 @@ docker-compose.override.yml
 procare-mail/
 *.zip
 *.csv
+*.tar.gz
+*.dump
+*.xlsx
+others/
+latest/db-backup/

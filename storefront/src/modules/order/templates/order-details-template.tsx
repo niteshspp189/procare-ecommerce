@@ -20,11 +20,20 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
   return (
     <div className="flex flex-col justify-center gap-y-4">
       <div className="flex gap-2 justify-between items-center">
-        <h1 className="text-2xl-semi">Order details</h1>
+        {/* Mobile: compact back button; Desktop: full "Back to overview" */}
         <LocalizedClientLink
           href="/account/orders"
-          className="flex gap-2 items-center text-ui-fg-subtle hover:text-ui-fg-base"
+          className="flex gap-1.5 items-center text-ui-fg-subtle hover:text-ui-fg-base text-sm sm:hidden"
           data-testid="back-to-overview-button"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+          <span className="font-semibold">Orders</span>
+        </LocalizedClientLink>
+        <h1 className="text-xl sm:text-2xl font-bold">Order</h1>
+        <LocalizedClientLink
+          href="/account/orders"
+          className="hidden sm:flex gap-2 items-center text-ui-fg-subtle hover:text-ui-fg-base"
+          data-testid="back-to-overview-button-desktop"
         >
           <XMark /> Back to overview
         </LocalizedClientLink>

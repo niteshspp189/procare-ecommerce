@@ -18,6 +18,7 @@ const SideMenuItems = {
   "Foot Care": "/categories/foot-care",
   Accessories: "/categories/accessories",
   "Our Story": "/our-story",
+  "Contact Us": "/contact",
 }
 
 type SideMenuProps = {
@@ -73,9 +74,15 @@ const SideMenu = ({ regions, locales, currentLocale, customer }: SideMenuProps) 
                     data-testid="nav-menu-popup"
                     className="flex flex-col h-full bg-black/95 backdrop-blur-xl justify-between p-6 overflow-y-auto"
                   >
-                    <div className="flex justify-end items-center" id="xmark">
-                      <button data-testid="close-menu-button" onClick={close} className="text-white hover:text-gray-300">
-                        <XMark />
+                    <div className="flex justify-between items-center mb-2" id="xmark">
+                      <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">Menu</span>
+                      <button
+                        data-testid="close-menu-button"
+                        onClick={close}
+                        className="text-white hover:text-gray-300 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                        aria-label="Close menu"
+                      >
+                        <XMark className="w-5 h-5" />
                       </button>
                     </div>
                     <ul className="flex flex-col gap-4 items-start justify-start mt-8">
@@ -141,8 +148,13 @@ const SideMenu = ({ regions, locales, currentLocale, customer }: SideMenuProps) 
                           <li className="mt-2">
                             <button
                               onClick={async () => {
-                                await signout(countryCode)
+                                try {
+                                  await signout(countryCode || "in")
+                                } catch (e) {
+                                  console.error("Signout error:", e)
+                                }
                                 close()
+                                window.location.href = "/"
                               }}
                               className="text-xl font-bold leading-8 text-[#0bb799] hover:text-[#09a086] transition-colors text-left"
                             >

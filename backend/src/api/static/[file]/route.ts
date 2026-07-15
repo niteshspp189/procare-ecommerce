@@ -7,7 +7,11 @@ export const GET = async (
     res: MedusaResponse
 ) => {
     const { file } = req.params
-    const fullPath = path.resolve(process.cwd(), "static", file as string)
+    // Decode URL-encoded characters (e.g. %20 → space, %2B → +)
+    const decodedFile = decodeURIComponent(file as string)
+    // Sanitize: prevent directory traversal
+    const safeName = path.basename(decodedFile)
+    const fullPath = path.resolve(process.cwd(), "static", safeName)
 
     if (fs.existsSync(fullPath)) {
         return res.sendFile(fullPath)

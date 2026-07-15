@@ -13,6 +13,7 @@ import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
+import { isGenuineOption } from "@lib/util/product"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -41,6 +42,10 @@ export default function ProductActions({
   const [isAdding, setIsAdding] = useState(false)
   const countryCode = useParams().countryCode as string
   const { openDrawer } = useCartDrawer()
+
+  const genuineOptions = useMemo(() => {
+    return (product.options || []).filter((option) => isGenuineOption(option, product))
+  }, [product.options, product.variants])
 
   // If there is only 1 variant, preselect the options
   useEffect(() => {
@@ -142,9 +147,9 @@ export default function ProductActions({
     <>
       <div className="flex flex-col gap-y-2" ref={actionsRef}>
         <div>
-          {(product.variants?.length ?? 0) > 1 && (
+          {(product.variants?.length ?? 0) > 1 && genuineOptions.length > 0 && (
             <div className="flex flex-col gap-y-4">
-              {(product.options || []).map((option) => {
+              {genuineOptions.map((option) => {
                 return (
                   <div key={option.id}>
                     <OptionSelect

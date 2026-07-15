@@ -115,8 +115,8 @@ export default async function StagingHome(props: {
       <div className="w-full">
         {/* INTRODUCTION & CATEGORY GRID */}
         <Section 
-          subtitle="Extream Conform, Higher Durable Best In Class"
-          title="Crafted for Performance. Designed for Everyday Care."
+          subtitle="Crafted for Performance. Designed for Everyday Care."
+          title="Innovating Shoe Care for Everyday Ease"
           className="py-8 sm:py-12"
           fullWidth={true}
         >
@@ -205,7 +205,7 @@ export default async function StagingHome(props: {
         <Section className="bg-[#f0f0f5]" innerClassName="!py-8">
           <div className="text-center">
             <p className="text-sm font-normal text-gray-500 mb-2 uppercase tracking-[0.2em]">European Expertise. Indian Excellence. Trusted Worldwide.</p>
-            <h2 className="text-[clamp(28px,5vw,56px)] font-normal leading-tight mb-10 max-w-5xl mx-auto">Crafting World-Class Care For Every Step</h2>
+            <h2 className="text-[clamp(28px,5vw,56px)] font-normal leading-tight mb-10 max-w-none mx-auto">Crafting World-Class Care For Every Step</h2>
             <LocalizedClientLink href="/our-story">
               <Button variant="primary" className="px-10">Read More About Us</Button>
             </LocalizedClientLink>
@@ -263,7 +263,7 @@ export default async function StagingHome(props: {
         </Section>
 
         {/* FEATURE ICONS ROW */}
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 py-2 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 pt-4 pb-6 px-6 border-t border-gray-100 mt-4 mb-4">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-20 h-20 text-[#00bda5] bg-slate-50 p-5 rounded-[24px] shadow-sm transition-transform hover:scale-110">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M1.5 8.5h13v9H1.5V8.5zM14.5 11.5h3l3 3v3h-6v-6z" /><circle cx="5.5" cy="18" r="1.5" /><circle cx="17.5" cy="18" r="1.5" /></svg>

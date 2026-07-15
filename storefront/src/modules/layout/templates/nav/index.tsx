@@ -95,22 +95,22 @@ export default async function Nav() {
         <div className="flex items-center justify-between sm:justify-start xl:justify-center gap-2 sm:gap-3 w-full sm:w-auto xl:flex-1 overflow-hidden shrink-0">
           {/* Mobile scrolling version */}
           <div className="flex sm:hidden overflow-hidden relative flex-1 items-center">
-            <div className="flex whitespace-nowrap animate-marquee font-bold text-[#0bb799] text-[11px] items-center">
+            <div className="flex whitespace-nowrap animate-marquee font-bold text-[#00b5a4] text-[11px] items-center">
               <div className="flex shrink-0 items-center gap-2 pr-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0bb799] animate-pulse"></span>
-                <span className="animate-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] animate-promo-pulse"></span>
+                <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
               </div>
               <div className="flex shrink-0 items-center gap-2 pr-6" aria-hidden="true">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0bb799] animate-pulse"></span>
-                <span className="animate-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] animate-promo-pulse"></span>
+                <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
               </div>
             </div>
           </div>
 
           {/* Desktop static version */}
-          <span className="hidden sm:inline-flex items-center gap-1.5 font-bold text-[#0bb799] whitespace-nowrap text-[12px] lg:text-[13px]">
-            <span className="w-2 h-2 rounded-full bg-[#0bb799] animate-pulse"></span>
-            <span className="animate-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
+          <span className="hidden sm:inline-flex items-center gap-1.5 font-bold text-[#00b5a4] whitespace-nowrap text-[12px] lg:text-[13px]">
+            <span className="w-2 h-2 rounded-full bg-[#00b5a4] animate-promo-pulse"></span>
+            <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
           </span>
 
           <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-2 py-0.5 rounded transition-all whitespace-nowrap shrink-0">
@@ -124,7 +124,6 @@ export default async function Nav() {
           <LocalizedClientLink href="/faq" className="hover:text-white transition-colors shrink-0">FAQ</LocalizedClientLink>
           <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors shrink-0">Our Story</LocalizedClientLink>
           <LocalizedClientLink href="/contact" className="hover:text-white transition-colors shrink-0">Contact Us</LocalizedClientLink>
-          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors shrink-0">Blogs</LocalizedClientLink>
           <LocalizedClientLink href="/account" className="hover:text-white transition-colors shrink-0">
             {customer ? "Account" : "Log In"}
           </LocalizedClientLink>
