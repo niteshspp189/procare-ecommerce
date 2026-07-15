@@ -49,6 +49,7 @@ const BackupPage = () => {
 export const config = defineRouteConfig({
   label: "DB Backup",
   icon: CircleStack,
+  nested: "/settings",
 })
 
 export default BackupPage

@@ -5,7 +5,7 @@ import { getRegion } from "@lib/data/regions"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import ProductPreview from "@modules/products/components/product-preview"
-import { Pagination } from "@modules/store/components/pagination"
+import InfiniteProducts from "@modules/store/components/infinite-products"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
 const PRODUCT_LIMIT = 12
@@ -140,38 +140,15 @@ export default async function PaginatedProducts({
   }
 
   const count = products.length
-  const totalPages = Math.ceil(count / PRODUCT_LIMIT)
-  const paginatedProducts = products.slice(
-    (page - 1) * PRODUCT_LIMIT,
-    page * PRODUCT_LIMIT
-  )
 
   return (
     <>
-      {paginatedProducts.length ? (
-        <ul
-          className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-3 gap-y-6 small:gap-x-6 small:gap-y-8"
-          data-testid="products-list"
-        >
-          {paginatedProducts.map((p) => {
-            return (
-              <li key={p.id}>
-                <ProductPreview product={p} region={region} />
-              </li>
-            )
-          })}
-        </ul>
+      {count > 0 ? (
+        <InfiniteProducts products={products} region={region} />
       ) : (
         <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-12 text-center text-sm text-gray-600">
           No products matched the selected filters.
         </div>
-      )}
-      {totalPages > 1 && (
-        <Pagination
-          data-testid="product-pagination"
-          page={page}
-          totalPages={totalPages}
-        />
       )}
     </>
   )
