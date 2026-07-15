@@ -14,7 +14,6 @@ def parse_txt_to_structured(txt_path):
 
     for i, l in enumerate(lines):
         if 'Key Benefits' in l or (l == 'Specifications' and any('Product' in lines[max(0, i-6):i+1] for _ in [0])) or 'Product Details & Specifications' in l:
-            # If we already collected benefits or specs for previous product, save and reset
             if curr['title'] and (curr['key_benefits'] or curr['specifications']):
                 products.append(curr)
                 curr = {'title': '', 'key_benefits': [], 'how_to_use': [], 'specifications': {}}
@@ -50,14 +49,18 @@ def parse_txt_to_structured(txt_path):
             clean = re.sub(r'^[•]+\s*', '', l).strip()
             if clean and "How to Use" not in clean:
                 curr['how_to_use'].append(clean)
-        elif mode == 'sp' and (l.startswith('') or l.startswith('•') or ':' in l):
-            cl = re.sub(r'^[•\-\*]+\s*', '', l).strip()
-            if ':' in cl:
-                k, v = cl.split(':', 1)
-                k_clean = re.sub(r'\s+', ' ', k.strip())
-                v_clean = re.sub(r'\s+', ' ', v.strip())
-                if k_clean and v_clean and len(k_clean) < 40:
-                    curr['specifications'][k_clean] = v_clean
+        elif mode == 'sp':
+            if l.startswith('') or l.startswith('•') or ':' in l:
+                cl = re.sub(r'^[•\-\*]+\s*', '', l).strip()
+                if ':' in cl:
+                    k, v = cl.split(':', 1)
+                    k_clean = re.sub(r'\s+', ' ', k.strip())
+                    v_clean = re.sub(r'\s+', ' ', v.strip())
+                    if k_clean and len(k_clean) < 40:
+                        curr['specifications'][k_clean] = v_clean
+                        curr['last_spec_key'] = k_clean
+            elif l and 'last_spec_key' in curr and curr['last_spec_key'] in curr['specifications'] and not any(skip in l for skip in ['Bottom of Form', 'Top of Form', 'How to Use', 'Product Details']):
+                curr['specifications'][curr['last_spec_key']] += " " + l.strip()
 
     if curr['title'] and (curr['key_benefits'] or curr['specifications']):
         products.append(curr)

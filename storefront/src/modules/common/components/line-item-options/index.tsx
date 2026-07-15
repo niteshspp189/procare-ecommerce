@@ -7,11 +7,17 @@ type LineItemOptionsProps = {
   "data-value"?: HttpTypes.StoreProductVariant
 }
 
+import { isDummyValue } from "@lib/util/product"
+
 const LineItemOptions = ({
   variant,
   "data-testid": dataTestid,
   "data-value": dataValue,
 }: LineItemOptionsProps) => {
+  if (isDummyValue(variant?.title)) {
+    return null
+  }
+
   return (
     <Text
       data-testid={dataTestid}
