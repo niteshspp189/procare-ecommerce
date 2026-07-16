@@ -9,7 +9,7 @@ if [ "$NODE_ENV" = "production" ]; then
   echo "Backend is up."
   echo "Building production..."
   rm -rf .next/server .next/static .next/cache .next/types 2>/dev/null || true
-  yarn build
+  NEXT_IGNORE_INCORRECT_LOCKFILE=true yarn build
   yarn start -p 8000
 else
   echo "Dev mode - installing dependencies..."
