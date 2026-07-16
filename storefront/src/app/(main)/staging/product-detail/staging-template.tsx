@@ -576,11 +576,27 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     <div className="mt-4 text-gray-500 text-sm leading-relaxed">
                       <p className="mb-4">{product.description as string}</p>
                       {metadata.key_benefits ? (
-                        <ul className="list-disc pl-5 space-y-1">
-                          {(metadata.key_benefits as any[]).map((benefit, i) => (
-                            <li key={i}>{benefit as any}</li>
-                          ))}
-                        </ul>
+                        <div className="space-y-2 mt-2">
+                          {(Array.isArray(metadata.key_benefits) ? metadata.key_benefits : String(metadata.key_benefits).split('\n')).map((line: any, i: number) => {
+                            const lineStr = String(line).replace(/^[*-•]\s*|^\d+\.\s*/, "").trim();
+                            const separatorIndex = lineStr.search(/\s*[-–:]\s*/);
+                            if (separatorIndex !== -1) {
+                              const heading = lineStr.substring(0, separatorIndex).trim();
+                              const separator = lineStr.substring(separatorIndex).match(/\s*[-–:]\s*/)?.[0] || ' – ';
+                              const rest = lineStr.substring(separatorIndex + separator.length).trim();
+                              return (
+                                <p key={i} className="text-sm text-gray-500">
+                                  <strong className="font-semibold text-black">{heading}</strong>
+                                  {separator}
+                                  {rest}
+                                </p>
+                              );
+                            }
+                            return (
+                              <p key={i} className="text-sm text-gray-500">{lineStr}</p>
+                            );
+                          })}
+                        </div>
                       ) : null}
                     </div>
                   )}

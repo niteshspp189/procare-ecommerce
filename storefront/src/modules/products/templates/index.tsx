@@ -574,11 +574,26 @@ const formatSpecValue = (value: any): string => {
                     <div className="pl-4 pr-2 pb-4 text-black text-sm leading-relaxed">
                       <p className="mb-3">{String(product.description || '').replace(/\*\*/g, '')}</p>
                       {metadata.key_benefits && (
-                        <ul className="space-y-2 mt-2">
-                          {parseLines(metadata.key_benefits).map((line: string, i: number) => (
-                            <li key={i} className="flex items-start gap-2"><span className="mt-0.5">•</span>{line}</li>
-                          ))}
-                        </ul>
+                        <div className="space-y-2 mt-2">
+                          {parseLines(metadata.key_benefits).map((line: string, i: number) => {
+                            const separatorIndex = line.search(/\s*[-–:]\s*/);
+                            if (separatorIndex !== -1) {
+                              const heading = line.substring(0, separatorIndex).trim();
+                              const separator = line.substring(separatorIndex).match(/\s*[-–:]\s*/)?.[0] || ' – ';
+                              const rest = line.substring(separatorIndex + separator.length).trim();
+                              return (
+                                <p key={i} className="text-sm text-black">
+                                  <strong className="font-bold">{heading}</strong>
+                                  {separator}
+                                  {rest}
+                                </p>
+                              );
+                            }
+                            return (
+                              <p key={i} className="text-sm text-black">{line}</p>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
                   )}

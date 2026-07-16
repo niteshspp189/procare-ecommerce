@@ -78,12 +78,25 @@ const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
   return (
     <div className="text-small-regular py-8">
       <div className="flex flex-col gap-y-4">
-        {lines.map((line, i) => (
-          <div key={i} className="flex gap-x-2">
-            <span className="text-ui-fg-subtle">•</span>
-            <p>{line.replace(/^[*-]\s*|^\d+\.\s*/, "").replace(/^[#]{1,4}\s*/, "")}</p>
-          </div>
-        ))}
+        {lines.map((line, i) => {
+          const lineClean = line.replace(/^[*-•]\s*|^\d+\.\s*/, "").replace(/^[#]{1,4}\s*/, "").trim();
+          const separatorIndex = lineClean.search(/\s*[-–:]\s*/);
+          if (separatorIndex !== -1) {
+            const heading = lineClean.substring(0, separatorIndex).trim();
+            const separator = lineClean.substring(separatorIndex).match(/\s*[-–:]\s*/)?.[0] || ' – ';
+            const rest = lineClean.substring(separatorIndex + separator.length).trim();
+            return (
+              <p key={i} className="text-ui-fg-subtle">
+                <strong className="font-semibold text-black">{heading}</strong>
+                {separator}
+                {rest}
+              </p>
+            );
+          }
+          return (
+            <p key={i} className="text-ui-fg-subtle">{lineClean}</p>
+          );
+        })}
       </div>
     </div>
   )
