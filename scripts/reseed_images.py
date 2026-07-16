@@ -12,6 +12,12 @@ def generate_id(prefix='img_01'):
 LOCAL_URL = "postgres://procare_ecommerce:procare_ecommerce@localhost:5432/procare_ecommerce"
 RDS_URL = "postgres://propremiumcare:Mvsc2026##56@database-1.c5wkcis2qg1p.ap-south-1.rds.amazonaws.com:5432/prepreimiumcare_ecommerce?sslmode=require"
 
+def normalize_name(name):
+    n = name.lower().strip()
+    if n.startswith('pro '):
+        n = n[4:].strip()
+    return ' '.join(n.split())
+
 def run_db_update(db_url):
     print(f"Connecting to DB...")
     # Because we're inside the VM and postgres is in docker for local, we should connect to the local docker exposed port if we use localhost, or we use docker exec. We will just use docker exec for local to be safe, but psycopg2 might work if port 5432 is exposed. 
@@ -33,12 +39,14 @@ def run_db_update(db_url):
         variants = cur.fetchall()
 
         # Build list of new image URLs for this product based on our final folder
-        source_dir = os.path.join('/mnt/ExtraStorage/Project-Files/session-2026/procare/ecomm/latest/all-product-images', ptitle)
+        base_images_dir = '/mnt/ExtraStorage/Project-Files/session-2026/procare/ecomm/latest/all-product-images'
+        matched_folders = [f for f in os.listdir(base_images_dir) if normalize_name(f) == normalize_name(ptitle)]
         
         all_product_urls = []
         variant_image_updates = {}
         
-        if os.path.exists(source_dir):
+        if matched_folders:
+            source_dir = os.path.join(base_images_dir, matched_folders[0])
             # For each variant directory, find images
             for var_dir_name in os.listdir(source_dir):
                 var_dir_path = os.path.join(source_dir, var_dir_name)
@@ -98,7 +106,8 @@ def run_db_update(db_url):
                 for i, url in enumerate(urls[:6]):
                     vmeta[f"image_{i+1}"] = url
             
-            cur.execute("UPDATE product_variant SET metadata = %s WHERE id = %s", (json.dumps(vmeta), vid))
+            var_thumb = urls[0] if urls else None
+            cur.execute("UPDATE product_variant SET metadata = %s, thumbnail = %s WHERE id = %s", (json.dumps(vmeta), var_thumb, vid))
             
             # Link to product_variant_product_image
             for url in urls:
@@ -134,8 +143,8 @@ def sync_folders():
     # To map properly, we need the DB to give us title -> handle mapping.
     conn = psycopg2.connect(LOCAL_URL)
     cur = conn.cursor()
-    cur.execute("SELECT title, handle FROM product")
-    mapping = {r[0]: r[1] for r in cur.fetchall()}
+    cur.execute("SELECT title, handle FROM product WHERE deleted_at IS NULL")
+    db_mapping = {r[0]: r[1] for r in cur.fetchall()}
     cur.close()
     conn.close()
 
@@ -143,7 +152,12 @@ def sync_folders():
         src_p = os.path.join(final_dir, ptitle)
         if not os.path.isdir(src_p): continue
         
-        handle = mapping.get(ptitle)
+        handle = None
+        for db_title, db_handle in db_mapping.items():
+            if normalize_name(db_title) == normalize_name(ptitle):
+                handle = db_handle
+                break
+        
         if not handle:
             # Fallback handle generation
             handle = ptitle.lower().replace(' ', '-').replace('&', 'and').replace('–', '-')

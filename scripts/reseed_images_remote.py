@@ -10,6 +10,12 @@ def generate_id(prefix='img_01'):
 LOCAL_URL = "postgres://procare_ecommerce:procare_ecommerce@localhost:5432/procare_ecommerce"
 REMOTE_DB_URL = "postgres://propremiumcare:Mvsc2026##56@database-1.c5wkcis2qg1p.ap-south-1.rds.amazonaws.com:5432/prepreimiumcare_ecommerce"
 
+def normalize_name(name):
+    n = name.lower().strip()
+    if n.startswith('pro '):
+        n = n[4:].strip()
+    return ' '.join(n.split())
+
 def generate_sql():
     print("Connecting to local DB to generate SQL for remote...")
     conn = psycopg2.connect(LOCAL_URL)
@@ -28,12 +34,14 @@ def generate_sql():
         cur.execute("SELECT id, title, metadata FROM product_variant WHERE product_id = %s AND deleted_at IS NULL", (pid,))
         variants = cur.fetchall()
 
-        source_dir = os.path.join('/mnt/ExtraStorage/Project-Files/session-2026/procare/ecomm/latest/all-product-images', ptitle)
+        base_images_dir = '/mnt/ExtraStorage/Project-Files/session-2026/procare/ecomm/latest/all-product-images'
+        matched_folders = [f for f in os.listdir(base_images_dir) if normalize_name(f) == normalize_name(ptitle)]
         
         all_product_urls = []
         variant_image_updates = {}
         
-        if os.path.exists(source_dir):
+        if matched_folders:
+            source_dir = os.path.join(base_images_dir, matched_folders[0])
             for var_dir_name in os.listdir(source_dir):
                 var_dir_path = os.path.join(source_dir, var_dir_name)
                 if not os.path.isdir(var_dir_path): continue
@@ -82,8 +90,9 @@ def generate_sql():
                 for i, url in enumerate(urls[:6]):
                     vmeta[f"image_{i+1}"] = url
             
+            var_thumb = urls[0] if urls else ''
             json_meta_str = json.dumps(vmeta).replace("'", "''")
-            sql_statements.append(f"UPDATE product_variant SET metadata = '{json_meta_str}'::jsonb WHERE id = '{vid}';")
+            sql_statements.append(f"UPDATE product_variant SET metadata = '{json_meta_str}'::jsonb, thumbnail = '{var_thumb}' WHERE id = '{vid}';")
             
             for url in urls:
                 link_id = generate_id('pvpi_01')

@@ -82,6 +82,8 @@ services:
       - ./storefront/.env
     networks:
       - procare_network
+    volumes:
+      - ./storefront/public/images/products:/app/public/images/products
     healthcheck:
       test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 20s
