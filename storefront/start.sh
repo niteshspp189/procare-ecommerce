@@ -6,9 +6,7 @@ if [ "$NODE_ENV" = "production" ]; then
     echo "Backend not ready - sleeping"
     sleep 5
   done
-  echo "Backend is up - installing dependencies..."
-  corepack enable && corepack prepare yarn@4.12.0 --activate
-  yarn install
+  echo "Backend is up."
   echo "Building production..."
   rm -rf .next/server .next/static .next/cache .next/types 2>/dev/null || true
   yarn build
