@@ -60,6 +60,7 @@ def find_best_item_for_product(title, handle, extracted_items, raw_text):
         "Pro Suede and Nubuck Renovator Spray": "PRO Suede and Nubuck OK",
         "Pro insoles Gel Comfort Heel Pad": "PRO Insoles Gel Comfort Heel Arch Support",
         "Pro Color Navy White 75ml": "Pro Color Naivy White 75ml White",
+        "Pro Navy White": "Pro Color Naivy White 75ml White",
         "Pro Clean Easy Care Combo Pack Neutral": "PRO Clean Easy Care Combo Pack Neutral",
         "Pro Essentials Brush & Pumice Combo Turqouise": "Pro Essentials Brush & Pumice Combo Turqouise",
         "Pro Essentials Double sided Foot File Purple": "Pro Essentials Double sided Foot File Purple",

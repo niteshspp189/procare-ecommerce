@@ -13,6 +13,7 @@ import OptionSelect from "@modules/products/components/product-actions/option-se
 import { isEqual } from "lodash"
 import { useSearchParams } from "next/navigation"
 import Button from "@modules/common/components/button"
+import { isGenuineOption } from "@lib/util/product"
 
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
@@ -118,6 +119,17 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     })
   }, [product?.variants, options])
 
+const formatSpecValue = (value: any): string => {
+  if (value === null || value === undefined) return ""
+  if (Array.isArray(value)) {
+    return value.map(v => typeof v === 'object' ? JSON.stringify(v) : String(v)).join(", ").replace(/\*\*/g, '')
+  }
+  if (typeof value === 'object') {
+    return JSON.stringify(value).replace(/\*\*/g, '')
+  }
+  return String(value).replace(/\*\*/g, '')
+}
+
   const images = useMemo(() => {
     let vImgs: HttpTypes.StoreProductImage[] = []
     
@@ -145,7 +157,12 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     }
 
     if (vImgs.length > 0) {
-      return vImgs
+      if (vImgs.length > 1) {
+        return vImgs
+      }
+      const seenUrls = new Set(vImgs.map(i => i.url?.trim().toLowerCase()))
+      const remainingBase = baseImages.filter(i => !seenUrls.has(i.url?.trim().toLowerCase()))
+      return [...vImgs, ...remainingBase]
     }
 
     return baseImages
@@ -215,10 +232,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     if (optVal && !optVal.toLowerCase().includes("default") && optVal.trim() !== "") {
       return optVal.trim()
     }
-    if (product?.subtitle && typeof product.subtitle === "string" && product.subtitle.trim() !== "" && product.subtitle.trim().length <= 25 && !product.subtitle.toLowerCase().includes("stain & water") && !product.subtitle.toLowerCase().includes("repellent")) {
-      return product.subtitle.trim()
-    }
-    return "One Size"
+    return ""
   }, [product])
 
   const hasGenuineSize = useMemo(() => {
@@ -233,8 +247,9 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     ]
     if (nonGenuineKeywords.includes(cleaned)) return false
     if (product?.title && cleaned === product.title.trim().toLowerCase()) return false
+    if (product?.subtitle && cleaned === product.subtitle.trim().toLowerCase()) return false
     return true
-  }, [sizeDisplay, product?.title])
+  }, [sizeDisplay, product?.title, product?.subtitle])
 
   const handleAddToCart = async () => {
     setIsAdding(true)
@@ -283,6 +298,29 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
         description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim()
       }))
   }, [metadata.how_to_use])
+
+  const mergedSpecifications = useMemo(() => {
+    const rawSpecs: Record<string, any> = (metadata.product_specifications && typeof metadata.product_specifications === 'object')
+      ? { ...metadata.product_specifications }
+      : {}
+    
+    // Check if Suitable For is in metadata at top level
+    const topSuitableFor = metadata.suitable_for || metadata["Suitable For"] || metadata["suitable_for"]
+    if (topSuitableFor && typeof topSuitableFor === 'string') {
+      let foundKey = "Suitable For"
+      for (const k of Object.keys(rawSpecs)) {
+        if (k.toLowerCase().includes("suitable")) {
+          foundKey = k
+          break
+        }
+      }
+      const existingVal = rawSpecs[foundKey]
+      if (!existingVal || typeof existingVal !== 'string' || topSuitableFor.length >= existingVal.length) {
+        rawSpecs[foundKey] = topSuitableFor
+      }
+    }
+    return Object.keys(rawSpecs).length > 0 ? rawSpecs : null
+  }, [metadata])
 
   const faqItems = useMemo(() => {
     const base = [
@@ -379,8 +417,8 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       </div>
                     </div>
                   ) : null
-                ) : (product?.options || []).length > 0 ? (
-                  (product?.options || []).map((option) => (
+                ) : (product?.options || []).filter(opt => isGenuineOption(opt, product)).length > 0 ? (
+                  (product?.options || []).filter(opt => isGenuineOption(opt, product)).map((option) => (
                     <div key={option.id} className="mb-4">
                       <OptionSelect
                         option={option as any}
@@ -388,6 +426,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                         updateOption={setOptionValue}
                         title={option.title ?? ""}
                         disabled={isAdding}
+                        product={product}
                         colorHexMap={
                           (option.title?.toLowerCase() === "color" &&
                             (metadata.color_hex_map as Record<string, string>)) ||
@@ -396,25 +435,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       />
                     </div>
                   ))
-                ) : (
-                  <>
-                    <div className="text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">Choose Color</div>
-                    <div className="flex gap-4">
-                      <button className="flex items-center gap-2 border border-black rounded-full px-3 py-1.5 bg-white shadow-sm">
-                        <span className="w-4 h-4 rounded-full bg-black border border-gray-300"></span>
-                        <span className="text-xs font-bold text-black">Black</span>
-                      </button>
-                      <button className="flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5 hover:border-black transition-colors">
-                        <span className="w-4 h-4 rounded-full bg-[#8b5a2b] border border-gray-300"></span>
-                        <span className="text-xs font-bold text-gray-600">Brown</span>
-                      </button>
-                      <button className="flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5 hover:border-black transition-colors">
-                        <span className="w-4 h-4 rounded-full bg-white border border-gray-300"></span>
-                        <span className="text-xs font-bold text-gray-600">White</span>
-                      </button>
-                    </div>
-                  </>
-                )}
+                ) : null}
               </div>
 
               <div className="flex items-center border border-gray-200 rounded-full w-max mb-6">
@@ -562,7 +583,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                     </div>
                   )}
                 </div>
-                {metadata.product_specifications && (
+                {mergedSpecifications && Object.keys(mergedSpecifications).length > 0 && (
                   <div className="border-b border-gray-200">
                     <div
                       className="flex justify-between items-center font-semibold text-sm cursor-pointer px-3 py-4 hover:bg-gray-50 text-black"
@@ -575,7 +596,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       <div className="pl-4 pr-2 pb-4">
                         <table className="w-full text-sm text-left">
                           <tbody>
-                            {Object.entries(metadata.product_specifications as Record<string, any>).map(([key, value], i) => (
+                            {Object.entries(mergedSpecifications).map(([key, value], i) => (
                               <tr key={i} className="border-b border-gray-50 last:border-0">
                                 <td className="py-2 font-semibold text-black uppercase text-xs tracking-wide w-1/3">{key}</td>
                                 <td className="py-2 text-black">{value as any}</td>

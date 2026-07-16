@@ -159,6 +159,7 @@ export default function ProductActions({
                       title={option.title ?? ""}
                       data-testid="product-options"
                       disabled={!!disabled || isAdding}
+                      product={product}
                       colorHexMap={
                         (option.title?.toLowerCase() === "color" &&
                           (product.metadata?.color_hex_map as Record<string, string>)) ||

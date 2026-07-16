@@ -10,6 +10,7 @@ type OptionSelectProps = {
   title: string
   disabled: boolean
   colorHexMap?: Record<string, string>
+  product?: HttpTypes.StoreProduct
   "data-testid"?: string
 }
 
@@ -37,11 +38,12 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   "data-testid": dataTestId,
   disabled,
   colorHexMap,
+  product,
 }) => {
   const isColorOption = title.toLowerCase() === "color"
   const isSizeOption = title.toLowerCase().includes("size") || title.toLowerCase() === "sizes"
 
-  if (!isGenuineOption(option)) {
+  if (!isGenuineOption(option, product)) {
     return null
   }
 
