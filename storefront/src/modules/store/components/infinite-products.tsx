@@ -2,9 +2,9 @@
 
 import { HttpTypes } from "@medusajs/types"
 import ProductPreview from "@modules/products/components/product-preview"
-import { useIntersection } from "@lib/hooks/use-in-view"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { Spinner } from "@medusajs/icons"
+import Button from "@modules/common/components/button"
 
 type InfiniteProductsProps = {
   products: HttpTypes.StoreProduct[]
@@ -18,18 +18,16 @@ export default function InfiniteProducts({
   region,
 }: InfiniteProductsProps) {
   const [displayedCount, setDisplayedCount] = useState(PRODUCT_LIMIT)
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-  const isVisible = useIntersection(loadMoreRef, "200px")
+  const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (isVisible && displayedCount < products.length) {
-      // Small delay to simulate loading and give a smoother experience
-      const timer = setTimeout(() => {
-        setDisplayedCount((prev) => Math.min(prev + PRODUCT_LIMIT, products.length))
-      }, 300)
-      return () => clearTimeout(timer)
-    }
-  }, [isVisible, displayedCount, products.length])
+  const handleLoadMore = () => {
+    setIsLoading(true)
+    // Small delay to simulate loading for a smoother experience
+    setTimeout(() => {
+      setDisplayedCount((prev) => Math.min(prev + PRODUCT_LIMIT, products.length))
+      setIsLoading(false)
+    }, 400)
+  }
 
   const displayedProducts = products.slice(0, displayedCount)
 
@@ -49,13 +47,21 @@ export default function InfiniteProducts({
       </ul>
       
       {displayedCount < products.length && (
-        <div 
-          ref={loadMoreRef} 
-          className="flex justify-center items-center py-12 text-gray-400"
-        >
-          <div className="animate-spin">
-            <Spinner />
-          </div>
+        <div className="flex justify-center items-center py-12">
+          <Button
+            onClick={handleLoadMore}
+            disabled={isLoading}
+            variant="secondary"
+            className="min-w-[180px] flex justify-center items-center gap-2"
+          >
+            {isLoading ? (
+              <span className="animate-spin">
+                <Spinner />
+              </span>
+            ) : (
+              "Load More"
+            )}
+          </Button>
         </div>
       )}
     </>
