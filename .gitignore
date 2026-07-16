@@ -64,3 +64,6 @@ procare-mail/
 others/
 latest/db-backup/
 latest/
+
+# Storefront Product Images
+storefront/public/images/products/
