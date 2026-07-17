@@ -26,7 +26,7 @@ const s = {
     marginBottom: '32px',
     backgroundColor: '#1a1a1a'
   },
-  heroBg: { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', opacity: '1' },
+  heroBg: { width: '100%', height: '100%', objectFit: 'fill', opacity: '1' },
   heroContent: { position: 'absolute', top: '50%', left: 'clamp(20px, 5vw, 60px)', transform: 'translateY(-50%)', color: '#fff' },
   heroTitle: { fontSize: 'clamp(24px, 6vw, 36px)', fontWeight: '800', marginBottom: '8px' },
   heroSub: { fontSize: '16px', opacity: '0.9' },
