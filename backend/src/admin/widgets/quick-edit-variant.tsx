@@ -11,8 +11,11 @@ import {
 } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 
+// ⚠️ DISABLED: Quick Management has been merged into product-intelligence.tsx
+// and now renders above the Meta Information panel.
+// This widget returns null to prevent double-rendering.
 export const config = defineWidgetConfig({
-  zone: "product.details.after",
+  zone: "product.details.before", // moved to non-visible zone
 })
 
 const QuickEditVariantWidget = ({ data }: any) => {

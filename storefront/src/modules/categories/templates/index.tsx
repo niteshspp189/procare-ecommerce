@@ -17,14 +17,14 @@ const s = {
   breadcrumb: { padding: '20px 0', fontSize: '13px', color: '#888' },
   heroBanner: {
     width: '100%',
-    height: 'clamp(180px, 30vw, 240px)',
-    borderRadius: '12px',
+    height: 'clamp(220px, 32vw, 380px)',
+    borderRadius: '16px',
     overflow: 'hidden',
     position: 'relative',
-    marginBottom: '40px',
+    marginBottom: '32px',
     backgroundColor: '#1a1a1a'
   },
-  heroBg: { width: '100%', height: '100%', objectFit: 'cover', opacity: '0.8' },
+  heroBg: { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: '1' },
   heroContent: { position: 'absolute', top: '50%', left: 'clamp(20px, 5vw, 60px)', transform: 'translateY(-50%)', color: '#fff' },
   heroTitle: { fontSize: 'clamp(24px, 6vw, 36px)', fontWeight: '800', marginBottom: '8px' },
   heroSub: { fontSize: '16px', opacity: '0.9' },
@@ -87,7 +87,7 @@ export default async function CategoryTemplate({
   type?: string
 }) {
   const pageNumber = page ? parseInt(page) : 1
-  const sort = sortBy || "created_at"
+  const sort = sortBy || "created_at_asc"
 
   if (!category) notFound()
 

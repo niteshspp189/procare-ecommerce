@@ -8,7 +8,7 @@ const BackupPage = () => {
 
   const handleDownload = () => {
     setDownloading(true)
-    // Redirect browser to download the backup file directly
+    // Redirect browser to download the backup file directly from backend endpoint
     window.location.href = "/admin/backup"
     setTimeout(() => {
       setDownloading(false)
@@ -49,7 +49,6 @@ const BackupPage = () => {
 export const config = defineRouteConfig({
   label: "DB Backup",
   icon: CircleStack,
-  nested: "/settings",
 })
 
 export default BackupPage

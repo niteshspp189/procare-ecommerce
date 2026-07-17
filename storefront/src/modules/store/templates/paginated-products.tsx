@@ -119,7 +119,8 @@ export default async function PaginatedProducts({
     products.sort((a, b) => {
       const aSC = a.categories?.some((c: any) => c.handle === "shoe-care" || c.name?.toLowerCase().includes("shoe care")) ? 1 : 0
       const bSC = b.categories?.some((c: any) => c.handle === "shoe-care" || c.name?.toLowerCase().includes("shoe care")) ? 1 : 0
-      return bSC - aSC
+      if (bSC !== aSC) return bSC - aSC
+      return new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
     })
   }
 

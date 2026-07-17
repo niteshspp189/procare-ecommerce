@@ -132,13 +132,13 @@ const formatSpecValue = (value: any): string => {
 
   const images = useMemo(() => {
     let vImgs: HttpTypes.StoreProductImage[] = []
-    
-    const hasColorOption = product.options?.some(opt => {
-      const name = opt.title?.toLowerCase() || ""
-      return name.includes("color") || name.includes("bristle") || name.includes("type")
-    })
 
-    if (hasColorOption && selectedVariant?.metadata) {
+    const variantObj = selectedVariant as any
+    if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
+      vImgs = [...variantObj.images]
+    }
+
+    if (vImgs.length === 0 && selectedVariant?.metadata) {
       const meta = selectedVariant.metadata as Record<string, string>
       if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
@@ -156,16 +156,22 @@ const formatSpecValue = (value: any): string => {
       baseImages = [{ id: 'placeholder', url: '/images/polish.jpeg' } as HttpTypes.StoreProductImage]
     }
 
-    if (vImgs.length > 0) {
-      if (vImgs.length > 1) {
-        return vImgs
+    const targetList = vImgs.length > 0 ? vImgs : baseImages
+
+    const uniqueImages: HttpTypes.StoreProductImage[] = []
+    const seenStems = new Set<string>()
+
+    for (const img of targetList) {
+      if (!img?.url) continue
+      const normUrl = img.url.trim().toLowerCase()
+      const stem = normUrl.replace(/\.(jpg|jpeg|webp|png|gif)$/i, '')
+      if (!seenStems.has(stem)) {
+        seenStems.add(stem)
+        uniqueImages.push(img)
       }
-      const seenUrls = new Set(vImgs.map(i => i.url?.trim().toLowerCase()))
-      const remainingBase = baseImages.filter(i => !seenUrls.has(i.url?.trim().toLowerCase()))
-      return [...vImgs, ...remainingBase]
     }
 
-    return baseImages
+    return uniqueImages.length > 0 ? uniqueImages : targetList
   }, [product, selectedVariant, propImages])
 
   const isSingleDefaultVariant = useMemo(() => {
@@ -322,29 +328,95 @@ const formatSpecValue = (value: any): string => {
     return Object.keys(rawSpecs).length > 0 ? rawSpecs : null
   }, [metadata])
 
+  const categoryType = useMemo(() => {
+    const cats = product?.categories || []
+    for (const cat of cats) {
+      const h = (cat.handle || "").toLowerCase()
+      const n = (cat.name || "").toLowerCase()
+      if (h.includes("insole") || n.includes("insole")) return "insoles"
+      if (h.includes("foot") || n.includes("foot")) return "foot-care"
+      if (h.includes("accessori") || n.includes("accessori")) return "accessories"
+      if (h.includes("shoe") || n.includes("shoe care") || n.includes("cleaner")) return "shoe-care"
+    }
+
+    const titleLower = (product?.title || "").toLowerCase()
+    const handleLower = (product?.handle || "").toLowerCase()
+
+    if (titleLower.includes("insole") || handleLower.includes("insole") || handleLower.includes("heel")) return "insoles"
+    if (titleLower.includes("pedi") || titleLower.includes("foot") || titleLower.includes("nail") || titleLower.includes("pumice") || handleLower.includes("foot") || handleLower.includes("nail") || handleLower.includes("pumice")) return "foot-care"
+    if (titleLower.includes("brush") || titleLower.includes("tree") || titleLower.includes("horn") || handleLower.includes("brush") || handleLower.includes("tree") || handleLower.includes("horn")) return "accessories"
+
+    return "shoe-care"
+  }, [product])
+
   const faqItems = useMemo(() => {
-    const base = [
-      { q: "Can I use this on all materials?", a: "Yes, our formula is safe for all smooth and treated leather, suede, and fabric materials." },
-      { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
-      { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
+    let items: { q: string; a: string }[] = []
+
+    const commonFaqs = [
       { q: "What is the return policy?", a: "We offer a 15-day return policy for all sealed and unused products. No questions asked." },
-      { q: "Is cash on delivery available?", a: "Yes, COD is available on select pincodes across India. You can check availability at checkout." },
+      { q: "Is cash on delivery available?", a: "No, We do not offer Cash on Delivery (COD) at this time." },
       { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
-      { q: "Are Pro Care products safe for all shoe types?", a: "Yes, our products are specially formulated to be gentle on all shoe materials including leather, canvas, suede, and synthetic fabrics." },
+      { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." }
     ]
-    if (metadata.suitable_for) {
+
+    if (categoryType === "insoles") {
+      items = [
+        { q: "How do I use shoe insoles?", a: "Remove the existing insole, align it with the new insole, trim if required, and insert it into the shoe." },
+        { q: "What are shoe insoles used for?", a: "Insoles provide cushioning, comfort, and support while walking or standing." },
+        { q: "Can insoles help reduce foot fatigue?", a: "Yes, cushioned insoles absorb shock and reduce pressure on feet." },
+        { q: "Can insoles be trimmed to size?", a: "Yes, most insoles can be trimmed to match the shape of your shoe." },
+        { q: "How long do insoles last?", a: "Depending on usage, insoles typically last 3–6 months." },
+        { q: "Are insoles suitable for sports shoes?", a: "Yes, insoles can be used in sneakers, sports shoes, and casual footwear to provide extra shock absorption and stability." },
+        ...commonFaqs
+      ]
+    } else if (categoryType === "accessories") {
+      items = [
+        { q: "Can I use a suede brush on leather shoes?", a: "No. Suede brushes are specifically designed for suede and nubuck materials. For leather shoes, use a polish brush or soft cloth." },
+        { q: "What is a suede brush used for?", a: "A suede brush helps clean suede and nubuck materials and restore their natural texture." },
+        { q: "How often should I brush suede shoes?", a: "Light brushing after every few uses helps maintain suede texture." },
+        { q: "What is a shoe polish brush used for?", a: "A polish brush helps spread shoe cream or polish evenly on leather shoes." },
+        { q: "Do your products work on bags and accessories?", a: "Yes, many cleaners, brushes, and trees can also be used on leather bags, wallets, belts, and jackets." },
+        { q: "Are shoe care accessories safe to use?", a: "Yes, our products are tested for safety and performance and are suitable for regular use on shoes and accessories." },
+        ...commonFaqs
+      ]
+    } else if (categoryType === "foot-care") {
+      items = [
+        { q: "Is the nail clipper made of stainless steel?", a: "Yes, our nail clippers are typically made with high-quality stainless steel for durability and long-lasting sharpness." },
+        { q: "How should I clean the nail clipper?", a: "After use, wipe the clipper with a clean cloth or disinfectant wipe to maintain hygiene." },
+        { q: "Can nail clippers cause nail damage?", a: "No, when used properly, clean sharp nail clippers help maintain healthy nails and prevent breakage or splitting." },
+        { q: "Is pumice stone safe for sensitive skin?", a: "Yes, but it should be used gently with warm water to avoid skin irritation." },
+        { q: "How do I clean a pumice stone?", a: "Rinse it with warm water after each use and allow it to dry completely." },
+        { q: "Can pumice stones remove deep calluses?", a: "Pumice stones help reduce mild to moderate calluses. Regular gentle use helps soften and smooth skin." },
+        ...commonFaqs
+      ]
+    } else {
+      items = [
+        { q: "Can I use this on all materials?", a: "Yes, our formula is safe for all smooth and treated leather, suede, and fabric materials." },
+        { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
+        { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
+        { q: "What is the return policy?", a: "We offer a 15-day return policy for all sealed and unused products. No questions asked." },
+        { q: "Is cash on delivery available?", a: "No, We do not offer Cash on Delivery (COD) at this time." },
+        { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
+        { q: "Are Pro Care products safe for all shoe types?", a: "Yes, our products are specially formulated to be gentle on all shoe materials including leather, canvas, suede, and synthetic fabrics." },
+      ]
+    }
+
+    if (metadata?.suitable_for) {
       const sfText = typeof metadata.suitable_for === 'string'
         ? metadata.suitable_for
         : Array.isArray(metadata.suitable_for)
           ? metadata.suitable_for.join(', ')
           : JSON.stringify(metadata.suitable_for);
-      base.unshift({
+      const suitableQuestion = {
         q: "What materials or shoe types is this product suitable for?",
         a: sfText.replace(/\*\*/g, '')
-      })
+      }
+      const targetIdx = items.length >= 3 ? 3 : items.length
+      items.splice(targetIdx, 0, suitableQuestion)
     }
-    return base
-  }, [metadata.suitable_for])
+
+    return items
+  }, [categoryType, metadata?.suitable_for])
 
   return (
     <div style={{ ...(s.container as any), overflowAnchor: 'none' }} className="font-sans">
@@ -658,9 +730,8 @@ const formatSpecValue = (value: any): string => {
                     <div className="pl-4 pr-2 pb-4 space-y-2 text-sm text-black">
                       <div><strong>Delivery:</strong> Ships within 5–6 business days across India.</div>
                       <div><strong>Free Delivery:</strong> On all orders above ₹{threshold}.</div>
-                      <div><strong>Cash on Delivery:</strong> Available on select pincodes.</div>
-                      <div><strong>Returns:</strong> 15-day return policy for sealed and unused products.</div>
-                      <div><strong>Exchange:</strong> Available within 7 days of delivery. Contact us at customercare@mvscindia.com.</div>
+                      <div><strong>Cash on Delivery:</strong> No, Cash on Delivery (COD) is not available at this time.</div>
+                      <div><strong>Returns:</strong> 15-day return policy applicable for defective or wrong product delivery.</div>
                       <div><strong>Packaging:</strong> Securely packed to prevent transit damage.</div>
                     </div>
                   )}

@@ -131,6 +131,10 @@ module.exports = defineConfig({
                       if (targets.indexOf(text) !== -1) {
                         var container = el.closest('li') || el.closest('[data-sidebar-item]') || el;
                         if (container) container.style.setProperty('display', 'none', 'important');
+                        if (text === 'Developer') {
+                          var group = el.closest('div.py-3');
+                          if (group) group.style.setProperty('display', 'none', 'important');
+                        }
                       }
                     });
                   }

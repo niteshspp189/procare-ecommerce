@@ -18,7 +18,6 @@ export function sortProducts(
   let sortedProducts = products as MinPricedProduct[]
 
   if (["price_asc", "price_desc"].includes(sortBy)) {
-    // Precompute the minimum price for each product
     sortedProducts.forEach((product) => {
       if (product.variants && product.variants.length > 0) {
         product._minPrice = Math.min(
@@ -31,14 +30,22 @@ export function sortProducts(
       }
     })
 
-    // Sort products based on the precomputed minimum prices
     sortedProducts.sort((a, b) => {
       const diff = a._minPrice! - b._minPrice!
       return sortBy === "price_asc" ? diff : -diff
     })
-  }
-
-  if (sortBy === "created_at") {
+  } else if (sortBy === "created_at_asc") {
+    sortedProducts.sort((a, b) => {
+      return (
+        new Date(a.created_at!).getTime() - new Date(b.created_at!).getTime()
+      )
+    })
+  } else if (sortBy === "title_asc") {
+    sortedProducts.sort((a, b) => (a.title || "").localeCompare(b.title || ""))
+  } else if (sortBy === "title_desc") {
+    sortedProducts.sort((a, b) => (b.title || "").localeCompare(a.title || ""))
+  } else {
+    // Default created_at (DESC - Newest first)
     sortedProducts.sort((a, b) => {
       return (
         new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
