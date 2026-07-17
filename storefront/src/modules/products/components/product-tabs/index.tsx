@@ -99,11 +99,26 @@ const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
             }
           }
 
+          // Auto-correct prefix numbers sequentially (e.g., Step 4 -> Step 3)
+          let correctedLeftPart = leftPart
+          if (leftPart) {
+            const expectedNum = i + 1
+            const stepMatch = leftPart.match(/^(step\s*)\d+(.*)$/i)
+            if (stepMatch) {
+              correctedLeftPart = `${stepMatch[1]}${expectedNum}${stepMatch[2]}`
+            } else {
+              const numDotMatch = leftPart.match(/^(\d+)(.*)$/)
+              if (numDotMatch) {
+                correctedLeftPart = `${expectedNum}${numDotMatch[2]}`
+              }
+            }
+          }
+
           return (
             <p key={i} className="text-ui-fg-subtle leading-relaxed">
-              {leftPart ? (
+              {correctedLeftPart ? (
                 <>
-                  <strong className="font-semibold text-black">{leftPart}</strong>{" "}
+                  <strong className="font-semibold text-black">{correctedLeftPart}</strong>{" "}
                   {rightPart}
                 </>
               ) : (

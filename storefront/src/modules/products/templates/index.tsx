@@ -727,12 +727,27 @@ const formatSpecValue = (value: any): string => {
                             }
                           }
                           
+                          // Auto-correct prefix numbers sequentially (e.g., Step 4 -> Step 3)
+                          let correctedLeftPart = leftPart
+                          if (leftPart) {
+                            const expectedNum = i + 1
+                            const stepMatch = leftPart.match(/^(step\s*)\d+(.*)$/i)
+                            if (stepMatch) {
+                              correctedLeftPart = `${stepMatch[1]}${expectedNum}${stepMatch[2]}`
+                            } else {
+                              const numDotMatch = leftPart.match(/^(\d+)(.*)$/)
+                              if (numDotMatch) {
+                                correctedLeftPart = `${expectedNum}${numDotMatch[2]}`
+                              }
+                            }
+                          }
+                          
                           return (
                             <div key={i}>
                               <p className="text-sm text-black leading-relaxed">
-                                {leftPart ? (
+                                {correctedLeftPart ? (
                                   <>
-                                    <strong className="font-bold text-black">{leftPart}</strong>{" "}
+                                    <strong className="font-bold text-black">{correctedLeftPart}</strong>{" "}
                                     {rightPart}
                                   </>
                                 ) : (
