@@ -28,9 +28,9 @@ const s = {
   heroContent: { position: 'absolute', top: '50%', left: 'clamp(20px, 5vw, 60px)', transform: 'translateY(-50%)', color: '#fff' },
   heroTitle: { fontSize: 'clamp(24px, 6vw, 36px)', fontWeight: '800', marginBottom: '8px' },
   heroSub: { fontSize: '16px', opacity: '0.9' },
-  body: { gap: '40px', paddingBottom: '80px' },
-  sidebar: { width: '285px', flexShrink: 0 },
-  main: { flex: 1 },
+  body: { gap: '32px', paddingBottom: '80px' },
+  sidebar: { width: '270px', flexShrink: 0, minWidth: '270px', maxWidth: '270px' },
+  main: { flex: 1, minWidth: 0 },
 }
 
 type StoreFilterOption = {
@@ -154,14 +154,15 @@ export default async function CategoryTemplate({
 
         <div style={s.body as any} className="hero-flex">
           <aside style={s.sidebar as any} className="hidden lg:block">
-            <div className="solid-box p-8 sticky top-28 bg-gray-50/50 backdrop-blur-sm">
-              <h3 className="font-bold text-lg mb-4 border-b pb-2 uppercase tracking-wider">Filters</h3>
+            <div className="solid-box p-5 sticky top-28 bg-gray-50/50 backdrop-blur-sm">
+              <h3 className="font-bold text-sm mb-3 border-b pb-2 uppercase tracking-wider">Filters & Sort</h3>
               <RefinementList
                 sortBy={sort}
                 collections={collectionOptions}
                 types={typeOptions}
                 sizes={sizeOptions}
                 colors={colorOptions}
+                embedded={true}
                 selectedFilters={{
                   collection,
                   type,

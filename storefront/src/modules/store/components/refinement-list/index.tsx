@@ -26,6 +26,7 @@ type RefinementListProps = {
     type?: string
   }
   search?: boolean
+  embedded?: boolean
   'data-testid'?: string
 }
 
@@ -39,6 +40,7 @@ const RefinementList = ({
   colors,
   types,
   selectedFilters,
+  embedded = false,
   'data-testid': dataTestId,
 }: RefinementListProps) => {
   const router = useRouter()
@@ -147,7 +149,7 @@ const RefinementList = ({
   ].filter(Boolean).length
 
   return (
-    <div className="w-full small:w-auto small:min-w-[250px] small:ml-[1.675rem] py-2 small:py-4 mb-4 small:mb-8 px-4 small:px-0">
+    <div className={embedded ? "w-full py-0" : "w-full small:w-auto small:min-w-[250px] small:ml-[1.675rem] py-2 small:py-4 mb-4 small:mb-8 px-4 small:px-0"}>
       {/* Mobile Toggle Button Bar */}
       <div className="small:hidden mb-4">
         <button

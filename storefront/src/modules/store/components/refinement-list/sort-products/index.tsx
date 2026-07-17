@@ -69,19 +69,19 @@ const SortProducts = ({
 
   return (
     <div className="space-y-3 w-full max-w-full overflow-hidden">
-      <div className="flex items-center justify-start gap-2.5 border-b border-gray-100 pb-2">
-        <span className="font-bold text-xs small:text-sm text-[#111] uppercase tracking-wider shrink-0">
+      <div className="flex items-center flex-wrap gap-x-2 gap-y-1.5 border-b border-gray-100 pb-2">
+        <span className="font-bold text-xs text-[#111] uppercase tracking-wider shrink-0">
           Sort by
         </span>
         <button
           onClick={handleDirectionToggle}
           type="button"
-          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] small:text-xs font-bold rounded-md border border-gray-300 bg-white hover:bg-gray-100 active:scale-95 transition-all text-black shadow-sm cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md border border-gray-300 bg-white hover:bg-gray-100 active:scale-95 transition-all text-black shadow-sm cursor-pointer shrink-0"
           title={`Switch order direction to ${isAsc ? "DESC (Descending)" : "ASC (Ascending)"}`}
         >
           <svg
-            width="12"
-            height="12"
+            width="11"
+            height="11"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
