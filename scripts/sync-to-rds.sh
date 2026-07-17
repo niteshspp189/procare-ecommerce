@@ -75,7 +75,7 @@ success "Dump complete — ${DUMP_SIZE}B"
 info "Step 3/4 — Testing RDS connectivity (this may take a few seconds)..."
 docker run --rm \
   -e PGPASSWORD="$RDS_PASSWORD" \
-  -e PGSSLMODE=no-verify \
+  -e PGSSLMODE=require \
   postgres:15-alpine \
   psql -h "$RDS_HOST" -p "$RDS_PORT" -U "$RDS_USER" -d "$RDS_DB" -c "SELECT 1 AS connected;" \
   || error "Cannot connect to RDS. Check your IP is whitelisted in the RDS Security Group. See PRE-REQUISITES at the top of this script."
@@ -89,7 +89,7 @@ info "Step 4/4 — Clearing production RDS and restoring local dump..."
 #   Pass B: restore data
 docker run --rm \
   -e PGPASSWORD="$RDS_PASSWORD" \
-  -e PGSSLMODE=no-verify \
+  -e PGSSLMODE=require \
   -v "$DUMP_FILE:/tmp/dump.sql:ro" \
   postgres:15-alpine \
   sh -c "

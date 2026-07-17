@@ -283,6 +283,26 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const searchParams = useSearchParams()
   const vId = searchParams?.get("v_id")
 
+  const sortedVariants = useMemo(() => {
+    if (!product?.variants || product.variants.length <= 1) {
+      return product?.variants || []
+    }
+    return [...product.variants].sort((a, b) => {
+      for (const option of product.options || []) {
+        const valA = a.options?.find(o => o.option_id === option.id)?.value
+        const valB = b.options?.find(o => o.option_id === option.id)?.value
+        
+        const indexA = option.values?.findIndex(v => v.value === valA) ?? -1
+        const indexB = option.values?.findIndex(v => v.value === valB) ?? -1
+        
+        if (indexA !== indexB) {
+          return indexA - indexB
+        }
+      }
+      return 0
+    })
+  }, [product?.variants, product?.options])
+
   React.useEffect(() => {
     if (vId && product?.variants) {
       const targetVariant = product.variants.find((v) => v.id === vId)
@@ -295,11 +315,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     if (product?.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
-    } else if (product?.variants && product.variants.length > 1 && Object.keys(options).length === 0) {
-      const variantOptions = optionsAsKeymap(product.variants[0].options)
+    } else if (sortedVariants.length > 1 && Object.keys(options).length === 0) {
+      const variantOptions = optionsAsKeymap(sortedVariants[0].options)
       setOptions(variantOptions ?? {})
     }
-  }, [product?.variants, vId])
+  }, [product?.variants, sortedVariants, vId])
 
   const selectedVariant = useMemo(() => {
     if (!product?.variants || product.variants.length === 0) {
@@ -313,20 +333,48 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [product?.variants, options])
 
   const images = useMemo(() => {
-    if (selectedVariant?.metadata) {
-      const vImgs: HttpTypes.StoreProductImage[] = []
-      const meta = selectedVariant.metadata as Record<string, string>
+    const productImages = product?.images?.length
+      ? product.images
+      : product?.thumbnail
+        ? ([
+          { id: "thumbnail", url: product.thumbnail },
+        ] as HttpTypes.StoreProductImage[])
+        : []
+
+    if (productImages.length === 0) {
+      productImages.push({ id: 'placeholder', url: '/images/polish.jpeg' } as HttpTypes.StoreProductImage)
+    }
+
+    if (!selectedVariant) {
+      return productImages
+    }
+
+    // Try metadata first if any (for backward compatibility/staging testing)
+    let vImgs: HttpTypes.StoreProductImage[] = []
+    const meta = selectedVariant.metadata as Record<string, string>
+    if (meta) {
       if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
       if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
       if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
       if (meta.image_5) vImgs.push({ id: 'v5', url: meta.image_5 } as any)
-      if (vImgs.length > 0) return vImgs
     }
 
-    if (product?.images?.length) return product.images
-    if (product?.thumbnail) return [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
-    return []
+    if (vImgs.length > 0) {
+      return vImgs
+    }
+
+    // Try filtering using variant images from DB relation
+    const variantObj = selectedVariant as any
+    if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
+      const imageIdsMap = new Map(variantObj.images.map((i: any) => [i.id, true]))
+      const filtered = productImages.filter((i) => imageIdsMap.has(i.id))
+      if (filtered.length > 0) {
+        return filtered
+      }
+    }
+
+    return productImages
   }, [product, selectedVariant])
 
   const isSingleDefaultVariant = useMemo(() => {
@@ -579,11 +627,24 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                         <div className="space-y-2 mt-2">
                           {(Array.isArray(metadata.key_benefits) ? metadata.key_benefits : String(metadata.key_benefits).split('\n')).map((line: any, i: number) => {
                             const lineStr = String(line).replace(/^[*-•]\s*|^\d+\.\s*/, "").trim();
-                            const separatorIndex = lineStr.search(/\s*[-–:]\s*/);
-                            if (separatorIndex !== -1) {
-                              const heading = lineStr.substring(0, separatorIndex).trim();
-                              const separator = lineStr.substring(separatorIndex).match(/\s*[-–:]\s*/)?.[0] || ' – ';
-                              const rest = lineStr.substring(separatorIndex + separator.length).trim();
+                            let heading = "";
+                            let separator = "";
+                            let rest = "";
+                            const colonIndex = lineStr.indexOf(':');
+                            if (colonIndex !== -1) {
+                              heading = lineStr.substring(0, colonIndex).trim();
+                              separator = ": ";
+                              rest = lineStr.substring(colonIndex + 1).trim();
+                            } else {
+                              const match = lineStr.match(/\s+[-–]\s*|\s*[-–]\s+/);
+                              if (match && typeof match.index === "number") {
+                                heading = lineStr.substring(0, match.index).trim();
+                                separator = match[0];
+                                rest = lineStr.substring(match.index + match[0].length).trim();
+                              }
+                            }
+
+                            if (heading) {
                               return (
                                 <p key={i} className="text-sm text-gray-500">
                                   <strong className="font-semibold text-black">{heading}</strong>

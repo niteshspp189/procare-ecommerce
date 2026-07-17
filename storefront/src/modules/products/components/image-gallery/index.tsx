@@ -43,9 +43,23 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       {/* Discount badge */}
-      {index === 0 && (discountPercentage ?? 0) > 0 && (
+      {(discountPercentage ?? 0) > 0 && (
         <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-emerald-600 text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md z-20">
           {discountPercentage}% OFF
+        </div>
+      )}
+
+      {!!image.url && (
+        <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
+          <Image
+            src={getFormattedUrl(image.url)}
+            className="absolute inset-0 object-cover blur-2xl opacity-40 scale-105"
+            alt=""
+            fill
+            sizes="120px"
+            unoptimized={true}
+            priority={index === 0}
+          />
         </div>
       )}
 
@@ -86,7 +100,7 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
             <Image
               src={getFormattedUrl(image.url)}
               priority={index === 0}
-              className="absolute inset-4 md:inset-8 object-contain"
+              className="absolute inset-4 md:inset-8 object-contain z-10"
               alt={`Product image ${index + 1}`}
               fill
               sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"

@@ -56,6 +56,26 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   const searchParams = useSearchParams()
   const vId = searchParams?.get("v_id")
 
+  const sortedVariants = useMemo(() => {
+    if (!product?.variants || product.variants.length <= 1) {
+      return product?.variants || []
+    }
+    return [...product.variants].sort((a, b) => {
+      for (const option of product.options || []) {
+        const valA = a.options?.find(o => o.option_id === option.id)?.value
+        const valB = b.options?.find(o => o.option_id === option.id)?.value
+        
+        const indexA = option.values?.findIndex(v => v.value === valA) ?? -1
+        const indexB = option.values?.findIndex(v => v.value === valB) ?? -1
+        
+        if (indexA !== indexB) {
+          return indexA - indexB
+        }
+      }
+      return 0
+    })
+  }, [product?.variants, product?.options])
+
   const initialOptions = useMemo(() => {
     if (vId && product?.variants) {
       const targetVariant = product.variants.find((v) => v.id === vId)
@@ -63,13 +83,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
         return optionsAsKeymap(targetVariant.options) ?? {}
       }
     }
-    if (product?.variants?.length === 1) {
-      return optionsAsKeymap(product.variants[0].options) ?? {}
-    } else if (product?.variants && product.variants.length > 1) {
-      return optionsAsKeymap(product.variants[0].options) ?? {}
+    if (sortedVariants.length > 0) {
+      return optionsAsKeymap(sortedVariants[0].options) ?? {}
     }
     return {}
-  }, [product?.variants, vId])
+  }, [sortedVariants, vId, product?.variants])
 
   const [options, setOptions] = useState<Record<string, string | undefined>>(initialOptions)
   const [threshold, setThreshold] = useState(499)
@@ -102,11 +120,11 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
     if (product?.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
-    } else if (product?.variants && product.variants.length > 1 && Object.keys(options).length === 0) {
-      const variantOptions = optionsAsKeymap(product.variants[0].options)
+    } else if (sortedVariants.length > 1 && Object.keys(options).length === 0) {
+      const variantOptions = optionsAsKeymap(sortedVariants[0].options)
       setOptions(variantOptions ?? {})
     }
-  }, [product?.variants, vId])
+  }, [product?.variants, sortedVariants, vId])
 
   const selectedVariant = useMemo(() => {
     if (!product?.variants || product.variants.length === 0) {
@@ -131,15 +149,26 @@ const formatSpecValue = (value: any): string => {
 }
 
   const images = useMemo(() => {
-    let vImgs: HttpTypes.StoreProductImage[] = []
+    const productImages = product?.images?.length
+      ? product.images
+      : product?.thumbnail
+        ? ([
+          { id: "thumbnail", url: product.thumbnail },
+        ] as HttpTypes.StoreProductImage[])
+        : []
 
-    const variantObj = selectedVariant as any
-    if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
-      vImgs = [...variantObj.images]
+    if (productImages.length === 0) {
+      productImages.push({ id: 'placeholder', url: '/images/polish.jpeg' } as HttpTypes.StoreProductImage)
     }
 
-    if (vImgs.length === 0 && selectedVariant?.metadata) {
-      const meta = selectedVariant.metadata as Record<string, string>
+    if (!selectedVariant) {
+      return productImages
+    }
+
+    // Try metadata first if any (for backward compatibility/staging testing)
+    let vImgs: HttpTypes.StoreProductImage[] = []
+    const meta = selectedVariant.metadata as Record<string, string>
+    if (meta) {
       if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
       if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
@@ -148,31 +177,22 @@ const formatSpecValue = (value: any): string => {
       if (meta.image_6) vImgs.push({ id: 'v6', url: meta.image_6 } as any)
     }
 
-    let baseImages = propImages?.length ? propImages : (product?.images?.length ? product.images : [])
-    if (baseImages.length === 0 && product?.thumbnail) {
-      baseImages = [{ id: 'thumbnail', url: product.thumbnail } as HttpTypes.StoreProductImage]
-    }
-    if (baseImages.length === 0) {
-      baseImages = [{ id: 'placeholder', url: '/images/polish.jpeg' } as HttpTypes.StoreProductImage]
+    if (vImgs.length > 0) {
+      return vImgs
     }
 
-    const targetList = vImgs.length > 0 ? vImgs : baseImages
-
-    const uniqueImages: HttpTypes.StoreProductImage[] = []
-    const seenStems = new Set<string>()
-
-    for (const img of targetList) {
-      if (!img?.url) continue
-      const normUrl = img.url.trim().toLowerCase()
-      const stem = normUrl.replace(/\.(jpg|jpeg|webp|png|gif)$/i, '')
-      if (!seenStems.has(stem)) {
-        seenStems.add(stem)
-        uniqueImages.push(img)
+    // Try filtering using variant images from DB relation
+    const variantObj = selectedVariant as any
+    if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
+      const imageIdsMap = new Map(variantObj.images.map((i: any) => [i.id, true]))
+      const filtered = productImages.filter((i) => imageIdsMap.has(i.id))
+      if (filtered.length > 0) {
+        return filtered
       }
     }
 
-    return uniqueImages.length > 0 ? uniqueImages : targetList
-  }, [product, selectedVariant, propImages])
+    return productImages
+  }, [product, selectedVariant])
 
   const isSingleDefaultVariant = useMemo(() => {
     if (!product?.variants || product.variants.length !== 1) return false
@@ -291,21 +311,95 @@ const formatSpecValue = (value: any): string => {
       : Array.isArray(content) ? (content as any[]).map((c: any) => typeof c === 'string' ? c : c?.description || c?.title || '').join('\n')
       : JSON.stringify(content)
     return str.replace(/\*\*/g, '').split('\n')
-      .map((l: string) => l.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim())
+      .map((l: string) => l.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim().replace(/ {2,}/g, ' '))
       .filter((l: string) => l.length > 0)
   }
 
-  const howToUseSteps = useMemo((): { title: string; description: string }[] => {
+  const howToUseSteps = useMemo((): { title: string; heading: string; description: string }[] => {
     if (!metadata.how_to_use) return []
-    if (Array.isArray(metadata.how_to_use)) {
-      return (metadata.how_to_use as any[]).filter(step => step && /[a-zA-Z]/.test(step.description || step.title || ''))
+    
+    let rawSteps: { title: string; description: string }[] = []
+    
+    if (typeof metadata.how_to_use === 'string') {
+      const lines = metadata.how_to_use.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0)
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const stepMatch = line.match(/^step\s*\d+\s*:\s*(.*)/i)
+        if (stepMatch) {
+          const title = stepMatch[1].trim()
+          let description = ""
+          // Check if the next line is the description (doesn't start with "Step")
+          if (i + 1 < lines.length && !/^step\s*\d+/i.test(lines[i + 1])) {
+            description = lines[i + 1].trim()
+            // Clean up leading step numbers/prefixes from description like "2. ", "4. "
+            description = description.replace(/^\s*\d+\s*[\s:.–-]\s*/, "").trim()
+            i++ // skip next line as it was consumed
+          }
+          rawSteps.push({ title, description })
+        } else {
+          // If a line doesn't start with "Step", but it is a standalone instruction line
+          // e.g. "1. Ensure the..." or just "Brush off..."
+          // Clean up leading number if it has one
+          const cleanDesc = line.replace(/^\s*\d+\s*[\s:.–-]\s*/, "").trim()
+          rawSteps.push({ title: "", description: cleanDesc })
+        }
+      }
+    } else if (Array.isArray(metadata.how_to_use)) {
+      rawSteps = (metadata.how_to_use as any[]).map(step => {
+        if (!step) return { title: "", description: "" }
+        return {
+          title: String(step.title || "").trim(),
+          description: String(step.description || "").trim()
+        }
+      }).filter(step => step.title || step.description)
     }
-    return String(metadata.how_to_use).replace(/\*\*/g, '').split('\n')
-      .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line))
-      .map((line: string, i: number) => ({
-        title: `Step ${i + 1}`,
-        description: line.trim()
-      }))
+
+    // Now, clean up titles and split CamelCase descriptions for all rawSteps
+    return rawSteps.map((step, i) => {
+      let title = step.title.replace(/\*\*/g, '').replace(/^\d+\.\s*/, '').trim()
+      let description = step.description.replace(/\*\*/g, '').trim()
+      
+      // If title is empty, use Step {i+1} as fallback
+      if (!title) {
+        // Check if description itself starts with a step prefix
+        const stepPrefixMatch = description.match(/^\s*(?:step\s*\d+[\s:.–-]*|\d+[\s:.–-]+)\s*/i)
+        if (stepPrefixMatch) {
+          title = `Step ${i + 1}`
+          description = description.substring(stepPrefixMatch[0].length).trim()
+        } else {
+          const colonIndex = description.indexOf(':')
+          if (colonIndex !== -1 && colonIndex < 35) {
+            title = description.substring(0, colonIndex).trim()
+            description = description.substring(colonIndex + 1).trim()
+          } else {
+            title = `Step ${i + 1}`
+          }
+        }
+      }
+
+      // If description is empty or very short, and title contains CamelCase:
+      if (description.length < 5 && title) {
+        const splitMatch = title.match(/([a-z])([A-Z]|\d)/)
+        if (splitMatch && typeof splitMatch.index === 'number') {
+          description = title.substring(splitMatch.index + 1).trim()
+          title = title.substring(0, splitMatch.index + 1).trim()
+        }
+      }
+
+      // Check if description has CamelCase concatenation (lowercase followed directly by uppercase/digit)
+      let heading = ""
+      const splitMatch = description.match(/([a-z])([A-Z]|\d)/)
+      if (splitMatch && typeof splitMatch.index === 'number') {
+        heading = description.substring(0, splitMatch.index + 1).trim()
+        description = description.substring(splitMatch.index + 1).trim()
+      }
+
+      return {
+        title,
+        heading,
+        description
+      }
+    })
   }, [metadata.how_to_use])
 
   const mergedSpecifications = useMemo(() => {
@@ -647,15 +741,28 @@ const formatSpecValue = (value: any): string => {
                   </div>
                   {activeAccordion === "description" && (
                     <div className="pl-4 pr-2 pb-4 text-black text-sm leading-relaxed">
-                      <p className="mb-3">{String(product.description || '').replace(/\*\*/g, '')}</p>
+                      <p className="mb-3">{String(product.description || '').replace(/\*\*/g, '').replace(/ {2,}/g, ' ')}</p>
                       {metadata.key_benefits && (
                         <div className="space-y-2 mt-2">
                           {parseLines(metadata.key_benefits).map((line: string, i: number) => {
-                            const separatorIndex = line.search(/\s*[-–:]\s*/);
-                            if (separatorIndex !== -1) {
-                              const heading = line.substring(0, separatorIndex).trim();
-                              const separator = line.substring(separatorIndex).match(/\s*[-–:]\s*/)?.[0] || ' – ';
-                              const rest = line.substring(separatorIndex + separator.length).trim();
+                            let heading = "";
+                            let separator = "";
+                            let rest = "";
+                            const colonIndex = line.indexOf(':');
+                            if (colonIndex !== -1) {
+                              heading = line.substring(0, colonIndex).trim();
+                              separator = ": ";
+                              rest = line.substring(colonIndex + 1).trim();
+                            } else {
+                              const match = line.match(/\s+[-–]\s*|\s*[-–]\s+/);
+                              if (match && typeof match.index === "number") {
+                                heading = line.substring(0, match.index).trim();
+                                separator = match[0];
+                                rest = line.substring(match.index + match[0].length).trim();
+                              }
+                            }
+
+                            if (heading) {
                               return (
                                 <p key={i} className="text-sm text-black">
                                   <strong className="font-bold">{heading}</strong>
@@ -689,7 +796,7 @@ const formatSpecValue = (value: any): string => {
                             {Object.entries(mergedSpecifications).map(([key, value], i) => (
                               <tr key={i} className="border-b border-gray-50 last:border-0">
                                 <td className="py-2 font-semibold text-black uppercase text-xs tracking-wide w-1/3">{key}</td>
-                                <td className="py-2 text-black">{value as any}</td>
+                                <td className="py-2 text-black">{String(value || '').replace(/ {2,}/g, ' ')}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -710,39 +817,17 @@ const formatSpecValue = (value: any): string => {
                     <div className="pl-4 pr-2 pb-4 space-y-4">
                       {howToUseSteps.length > 0 ? (
                         howToUseSteps.map((step, i) => {
-                           const lineClean = String(step.description).replace(/\*\*/g, '').trim()
-                          
-                           let leftPart = ""
-                           let rightPart = lineClean
-
-                           // 1. Detect if the line starts with a step prefix (e.g., "Step 1:", "Step 1", "1.", "1:")
-                           const stepPrefixMatch = lineClean.match(/^\s*(?:step\s*\d+[\s:.–-]*|\d+[\s:.–-]+)\s*/i)
-
-                           if (stepPrefixMatch) {
-                             const prefixLength = stepPrefixMatch[0].length
-                             const description = lineClean.substring(prefixLength).trim()
-                             leftPart = `Step ${i + 1}:`
-                             rightPart = description
-                           } else {
-                             // 2. If it doesn't start with a step prefix, check if it has a colon (like "Recommended Use:")
-                             const colonIndex = lineClean.indexOf(':')
-                             if (colonIndex !== -1 && colonIndex < 35) {
-                               leftPart = lineClean.substring(0, colonIndex + 1).trim()
-                               rightPart = lineClean.substring(colonIndex + 1).trim()
-                             }
-                           }
-
+                           const leftPart = `Step ${i + 1}: ${step.title}`
                            return (
                              <div key={i}>
                                <p className="text-sm text-black leading-relaxed">
-                                 {leftPart ? (
+                                 <strong className="font-bold text-black">{leftPart}</strong>{" "}
+                                 {step.heading ? (
                                    <>
-                                     <strong className="font-bold text-black">{leftPart}</strong>{" "}
-                                     {rightPart}
+                                     <strong className="font-bold text-black">{step.heading}</strong>{" "}
                                    </>
-                                 ) : (
-                                   lineClean
-                                 )}
+                                 ) : null}
+                                 {step.description}
                                </p>
                              </div>
                            )
@@ -798,28 +883,12 @@ const formatSpecValue = (value: any): string => {
 
       {/* HOW IT WORKS */}
       {(() => {
-        const raw = product.metadata?.how_to_use;
-        let steps: { title: string; description: string }[] = [];
+        const steps = howToUseSteps;
         let useStatic = true;
         
-        if (raw) {
-          steps = Array.isArray(raw)
-            ? (raw as any[]).filter(step => step && /[a-zA-Z]/.test(step.description || step.title || ''))
-            : String(raw)
-                .replace(/\*\*/g, '')
-                .split(/\n+/)
-                .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line))
-                .map((line, i) => ({
-                  title: `Step ${i + 1}`,
-                  description: line.trim()
-                }));
-          
-          if (steps.length >= 3 && !String(raw).includes("Word Doc shared")) {
-            useStatic = false;
-          }
-        }
-
-        return (
+        if (steps.length >= 3 && !String(product.metadata?.how_to_use || "").includes("Word Doc shared")) {
+          useStatic = false;
+        }        return (
           <section style={s.howSection as any}>
             <div style={s.inner as any}>
               <div className="text-center mb-12">
@@ -853,19 +922,16 @@ const formatSpecValue = (value: any): string => {
                         </div>
                       </div>
                       <h3 className="font-semibold text-base mb-1 text-black">
-                        {String(step.title).replace(/\*\*/g, '').replace(/^\d+\.\s*/, '')}
+                        {step.title}
                       </h3>
                       <p className="text-xs text-gray-500 leading-relaxed">
-                        {String(step.description)
-                          .replace(/\*\*/g, '')
-                          .replace(/^[-•]\s*/, '')
-                          .replace(/^\s*step\s*\d+[\s:.–-]*/i, '') // removes "Step 1:"
-                          .replace(/^\s*\d+[\s:.–-]*/, '') // removes "1." or "1"
-                          .trim()}
+                        {step.heading ? (
+                          <strong className="font-semibold text-black">{step.heading} </strong>
+                        ) : null}
+                        {step.description}
                       </p>
                     </div>
-                  ))
-                ) : (
+                  ))                ) : (
                   <>
                     <div className="text-left flex-shrink-0 w-[343px] snap-start">
                       <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">

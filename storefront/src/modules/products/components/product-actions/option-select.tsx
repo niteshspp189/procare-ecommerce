@@ -88,7 +88,10 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
       >
         {filteredOptions.map((v) => {
           const normalizedVal = v.toLowerCase().trim()
-          const hex = (colorHexMap && colorHexMap[v]) || defaultColorHexMap[normalizedVal] || undefined
+          let hex = (colorHexMap && (colorHexMap[v] || colorHexMap[normalizedVal])) || defaultColorHexMap[normalizedVal] || undefined
+          if (hex && !hex.startsWith("#") && !hex.startsWith("rgb") && !hex.startsWith("hsl")) {
+            hex = `#${hex}`
+          }
           const isSelected = v === current
 
           return (
