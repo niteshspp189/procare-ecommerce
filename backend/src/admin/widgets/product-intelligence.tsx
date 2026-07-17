@@ -118,15 +118,18 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
             }
             setSpecList(specs)
 
-            // Parse Badges (convert array or JSON into badge list)
-            let badgeList: string[] = []
+            // Parse Badges (convert array or JSON into badge list prefilled up to 4 items)
+            let badgeList: string[] = ["", "", "", ""]
             if (meta.product_badges) {
                 let rawB = meta.product_badges
                 if (typeof rawB === "string") {
                     try { rawB = JSON.parse(rawB) } catch { rawB = [rawB] }
                 }
                 if (Array.isArray(rawB)) {
-                    badgeList = rawB.map((b: any) => typeof b === "string" ? b : (b.label || JSON.stringify(b)))
+                    const parsed = rawB.map((b: any) => typeof b === "string" ? b : (b.label || JSON.stringify(b)))
+                    for (let i = 0; i < 4; i++) {
+                        badgeList[i] = parsed[i] || ""
+                    }
                 }
             }
             setSelectedBadges(badgeList)
@@ -186,8 +189,11 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                 }
             }
 
-            // Reconstruct badges array formatted for storefront
-            const formattedBadges = selectedBadges.map(label => ({ label }))
+            // Reconstruct badges array formatted for storefront (filter out empty strings/falsy values)
+            const formattedBadges = selectedBadges
+                .map(label => label?.trim() || "")
+                .filter(Boolean)
+                .map(label => ({ label }))
 
             const payloadMeta = {
                 how_to_use: howToUse,
@@ -360,17 +366,28 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                             {showInfoModal && (
                                 <div
                                     onMouseLeave={() => setShowInfoModal(false)}
-                                    className="absolute left-0 top-9 z-50 w-80 p-4 bg-gray-900 text-white rounded-xl shadow-2xl text-xs space-y-2 border border-gray-700 animate-fade-in"
+                                    className="absolute left-0 top-9 z-50 w-80 p-4 bg-white text-black rounded-xl shadow-2xl text-xs space-y-3 border border-gray-200 animate-fade-in"
                                 >
-                                    <div className="font-bold text-teal-400 border-b border-gray-700 pb-1.5 uppercase tracking-wider text-[11px]">
-                                        Storefront Display Mappings
+                                    <div className="font-bold text-[#00bda5] border-b border-gray-100 pb-1.5 uppercase tracking-wider text-[11px]">
+                                        Storefront Tab Mappings
                                     </div>
-                                    <ul className="space-y-1.5 text-gray-300">
-                                        <li><strong className="text-white">How to Use:</strong> Renders step-by-step instructions tab.</li>
-                                        <li><strong className="text-white">Key Benefits:</strong> Renders feature bullet points tab.</li>
-                                        <li><strong className="text-white">Suitable For:</strong> Shows materials/shoes compatibility.</li>
-                                        <li><strong className="text-white">Specifications:</strong> Renders technical specs key-value table.</li>
-                                        <li><strong className="text-white">Product Badges:</strong> Renders eco/quality highlight tags.</li>
+                                    <ul className="space-y-2 text-gray-700">
+                                        <li>
+                                            <strong className="text-black font-semibold">Product Description Tab:</strong>
+                                            <p className="text-[11px] text-gray-500 mt-0.5">Renders the Product Description + <strong className="text-gray-700">Key Benefits</strong> content list.</p>
+                                        </li>
+                                        <li>
+                                            <strong className="text-black font-semibold">How to Use Tab:</strong>
+                                            <p className="text-[11px] text-gray-500 mt-0.5">Renders the <strong className="text-gray-700">How to Use</strong> step-by-step instructions.</p>
+                                        </li>
+                                        <li>
+                                            <strong className="text-black font-semibold">Specifications Tab:</strong>
+                                            <p className="text-[11px] text-gray-500 mt-0.5">Renders the <strong className="text-gray-700">Product Specifications</strong> table, merging in the <strong className="text-gray-700">Suitable For</strong> field.</p>
+                                        </li>
+                                        <li>
+                                            <strong className="text-black font-semibold">Product Badges:</strong>
+                                            <p className="text-[11px] text-gray-500 mt-0.5">Displays up to 4 highlight badges on cards and product details.</p>
+                                        </li>
                                     </ul>
                                 </div>
                             )}
@@ -467,31 +484,38 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                         + Add Specification
                                     </Button>
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     {specList.map((item, idx) => (
-                                        <div key={idx} className="flex items-center gap-2">
-                                            <Input
-                                                size="small"
-                                                placeholder="Key (e.g. Usage)"
-                                                value={item.key}
-                                                onChange={(e) => updateSpec(idx, e.target.value, item.value)}
-                                                className="w-1/3 text-xs"
-                                            />
-                                            <Input
-                                                size="small"
-                                                placeholder="Value (e.g. Daily Touch-Up)"
-                                                value={item.value}
-                                                onChange={(e) => updateSpec(idx, item.key, e.target.value)}
-                                                className="w-7/12 text-xs"
-                                            />
+                                        <div key={idx} className="border border-gray-200 rounded-xl p-4 bg-gray-50/30 space-y-3 relative">
                                             <button
                                                 type="button"
                                                 onClick={() => removeSpecRow(idx)}
-                                                className="text-gray-400 hover:text-red-500 text-sm font-bold px-1"
+                                                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-sm font-bold p-1 transition-colors"
                                                 title="Remove row"
                                             >
                                                 ✕
                                             </button>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Spec Name (Key)</label>
+                                                    <Input
+                                                        placeholder="e.g. Material"
+                                                        value={item.key}
+                                                        onChange={(e) => updateSpec(idx, e.target.value, item.value)}
+                                                        className="text-xs bg-white border border-gray-300 focus:border-[#00bda5] focus:ring-1 focus:ring-[#00bda5]"
+                                                    />
+                                                </div>
+                                                <div className="md:col-span-2 space-y-1">
+                                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Spec Details (Value)</label>
+                                                    <Textarea
+                                                        placeholder="e.g. Suede & Nubuck Leather, Rubber, Canvas"
+                                                        value={item.value}
+                                                        onChange={(e) => updateSpec(idx, item.key, e.target.value)}
+                                                        className="text-xs bg-white border border-gray-300 min-h-[60px] py-1.5 focus:border-[#00bda5] focus:ring-1 focus:ring-[#00bda5]"
+                                                        rows={2}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -504,66 +528,70 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                 <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block mb-1">
                                     Product Badges <span className="text-gray-400 font-mono">(product_badges)</span>
                                 </label>
-                                <Text className="text-[11px] text-gray-500 mb-3">Select highlight badges to show on Storefront product cards & details.</Text>
+                                <Text className="text-[11px] text-gray-500 mb-4">
+                                    Configure up to 4 badges. Choose a preset or customize the text manually.
+                                </Text>
 
-                                {/* Preset Badge Toggles */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                                    {AVAILABLE_BADGES.map((badge) => {
-                                        const isSelected = selectedBadges.includes(badge.label)
+                                {/* 4 Slots for Product Badges */}
+                                <div className="space-y-4">
+                                    {[0, 1, 2, 3].map((slotIdx) => {
+                                        const currentVal = selectedBadges[slotIdx] || ""
+                                        // Determine if the current value is one of the presets
+                                        const isPreset = AVAILABLE_BADGES.some(b => b.label === currentVal)
+                                        const selectValue = isPreset ? currentVal : (currentVal ? "custom" : "")
+
                                         return (
-                                            <button
-                                                key={badge.label}
-                                                type="button"
-                                                onClick={() => toggleBadge(badge.label)}
-                                                className={`flex items-center gap-1.5 p-2 rounded-xl text-xs font-bold transition-all border text-left cursor-pointer ${
-                                                    isSelected
-                                                        ? "bg-teal-600 border-teal-600 text-white shadow-xs"
-                                                        : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
-                                                }`}
-                                            >
-                                                <span>{badge.icon}</span>
-                                                <span className="truncate">{badge.label}</span>
-                                            </button>
+                                            <div key={slotIdx} className="border border-gray-200 rounded-xl p-3 bg-white space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[10px] font-bold text-gray-500 uppercase">Badge Slot {slotIdx + 1}</span>
+                                                    {currentVal && (
+                                                        <span className="text-[10px] font-bold text-[#00bda5] bg-[#00bda5]/10 px-1.5 py-0.5 rounded">
+                                                            Active
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    <select
+                                                        className="text-xs border border-gray-300 rounded-md p-1.5 bg-white w-full h-8 cursor-pointer focus:border-[#00bda5] focus:outline-hidden"
+                                                        value={selectValue}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            const updated = [...selectedBadges]
+                                                            if (val === "custom") {
+                                                                updated[slotIdx] = currentVal && !isPreset ? currentVal : "Custom Badge"
+                                                            } else if (val === "") {
+                                                                updated[slotIdx] = ""
+                                                            } else {
+                                                                updated[slotIdx] = val
+                                                            }
+                                                            setSelectedBadges(updated)
+                                                        }}
+                                                    >
+                                                        <option value="">-- None (Clear Slot) --</option>
+                                                        {AVAILABLE_BADGES.map(b => (
+                                                            <option key={b.label} value={b.label}>
+                                                                {b.icon} {b.label}
+                                                            </option>
+                                                        ))}
+                                                        <option value="custom">✍️ Custom text...</option>
+                                                    </select>
+
+                                                    <Input
+                                                        size="small"
+                                                        placeholder="Manual Badge Text..."
+                                                        value={currentVal}
+                                                        onChange={(e) => {
+                                                            const updated = [...selectedBadges]
+                                                            updated[slotIdx] = e.target.value
+                                                            setSelectedBadges(updated)
+                                                        }}
+                                                        className="text-xs h-8 bg-white"
+                                                    />
+                                                </div>
+                                            </div>
                                         )
                                     })}
                                 </div>
-
-                                {/* Custom Badge Input */}
-                                <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
-                                    <Input
-                                        size="small"
-                                        placeholder="Add Custom Badge..."
-                                        value={customBadgeInput}
-                                        onChange={(e) => setCustomBadgeInput(e.target.value)}
-                                        className="text-xs"
-                                    />
-                                    <Button
-                                        size="small"
-                                        variant="secondary"
-                                        onClick={addCustomBadge}
-                                        className="text-xs shrink-0"
-                                    >
-                                        Add
-                                    </Button>
-                                </div>
-
-                                {/* Active Badges Summary */}
-                                {selectedBadges.length > 0 && (
-                                    <div className="mt-4 pt-3 border-t border-gray-200">
-                                        <Text className="text-[10px] font-bold text-gray-500 uppercase mb-2">Active Badges ({selectedBadges.length}):</Text>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {selectedBadges.map((b) => (
-                                                <span
-                                                    key={b}
-                                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#00bda5]/15 text-[#00bda5] text-[10px] font-bold border border-[#00bda5]/30"
-                                                >
-                                                    {b}
-                                                    <button type="button" onClick={() => toggleBadge(b)} className="hover:text-red-500">✕</button>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Storefront Display Card */}

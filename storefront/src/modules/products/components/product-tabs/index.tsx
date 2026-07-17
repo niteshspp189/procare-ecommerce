@@ -84,41 +84,29 @@ const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
           
           let leftPart = ""
           let rightPart = lineClean
-          
-          // Check for colon
-          const colonIndex = lineClean.indexOf(':')
-          if (colonIndex !== -1 && colonIndex < 35) {
-            leftPart = lineClean.substring(0, colonIndex + 1).trim()
-            rightPart = lineClean.substring(colonIndex + 1).trim()
-          } else {
-            // Check for number + dot prefix, e.g. "1. Ensure..."
-            const numDotMatch = lineClean.match(/^(\d+\.)\s*(.*)$/)
-            if (numDotMatch) {
-              leftPart = numDotMatch[1].trim()
-              rightPart = numDotMatch[2].trim()
-            }
-          }
 
-          // Auto-correct prefix numbers sequentially (e.g., Step 4 -> Step 3)
-          let correctedLeftPart = leftPart
-          if (leftPart) {
-            const expectedNum = i + 1
-            const stepMatch = leftPart.match(/^(step\s*)\d+(.*)$/i)
-            if (stepMatch) {
-              correctedLeftPart = `${stepMatch[1]}${expectedNum}${stepMatch[2]}`
-            } else {
-              const numDotMatch = leftPart.match(/^(\d+)(.*)$/)
-              if (numDotMatch) {
-                correctedLeftPart = `${expectedNum}${numDotMatch[2]}`
-              }
+          // 1. Detect if the line starts with a step prefix (e.g., "Step 1:", "Step 1", "1.", "1:")
+          const stepPrefixMatch = lineClean.match(/^\s*(?:step\s*\d+[\s:.–-]*|\d+[\s:.–-]+)\s*/i)
+
+          if (stepPrefixMatch) {
+            const prefixLength = stepPrefixMatch[0].length
+            const description = lineClean.substring(prefixLength).trim()
+            leftPart = `Step ${i + 1}:`
+            rightPart = description
+          } else {
+            // 2. If it doesn't start with a step prefix, check if it has a colon (like "Recommended Use:")
+            const colonIndex = lineClean.indexOf(':')
+            if (colonIndex !== -1 && colonIndex < 35) {
+              leftPart = lineClean.substring(0, colonIndex + 1).trim()
+              rightPart = lineClean.substring(colonIndex + 1).trim()
             }
           }
 
           return (
             <p key={i} className="text-ui-fg-subtle leading-relaxed">
-              {correctedLeftPart ? (
+              {leftPart ? (
                 <>
-                  <strong className="font-semibold text-black">{correctedLeftPart}</strong>{" "}
+                  <strong className="font-semibold text-black">{leftPart}</strong>{" "}
                   {rightPart}
                 </>
               ) : (

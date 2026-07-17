@@ -710,52 +710,42 @@ const formatSpecValue = (value: any): string => {
                     <div className="pl-4 pr-2 pb-4 space-y-4">
                       {howToUseSteps.length > 0 ? (
                         howToUseSteps.map((step, i) => {
-                          const desc = String(step.description).replace(/\*\*/g, '').trim()
+                           const lineClean = String(step.description).replace(/\*\*/g, '').trim()
                           
-                          let leftPart = ""
-                          let rightPart = desc
-                          
-                          const colonIndex = desc.indexOf(':')
-                          if (colonIndex !== -1 && colonIndex < 35) {
-                            leftPart = desc.substring(0, colonIndex + 1).trim()
-                            rightPart = desc.substring(colonIndex + 1).trim()
-                          } else {
-                            const numDotMatch = desc.match(/^(\d+\.)\s*(.*)$/)
-                            if (numDotMatch) {
-                              leftPart = numDotMatch[1].trim()
-                              rightPart = numDotMatch[2].trim()
-                            }
-                          }
-                          
-                          // Auto-correct prefix numbers sequentially (e.g., Step 4 -> Step 3)
-                          let correctedLeftPart = leftPart
-                          if (leftPart) {
-                            const expectedNum = i + 1
-                            const stepMatch = leftPart.match(/^(step\s*)\d+(.*)$/i)
-                            if (stepMatch) {
-                              correctedLeftPart = `${stepMatch[1]}${expectedNum}${stepMatch[2]}`
-                            } else {
-                              const numDotMatch = leftPart.match(/^(\d+)(.*)$/)
-                              if (numDotMatch) {
-                                correctedLeftPart = `${expectedNum}${numDotMatch[2]}`
-                              }
-                            }
-                          }
-                          
-                          return (
-                            <div key={i}>
-                              <p className="text-sm text-black leading-relaxed">
-                                {correctedLeftPart ? (
-                                  <>
-                                    <strong className="font-bold text-black">{correctedLeftPart}</strong>{" "}
-                                    {rightPart}
-                                  </>
-                                ) : (
-                                  desc
-                                )}
-                              </p>
-                            </div>
-                          )
+                           let leftPart = ""
+                           let rightPart = lineClean
+
+                           // 1. Detect if the line starts with a step prefix (e.g., "Step 1:", "Step 1", "1.", "1:")
+                           const stepPrefixMatch = lineClean.match(/^\s*(?:step\s*\d+[\s:.–-]*|\d+[\s:.–-]+)\s*/i)
+
+                           if (stepPrefixMatch) {
+                             const prefixLength = stepPrefixMatch[0].length
+                             const description = lineClean.substring(prefixLength).trim()
+                             leftPart = `Step ${i + 1}:`
+                             rightPart = description
+                           } else {
+                             // 2. If it doesn't start with a step prefix, check if it has a colon (like "Recommended Use:")
+                             const colonIndex = lineClean.indexOf(':')
+                             if (colonIndex !== -1 && colonIndex < 35) {
+                               leftPart = lineClean.substring(0, colonIndex + 1).trim()
+                               rightPart = lineClean.substring(colonIndex + 1).trim()
+                             }
+                           }
+
+                           return (
+                             <div key={i}>
+                               <p className="text-sm text-black leading-relaxed">
+                                 {leftPart ? (
+                                   <>
+                                     <strong className="font-bold text-black">{leftPart}</strong>{" "}
+                                     {rightPart}
+                                   </>
+                                 ) : (
+                                   lineClean
+                                 )}
+                               </p>
+                             </div>
+                           )
                         })
                       ) : (
                         <p className="text-sm text-gray-500 italic">No data available</p>

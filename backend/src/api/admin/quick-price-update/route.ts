@@ -40,6 +40,7 @@ export const POST = async (
         await pgConnection("price")
           .where({ id: existingMrp.id })
           .update({
+            amount: numMrp,
             raw_amount: JSON.stringify({ value: String(numMrp), precision: 20 }),
             updated_at: new Date()
           })
@@ -50,6 +51,7 @@ export const POST = async (
           price_set_id,
           currency_code: "inr",
           price_list_id: null,
+          amount: numMrp,
           raw_amount: JSON.stringify({ value: String(numMrp), precision: 20 }),
           created_at: new Date(),
           updated_at: new Date()
@@ -68,6 +70,7 @@ export const POST = async (
         await pgConnection("price")
           .where({ id: existingSelling.id })
           .update({
+            amount: numSelling,
             raw_amount: JSON.stringify({ value: String(numSelling), precision: 20 }),
             updated_at: new Date()
           })
@@ -78,6 +81,7 @@ export const POST = async (
           price_set_id,
           currency_code: "inr",
           price_list_id: "pl_online_sale",
+          amount: numSelling,
           raw_amount: JSON.stringify({ value: String(numSelling), precision: 20 }),
           created_at: new Date(),
           updated_at: new Date()
