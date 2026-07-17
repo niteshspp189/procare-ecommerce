@@ -69,7 +69,7 @@ const SortProducts = ({
 
   return (
     <div className="space-y-3 w-full max-w-full overflow-hidden">
-      <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+      <div className="flex items-center justify-start gap-2.5 border-b border-gray-100 pb-2">
         <span className="font-bold text-xs small:text-sm text-[#111] uppercase tracking-wider shrink-0">
           Sort by
         </span>

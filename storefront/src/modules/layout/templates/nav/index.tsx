@@ -87,12 +87,12 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
       {/* Black Top bar for premium feel */}
-      <div className="flex justify-between items-center px-2 sm:px-4 py-1.5 bg-[#141414] text-white text-[9.5px] sm:text-[10.5px] uppercase tracking-normal sm:tracking-wider border-b border-gray-800 overflow-hidden w-full max-w-full">
-        {/* Left spacer for centering */}
-        <div className="hidden 2xl:block flex-1"></div>
+      <div className="flex justify-between items-center px-3 sm:px-6 py-1.5 bg-[#141414] text-white text-[9.5px] sm:text-[10.5px] uppercase tracking-normal sm:tracking-wider border-b border-gray-800 overflow-hidden w-full max-w-full relative">
+        {/* Left flex spacer for perfect centering on desktop/laptop */}
+        <div className="hidden md:block flex-1"></div>
         
-        {/* Promo text and Shop Now button */}
-        <div className="flex items-center justify-between sm:justify-start lg:justify-center gap-1.5 sm:gap-2.5 flex-1 lg:flex-initial min-w-0 overflow-hidden shrink-0">
+        {/* Promo text and Shop Now button (Centered) */}
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-1 md:flex-initial min-w-0 shrink-0 mx-auto">
           {/* Mobile scrolling version */}
           <div className="flex sm:hidden overflow-hidden relative flex-1 items-center min-w-0">
             <div className="flex whitespace-nowrap animate-marquee font-bold text-[#00b5a4] text-[10px] items-center">
@@ -108,18 +108,18 @@ export default async function Nav() {
           </div>
 
           {/* Desktop static version */}
-          <span className="hidden sm:inline-flex items-center gap-1.5 font-bold text-[#00b5a4] whitespace-nowrap text-[10px] md:text-[11px] lg:text-[11.5px] shrink-0">
+          <span className="hidden sm:inline-flex items-center gap-1.5 font-bold text-[#00b5a4] whitespace-nowrap text-[10px] md:text-[11px] shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] animate-promo-pulse"></span>
             <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
           </span>
 
-          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-medium px-2 py-0.5 text-[9px] sm:text-[10px] rounded transition-all whitespace-nowrap shrink-0 min-w-max leading-none inline-flex items-center justify-center">
+          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-medium px-2.5 py-0.5 text-[9px] sm:text-[10px] rounded transition-all whitespace-nowrap shrink-0 min-w-max leading-none inline-flex items-center justify-center">
             Shop Now
           </LocalizedClientLink>
         </div>
 
         {/* Right Navigation Links */}
-        <div className="hidden md:flex items-center justify-end gap-2 lg:gap-3 xl:gap-4 font-medium text-gray-300 whitespace-nowrap text-[10px] lg:text-[11px] shrink-0">
+        <div className="hidden md:flex items-center justify-end gap-2 lg:gap-3 xl:gap-4 font-medium text-gray-300 whitespace-nowrap text-[10px] lg:text-[11px] shrink-0 flex-1">
           <LocalizedClientLink href="/" className="hover:text-white transition-colors shrink-0">Home</LocalizedClientLink>
           <LocalizedClientLink href="/faq" className="hover:text-white transition-colors shrink-0">FAQ</LocalizedClientLink>
           <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors shrink-0">Our Story</LocalizedClientLink>
