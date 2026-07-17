@@ -73,28 +73,43 @@ const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
     ? content
     : JSON.stringify(content);
 
-  const lines = contentString.split('\n').filter(l => l.trim().length > 0)
+  const lines = contentString.split('\n')
+    .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line));
 
   return (
     <div className="text-small-regular py-8">
       <div className="flex flex-col gap-y-4">
         {lines.map((line, i) => {
-          const lineClean = line.replace(/^[*-•]\s*|^\d+\.\s*/, "").replace(/^[#]{1,4}\s*/, "").trim();
-          const separatorIndex = lineClean.search(/\s*[-–:]\s*/);
-          if (separatorIndex !== -1) {
-            const heading = lineClean.substring(0, separatorIndex).trim();
-            const separator = lineClean.substring(separatorIndex).match(/\s*[-–:]\s*/)?.[0] || ' – ';
-            const rest = lineClean.substring(separatorIndex + separator.length).trim();
-            return (
-              <p key={i} className="text-ui-fg-subtle">
-                <strong className="font-semibold text-black">{heading}</strong>
-                {separator}
-                {rest}
-              </p>
-            );
+          const lineClean = line.replace(/^[*-•]\s*/, "").replace(/^[#]{1,4}\s*/, "").trim();
+          
+          let leftPart = ""
+          let rightPart = lineClean
+          
+          // Check for colon
+          const colonIndex = lineClean.indexOf(':')
+          if (colonIndex !== -1 && colonIndex < 35) {
+            leftPart = lineClean.substring(0, colonIndex + 1).trim()
+            rightPart = lineClean.substring(colonIndex + 1).trim()
+          } else {
+            // Check for number + dot prefix, e.g. "1. Ensure..."
+            const numDotMatch = lineClean.match(/^(\d+\.)\s*(.*)$/)
+            if (numDotMatch) {
+              leftPart = numDotMatch[1].trim()
+              rightPart = numDotMatch[2].trim()
+            }
           }
+
           return (
-            <p key={i} className="text-ui-fg-subtle">{lineClean}</p>
+            <p key={i} className="text-ui-fg-subtle leading-relaxed">
+              {leftPart ? (
+                <>
+                  <strong className="font-semibold text-black">{leftPart}</strong>{" "}
+                  {rightPart}
+                </>
+              ) : (
+                lineClean
+              )}
+            </p>
           );
         })}
       </div>

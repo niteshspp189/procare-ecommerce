@@ -297,11 +297,14 @@ const formatSpecValue = (value: any): string => {
 
   const howToUseSteps = useMemo((): { title: string; description: string }[] => {
     if (!metadata.how_to_use) return []
-    if (Array.isArray(metadata.how_to_use)) return metadata.how_to_use as { title: string; description: string }[]
-    return String(metadata.how_to_use).replace(/\*\*/g, '').split('\n').filter(Boolean)
+    if (Array.isArray(metadata.how_to_use)) {
+      return (metadata.how_to_use as any[]).filter(step => step && /[a-zA-Z]/.test(step.description || step.title || ''))
+    }
+    return String(metadata.how_to_use).replace(/\*\*/g, '').split('\n')
+      .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line))
       .map((line: string, i: number) => ({
         title: `Step ${i + 1}`,
-        description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim()
+        description: line.trim()
       }))
   }, [metadata.how_to_use])
 
@@ -706,12 +709,39 @@ const formatSpecValue = (value: any): string => {
                   {activeAccordion === "how" && (
                     <div className="pl-4 pr-2 pb-4 space-y-4">
                       {howToUseSteps.length > 0 ? (
-                        howToUseSteps.map((step, i) => (
-                          <div key={i}>
-                            <h4 className="font-bold text-sm text-black mb-1">Step {i + 1}: {String(step.title).replace(/\*\*/g, '').replace(/^step\s*\d+[\s:.–-]*/i, '').trim()}</h4>
-                            <p className="text-sm text-black leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
-                          </div>
-                        ))
+                        howToUseSteps.map((step, i) => {
+                          const desc = String(step.description).replace(/\*\*/g, '').trim()
+                          
+                          let leftPart = ""
+                          let rightPart = desc
+                          
+                          const colonIndex = desc.indexOf(':')
+                          if (colonIndex !== -1 && colonIndex < 35) {
+                            leftPart = desc.substring(0, colonIndex + 1).trim()
+                            rightPart = desc.substring(colonIndex + 1).trim()
+                          } else {
+                            const numDotMatch = desc.match(/^(\d+\.)\s*(.*)$/)
+                            if (numDotMatch) {
+                              leftPart = numDotMatch[1].trim()
+                              rightPart = numDotMatch[2].trim()
+                            }
+                          }
+                          
+                          return (
+                            <div key={i}>
+                              <p className="text-sm text-black leading-relaxed">
+                                {leftPart ? (
+                                  <>
+                                    <strong className="font-bold text-black">{leftPart}</strong>{" "}
+                                    {rightPart}
+                                  </>
+                                ) : (
+                                  desc
+                                )}
+                              </p>
+                            </div>
+                          )
+                        })
                       ) : (
                         <p className="text-sm text-gray-500 italic">No data available</p>
                       )}
@@ -769,8 +799,15 @@ const formatSpecValue = (value: any): string => {
         
         if (raw) {
           steps = Array.isArray(raw)
-            ? raw
-            : String(raw).replace(/\*\*/g, '').split(/\n+/).filter(Boolean).map((line, i) => ({ title: `Step ${i + 1}`, description: line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim() }));
+            ? (raw as any[]).filter(step => step && /[a-zA-Z]/.test(step.description || step.title || ''))
+            : String(raw)
+                .replace(/\*\*/g, '')
+                .split(/\n+/)
+                .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line))
+                .map((line, i) => ({
+                  title: `Step ${i + 1}`,
+                  description: line.trim()
+                }));
           
           if (steps.length >= 3 && !String(raw).includes("Word Doc shared")) {
             useStatic = false;
@@ -810,8 +847,17 @@ const formatSpecValue = (value: any): string => {
                           {index + 1}
                         </div>
                       </div>
-                      <h3 className="font-semibold text-base mb-1 text-black">{String(step.title).replace(/\*\*/g, '').replace(/^\d+\.\s*/, '')}</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed">{String(step.description).replace(/\*\*/g, '').replace(/^[-•]\s*/, '')}</p>
+                      <h3 className="font-semibold text-base mb-1 text-black">
+                        {String(step.title).replace(/\*\*/g, '').replace(/^\d+\.\s*/, '')}
+                      </h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">
+                        {String(step.description)
+                          .replace(/\*\*/g, '')
+                          .replace(/^[-•]\s*/, '')
+                          .replace(/^\s*step\s*\d+[\s:.–-]*/i, '') // removes "Step 1:"
+                          .replace(/^\s*\d+[\s:.–-]*/, '') // removes "1." or "1"
+                          .trim()}
+                      </p>
                     </div>
                   ))
                 ) : (
