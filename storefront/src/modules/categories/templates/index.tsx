@@ -17,7 +17,9 @@ const s = {
   breadcrumb: { padding: '20px 0', fontSize: '13px', color: '#888' },
   heroBanner: {
     width: '100%',
-    height: 'clamp(160px, 20vw, 240px)',
+    height: 'auto',
+    aspectRatio: '14 / 3',
+    maxHeight: '240px',
     borderRadius: '16px',
     overflow: 'hidden',
     position: 'relative',
