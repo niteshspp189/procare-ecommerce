@@ -38,7 +38,7 @@ const FilterRadioGroup = ({
       </button>
 
       {isOpen && (
-        <div className="max-h-[220px] overflow-y-auto pr-1 space-y-3 flex flex-col gap-y-3">
+        <div className="space-y-2.5 flex flex-col gap-y-2">
           <RadioGroup data-testid={dataTestId} onValueChange={handleChange}>
             {items?.map((i) => {
               const itemId = `${title}-${i.value}`

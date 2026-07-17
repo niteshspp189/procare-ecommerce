@@ -29,7 +29,7 @@ const s = {
   heroTitle: { fontSize: 'clamp(24px, 6vw, 36px)', fontWeight: '800', marginBottom: '8px' },
   heroSub: { fontSize: '16px', opacity: '0.9' },
   body: { gap: '40px', paddingBottom: '80px' },
-  sidebar: { width: '260px', flexShrink: 0 },
+  sidebar: { width: '285px', flexShrink: 0 },
   main: { flex: 1 },
 }
 
