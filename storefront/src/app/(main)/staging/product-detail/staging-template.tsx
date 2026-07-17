@@ -626,21 +626,46 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                       {metadata.key_benefits ? (
                         <div className="space-y-2 mt-2">
                           {(Array.isArray(metadata.key_benefits) ? metadata.key_benefits : String(metadata.key_benefits).split('\n')).map((line: any, i: number) => {
-                            const lineStr = String(line).replace(/^[*-•]\s*|^\d+\.\s*/, "").trim();
+                            let lineStr = String(line).replace(/^[*-•]\s*|^\d+\.\s*/, "").trim();
+                            lineStr = lineStr.replace(/([a-z0-9])([A-Z])/g, "$1: $2");
+
                             let heading = "";
                             let separator = "";
                             let rest = "";
+
                             const colonIndex = lineStr.indexOf(':');
                             if (colonIndex !== -1) {
                               heading = lineStr.substring(0, colonIndex).trim();
                               separator = ": ";
                               rest = lineStr.substring(colonIndex + 1).trim();
                             } else {
-                              const match = lineStr.match(/\s+[-–]\s*|\s*[-–]\s+/);
-                              if (match && typeof match.index === "number") {
+                              const match = lineStr.match(/\s+-\s+|\s*–\s*|\s*—\s*/);
+                              if (match && typeof match.index === "number" && match.index > 0) {
                                 heading = lineStr.substring(0, match.index).trim();
-                                separator = match[0];
+                                separator = " – ";
                                 rest = lineStr.substring(match.index + match[0].length).trim();
+                              } else {
+                                const words = lineStr.split(/\s+/);
+                                if (words.length >= 4) {
+                                  let capCount = 0;
+                                  for (let w = 0; w < Math.min(words.length - 1, 4); w++) {
+                                    if (/^[A-Z0-9&/\-']/.test(words[w])) {
+                                      capCount++;
+                                    } else {
+                                      break;
+                                    }
+                                  }
+                                  if (capCount > 0) {
+                                    const splitIndex = Math.min(capCount, 3);
+                                    heading = words.slice(0, splitIndex).join(" ");
+                                    separator = " ";
+                                    rest = words.slice(splitIndex).join(" ");
+                                  }
+                                } else if (words.length <= 5 && !/[.!?]$/.test(lineStr) && /^[A-Z]/.test(lineStr)) {
+                                  heading = lineStr;
+                                  separator = "";
+                                  rest = "";
+                                }
                               }
                             }
 

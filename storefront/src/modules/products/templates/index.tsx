@@ -745,20 +745,46 @@ const formatSpecValue = (value: any): string => {
                       {metadata.key_benefits && (
                         <div className="space-y-2 mt-2">
                           {parseLines(metadata.key_benefits).map((line: string, i: number) => {
+                            let processedLine = String(line || '').replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+                            processedLine = processedLine.replace(/([a-z0-9])([A-Z])/g, "$1: $2");
+
                             let heading = "";
                             let separator = "";
                             let rest = "";
-                            const colonIndex = line.indexOf(':');
+
+                            const colonIndex = processedLine.indexOf(':');
                             if (colonIndex !== -1) {
-                              heading = line.substring(0, colonIndex).trim();
+                              heading = processedLine.substring(0, colonIndex).trim();
                               separator = ": ";
-                              rest = line.substring(colonIndex + 1).trim();
+                              rest = processedLine.substring(colonIndex + 1).trim();
                             } else {
-                              const match = line.match(/\s+[-–]\s*|\s*[-–]\s+/);
-                              if (match && typeof match.index === "number") {
-                                heading = line.substring(0, match.index).trim();
-                                separator = match[0];
-                                rest = line.substring(match.index + match[0].length).trim();
+                              const match = processedLine.match(/\s+-\s+|\s*–\s*|\s*—\s*/);
+                              if (match && typeof match.index === "number" && match.index > 0) {
+                                heading = processedLine.substring(0, match.index).trim();
+                                separator = " – ";
+                                rest = processedLine.substring(match.index + match[0].length).trim();
+                              } else {
+                                const words = processedLine.split(/\s+/);
+                                if (words.length >= 4) {
+                                  let capCount = 0;
+                                  for (let w = 0; w < Math.min(words.length - 1, 4); w++) {
+                                    if (/^[A-Z0-9&/\-']/.test(words[w])) {
+                                      capCount++;
+                                    } else {
+                                      break;
+                                    }
+                                  }
+                                  if (capCount > 0) {
+                                    const splitIndex = Math.min(capCount, 3);
+                                    heading = words.slice(0, splitIndex).join(" ");
+                                    separator = " ";
+                                    rest = words.slice(splitIndex).join(" ");
+                                  }
+                                } else if (words.length <= 5 && !/[.!?]$/.test(processedLine) && /^[A-Z]/.test(processedLine)) {
+                                  heading = processedLine;
+                                  separator = "";
+                                  rest = "";
+                                }
                               }
                             }
 
