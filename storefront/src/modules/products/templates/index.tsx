@@ -702,7 +702,7 @@ const formatSpecValue = (value: any): string => {
                           mappedIconUrl = "/images/icons/cleaning.png";
                         } else if (norm === "shine" || norm === "natural shine" || id === "shine") {
                           mappedIconUrl = "/images/icons/shine.png";
-                        } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("wood") || norm.includes("steel") || id === "contain-high-quality") {
+                        } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("steel") || id === "contain-high-quality") {
                           mappedIconUrl = "/images/icons/contain-high-quality.png";
                         }
                       }

@@ -8,10 +8,7 @@ export const config = defineWidgetConfig({
 
 const StorefrontLinkWidget = ({ data }: any) => {
   const openStorefront = () => {
-    let origin = window.location.origin
-    if (origin.includes("localhost")) {
-      origin = origin.replace(':9000', ':8000')
-    }
+    const origin = window.location.origin
     const storefrontUrl = `${origin}/products/${data.handle}`
     window.open(storefrontUrl, '_blank')
   }
