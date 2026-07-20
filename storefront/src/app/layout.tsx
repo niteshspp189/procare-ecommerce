@@ -1,6 +1,5 @@
 import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
-import Script from "next/script"
 import "styles/globals.css"
 
 export const metadata: Metadata = {
@@ -15,9 +14,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" data-mode="light">
       <head>
         {/* Google Tag Manager */}
-        <Script
-          id="gtm-script"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
