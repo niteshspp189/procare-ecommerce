@@ -315,88 +315,58 @@ const formatSpecValue = (value: any): string => {
       .filter((l: string) => l.length > 0)
   }
 
-  const howToUseSteps = useMemo((): { title: string; heading: string; description: string }[] => {
+  const howToUseSteps = useMemo((): { stepNum: number; title: string; description: string }[] => {
     if (!metadata.how_to_use) return []
     
-    let rawSteps: { title: string; description: string }[] = []
-    
+    let rawLines: string[] = []
     if (typeof metadata.how_to_use === 'string') {
       const lines = metadata.how_to_use.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0)
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
         const stepMatch = line.match(/^step\s*\d+\s*:\s*(.*)/i)
         if (stepMatch) {
-          const title = stepMatch[1].trim()
-          let description = ""
-          // Check if the next line is the description (doesn't start with "Step")
+          const content = stepMatch[1].trim()
+          // Check if next line is description (doesn't start with Step)
           if (i + 1 < lines.length && !/^step\s*\d+/i.test(lines[i + 1])) {
-            description = lines[i + 1].trim()
-            // Clean up leading step numbers/prefixes from description like "2. ", "4. "
-            description = description.replace(/^\s*\d+\s*[\s:.–-]\s*/, "").trim()
-            i++ // skip next line as it was consumed
+            const nextLine = lines[i + 1].trim().replace(/^\s*\d+\s*[\s:.–-]\s*/, "").trim()
+            rawLines.push(`${content}: ${nextLine}`)
+            i++ // skip consumed next line
+          } else {
+            rawLines.push(content)
           }
-          rawSteps.push({ title, description })
         } else {
-          // If a line doesn't start with "Step", but it is a standalone instruction line
-          // e.g. "1. Ensure the..." or just "Brush off..."
-          // Clean up leading number if it has one
-          const cleanDesc = line.replace(/^\s*\d+\s*[\s:.–-]\s*/, "").trim()
-          rawSteps.push({ title: "", description: cleanDesc })
+          rawLines.push(line.replace(/^\s*\d+\s*[\s:.–-]\s*/, "").trim())
         }
       }
     } else if (Array.isArray(metadata.how_to_use)) {
-      rawSteps = (metadata.how_to_use as any[]).map(step => {
-        if (!step) return { title: "", description: "" }
-        return {
-          title: String(step.title || "").trim(),
-          description: String(step.description || "").trim()
-        }
-      }).filter(step => step.title || step.description)
+      rawLines = (metadata.how_to_use as any[]).map(step => {
+        if (!step) return ""
+        const t = String(step.title || "").trim()
+        const d = String(step.description || "").trim()
+        return t && d ? `${t}: ${d}` : t || d
+      }).filter(Boolean)
     }
 
-    // Now, clean up titles and split CamelCase descriptions for all rawSteps
-    return rawSteps.map((step, i) => {
-      let title = step.title.replace(/\*\*/g, '').replace(/^\d+\.\s*/, '').trim()
-      let description = step.description.replace(/\*\*/g, '').trim()
-      
-      // If title is empty, use Step {i+1} as fallback
-      if (!title) {
-        // Check if description itself starts with a step prefix
-        const stepPrefixMatch = description.match(/^\s*(?:step\s*\d+[\s:.–-]*|\d+[\s:.–-]+)\s*/i)
-        if (stepPrefixMatch) {
-          title = `Step ${i + 1}`
-          description = description.substring(stepPrefixMatch[0].length).trim()
-        } else {
-          const colonIndex = description.indexOf(':')
-          if (colonIndex !== -1 && colonIndex < 35) {
-            title = description.substring(0, colonIndex).trim()
-            description = description.substring(colonIndex + 1).trim()
-          } else {
-            title = `Step ${i + 1}`
-          }
-        }
-      }
+    return rawLines.map((lineText, i) => {
+      let cleanText = lineText.replace(/\*\*/g, '').trim()
+      let title = ""
+      let description = cleanText
 
-      // If description is empty or very short, and title contains CamelCase:
-      if (description.length < 5 && title) {
-        const splitMatch = title.match(/([a-z])([A-Z]|\d)/)
-        if (splitMatch && typeof splitMatch.index === 'number') {
-          description = title.substring(splitMatch.index + 1).trim()
-          title = title.substring(0, splitMatch.index + 1).trim()
+      const colonIdx = cleanText.indexOf(':')
+      if (colonIdx !== -1 && colonIdx < 40) {
+        title = cleanText.substring(0, colonIdx).trim()
+        description = cleanText.substring(colonIdx + 1).trim()
+      } else {
+        const dashMatch = cleanText.match(/\s+[-–—]\s+/)
+        if (dashMatch && typeof dashMatch.index === 'number' && dashMatch.index < 40) {
+          title = cleanText.substring(0, dashMatch.index).trim()
+          description = cleanText.substring(dashMatch.index + dashMatch[0].length).trim()
         }
-      }
-
-      // Check if description has CamelCase concatenation (lowercase followed directly by uppercase/digit)
-      let heading = ""
-      const splitMatch = description.match(/([a-z])([A-Z]|\d)/)
-      if (splitMatch && typeof splitMatch.index === 'number') {
-        heading = description.substring(0, splitMatch.index + 1).trim()
-        description = description.substring(splitMatch.index + 1).trim()
       }
 
       return {
+        stepNum: i + 1,
         title,
-        heading,
         description
       }
     })
@@ -844,22 +814,21 @@ const formatSpecValue = (value: any): string => {
                   {activeAccordion === "how" && (
                     <div className="pl-4 pr-2 pb-4 space-y-4">
                       {howToUseSteps.length > 0 ? (
-                        howToUseSteps.map((step, i) => {
-                           const leftPart = `Step ${i + 1}: ${step.title}`
-                           return (
-                             <div key={i}>
-                               <p className="text-sm text-black leading-relaxed">
-                                 <strong className="font-bold text-black">{leftPart}</strong>{" "}
-                                 {step.heading ? (
-                                   <>
-                                     <strong className="font-bold text-black">{step.heading}</strong>{" "}
-                                   </>
-                                 ) : null}
-                                 {step.description}
-                               </p>
-                             </div>
-                           )
-                        })
+                        howToUseSteps.map((step, i) => (
+                          <div key={i}>
+                            <p className="text-sm text-black leading-relaxed">
+                              <strong className="font-bold text-black">Step {step.stepNum}:</strong>{" "}
+                              {step.title ? (
+                                <>
+                                  <strong className="font-bold text-black">{step.title}</strong>{" "}
+                                  {step.description ? `– ${step.description}` : ""}
+                                </>
+                              ) : (
+                                step.description
+                              )}
+                            </p>
+                          </div>
+                        ))
                       ) : (
                         <p className="text-sm text-gray-500 italic">No data available</p>
                       )}
@@ -942,20 +911,17 @@ const formatSpecValue = (value: any): string => {
                       <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
                         <img
                           src={`${imgBase}how${(index % 4) + 1}.png`}
-                          alt={step.title}
+                          alt={step.title || `Step ${step.stepNum}`}
                           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                         />
                         <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                          {index + 1}
+                          {step.stepNum}
                         </div>
                       </div>
                       <h3 className="font-semibold text-base mb-1 text-black">
-                        {step.title}
+                        {step.title || `Step ${step.stepNum}`}
                       </h3>
                       <p className="text-xs text-gray-500 leading-relaxed">
-                        {step.heading ? (
-                          <strong className="font-semibold text-black">{step.heading} </strong>
-                        ) : null}
                         {step.description}
                       </p>
                     </div>
