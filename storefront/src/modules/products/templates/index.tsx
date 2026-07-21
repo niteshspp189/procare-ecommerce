@@ -177,21 +177,35 @@ const formatSpecValue = (value: any): string => {
       if (meta.image_6) vImgs.push({ id: 'v6', url: meta.image_6 } as any)
     }
 
+    let rawList = productImages
     if (vImgs.length > 0) {
-      return vImgs
-    }
-
-    // Try filtering using variant images from DB relation
-    const variantObj = selectedVariant as any
-    if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
-      const imageIdsMap = new Map(variantObj.images.map((i: any) => [i.id, true]))
-      const filtered = productImages.filter((i) => imageIdsMap.has(i.id))
-      if (filtered.length > 0) {
-        return filtered
+      rawList = vImgs
+    } else {
+      const variantObj = selectedVariant as any
+      if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
+        const imageIdsMap = new Map(variantObj.images.map((i: any) => [i.id, true]))
+        const filtered = productImages.filter((i) => imageIdsMap.has(i.id))
+        if (filtered.length > 0) {
+          rawList = filtered
+        }
       }
     }
 
-    return productImages
+    // Deduplicate images by normalized filename/path so repeat images NEVER occur
+    const seenFiles = new Set<string>()
+    const uniqueList: HttpTypes.StoreProductImage[] = []
+
+    for (const img of rawList) {
+      if (!img || !img.url) continue
+      const cleanUrl = img.url.split('?')[0].replace(/\/+$/, '')
+      const fileName = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1).toLowerCase()
+      if (!seenFiles.has(fileName)) {
+        seenFiles.add(fileName)
+        uniqueList.push(img)
+      }
+    }
+
+    return uniqueList.length > 0 ? uniqueList : rawList
   }, [product, selectedVariant])
 
   const isSingleDefaultVariant = useMemo(() => {
