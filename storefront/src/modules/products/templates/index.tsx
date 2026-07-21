@@ -406,7 +406,17 @@ const formatSpecValue = (value: any): string => {
         rawSpecs[foundKey] = topSuitableFor
       }
     }
-    return Object.keys(rawSpecs).length > 0 ? rawSpecs : null
+
+    const cleanedSpecs: Record<string, string> = {}
+    for (const [key, val] of Object.entries(rawSpecs)) {
+      const cleanKey = String(key || '').replace(/^[\s•\-\*]+/, '').trim()
+      const cleanVal = String(val || '').replace(/^[\s•\-\*]+/, '').trim()
+      if (cleanKey && cleanVal) {
+        cleanedSpecs[cleanKey] = cleanVal
+      }
+    }
+
+    return Object.keys(cleanedSpecs).length > 0 ? cleanedSpecs : null
   }, [metadata])
 
   const categoryType = useMemo(() => {
