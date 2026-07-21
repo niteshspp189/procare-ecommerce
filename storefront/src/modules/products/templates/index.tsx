@@ -528,7 +528,8 @@ const formatSpecValue = (value: any): string => {
           <div className="block lg:hidden w-full">
             <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Home / {title}</div>
             <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
-            {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>}
+            {/* Tagline / Subtitle commented out temporarily until client provides taglines for all products */}
+            {/* {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>} */}
             {(product?.categories ?? []).length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {(product.categories ?? []).map((cat: any) => (
@@ -554,7 +555,8 @@ const formatSpecValue = (value: any): string => {
               <div className="hidden lg:block">
                 <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
                 <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
-                {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-3 font-medium">{subtitle}</p>}
+                {/* Tagline / Subtitle commented out temporarily until client provides taglines for all products */}
+            {/* {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-3 font-medium">{subtitle}</p>} */}
                 {(product?.categories ?? []).length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-5">
                     {(product.categories ?? []).map((cat: any) => (
