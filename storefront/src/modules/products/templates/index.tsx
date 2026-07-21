@@ -731,60 +731,61 @@ const formatSpecValue = (value: any): string => {
                       {metadata.key_benefits && (
                         <div className="space-y-2 mt-2">
                           {parseLines(metadata.key_benefits).map((line: string, i: number) => {
-                            let processedLine = String(line || '').replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
-                            processedLine = processedLine.replace(/([a-z0-9])([A-Z])/g, "$1: $2");
+                            let rawLine = String(line || '').replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+                            if (!rawLine) return null;
 
-                            let heading = "";
-                            let separator = "";
-                            let rest = "";
-
-                            const colonIndex = processedLine.indexOf(':');
-                            if (colonIndex !== -1) {
-                              heading = processedLine.substring(0, colonIndex).trim();
-                              separator = ": ";
-                              rest = processedLine.substring(colonIndex + 1).trim();
-                            } else {
-                              const match = processedLine.match(/\s+-\s+|\s*–\s*|\s*—\s*/);
-                              if (match && typeof match.index === "number" && match.index > 0) {
-                                heading = processedLine.substring(0, match.index).trim();
-                                separator = " – ";
-                                rest = processedLine.substring(match.index + match[0].length).trim();
-                              } else {
-                                const words = processedLine.split(/\s+/);
-                                if (words.length >= 4) {
-                                  let capCount = 0;
-                                  for (let w = 0; w < Math.min(words.length - 1, 4); w++) {
-                                    if (/^[A-Z0-9&/\-']/.test(words[w])) {
-                                      capCount++;
-                                    } else {
-                                      break;
-                                    }
-                                  }
-                                  if (capCount > 0) {
-                                    const splitIndex = Math.min(capCount, 3);
-                                    heading = words.slice(0, splitIndex).join(" ");
-                                    separator = " ";
-                                    rest = words.slice(splitIndex).join(" ");
-                                  }
-                                } else if (words.length <= 5 && !/[.!?]$/.test(processedLine) && /^[A-Z]/.test(processedLine)) {
-                                  heading = processedLine;
-                                  separator = "";
-                                  rest = "";
-                                }
-                              }
-                            }
-
-                            if (heading) {
+                            // Handle Markdown bold syntax: **Heading**: Description or **Heading**
+                            const boldMatch = rawLine.match(/^\*\*(.*?)\*\*\s*(?::|–|-)?\s*(.*)$/);
+                            if (boldMatch) {
+                              const heading = boldMatch[1].trim();
+                              const rest = boldMatch[2].trim();
                               return (
                                 <p key={i} className="text-sm text-black">
                                   <strong className="font-bold">{heading}</strong>
-                                  {separator}
-                                  {rest}
+                                  {rest ? `: ${rest}` : ''}
                                 </p>
                               );
                             }
+
+                            // Handle Colon separator: Heading: Description
+                            const colonIndex = rawLine.indexOf(':');
+                            if (colonIndex > 0) {
+                              const heading = rawLine.substring(0, colonIndex).trim();
+                              const rest = rawLine.substring(colonIndex + 1).trim();
+                              return (
+                                <p key={i} className="text-sm text-black">
+                                  <strong className="font-bold">{heading}</strong>
+                                  {rest ? `: ${rest}` : ''}
+                                </p>
+                              );
+                            }
+
+                            // Handle Dash separator: Heading – Description
+                            const dashMatch = rawLine.match(/\s+-\s+|\s*–\s*|\s*—\s*/);
+                            if (dashMatch && typeof dashMatch.index === "number" && dashMatch.index > 0) {
+                              const heading = rawLine.substring(0, dashMatch.index).trim();
+                              const rest = rawLine.substring(dashMatch.index + dashMatch[0].length).trim();
+                              return (
+                                <p key={i} className="text-sm text-black">
+                                  <strong className="font-bold">{heading}</strong>
+                                  {rest ? ` – ${rest}` : ''}
+                                </p>
+                              );
+                            }
+
+                            // Standalone Heading Line (Short line under 70 chars, doesn't end with sentence punctuation)
+                            const isStandaloneHeading = rawLine.length <= 70 && !/[.!?]$/.test(rawLine);
+                            if (isStandaloneHeading) {
+                              return (
+                                <p key={i} className="text-sm text-black font-bold pt-1">
+                                  {rawLine}
+                                </p>
+                              );
+                            }
+
+                            // Regular Explanation / Description Line
                             return (
-                              <p key={i} className="text-sm text-black">{line}</p>
+                              <p key={i} className="text-sm text-black pb-1">{rawLine}</p>
                             );
                           })}
                         </div>
