@@ -1,6 +1,7 @@
 import { retrieveOrder } from "@lib/data/orders"
 import OrderCompletedTemplate from "@modules/order/templates/order-completed-template"
 import AutoLoginTrigger from "@modules/order/components/auto-login"
+import MetaPurchaseTracker from "@modules/order/components/meta-purchase-tracker"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -22,6 +23,7 @@ export default async function OrderConfirmedPage(props: Props) {
 
   return (
     <>
+      <MetaPurchaseTracker total={order.total} currencyCode={order.currency_code} />
       <AutoLoginTrigger orderId={order.id} token={order.metadata?.auto_login_token as string} />
       <OrderCompletedTemplate order={order} />
     </>

@@ -14,6 +14,7 @@ import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { isGenuineOption } from "@lib/util/product"
+import { trackMetaEvent } from "@lib/util/meta-pixel"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -137,6 +138,13 @@ export default function ProductActions({
       variantId: selectedVariant.id,
       quantity: 1,
       countryCode,
+    })
+
+    trackMetaEvent("AddToCart", {
+      content_name: product.title,
+      content_ids: [selectedVariant.id],
+      value: selectedVariant.calculated_price?.calculated_amount || 0,
+      currency: "INR",
     })
 
     openDrawer()

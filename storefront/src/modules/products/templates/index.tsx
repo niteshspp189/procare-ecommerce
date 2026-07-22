@@ -14,6 +14,7 @@ import { isEqual } from "lodash"
 import { useSearchParams } from "next/navigation"
 import Button from "@modules/common/components/button"
 import { isGenuineOption } from "@lib/util/product"
+import { trackMetaEvent } from "@lib/util/meta-pixel"
 
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
@@ -297,6 +298,12 @@ const formatSpecValue = (value: any): string => {
     if (variantId) {
       try {
         await addToCart({ variantId, quantity, countryCode })
+        trackMetaEvent("AddToCart", {
+          content_name: title,
+          content_ids: [variantId],
+          value: (selectedPrice?.calculated_price_number || 0) * quantity,
+          currency: "INR",
+        })
         openDrawer()
       } catch (err) {
         console.error(err)

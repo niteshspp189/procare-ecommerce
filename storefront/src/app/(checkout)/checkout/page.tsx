@@ -3,6 +3,7 @@ import { retrieveCustomer } from "@lib/data/customer"
 import PaymentWrapper from "@modules/checkout/components/payment-wrapper"
 import CheckoutForm from "@modules/checkout/templates/checkout-form"
 import CheckoutSummary from "@modules/checkout/templates/checkout-summary"
+import MetaCheckoutTracker from "@modules/checkout/components/meta-checkout-tracker"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -23,6 +24,7 @@ export default async function Checkout() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] content-container gap-8 lg:gap-x-16 py-8 lg:py-12">
+      <MetaCheckoutTracker total={cart.total} currencyCode={cart.currency_code} />
       <PaymentWrapper cart={cart}>
         <CheckoutForm cart={cart} customer={customer} />
       </PaymentWrapper>
