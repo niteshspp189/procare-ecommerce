@@ -7,6 +7,7 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import PreviewPrice from "@modules/products/components/product-preview/price"
 import QuickBuy from "@modules/products/components/product-preview/quick-buy"
 import { addToCart } from "@lib/data/cart"
+import { trackMetaEvent } from "@lib/util/meta-pixel"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
@@ -64,6 +65,13 @@ export default function ProductCard({
     setIsAdding(true)
     try {
       await addToCart({ variantId, quantity: 1, countryCode })
+      trackMetaEvent("AddToCart", {
+        content_name: product.title,
+        content_ids: [variantId],
+        content_type: "product",
+        value: cheapestPrice?.calculated_price_number || 0,
+        currency: "INR",
+      })
       openDrawer()
     } catch (err) {
       console.error(err)

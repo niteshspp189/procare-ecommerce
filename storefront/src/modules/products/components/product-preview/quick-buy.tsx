@@ -5,6 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import Modal from "@modules/common/components/modal"
 import { Button, Text, Heading, clx } from "@medusajs/ui"
 import { addToCart } from "@lib/data/cart"
+import { trackMetaEvent } from "@lib/util/meta-pixel"
 import { useParams, useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { isSimpleProduct, isDummyValue } from "@lib/util/product"
@@ -116,6 +117,12 @@ export default function QuickBuy({
                 quantity: 1,
                 countryCode
             })
+            trackMetaEvent("AddToCart", {
+                content_name: product.title,
+                content_ids: [selectedVariantId],
+                content_type: "product",
+                currency: "INR",
+            })
             setIsOpen(false)
             openDrawer()
         } catch (err) {
@@ -133,6 +140,12 @@ export default function QuickBuy({
                 variantId: selectedVariantId,
                 quantity: 1,
                 countryCode
+            })
+            trackMetaEvent("AddToCart", {
+                content_name: product.title,
+                content_ids: [selectedVariantId],
+                content_type: "product",
+                currency: "INR",
             })
             router.push(`/checkout?step=address`)
         } catch (err) {

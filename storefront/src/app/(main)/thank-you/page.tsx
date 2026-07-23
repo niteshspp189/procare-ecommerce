@@ -1,6 +1,7 @@
 import React from "react"
 import { Metadata } from "next"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import MetaPurchaseTracker from "@modules/order/components/meta-purchase-tracker"
 
 export const metadata: Metadata = {
   title: "Thank You for Your Order | PRO Premium Care",
@@ -11,9 +12,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function ThankYouPage() {
+export default async function ThankYouPage(props: { searchParams?: Promise<{ amount?: string }> }) {
+  const searchParams = props.searchParams ? await props.searchParams : {}
+  const totalAmount = searchParams.amount ? parseFloat(searchParams.amount) : 293
+
   return (
     <div className="bg-white min-h-[75vh] flex items-center justify-center font-sans py-16 px-4">
+      <MetaPurchaseTracker total={totalAmount} currencyCode="INR" />
       <div className="max-w-xl w-full text-center space-y-8 animate-fade-in">
         {/* Success Icon Badge */}
         <div className="mx-auto w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center text-emerald-500 shadow-lg shadow-emerald-500/10">
