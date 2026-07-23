@@ -9,6 +9,7 @@ import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-relat
 import { HttpTypes } from "@medusajs/types"
 
 export const dynamic = "force-dynamic"
+export const dynamicParams = true
 
 type Props = {
   params: Promise<{ handle: string }>
