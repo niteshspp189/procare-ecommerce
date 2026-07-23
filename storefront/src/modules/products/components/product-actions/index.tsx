@@ -130,25 +130,32 @@ export default function ProductActions({
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
-    if (!selectedVariant?.id) return null
+    const variantId = selectedVariant?.id || product.variants?.[0]?.id
+    if (!variantId) return null
 
-    setIsAdding(true)
-
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity: 1,
-      countryCode,
-    })
-
+    // Track Meta Pixel event immediately on click
     trackMetaEvent("AddToCart", {
       content_name: product.title,
-      content_ids: [selectedVariant.id],
-      value: selectedVariant.calculated_price?.calculated_amount || 0,
+      content_ids: [variantId],
+      content_type: "product",
+      value: selectedVariant?.calculated_price?.calculated_amount || 0,
       currency: "INR",
     })
 
-    openDrawer()
-    setIsAdding(false)
+    setIsAdding(true)
+
+    try {
+      await addToCart({
+        variantId,
+        quantity: 1,
+        countryCode,
+      })
+      openDrawer()
+    } catch (err) {
+      console.error("Error adding to cart:", err)
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   return (
