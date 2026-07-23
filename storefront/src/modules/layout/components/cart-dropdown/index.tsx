@@ -1,6 +1,7 @@
 "use client"
 
 import { convertToLocale } from "@lib/util/money"
+import { trackMetaEvent } from "@lib/util/meta-pixel"
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import DeleteButton from "@modules/common/components/delete-button"
@@ -263,7 +264,16 @@ const CartDropdown = ({
                 </span>
               </div>
               <p className="text-xs text-gray-400">Taxes and shipping calculated at checkout</p>
-              <LocalizedClientLink href="/checkout?step=address" onClick={closeDrawer}>
+              <LocalizedClientLink
+                href="/checkout?step=address"
+                onClick={() => {
+                  trackMetaEvent("InitiateCheckout", {
+                    value: subtotal,
+                    currency: "INR",
+                  })
+                  closeDrawer()
+                }}
+              >
                 <button className="w-full bg-[#00b5a4] text-white py-4 rounded-full font-semibold text-sm tracking-wide hover:bg-[#009d8e] transition-colors">
                   Checkout →
                 </button>

@@ -25,6 +25,8 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
   }
 }
 
+import { trackMetaEvent } from "@lib/util/meta-pixel"
+
 const Summary = ({ cart }: SummaryProps) => {
   const [threshold, setThreshold] = useState(499)
 
@@ -92,6 +94,12 @@ const Summary = ({ cart }: SummaryProps) => {
       <LocalizedClientLink
         href={"/checkout?step=" + step}
         data-testid="checkout-button"
+        onClick={() => {
+          trackMetaEvent("InitiateCheckout", {
+            value: cart.total ?? subtotal ?? 0,
+            currency: "INR",
+          })
+        }}
       >
         <button className="w-full bg-[#00b5a4] text-white py-4 rounded-full font-semibold text-sm tracking-wide hover:bg-[#009d8e] transition-colors">
           Checkout →
