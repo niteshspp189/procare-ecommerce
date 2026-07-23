@@ -7,6 +7,7 @@ import ProductTemplate from "@modules/products/templates"
 import RelatedProducts from "@modules/products/components/related-products"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { HttpTypes } from "@medusajs/types"
+import MetaViewContentTracker from "@modules/products/components/meta-view-content-tracker"
 
 export const dynamic = "force-dynamic"
 export const dynamicParams = true
@@ -112,16 +113,23 @@ export default async function ProductPage(props: Props) {
   const images = getImagesForVariant(pricedProduct, selectedVariantId)
 
   return (
-    <ProductTemplate
-      product={pricedProduct}
-      region={region}
-      countryCode="in"
-      images={images}
-      relatedProducts={
-        <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts product={pricedProduct} countryCode="in" isStaging={true} />
-        </Suspense>
-      }
-    />
+    <>
+      <MetaViewContentTracker
+        title={pricedProduct.title}
+        id={pricedProduct.id}
+        value={pricedProduct.variants?.[0]?.calculated_price?.calculated_amount || 0}
+      />
+      <ProductTemplate
+        product={pricedProduct}
+        region={region}
+        countryCode="in"
+        images={images}
+        relatedProducts={
+          <Suspense fallback={<SkeletonRelatedProducts />}>
+            <RelatedProducts product={pricedProduct} countryCode="in" isStaging={true} />
+          </Suspense>
+        }
+      />
+    </>
   )
 }
