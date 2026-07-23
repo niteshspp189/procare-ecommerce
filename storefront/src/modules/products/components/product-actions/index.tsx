@@ -41,7 +41,7 @@ export default function ProductActions({
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
-  const countryCode = useParams().countryCode as string
+  const countryCode = (useParams()?.countryCode as string) || "in"
   const { openDrawer } = useCartDrawer()
 
   const genuineOptions = useMemo(() => {
