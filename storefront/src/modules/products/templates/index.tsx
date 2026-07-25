@@ -755,7 +755,7 @@ const formatSpecValue = (value: any): string => {
                     <div className="pl-4 pr-2 pb-4 text-black text-sm leading-relaxed">
                       <p className="mb-3">{String(product.description || '').replace(/\*\*/g, '').replace(/ {2,}/g, ' ')}</p>
                       {metadata.key_benefits && (
-                        <div className="space-y-2 mt-2">
+                        <div className="space-y-3 mt-3">
                           {parseLines(metadata.key_benefits).map((line: string, i: number) => {
                             let rawLine = String(line || '').replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
                             if (!rawLine) return null;
@@ -766,36 +766,36 @@ const formatSpecValue = (value: any): string => {
                               const heading = boldMatch[1].trim();
                               const rest = boldMatch[2].trim();
                               return (
-                                <p key={i} className="text-sm text-black">
-                                  <strong className="font-bold">{heading}</strong>
-                                  {rest ? `: ${rest}` : ''}
-                                </p>
+                                <div key={i} className="text-sm text-black">
+                                  <strong className="font-bold block text-gray-900 mb-0.5">{heading}</strong>
+                                  {rest ? <span className="text-gray-600 block leading-relaxed">{rest}</span> : null}
+                                </div>
                               );
                             }
 
                             // Handle Colon separator: Heading: Description
                             const colonIndex = rawLine.indexOf(':');
-                            if (colonIndex > 0) {
+                            if (colonIndex > 0 && colonIndex < 60) {
                               const heading = rawLine.substring(0, colonIndex).trim();
                               const rest = rawLine.substring(colonIndex + 1).trim();
                               return (
-                                <p key={i} className="text-sm text-black">
-                                  <strong className="font-bold">{heading}</strong>
-                                  {rest ? `: ${rest}` : ''}
-                                </p>
+                                <div key={i} className="text-sm text-black">
+                                  <strong className="font-bold block text-gray-900 mb-0.5">{heading}</strong>
+                                  {rest ? <span className="text-gray-600 block leading-relaxed">{rest}</span> : null}
+                                </div>
                               );
                             }
 
                             // Handle Dash separator: Heading – Description
                             const dashMatch = rawLine.match(/\s+-\s+|\s*–\s*|\s*—\s*/);
-                            if (dashMatch && typeof dashMatch.index === "number" && dashMatch.index > 0) {
+                            if (dashMatch && typeof dashMatch.index === "number" && dashMatch.index > 0 && dashMatch.index < 60) {
                               const heading = rawLine.substring(0, dashMatch.index).trim();
                               const rest = rawLine.substring(dashMatch.index + dashMatch[0].length).trim();
                               return (
-                                <p key={i} className="text-sm text-black">
-                                  <strong className="font-bold">{heading}</strong>
-                                  {rest ? ` – ${rest}` : ''}
-                                </p>
+                                <div key={i} className="text-sm text-black">
+                                  <strong className="font-bold block text-gray-900 mb-0.5">{heading}</strong>
+                                  {rest ? <span className="text-gray-600 block leading-relaxed">{rest}</span> : null}
+                                </div>
                               );
                             }
 
@@ -803,15 +803,15 @@ const formatSpecValue = (value: any): string => {
                             const isStandaloneHeading = rawLine.length <= 70 && !/[.!?]$/.test(rawLine);
                             if (isStandaloneHeading) {
                               return (
-                                <p key={i} className="text-sm text-black font-bold pt-1">
+                                <strong key={i} className="font-bold block text-gray-900 mt-2 mb-0.5 text-sm">
                                   {rawLine}
-                                </p>
+                                </strong>
                               );
                             }
 
                             // Regular Explanation / Description Line
                             return (
-                              <p key={i} className="text-sm text-black pb-1">{rawLine}</p>
+                              <p key={i} className="text-sm text-gray-600 leading-relaxed mb-2">{rawLine}</p>
                             );
                           })}
                         </div>
