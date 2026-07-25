@@ -166,16 +166,25 @@ const formatSpecValue = (value: any): string => {
       return productImages
     }
 
-    // Try metadata first if any (for backward compatibility/staging testing)
+    // Try metadata / admin thumbnail first
     let vImgs: HttpTypes.StoreProductImage[] = []
     const meta = selectedVariant.metadata as Record<string, string>
+    const vObj = selectedVariant as any
+
     if (meta) {
+      if (meta.thumbnail && meta.thumbnail !== meta.image_1) {
+        vImgs.push({ id: 'vthumb', url: meta.thumbnail } as any)
+      }
       if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
       if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
       if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
       if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
       if (meta.image_5) vImgs.push({ id: 'v5', url: meta.image_5 } as any)
       if (meta.image_6) vImgs.push({ id: 'v6', url: meta.image_6 } as any)
+    }
+
+    if (vObj?.thumbnail && !vImgs.some((i) => i.url === vObj.thumbnail)) {
+      vImgs.unshift({ id: 'vadmin_thumb', url: vObj.thumbnail } as any)
     }
 
     let rawList = productImages

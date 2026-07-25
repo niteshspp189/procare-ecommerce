@@ -87,13 +87,16 @@ export default async function StagingHome(props: {
   return (
     <div className="animate-fade-in font-sans bg-white overflow-x-hidden w-full">
       {/* HERO SECTION */}
-      <div className="relative overflow-hidden group min-h-[600px] flex items-center justify-center bg-white">
+      <div className="relative overflow-hidden group min-h-[450px] md:min-h-[600px] flex items-center justify-center bg-white">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/images/landing-page-images/hero-banner-v5.png"
-            alt="Hero Banner"
-            className="w-full h-full object-cover object-bottom transition-transform duration-[5s] group-hover:scale-105"
-          />
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/images/landing-page-images/hero-banner-mobile.jpg" />
+            <img
+              src="/images/landing-page-images/hero-banner-desktop.jpg"
+              alt="Clean & Condition Your Shoes"
+              className="w-full h-full object-cover object-center transition-transform duration-[5s] group-hover:scale-105"
+            />
+          </picture>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.8)_0%,_transparent_70%)] z-0" />
         </div>
 
