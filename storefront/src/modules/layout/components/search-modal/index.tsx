@@ -172,7 +172,15 @@ export default function SearchModal() {
                       >
                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                           {product.thumbnail ? (
-                            <img src={product.thumbnail} alt={product.title} className="w-full h-full object-cover" />
+                            <img
+                              src={product.thumbnail}
+                              alt={product.title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/images/polish.jpeg";
+                              }}
+                            />
                           ) : (
                             <div className="w-full h-full bg-gray-200" />
                           )}
