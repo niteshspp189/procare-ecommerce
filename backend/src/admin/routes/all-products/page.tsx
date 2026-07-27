@@ -19,10 +19,16 @@ export default function AllProductsPage() {
     // Pagination states
     const [currentPage, setCurrentPage] = useState(0)
     const [pageSize, setPageSize] = useState(20)
+    const [currentUser, setCurrentUser] = useState<any>(null)
 
     const navigate = useNavigate()
 
     useEffect(() => {
+        fetch("/admin/users/me", { credentials: "include" })
+            .then((res) => res.json())
+            .then((data) => setCurrentUser(data.user || data))
+            .catch(() => {})
+
         // Fetch products from the admin API
         fetch(`/admin/products?fields=*categories,*collection,*variants,*variants.prices,*variants.options&limit=100`, {
             credentials: "include",
@@ -37,6 +43,8 @@ export default function AllProductsPage() {
                 setIsLoading(false)
             })
     }, [])
+
+    const isRestrictedAdmin = currentUser?.email === "admin@propremiumcare.com" || currentUser?.metadata?.no_delete === true
 
     const getPriceRange = (product: any) => {
         if (!product.variants || product.variants.length === 0) return "-"
@@ -182,7 +190,7 @@ export default function AllProductsPage() {
                         <Table.Body>
                             {isLoading ? (
                                 <Table.Row>
-                                    <Table.Cell colSpan={7} className="text-center py-8 text-ui-fg-subtle">
+                                    <Table.Cell colSpan={7 as any} className="text-center py-8 text-ui-fg-subtle">
                                         Loading products...
                                     </Table.Cell>
                                 </Table.Row>
@@ -233,7 +241,9 @@ export default function AllProductsPage() {
                                             </DropdownMenu.Trigger>
                                             <DropdownMenu.Content>
                                                 <DropdownMenu.Item onClick={() => navigate(`/products/${product.id}`)}>Edit</DropdownMenu.Item>
-                                                <DropdownMenu.Item className="text-red-600">Delete</DropdownMenu.Item>
+                                                {!isRestrictedAdmin && (
+                                                    <DropdownMenu.Item className="text-red-600">Delete</DropdownMenu.Item>
+                                                )}
                                             </DropdownMenu.Content>
                                         </DropdownMenu>
                                     </Table.Cell>
@@ -241,7 +251,7 @@ export default function AllProductsPage() {
                             ))}
                             {!isLoading && paginatedProducts.length === 0 && (
                                 <Table.Row>
-                                    <Table.Cell colSpan={7} className="text-center py-8 text-ui-fg-subtle">
+                                    <Table.Cell colSpan={7 as any} className="text-center py-8 text-ui-fg-subtle">
                                         No products found.
                                     </Table.Cell>
                                 </Table.Row>
