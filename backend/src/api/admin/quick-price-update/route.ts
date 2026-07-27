@@ -89,6 +89,18 @@ export const POST = async (
       }
     }
 
+    // Also sync variant metadata (mrp & sellingPrice)
+    const varRows = await pgConnection("product_variant").select("metadata").where({ id: variant_id })
+    const currentMeta = varRows[0]?.metadata || {}
+    const updatedMeta = {
+      ...currentMeta,
+      mrp: floatVal(mrp),
+      sellingPrice: floatVal(selling_price)
+    }
+    await pgConnection("product_variant")
+      .where({ id: variant_id })
+      .update({ metadata: JSON.stringify(updatedMeta) })
+
     return res.json({ success: true, message: "Prices updated successfully" })
   } catch (error: any) {
     console.error("Quick price update error:", error)

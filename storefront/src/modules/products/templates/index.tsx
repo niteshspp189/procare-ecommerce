@@ -110,7 +110,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [])
 
   React.useEffect(() => {
-    if (vId && product?.variants) {
+    if (vId && product?.variants && Object.keys(options).length === 0) {
       const targetVariant = product.variants.find((v) => v.id === vId)
       if (targetVariant) {
         const variantOptions = optionsAsKeymap(targetVariant.options)
@@ -118,7 +118,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
         return
       }
     }
-    if (product?.variants?.length === 1) {
+    if (product?.variants?.length === 1 && Object.keys(options).length === 0) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
     } else if (sortedVariants.length > 1 && Object.keys(options).length === 0) {
@@ -132,11 +132,22 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       return
     }
 
-    return product.variants.find((v) => {
+    const matchedByOptions = product.variants.find((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
     })
-  }, [product?.variants, options])
+
+    if (matchedByOptions) {
+      return matchedByOptions
+    }
+
+    if (vId) {
+      const target = product.variants.find((v) => v.id === vId)
+      if (target) return target
+    }
+
+    return sortedVariants[0]
+  }, [product?.variants, sortedVariants, options, vId])
 
 const formatSpecValue = (value: any): string => {
   if (value === null || value === undefined) return ""
@@ -166,39 +177,39 @@ const formatSpecValue = (value: any): string => {
       return productImages
     }
 
-    // Try metadata / admin thumbnail first
-    let vImgs: HttpTypes.StoreProductImage[] = []
+    let metaImgs: HttpTypes.StoreProductImage[] = []
     const meta = selectedVariant.metadata as Record<string, string>
     const vObj = selectedVariant as any
 
     if (meta) {
       if (meta.thumbnail && meta.thumbnail !== meta.image_1) {
-        vImgs.push({ id: 'vthumb', url: meta.thumbnail } as any)
+        metaImgs.push({ id: 'vthumb', url: meta.thumbnail } as any)
       }
-      if (meta.image_1) vImgs.push({ id: 'v1', url: meta.image_1 } as any)
-      if (meta.image_2) vImgs.push({ id: 'v2', url: meta.image_2 } as any)
-      if (meta.image_3) vImgs.push({ id: 'v3', url: meta.image_3 } as any)
-      if (meta.image_4) vImgs.push({ id: 'v4', url: meta.image_4 } as any)
-      if (meta.image_5) vImgs.push({ id: 'v5', url: meta.image_5 } as any)
-      if (meta.image_6) vImgs.push({ id: 'v6', url: meta.image_6 } as any)
+      if (meta.image_1) metaImgs.push({ id: 'v1', url: meta.image_1 } as any)
+      if (meta.image_2) metaImgs.push({ id: 'v2', url: meta.image_2 } as any)
+      if (meta.image_3) metaImgs.push({ id: 'v3', url: meta.image_3 } as any)
+      if (meta.image_4) metaImgs.push({ id: 'v4', url: meta.image_4 } as any)
+      if (meta.image_5) metaImgs.push({ id: 'v5', url: meta.image_5 } as any)
+      if (meta.image_6) metaImgs.push({ id: 'v6', url: meta.image_6 } as any)
     }
 
-    if (vObj?.thumbnail && !vImgs.some((i) => i.url === vObj.thumbnail)) {
-      vImgs.unshift({ id: 'vadmin_thumb', url: vObj.thumbnail } as any)
+    let variantImages: HttpTypes.StoreProductImage[] = []
+    if (vObj?.images && Array.isArray(vObj.images) && vObj.images.length > 0) {
+      variantImages = vObj.images
     }
 
-    let rawList = productImages
-    if (vImgs.length > 0) {
-      rawList = vImgs
+    let rawList: HttpTypes.StoreProductImage[] = []
+
+    if (metaImgs.length > 1) {
+      rawList = metaImgs
+    } else if (variantImages.length > 0) {
+      rawList = variantImages
+    } else if (metaImgs.length === 1) {
+      rawList = metaImgs
+    } else if (vObj?.thumbnail) {
+      rawList = [{ id: 'vadmin_thumb', url: vObj.thumbnail } as any, ...productImages]
     } else {
-      const variantObj = selectedVariant as any
-      if (variantObj?.images && Array.isArray(variantObj.images) && variantObj.images.length > 0) {
-        const imageIdsMap = new Map(variantObj.images.map((i: any) => [i.id, true]))
-        const filtered = productImages.filter((i) => imageIdsMap.has(i.id))
-        if (filtered.length > 0) {
-          rawList = filtered
-        }
-      }
+      rawList = productImages
     }
 
     // Deduplicate images by normalized filename/path so repeat images NEVER occur
@@ -234,6 +245,18 @@ const formatSpecValue = (value: any): string => {
       [optionId]: value,
     }))
   }
+
+  React.useEffect(() => {
+    if (!selectedVariant?.id) return
+    if (typeof window !== "undefined") {
+      const currentParams = new URLSearchParams(window.location.search)
+      if (currentParams.get("v_id") !== selectedVariant.id) {
+        currentParams.set("v_id", selectedVariant.id)
+        const newUrl = `${window.location.pathname}?${currentParams.toString()}`
+        window.history.replaceState(null, "", newUrl)
+      }
+    }
+  }, [selectedVariant?.id])
 
   const { cheapestPrice, variantPrice } = getProductPrice({
     product,
@@ -379,25 +402,12 @@ const formatSpecValue = (value: any): string => {
 
     return rawLines.map((lineText, i) => {
       let cleanText = lineText.replace(/\*\*/g, '').trim()
-      let title = ""
-      let description = cleanText
-
-      const colonIdx = cleanText.indexOf(':')
-      if (colonIdx !== -1 && colonIdx < 40) {
-        title = cleanText.substring(0, colonIdx).trim()
-        description = cleanText.substring(colonIdx + 1).trim()
-      } else {
-        const dashMatch = cleanText.match(/\s+[-–—]\s+/)
-        if (dashMatch && typeof dashMatch.index === 'number' && dashMatch.index < 40) {
-          title = cleanText.substring(0, dashMatch.index).trim()
-          description = cleanText.substring(dashMatch.index + dashMatch[0].length).trim()
-        }
-      }
+      cleanText = cleanText.replace(/^step\s*\d+\s*[\s:.–-]*\s*/i, '').trim()
 
       return {
         stepNum: i + 1,
-        title,
-        description
+        title: "",
+        description: cleanText
       }
     })
   }, [metadata.how_to_use])
@@ -859,14 +869,7 @@ const formatSpecValue = (value: any): string => {
                           <div key={i}>
                             <p className="text-sm text-black leading-relaxed">
                               <strong className="font-bold text-black">Step {step.stepNum}:</strong>{" "}
-                              {step.title ? (
-                                <>
-                                  <strong className="font-bold text-black">{step.title}</strong>{" "}
-                                  {step.description ? `– ${step.description}` : ""}
-                                </>
-                              ) : (
-                                step.description
-                              )}
+                              {step.description}
                             </p>
                           </div>
                         ))

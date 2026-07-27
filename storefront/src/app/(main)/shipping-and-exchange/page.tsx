@@ -27,11 +27,7 @@ export default function ShippingAndExchange() {
         </ul>
 
         <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Exchange & Return</h2>
-        <p className="mb-4">Customer satisfaction is important to us.</p>
-        <p className="mb-2">We offer a 15-day return or exchange only under the following condition:</p>
-        <ul className="list-disc pl-6 mb-8 space-y-2">
-          <li>The product is received in a damaged, defective condition in correct.</li>
-        </ul>
+        <p className="mb-4">15-day return policy applicable for defective or wrong product delivery.</p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">To request an exchange or return:</h2>
         <ul className="list-disc pl-6 mb-8 space-y-2">

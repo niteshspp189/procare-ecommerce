@@ -27,7 +27,7 @@ const FAQPage = () => {
                 },
                 {
                     q: "What is your return policy?",
-                    a: "Customers can request a return or replacement within 7 days of delivery if the product is damaged, defective, or incorrect."
+                    a: "15-day return policy applicable for defective or wrong product delivery."
                 },
                 {
                     q: "How do I request a return or replacement?",

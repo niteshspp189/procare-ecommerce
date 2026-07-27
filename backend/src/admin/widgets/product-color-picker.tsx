@@ -74,7 +74,8 @@ export default function ColorPickerWidget({ data: product }: { data: any }) {
       <Heading level="h2" className="text-sm font-semibold mb-3">🎨 Variant Colors</Heading>
       <div className="flex flex-col gap-2">
         {colorValues.map((colorName) => {
-          const hex = colors[colorName] || "#888888"
+          const rawHex = colors[colorName] || "888888"
+          const hex = rawHex.startsWith("#") ? rawHex : `#${rawHex}`
           const state = saveState[colorName] || "idle"
           const statusLabel = state === "saving" ? "Saving…" : state === "saved" ? "✓ Saved" : state === "error" ? "✗ Error" : ""
           const statusColor = state === "saved" ? "text-green-600" : state === "error" ? "text-red-500" : "text-ui-fg-muted"
@@ -83,14 +84,14 @@ export default function ColorPickerWidget({ data: product }: { data: any }) {
             <div key={colorName} className="flex items-center gap-2 p-2 border border-ui-border-base rounded-md bg-ui-bg-subtle">
               <input
                 type="color"
-                value={hex}
+                value={hex.length === 7 ? hex : "#888888"}
                 onChange={(e) => handleColorChange(colorName, e.target.value)}
                 className="w-8 h-7 p-0 cursor-pointer border rounded"
               />
               <span className="font-semibold text-xs flex-1">{colorName}</span>
               <input
                 type="text"
-                value={hex}
+                value={hex.toUpperCase()}
                 maxLength={7}
                 onChange={(e) => {
                   const v = e.target.value

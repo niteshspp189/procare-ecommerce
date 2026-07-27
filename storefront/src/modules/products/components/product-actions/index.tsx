@@ -48,13 +48,23 @@ export default function ProductActions({
     return (product.options || []).filter((option) => isGenuineOption(option, product))
   }, [product.options, product.variants])
 
-  // If there is only 1 variant, preselect the options
+  const vId = searchParams?.get("v_id")
+
+  // If v_id is in URL or 1 variant, preselect options
   useEffect(() => {
-    if (product.variants?.length === 1) {
+    if (vId && product.variants && Object.keys(options).length === 0) {
+      const target = product.variants.find((v) => v.id === vId)
+      if (target) {
+        const variantOptions = optionsAsKeymap(target.options)
+        setOptions(variantOptions ?? {})
+        return
+      }
+    }
+    if (product.variants?.length === 1 && Object.keys(options).length === 0) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
     }
-  }, [product.variants])
+  }, [product.variants, vId])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) {
@@ -84,21 +94,20 @@ export default function ProductActions({
   }, [product.variants, options])
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || "")
     const value = isValidVariant ? selectedVariant?.id : null
 
-    if (params.get("v_id") === value) {
-      return
-    }
+    if (!value) return
 
-    if (value) {
+    if (params.get("v_id") !== value) {
       params.set("v_id", value)
-    } else {
-      params.delete("v_id")
+      const newUrl = `${pathname}?${params.toString()}`
+      if (typeof window !== "undefined") {
+        window.history.replaceState(null, "", newUrl)
+      }
+      router.replace(newUrl, { scroll: false })
     }
-
-    router.replace(pathname + "?" + params.toString())
-  }, [selectedVariant, isValidVariant])
+  }, [selectedVariant, isValidVariant, pathname, searchParams, router])
 
   // check if the selected variant is in stock
   const inStock = useMemo(() => {

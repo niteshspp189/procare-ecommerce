@@ -87,28 +87,29 @@ export default async function StagingHome(props: {
   return (
     <div className="animate-fade-in font-sans bg-white overflow-x-hidden w-full">
       {/* HERO SECTION */}
-      <div className="relative overflow-hidden group min-h-[450px] md:min-h-[600px] flex items-center justify-center bg-white">
+      <div className="relative overflow-hidden group min-h-[450px] md:min-h-[580px] lg:min-h-[640px] flex items-center md:items-end justify-center bg-white pb-8 md:pb-12 lg:pb-14">
         <div className="absolute inset-0 z-0">
           <picture>
             <source media="(max-width: 767px)" srcSet="/images/landing-page-images/hero-banner-mobile.jpg" />
             <img
               src="/images/landing-page-images/hero-banner-desktop.jpg"
               alt="Clean & Condition Your Shoes"
-              className="w-full h-full object-cover object-center transition-transform duration-[5s] group-hover:scale-105"
+              className="w-full h-full object-cover object-top md:object-center transition-transform duration-[5s] group-hover:scale-105"
             />
           </picture>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.8)_0%,_transparent_70%)] z-0" />
+          {/* Subtle bottom gradient overlay for text legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-0" />
         </div>
 
-        <div className="relative z-10 text-center px-4 -mt-24 animate-fade-in-up">
-          <h1 className="text-[clamp(32px,6vw,64px)] font-bold text-black leading-tight mb-4 uppercase tracking-tighter">
+        <div className="relative z-10 text-center px-4 animate-fade-in-up max-w-4xl mx-auto my-auto md:my-0">
+          <h1 className="text-[clamp(22px,3.2vw,38px)] font-extrabold text-white leading-tight mb-2 uppercase tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
             Clean & Condition Your Shoes
           </h1>
-          <p className="text-[clamp(16px,2vw,22px)] text-black mb-10 tracking-wide font-semibold opacity-90">
+          <p className="text-[clamp(14px,1.4vw,18px)] text-white mb-5 tracking-wide font-medium opacity-95 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             Wave Bye To Discomfort & Dust
           </p>
           <LocalizedClientLink href="/shop">
-            <Button variant="primary" className="px-12 py-4">
+            <Button variant="primary" className="px-9 py-3 bg-[#00bda5] hover:bg-[#00a38f] text-white border-none font-bold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
               Shop Now
             </Button>
           </LocalizedClientLink>
