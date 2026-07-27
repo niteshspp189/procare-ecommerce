@@ -400,6 +400,10 @@ const formatSpecValue = (value: any): string => {
       }).filter(Boolean)
     }
 
+    if (product.handle?.includes("shoe-cream-with-applicator")) {
+      rawLines = rawLines.filter(line => !/shake\s+the\s+bottle/i.test(line))
+    }
+
     return rawLines.map((lineText, i) => {
       let cleanText = lineText.replace(/\*\*/g, '').trim()
       cleanText = cleanText.replace(/^step\s*\d+\s*[\s:.–-]*\s*/i, '').trim()
@@ -419,7 +423,7 @@ const formatSpecValue = (value: any): string => {
         description: cleanText
       }
     })
-  }, [metadata.how_to_use])
+  }, [metadata.how_to_use, product.handle])
 
   const mergedSpecifications = useMemo(() => {
     const rawSpecs: Record<string, any> = (metadata.product_specifications && typeof metadata.product_specifications === 'object')

@@ -22,7 +22,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     },
     {
       label: "How to Use",
-      component: <MetadataTab title="Usage Instructions" content={metadata.how_to_use as string} />,
+      component: <MetadataTab title="Usage Instructions" content={metadata.how_to_use as string} product={product} />,
       condition: !!metadata.how_to_use
     },
     {
@@ -65,7 +65,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   )
 }
 
-const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
+const MetadataTab = ({ title, content, product }: { title: string; content?: any; product?: HttpTypes.StoreProduct }) => {
   if (!content) return null
 
   // Ensure we are working with a string
@@ -73,8 +73,12 @@ const MetadataTab = ({ title, content }: { title: string; content?: any }) => {
     ? content
     : JSON.stringify(content);
 
-  const lines = contentString.split('\n')
+  let lines = contentString.split('\n')
     .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line));
+
+  if (product?.handle?.includes("shoe-cream-with-applicator")) {
+    lines = lines.filter(line => !/shake\s+the\s+bottle/i.test(line));
+  }
 
   return (
     <div className="text-small-regular py-8">
