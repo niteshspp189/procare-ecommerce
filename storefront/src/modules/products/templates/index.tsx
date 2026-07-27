@@ -404,6 +404,15 @@ const formatSpecValue = (value: any): string => {
       let cleanText = lineText.replace(/\*\*/g, '').trim()
       cleanText = cleanText.replace(/^step\s*\d+\s*[\s:.–-]*\s*/i, '').trim()
 
+      const colonIdx = cleanText.indexOf(':')
+      if (colonIdx > 0 && colonIdx < 40) {
+        return {
+          stepNum: i + 1,
+          title: cleanText.substring(0, colonIdx).trim(),
+          description: cleanText.substring(colonIdx + 1).trim()
+        }
+      }
+
       return {
         stepNum: i + 1,
         title: "",
@@ -950,26 +959,68 @@ const formatSpecValue = (value: any): string => {
               <div ref={howScrollRef} style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
               <div className="snap-x snap-mandatory" style={{ display: 'inline-flex', gap: '32px', textAlign: 'left' } as React.CSSProperties}>
                 {!useStatic ? (
-                  steps.map((step, index) => (
-                    <div key={index} className="text-left flex-shrink-0 w-[343px] snap-start">
-                      <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
-                        <img
-                          src={`${imgBase}how${(index % 4) + 1}.png`}
-                          alt={step.title || `Step ${step.stepNum}`}
-                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                          {step.stepNum}
+                  steps.map((step, index) => {
+                    let stepImgUrl = ""
+                    const metaImages = metadata.how_to_use_images
+                    if (Array.isArray(metaImages) && metaImages[index]) {
+                      stepImgUrl = metaImages[index]
+                    } else if (typeof metaImages === 'string') {
+                      try {
+                        const arr = JSON.parse(metaImages)
+                        if (arr[index]) stepImgUrl = arr[index]
+                      } catch {}
+                    }
+
+                    if (!stepImgUrl) {
+                      let folder = metadata.how_to_use_folder
+                      if (!folder) {
+                        const handle = (product.handle || "").toLowerCase()
+                        if (handle.includes("shoe-cream-with-applicator")) folder = "shoe-cream-with-applicator"
+                        else if (handle.includes("shoe-cream") || handle.includes("black-shoe-cream")) folder = "black-shoe-cream"
+                        else if (handle.includes("self-shine") || handle.includes("instant-shine")) folder = "brown-self-shine"
+                        else if (handle.includes("foam-cleaner") || handle.includes("foam")) folder = "foam-cleaner"
+                        else if (handle.includes("hydroshield")) folder = "hydroshield"
+                        else if (handle.includes("moisturizer")) folder = "leather-moisturizer"
+                        else if (handle.includes("shampoo") || handle.includes("power-cleaning")) folder = "power-cleaning-shampoo"
+                        else if (handle.includes("deo")) folder = "shoe-deo"
+                        else if (handle.includes("kit")) folder = "sneaker-cleaning-kit"
+                        else if (handle.includes("wipes")) folder = "sneaker-wipes"
+                      }
+                      if (folder) {
+                        stepImgUrl = `/images/how-to-use/${folder}/step-${index + 1}.png`
+                      } else {
+                        stepImgUrl = `${imgBase}how${(index % 4) + 1}.png`
+                      }
+                    }
+
+                    return (
+                      <div key={index} className="text-left flex-shrink-0 w-[343px] snap-start">
+                        <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
+                          <img
+                            src={stepImgUrl}
+                            alt={step.title || `Step ${step.stepNum}`}
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              // Fallback if specific step image doesn't exist
+                              const target = e.target as HTMLImageElement
+                              if (!target.src.includes("landing-page-images")) {
+                                target.src = `${imgBase}how${(index % 4) + 1}.png`
+                              }
+                            }}
+                          />
+                          <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                            {step.stepNum}
+                          </div>
                         </div>
+                        <h3 className="font-semibold text-base mb-1 text-black">
+                          {step.title || `Step ${step.stepNum}`}
+                        </h3>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          {step.description}
+                        </p>
                       </div>
-                      <h3 className="font-semibold text-base mb-1 text-black">
-                        {step.title || `Step ${step.stepNum}`}
-                      </h3>
-                      <p className="text-xs text-gray-500 leading-relaxed">
-                        {step.description}
-                      </p>
-                    </div>
-                  ))                ) : (
+                    )
+                  })                ) : (
                   <>
                     <div className="text-left flex-shrink-0 w-[343px] snap-start">
                       <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">

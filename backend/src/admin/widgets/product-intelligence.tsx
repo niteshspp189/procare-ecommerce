@@ -1,47 +1,81 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Text, Table, Input, Textarea, Button, Badge, toast } from "@medusajs/ui"
 import { DetailWidgetProps, AdminProduct } from "@medusajs/framework/types"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 export const config = defineWidgetConfig({
     zone: "product.details.after",
 })
 
-const AVAILABLE_BADGES = [
-    { label: "Essentials", iconId: "eco", icon: "✓" },
-    { label: "Removes callus and dead skin", iconId: "eco", icon: "✓" },
-    { label: "Made in Europe", iconId: "award", icon: "🏆" },
-    { label: "Comfort", iconId: "leaf", icon: "🌿" },
-    { label: "Skin friendly", iconId: "natural", icon: "🌍" },
-    { label: "Lightweight", iconId: "eco", icon: "✓" },
-    { label: "Free Shipping", iconId: "shipping", icon: "🚚" },
-    { label: "15 Day Return", iconId: "return", icon: "🛡️" },
-    { label: "Eco Friendly", iconId: "eco", icon: "♻️" },
-    { label: "Complete Kit", iconId: "kit", icon: "📦" },
+// Each badge has a label + imgFile pointing to the actual PNG icon in /images/icons/
+const AVAILABLE_BADGES: { label: string; imgFile: string }[] = [
+    // PRO Line
+    { label: "PRO CLEAN",           imgFile: "pro-clean.png" },
+    { label: "PRO FRESH",           imgFile: "pro-fresh.png" },
+    { label: "PRO CARE",            imgFile: "pro-care.png" },
+    { label: "PRO SHINE",           imgFile: "pro-shine.png" },
+    { label: "PRO Active",          imgFile: "pro-active.png" },
+    { label: "PRO Accessories",     imgFile: "pro-accessories.png" },
+    { label: "PRO Color",           imgFile: "pro-color-green.png" },
+    // Benefits
+    { label: "Essentials",                    imgFile: "essentials.png" },
+    { label: "Comfort",                       imgFile: "comfort.png" },
+    { label: "Cushioning",                    imgFile: "cushioning.png" },
+    { label: "Stability",                     imgFile: "stability.png" },
+    { label: "Skin Friendly",                 imgFile: "skin-friendly.png" },
+    { label: "Eco Friendly",                  imgFile: "eco-friendly.png" },
+    { label: "Lightweight",                   imgFile: "light-weight.png" },
+    { label: "Made in Europe",                imgFile: "made-in-europe.png" },
+    { label: "European Expertise",            imgFile: "europian-experts.png" },
+    { label: "Fragrance",                     imgFile: "fragnance.png" },
+    { label: "Shine",                         imgFile: "shine.png" },
+    { label: "Create Natural Shine",          imgFile: "create-natural-shine.png" },
+    { label: "Cleaning",                      imgFile: "cleaning.png" },
+    { label: "Effective Cleaning Agent",      imgFile: "effective-cleaning-agent.png" },
+    { label: "Color Refreshing",              imgFile: "color-refreshing.png" },
+    { label: "Long Lasting Freshness",        imgFile: "long-lasting-freshness.png" },
+    { label: "Helps Fight Fungi & Bacteria",  imgFile: "helps-fight-fungi-and-bacteria.png" },
+    { label: "Absorb Moisture",               imgFile: "absorb-mositure.png" },
+    { label: "Odour Control",                 imgFile: "odour-control.png" },
+    { label: "Hand Washable",                 imgFile: "hand-washable.png" },
+    { label: "Help Remove Trapped Dust",      imgFile: "help-remove-trapped-dust.png" },
+    { label: "Help Slide Feet Into Shoes",    imgFile: "help-to-slidethe-feet-into-shoes.png" },
+    // Features / Materials
+    { label: "Complete Kit",                  imgFile: "complete-kit.png" },
+    { label: "With Cleaning Brush",           imgFile: "with-cleaning-brush.png" },
+    { label: "Brush & Pumice Combo",          imgFile: "brush-and-pumice-combo.png" },
+    { label: "Gel Comfort",                   imgFile: "gel-comfort.png" },
+    { label: "High Density Sponge",           imgFile: "high-density-sponge.png" },
+    { label: "High Quality Wood",             imgFile: "high-quality-wood.png" },
+    { label: "High Quality Bristles",         imgFile: "high-quality-bristles.png" },
+    { label: "Genuine Horse Hair Bristles",   imgFile: "genuine-hair-horse-brush.png" },
+    { label: "High Grade Steel",              imgFile: "high-grade-steel.png" },
+    { label: "Leather Grip Handle",           imgFile: "leather-grip-handle.png" },
+    { label: "Anti Slip Handle",              imgFile: "anti-slip-handle.png" },
+    { label: "Replaceable Rollers",           imgFile: "replacable-rollers.png" },
+    { label: "For Coarse & Fine Filing",      imgFile: "for-coarse-and-fine-filing.png" },
+    { label: "Remove Callus & Dead Skin",     imgFile: "remove-callus-and-dead-skin.png" },
+    { label: "Maintains Original Shape",      imgFile: "maintains-the-originals-shape.png" },
+    { label: "Contain High Quality",          imgFile: "contain-high-quality.png" },
+    // Logistics
+    { label: "Free Shipping",                 imgFile: "free-shipping.png" },
+    { label: "15 Day Return",                 imgFile: "15-day-return.png" },
+    { label: "Travel Friendly",               imgFile: "travel-freindly.png" },
+]
 
-    { label: "PRO CLEAN", iconId: "eco", icon: "✨" },
-    { label: "PRO FRESH", iconId: "leaf", icon: "🍃" },
-    { label: "PRO CARE", iconId: "thumb", icon: "👍" },
-    { label: "PRO SHINE", iconId: "eco", icon: "💎" },
-    { label: "PRO Active", iconId: "eco", icon: "🏃" },
-    { label: "PRO Accessories", iconId: "eco", icon: "👞" },
-
-    { label: "NON-TOXIC", iconId: "eco", icon: "🌿" },
-    { label: "MADE IN INDIA", iconId: "eco", icon: "🇮🇳" },
-    { label: "PARABEN FREE", iconId: "eco", icon: "🛡️" },
-    { label: "LEATHER SAFE", iconId: "eco", icon: "👞" },
-    { label: "SUEDE COMPATIBLE", iconId: "eco", icon: "👟" },
-    { label: "Natural Cedar wood", iconId: "eco", icon: "🪵" },
-    { label: "Natural lotus wood", iconId: "eco", icon: "🪵" },
-    { label: "Geniune horse hair bristles", iconId: "eco", icon: "🐎" },
-    { label: "High quality wood", iconId: "leaf", icon: "🪵" },
-    { label: "High-quality steel", iconId: "eco", icon: "⚙️" },
-    { label: "Premium stainless steel", iconId: "award", icon: "🏆" },
-    { label: "Absorbe moisture", iconId: "eco", icon: "💧" },
-    { label: "Odour Control", iconId: "eco", icon: "💨" },
-    { label: "Prevents creasing", iconId: "eco", icon: "👞" },
-    { label: "Travel friendly", iconId: "plane", icon: "✈️" },
-    { label: "With cleaning brush", iconId: "eco", icon: "🪥" },
+// Available How To Use Preset Image Folders
+const HOW_TO_USE_PRESETS = [
+    { label: "-- Auto Match by Product Handle --", folder: "", count: 0 },
+    { label: "Black Shoe Cream (3 steps)", folder: "black-shoe-cream", count: 3 },
+    { label: "Brown Self Shine (5 steps)", folder: "brown-self-shine", count: 5 },
+    { label: "Foam Cleaner (6 steps)", folder: "foam-cleaner", count: 6 },
+    { label: "Hydroshield (5 steps)", folder: "hydroshield", count: 5 },
+    { label: "Leather Moisturizer (3 steps)", folder: "leather-moisturizer", count: 3 },
+    { label: "Power Cleaning Shampoo (5 steps)", folder: "power-cleaning-shampoo", count: 5 },
+    { label: "Shoe Cream with Applicator (5 steps)", folder: "shoe-cream-with-applicator", count: 5 },
+    { label: "Shoe Deo (4 steps)", folder: "shoe-deo", count: 4 },
+    { label: "Sneaker Cleaning Kit (5 steps)", folder: "sneaker-cleaning-kit", count: 5 },
+    { label: "Sneaker Wipes (5 steps)", folder: "sneaker-wipes", count: 5 },
 ]
 
 const AVAILABLE_ICONS = [
@@ -111,6 +145,9 @@ const getPreviewIconUrl = (label: string, iconId: string) => {
 }
 
 
+// Badge state now includes optional customImg (base64 data URL for override)
+type BadgeSlot = { label: string; iconId: string; customImg?: string }
+
 const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminProduct>) => {
     // Quick Price State
     const [variants, setVariants] = useState<any[]>([])
@@ -123,15 +160,19 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
 
     // Meta Information State
     const [howToUse, setHowToUse] = useState("")
+    const [howToUseFolder, setHowToUseFolder] = useState("")
+    const [howToUseCustomImages, setHowToUseCustomImages] = useState<string[]>([])
     const [keyBenefits, setKeyBenefits] = useState("")
     const [suitableFor, setSuitableFor] = useState("")
     const [specsText, setSpecsText] = useState("")
-    const [selectedBadges, setSelectedBadges] = useState<Array<{ label: string; iconId: string }>>([
+    const [selectedBadges, setSelectedBadges] = useState<BadgeSlot[]>([
         { label: "", iconId: "" },
         { label: "", iconId: "" },
         { label: "", iconId: "" },
         { label: "", iconId: "" }
     ])
+    const [badgeProductCount, setBadgeProductCount] = useState<number | null>(null)
+    const fileInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null])
 
     const [loadingMeta, setLoadingMeta] = useState(true)
     const [savingMeta, setSavingMeta] = useState(false)
@@ -192,6 +233,13 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
             const meta = pData.product?.metadata || {}
 
             setHowToUse(typeof meta.how_to_use === "string" ? meta.how_to_use : "")
+            setHowToUseFolder(typeof meta.how_to_use_folder === "string" ? meta.how_to_use_folder : "")
+            let stepImgs: string[] = []
+            if (Array.isArray(meta.how_to_use_images)) stepImgs = meta.how_to_use_images
+            else if (typeof meta.how_to_use_images === "string") {
+                try { stepImgs = JSON.parse(meta.how_to_use_images) } catch {}
+            }
+            setHowToUseCustomImages(stepImgs)
             setKeyBenefits(typeof meta.key_benefits === "string" ? meta.key_benefits : "")
             setSuitableFor(typeof meta.suitable_for === "string" ? meta.suitable_for : "")
 
@@ -245,9 +293,25 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
         }
     }
 
+    // Fetch count of products that have badges configured
+    const fetchBadgeCount = async () => {
+        try {
+            const res = await fetch(`/admin/products?limit=500&fields=+metadata`, { credentials: "include" })
+            const data = await res.json()
+            const count = (data.products || []).filter((p: any) => {
+                const b = p.metadata?.product_badges
+                if (!b) return false
+                const arr = typeof b === "string" ? (() => { try { return JSON.parse(b) } catch { return [] } })() : b
+                return Array.isArray(arr) && arr.some((x: any) => (typeof x === "string" ? x : x?.label)?.trim())
+            }).length
+            setBadgeProductCount(count)
+        } catch { /* silent */ }
+    }
+
     useEffect(() => {
         fetchPriceData()
         fetchMetaData()
+        fetchBadgeCount()
     }, [product.id])
 
     // Save Price Handler
@@ -311,6 +375,8 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
 
             const payloadMeta = {
                 how_to_use: howToUse,
+                how_to_use_folder: howToUseFolder,
+                how_to_use_images: howToUseCustomImages.filter(Boolean),
                 key_benefits: keyBenefits,
                 suitable_for: suitableFor,
                 product_specifications: specsObj,
@@ -520,13 +586,13 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                     <div className="space-y-8">
                         {/* LEFT COLUMN (Full Width): Generous Textareas for Content Fields */}
                         <div className="space-y-6">
-                            {/* How to Use Textarea */}
-                            <div className="space-y-2">
+                            {/* How to Use Textarea & Image Selector */}
+                            <div className="space-y-3 border-b border-gray-100 pb-5">
                                 <div className="flex items-center justify-between">
                                     <label className="text-xs font-bold text-gray-800 uppercase tracking-wider">
                                         How to Use <span className="text-gray-400 font-mono">(how_to_use)</span>
                                     </label>
-                                    <span className="text-[11px] text-gray-500">Step-by-step usage instructions</span>
+                                    <span className="text-[11px] text-gray-500">Step-by-step usage instructions & images</span>
                                 </div>
                                 <Textarea
                                     rows={5}
@@ -535,6 +601,72 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                     onChange={(e) => setHowToUse(e.target.value)}
                                     placeholder="e.g. 1. Remove loose dirt. 2. Apply small amount..."
                                 />
+
+                                {/* Step Images Preset Selector & Live Previews */}
+                                <div className="bg-gray-50/80 p-4 rounded-xl border border-gray-200 space-y-3 mt-3">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div>
+                                            <span className="text-xs font-bold text-gray-800 uppercase tracking-wider block">Step Image Set / Folder</span>
+                                            <span className="text-[11px] text-gray-500">Select preset folder or manage custom images per step</span>
+                                        </div>
+                                        <select
+                                            className="text-xs border border-gray-300 rounded-md p-1.5 bg-white h-8 cursor-pointer focus:border-[#00bda5] focus:outline-hidden"
+                                            value={howToUseFolder}
+                                            onChange={(e) => setHowToUseFolder(e.target.value)}
+                                        >
+                                            {HOW_TO_USE_PRESETS.map((p) => (
+                                                <option key={p.folder} value={p.folder}>
+                                                    {p.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Preview active step images */}
+                                    {(() => {
+                                        const activeFolder = howToUseFolder || (() => {
+                                            const h = (product.handle || "").toLowerCase()
+                                            if (h.includes("shoe-cream-with-applicator")) return "shoe-cream-with-applicator"
+                                            if (h.includes("shoe-cream") || h.includes("black-shoe-cream")) return "black-shoe-cream"
+                                            if (h.includes("self-shine") || h.includes("instant-shine")) return "brown-self-shine"
+                                            if (h.includes("foam-cleaner") || h.includes("foam")) return "foam-cleaner"
+                                            if (h.includes("hydroshield")) return "hydroshield"
+                                            if (h.includes("moisturizer")) return "leather-moisturizer"
+                                            if (h.includes("shampoo") || h.includes("power-cleaning")) return "power-cleaning-shampoo"
+                                            if (h.includes("deo")) return "shoe-deo"
+                                            if (h.includes("kit")) return "sneaker-cleaning-kit"
+                                            if (h.includes("wipes")) return "sneaker-wipes"
+                                            return ""
+                                        })()
+
+                                        const presetObj = HOW_TO_USE_PRESETS.find(p => p.folder === activeFolder)
+                                        const imgCount = presetObj ? presetObj.count : 3
+
+                                        return (
+                                            <div className="space-y-2 pt-2 border-t border-gray-200/60">
+                                                <span className="text-[11px] font-semibold text-gray-700 block">
+                                                    Active Step Images ({activeFolder ? `${activeFolder} folder` : "Default Fallbacks"}):
+                                                </span>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                                                    {Array.from({ length: Math.max(imgCount, howToUseCustomImages.length || 0) }).map((_, idx) => {
+                                                        const customImg = howToUseCustomImages[idx]
+                                                        const presetImg = activeFolder ? `/images/how-to-use/${activeFolder}/step-${idx + 1}.png` : `/images/landing-page-images/how${(idx % 4) + 1}.png`
+                                                        const displayImg = customImg || presetImg
+
+                                                        return (
+                                                            <div key={idx} className="relative group border border-gray-200 rounded-lg p-1 bg-white text-center shadow-2xs">
+                                                                <div className="h-20 w-full bg-gray-100 rounded overflow-hidden flex items-center justify-center mb-1">
+                                                                    <img src={displayImg} alt={`Step ${idx + 1}`} className="w-full h-full object-cover" />
+                                                                </div>
+                                                                <span className="text-[10px] font-bold text-gray-700 block">Step {idx + 1}</span>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )
+                                    })()}
+                                </div>
                             </div>
 
                             {/* Key Benefits Textarea */}
@@ -592,110 +724,153 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                         {/* BOTTOM ROW (Full Width): Product Badges & Preset Toggles */}
                         <div className="space-y-6 bg-gray-50/70 p-5 rounded-2xl border border-gray-100 w-full">
                             <div>
-                                <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block mb-1">
-                                    Product Badges <span className="text-gray-400 font-mono">(product_badges)</span>
-                                </label>
+                                <div className="flex items-center justify-between mb-1">
+                                    <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block">
+                                        Product Badges <span className="text-gray-400 font-mono">(product_badges)</span>
+                                    </label>
+                                    {badgeProductCount !== null && (
+                                        <span className="text-[11px] bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded-full font-semibold">
+                                            🏷️ {badgeProductCount} products have badges configured
+                                        </span>
+                                    )}
+                                </div>
                                 <Text className="text-[11px] text-gray-500 mb-4">
-                                    Configure up to 4 badges. Choose a preset or customize the text manually.
+                                    Configure up to 4 badges. Choose a preset (shows actual icon image) or upload a custom image per slot.
                                 </Text>
 
-                                {/* 4 Slots for Product Badges (Vertical Rows) */}
+                                {/* 4 Slots for Product Badges */}
                                 <div className="space-y-4">
                                     {[0, 1, 2, 3].map((slotIdx) => {
-                                        const currentBadge = selectedBadges[slotIdx] || { label: "", iconId: "" }
+                                        const currentBadge = selectedBadges[slotIdx] || { label: "", iconId: "", customImg: "" }
                                         const currentLabel = currentBadge.label || ""
-                                        const currentIcon = currentBadge.iconId || ""
+                                        const currentCustomImg = currentBadge.customImg || ""
 
-                                        // Find if this is a preset badge
+                                        // Resolve which image to show in preview
                                         const matchingPreset = AVAILABLE_BADGES.find(
                                             b => b.label.toLowerCase() === currentLabel.toLowerCase()
                                         )
                                         const selectValue = matchingPreset ? matchingPreset.label : (currentLabel ? "custom" : "")
+                                        const presetImg = matchingPreset ? `/images/icons/${matchingPreset.imgFile}` : null
+                                        const resolvedImg = currentCustomImg || presetImg
 
                                         return (
-                                            <div key={slotIdx} className="border border-gray-200 rounded-xl p-4 bg-white flex flex-col md:flex-row md:items-center gap-4 justify-between shadow-2xs">
-                                                <div className="flex items-center justify-between md:w-32 shrink-0">
+                                            <div key={slotIdx} className="border border-gray-200 rounded-xl p-4 bg-white shadow-2xs">
+                                                {/* Row 1: Slot header */}
+                                                <div className="flex items-center gap-2 mb-3">
                                                     <span className="text-[11px] font-bold text-gray-500 uppercase">Badge Slot {slotIdx + 1}</span>
                                                     {currentLabel && (
-                                                        <span className="text-[10px] font-bold text-[#00bda5] bg-[#00bda5]/10 px-1.5 py-0.5 rounded ml-2">
+                                                        <span className="text-[10px] font-bold text-[#00bda5] bg-[#00bda5]/10 px-1.5 py-0.5 rounded">
                                                             Active
                                                         </span>
                                                     )}
+                                                    {currentCustomImg && (
+                                                        <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
+                                                            Custom Image
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1">
-                                                    {/* Preset Select Dropdown */}
-                                                    <div className="md:col-span-4">
-                                                        <select
-                                                            className="text-xs border border-gray-300 rounded-md p-1.5 bg-white w-full h-8 cursor-pointer focus:border-[#00bda5] focus:outline-hidden"
-                                                            value={selectValue}
-                                                            onChange={(e) => {
-                                                                const val = e.target.value
-                                                                const updated = [...selectedBadges]
-                                                                if (val === "custom") {
-                                                                    updated[slotIdx] = {
-                                                                        label: currentLabel && !matchingPreset ? currentLabel : "Custom Badge",
-                                                                        iconId: currentIcon || "eco"
-                                                                    }
-                                                                } else if (val === "") {
-                                                                    updated[slotIdx] = { label: "", iconId: "" }
-                                                                } else {
-                                                                    const preset = AVAILABLE_BADGES.find(b => b.label === val)
-                                                                    updated[slotIdx] = {
-                                                                        label: preset ? preset.label : val,
-                                                                        iconId: preset ? preset.iconId : "eco"
-                                                                    }
-                                                                }
-                                                                setSelectedBadges(updated)
-                                                            }}
-                                                        >
-                                                            <option value="">-- None (Clear Slot) --</option>
-                                                            {AVAILABLE_BADGES.map(b => (
-                                                                <option key={b.label} value={b.label}>
-                                                                    {b.icon} {b.label}
-                                                                </option>
-                                                            ))}
-                                                            <option value="custom">✍️ Custom text...</option>
-                                                        </select>
+
+                                                {/* Row 2: Icon preview + controls */}
+                                                <div className="flex items-center gap-4">
+                                                    {/* Live icon preview */}
+                                                    <div className="w-14 h-14 rounded-full bg-gray-50 border-2 border-gray-200 flex items-center justify-center shrink-0 overflow-hidden">
+                                                        {resolvedImg ? (
+                                                            <img src={resolvedImg} alt={currentLabel} className="w-10 h-10 object-contain" />
+                                                        ) : (
+                                                            <span className="text-gray-300 text-xl">?</span>
+                                                        )}
                                                     </div>
 
-                                                    {/* Manual Text Input */}
-                                                    <div className="md:col-span-5">
-                                                        <Input
-                                                            size="small"
-                                                            placeholder="Manual Badge Text..."
-                                                            value={currentLabel}
-                                                            onChange={(e) => {
-                                                                const updated = [...selectedBadges]
-                                                                updated[slotIdx] = {
-                                                                    label: e.target.value,
-                                                                    iconId: currentIcon || "eco"
-                                                                }
-                                                                setSelectedBadges(updated)
-                                                            }}
-                                                            className="text-xs h-8 bg-white w-full"
-                                                        />
-                                                    </div>
+                                                    {/* Controls */}
+                                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-2">
+                                                        {/* Preset dropdown */}
+                                                        <div className="md:col-span-5">
+                                                            <label className="text-[10px] text-gray-500 uppercase tracking-wider block mb-1">Preset Badge</label>
+                                                            <select
+                                                                className="text-xs border border-gray-300 rounded-md p-1.5 bg-white w-full h-8 cursor-pointer focus:border-[#00bda5] focus:outline-hidden"
+                                                                value={selectValue}
+                                                                onChange={(e) => {
+                                                                    const val = e.target.value
+                                                                    const updated = [...selectedBadges]
+                                                                    if (val === "custom") {
+                                                                        updated[slotIdx] = { label: currentLabel && !matchingPreset ? currentLabel : "Custom Badge", iconId: "eco", customImg: currentCustomImg }
+                                                                    } else if (val === "") {
+                                                                        updated[slotIdx] = { label: "", iconId: "", customImg: "" }
+                                                                    } else {
+                                                                        const preset = AVAILABLE_BADGES.find(b => b.label === val)
+                                                                        updated[slotIdx] = { label: preset!.label, iconId: preset!.imgFile.replace(".png", ""), customImg: "" }
+                                                                    }
+                                                                    setSelectedBadges(updated)
+                                                                }}
+                                                            >
+                                                                <option value="">-- None (Clear Slot) --</option>
+                                                                {AVAILABLE_BADGES.map(b => (
+                                                                    <option key={b.label} value={b.label}>
+                                                                        {b.label}
+                                                                    </option>
+                                                                ))}
+                                                                <option value="custom">✍️ Custom text...</option>
+                                                            </select>
+                                                        </div>
 
-                                                    {/* Icon Selector Dropdown */}
-                                                    <div className="md:col-span-3">
-                                                        <select
-                                                            className="text-xs border border-gray-300 rounded-md p-1.5 bg-white w-full h-8 cursor-pointer focus:border-[#00bda5] focus:outline-hidden"
-                                                            value={currentIcon || "eco"}
-                                                            onChange={(e) => {
-                                                                const updated = [...selectedBadges]
-                                                                updated[slotIdx] = {
-                                                                    label: currentLabel,
-                                                                    iconId: e.target.value
-                                                                }
-                                                                setSelectedBadges(updated)
-                                                            }}
-                                                        >
-                                                            {AVAILABLE_ICONS.map(i => (
-                                                                <option key={i.value} value={i.value}>
-                                                                    {i.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                        {/* Manual label input */}
+                                                        <div className="md:col-span-4">
+                                                            <label className="text-[10px] text-gray-500 uppercase tracking-wider block mb-1">Badge Label</label>
+                                                            <Input
+                                                                size="small"
+                                                                placeholder="Badge text..."
+                                                                value={currentLabel}
+                                                                onChange={(e) => {
+                                                                    const updated = [...selectedBadges]
+                                                                    updated[slotIdx] = { ...currentBadge, label: e.target.value }
+                                                                    setSelectedBadges(updated)
+                                                                }}
+                                                                className="text-xs h-8 bg-white w-full"
+                                                            />
+                                                        </div>
+
+                                                        {/* Custom image upload */}
+                                                        <div className="md:col-span-3">
+                                                            <label className="text-[10px] text-gray-500 uppercase tracking-wider block mb-1">Override Image</label>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    className="hidden"
+                                                                    ref={(el) => { fileInputRefs.current[slotIdx] = el }}
+                                                                    onChange={(e) => {
+                                                                        const file = e.target.files?.[0]
+                                                                        if (!file) return
+                                                                        const reader = new FileReader()
+                                                                        reader.onload = (ev) => {
+                                                                            const updated = [...selectedBadges]
+                                                                            updated[slotIdx] = { ...currentBadge, customImg: ev.target?.result as string }
+                                                                            setSelectedBadges(updated)
+                                                                        }
+                                                                        reader.readAsDataURL(file)
+                                                                    }}
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => fileInputRefs.current[slotIdx]?.click()}
+                                                                    className="text-[10px] border border-dashed border-gray-300 rounded px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 cursor-pointer h-8 w-full truncate"
+                                                                >
+                                                                    📤 Upload
+                                                                </button>
+                                                                {currentCustomImg && (
+                                                                    <button
+                                                                        type="button"
+                                                                        title="Remove custom image"
+                                                                        onClick={() => {
+                                                                            const updated = [...selectedBadges]
+                                                                            updated[slotIdx] = { ...currentBadge, customImg: "" }
+                                                                            setSelectedBadges(updated)
+                                                                        }}
+                                                                        className="text-red-400 hover:text-red-600 text-xs shrink-0 cursor-pointer"
+                                                                    >✕</button>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -717,18 +892,18 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                         const displayLabel = badge.label?.trim();
                                         if (!displayLabel) return null;
 
-                                        const mappedIconUrl = getPreviewIconUrl(displayLabel, badge.iconId);
-                                        const finalIconSource = mappedIconUrl || badge.iconId;
-                                        const isImage = Boolean(finalIconSource && (finalIconSource.startsWith("/") || finalIconSource.includes(".")));
+                                        // Use customImg first, then match preset by label, then fall back to old mapping
+                                        const presetMatch = AVAILABLE_BADGES.find(b => b.label.toLowerCase() === displayLabel.toLowerCase());
+                                        const resolvedImg = badge.customImg || (presetMatch ? `/images/icons/${presetMatch.imgFile}` : getPreviewIconUrl(displayLabel, badge.iconId));
 
                                         return (
                                             <div key={idx} className="text-center flex flex-col items-center gap-1.5 flex-1 min-w-0">
                                                 <div className="w-[58px] h-[58px] rounded-full bg-white flex items-center justify-center text-black border border-gray-200 overflow-hidden mx-auto shadow-xs">
-                                                    {isImage ? (
-                                                        <img src={finalIconSource} alt={displayLabel} className="w-[38px] h-[38px] object-contain" />
+                                                    {resolvedImg ? (
+                                                        <img src={resolvedImg} alt={displayLabel} className="w-[38px] h-[38px] object-contain" />
                                                     ) : (
                                                         <svg width="24" height="24" className="text-gray-700" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
-                                                            dangerouslySetInnerHTML={{ __html: PREVIEW_ICON_SVGS[badge.iconId] || PREVIEW_ICON_SVGS["shipping"] }} />
+                                                            dangerouslySetInnerHTML={{ __html: PREVIEW_ICON_SVGS[badge.iconId] || PREVIEW_ICON_SVGS["eco"] }} />
                                                     )}
                                                 </div>
                                                 <span className="text-[9px] font-bold text-gray-900 tracking-wider uppercase leading-tight">{displayLabel}</span>
