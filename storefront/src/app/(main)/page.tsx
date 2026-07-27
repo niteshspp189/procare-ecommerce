@@ -87,13 +87,13 @@ export default async function StagingHome(props: {
   return (
     <div className="animate-fade-in font-sans bg-white overflow-x-hidden w-full">
       {/* HERO SECTION */}
-      <LocalizedClientLink href="/shop" className="block relative overflow-hidden group min-h-[450px] md:min-h-[580px] lg:min-h-[640px] bg-white cursor-pointer">
-        <picture>
+      <LocalizedClientLink href="/shop" className="block relative overflow-hidden group w-full bg-white cursor-pointer">
+        <picture className="w-full h-auto block">
           <source media="(max-width: 767px)" srcSet="/images/landing-page-images/hero-banner-mobile.jpg" />
           <img
             src="/images/landing-page-images/hero-banner-desktop.jpg"
             alt="Shop Pro Care Products"
-            className="w-full h-full object-cover object-top md:object-center transition-transform duration-[5s] group-hover:scale-105 absolute inset-0"
+            className="w-full h-auto object-contain block transition-transform duration-[5s] group-hover:scale-105"
           />
         </picture>
       </LocalizedClientLink>
