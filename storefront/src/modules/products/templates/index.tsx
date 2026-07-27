@@ -470,7 +470,7 @@ const formatSpecValue = (value: any): string => {
     let items: { q: string; a: string }[] = []
 
     const commonFaqs = [
-      { q: "What is the return policy?", a: "We offer a 15-day return policy for all sealed and unused products. No questions asked." },
+      { q: "What is the return policy?", a: "Returns: 15-day return policy applicable for defective or wrong product delivery." },
       { q: "Is cash on delivery available?", a: "No, We do not offer Cash on Delivery (COD) at this time." },
       { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
       { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." }
@@ -511,7 +511,7 @@ const formatSpecValue = (value: any): string => {
         { q: "Can I use this on all materials?", a: "Yes, our formula is safe for all smooth and treated leather, suede, and fabric materials." },
         { q: "How often should I use this product?", a: "We recommend once a week for regular maintenance, or as needed based on wear frequency." },
         { q: "Is it environment friendly?", a: "Absolutely. Our products use eco-certified, non-toxic ingredients safe for daily use." },
-        { q: "What is the return policy?", a: "We offer a 15-day return policy for all sealed and unused products. No questions asked." },
+        { q: "What is the return policy?", a: "Returns: 15-day return policy applicable for defective or wrong product delivery." },
         { q: "Is cash on delivery available?", a: "No, We do not offer Cash on Delivery (COD) at this time." },
         { q: "How do I track my order?", a: "Once your order is shipped, you will receive a tracking link via SMS and email. You can also track your order from the Track Order section." },
         { q: "Are Pro Care products safe for all shoe types?", a: "Yes, our products are specially formulated to be gentle on all shoe materials including leather, canvas, suede, and synthetic fabrics." },

@@ -87,34 +87,16 @@ export default async function StagingHome(props: {
   return (
     <div className="animate-fade-in font-sans bg-white overflow-x-hidden w-full">
       {/* HERO SECTION */}
-      <div className="relative overflow-hidden group min-h-[450px] md:min-h-[580px] lg:min-h-[640px] flex items-center md:items-end justify-center bg-white pb-8 md:pb-12 lg:pb-14">
-        <div className="absolute inset-0 z-0">
-          <picture>
-            <source media="(max-width: 767px)" srcSet="/images/landing-page-images/hero-banner-mobile.jpg" />
-            <img
-              src="/images/landing-page-images/hero-banner-desktop.jpg"
-              alt="Clean & Condition Your Shoes"
-              className="w-full h-full object-cover object-top md:object-center transition-transform duration-[5s] group-hover:scale-105"
-            />
-          </picture>
-          {/* Subtle bottom gradient overlay for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-0" />
-        </div>
-
-        <div className="relative z-10 text-center px-4 animate-fade-in-up max-w-4xl mx-auto my-auto md:my-0">
-          <h1 className="text-[clamp(22px,3.2vw,38px)] font-extrabold text-white leading-tight mb-2 uppercase tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
-            Clean & Condition Your Shoes
-          </h1>
-          <p className="text-[clamp(14px,1.4vw,18px)] text-white mb-5 tracking-wide font-medium opacity-95 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-            Wave Bye To Discomfort & Dust
-          </p>
-          <LocalizedClientLink href="/shop">
-            <Button variant="primary" className="px-9 py-3 bg-[#00bda5] hover:bg-[#00a38f] text-white border-none font-bold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
-              Shop Now
-            </Button>
-          </LocalizedClientLink>
-        </div>
-      </div>
+      <LocalizedClientLink href="/shop" className="block relative overflow-hidden group min-h-[450px] md:min-h-[580px] lg:min-h-[640px] bg-white cursor-pointer">
+        <picture>
+          <source media="(max-width: 767px)" srcSet="/images/landing-page-images/hero-banner-mobile.jpg" />
+          <img
+            src="/images/landing-page-images/hero-banner-desktop.jpg"
+            alt="Shop Pro Care Products"
+            className="w-full h-full object-cover object-top md:object-center transition-transform duration-[5s] group-hover:scale-105 absolute inset-0"
+          />
+        </picture>
+      </LocalizedClientLink>
 
       <div className="w-full">
         {/* INTRODUCTION & CATEGORY GRID */}
