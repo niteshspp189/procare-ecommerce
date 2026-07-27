@@ -48,8 +48,41 @@ function stripHostFromImages(
   next()
 }
 
+async function preventDeleteForRestrictedAdmin(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  if (req.method === "DELETE") {
+    const actorId = (req as any).auth_context?.actor_id || (req as any).user?.id
+    if (actorId) {
+      try {
+        const userService = req.scope.resolve("user") as any
+        const user = await userService.retrieveUser(actorId)
+        if (
+          user &&
+          (user.email === "admin@propremiumcare.com" || user.metadata?.no_delete === true)
+        ) {
+          return res.status(403).json({
+            type: "forbidden",
+            message: "Delete operations are restricted for this admin account.",
+          })
+        }
+      } catch (err) {
+        // Continue if user retrieval fails
+      }
+    }
+  }
+  next()
+}
+
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/admin/*",
+      method: "DELETE",
+      middlewares: [preventDeleteForRestrictedAdmin],
+    },
     {
       matcher: "/admin/products",
       method: "POST",
