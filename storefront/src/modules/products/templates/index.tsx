@@ -977,7 +977,7 @@ const formatSpecValue = (value: any): string => {
                         const handle = (product.handle || "").toLowerCase()
                         if (handle.includes("shoe-cream-with-applicator")) folder = "shoe-cream-with-applicator"
                         else if (handle.includes("shoe-cream") || handle.includes("black-shoe-cream")) folder = "black-shoe-cream"
-                        else if (handle.includes("self-shine") || handle.includes("instant-shine")) folder = "brown-self-shine"
+                        else if (handle.includes("self-shine") && !handle.includes("instant-shine")) folder = "brown-self-shine"
                         else if (handle.includes("foam-cleaner") || handle.includes("foam")) folder = "foam-cleaner"
                         else if (handle.includes("hydroshield")) folder = "hydroshield"
                         else if (handle.includes("moisturizer")) folder = "leather-moisturizer"

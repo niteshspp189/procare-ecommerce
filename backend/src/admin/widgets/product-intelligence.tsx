@@ -628,7 +628,7 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                             const h = (product.handle || "").toLowerCase()
                                             if (h.includes("shoe-cream-with-applicator")) return "shoe-cream-with-applicator"
                                             if (h.includes("shoe-cream") || h.includes("black-shoe-cream")) return "black-shoe-cream"
-                                            if (h.includes("self-shine") || h.includes("instant-shine")) return "brown-self-shine"
+                                            if (h.includes("self-shine") && !h.includes("instant-shine")) return "brown-self-shine"
                                             if (h.includes("foam-cleaner") || h.includes("foam")) return "foam-cleaner"
                                             if (h.includes("hydroshield")) return "hydroshield"
                                             if (h.includes("moisturizer")) return "leather-moisturizer"
