@@ -17,6 +17,7 @@ services:
       - NODE_ENV=production
       - MEDUSA_BACKEND_URL=http://procare_backend:9000
       - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://propremiumcare.com
+      - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_b0890f83a696f8c2238795063abafa10b07f4e5622a64c10c63c9fcbf3412613
     volumes: []
 
   nginx:
