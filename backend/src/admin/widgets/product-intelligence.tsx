@@ -68,14 +68,20 @@ const HOW_TO_USE_PRESETS = [
     { label: "-- Auto Match by Product Handle --", folder: "", count: 0 },
     { label: "Black Shoe Cream (3 steps)", folder: "black-shoe-cream", count: 3 },
     { label: "Brown Self Shine (5 steps)", folder: "brown-self-shine", count: 5 },
+    { label: "Easy Care Combo Pack Neutral (7 steps)", folder: "easy-care-combo-pack-neutral", count: 7 },
     { label: "Foam Cleaner (6 steps)", folder: "foam-cleaner", count: 6 },
     { label: "Hydroshield (5 steps)", folder: "hydroshield", count: 5 },
     { label: "Leather Moisturizer (3 steps)", folder: "leather-moisturizer", count: 3 },
+    { label: "Navy White (7 steps)", folder: "navy-white", count: 7 },
+    { label: "Perfect Clean Gel (3 steps)", folder: "perfect-clean-gel", count: 3 },
     { label: "Power Cleaning Shampoo (5 steps)", folder: "power-cleaning-shampoo", count: 5 },
-    { label: "Shoe Cream with Applicator (5 steps)", folder: "shoe-cream-with-applicator", count: 5 },
+    { label: "Premium Sneaker Care Kit (7 steps)", folder: "premium-sneaker-care-kit", count: 7 },
+    { label: "Shoe Cream with Applicator (4 steps)", folder: "shoe-cream-with-applicator", count: 4 },
     { label: "Shoe Deo (4 steps)", folder: "shoe-deo", count: 4 },
     { label: "Sneaker Cleaning Kit (5 steps)", folder: "sneaker-cleaning-kit", count: 5 },
     { label: "Sneaker Wipes (5 steps)", folder: "sneaker-wipes", count: 5 },
+    { label: "Sports and Sneaker Cleaning (6 steps)", folder: "sports-and-sneaker-cleaning", count: 6 },
+    { label: "Suede & Nubuck Renovator (5 steps)", folder: "suede-n-nubuck-renovator", count: 5 },
 ]
 
 const AVAILABLE_ICONS = [
