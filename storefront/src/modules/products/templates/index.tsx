@@ -1075,13 +1075,14 @@ const formatSpecValue = (value: any): string => {
 
       {/* BRAND PROMISE SPLIT */}
       <div className="flex flex-col md:flex-row w-full bg-white mb-20 min-h-[600px]">
-        <div className="flex-1 bg-black relative overflow-hidden group min-h-[400px] md:min-h-full">
-          <img
-            src="/images/product-detail-images/product-slider-1.png"
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-            alt="Brand Brand"
+        <div className="flex-1 bg-black relative overflow-hidden group min-h-[400px] md:min-h-full flex items-center justify-center">
+          <iframe
+            src="https://www.youtube.com/embed/vGIpohuaV5k?autoplay=1&mute=1&loop=1&playlist=vGIpohuaV5k&playsinline=1&controls=1"
+            title="Meet the PRO Shoe Care Range | Care Is The New Flex"
+            className="w-full h-full min-h-[450px] border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
         </div>
         <div className="flex-1 bg-[#f0f0f5] flex items-center justify-center p-8 lg:p-12 relative overflow-hidden min-h-[300px] md:min-h-full">
           <div className="relative z-10 w-full max-w-lg">

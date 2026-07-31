@@ -216,17 +216,14 @@ export default async function StagingHome(props: {
                 </div>
               )}
             </div>
-            <div className="flex-1 w-full lg:w-1/2 bg-black rounded-[32px] h-[520px] overflow-hidden group shadow-2xl relative">
-              <img 
-                src={imgBase + 'img_005_1024x1024.png'} 
-                alt="Product Focus" 
-                className="w-full h-full object-cover opacity-70 transition-transform duration-1000 group-hover:scale-105" 
+            <div className="flex-1 w-full lg:w-1/2 bg-black rounded-[32px] h-[520px] overflow-hidden group shadow-2xl relative flex items-center justify-center">
+              <iframe
+                src="https://www.youtube.com/embed/vGIpohuaV5k?autoplay=1&mute=1&loop=1&playlist=vGIpohuaV5k&playsinline=1&controls=1"
+                title="Meet the PRO Shoe Care Range | Care Is The New Flex"
+                className="w-full h-full rounded-[32px] border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
               />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                 <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-                    <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                 </div>
-              </div>
             </div>
           </div>
         </Section>
