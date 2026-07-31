@@ -965,6 +965,27 @@ const formatSpecValue = (value: any): string => {
                 {!useStatic ? (
                   steps.map((step, index) => {
                     let stepImgUrl = ""
+                    let folder = metadata.how_to_use_folder as string | undefined
+                    if (!folder) {
+                      const handle = (product.handle || "").toLowerCase()
+                      if (handle.includes("shoe-cream-with-applicator")) folder = "shoe-cream-with-applicator"
+                      else if (handle.includes("shoe-cream") || handle.includes("black-shoe-cream")) folder = "black-shoe-cream"
+                      else if (handle.includes("self-shine") && !handle.includes("instant-shine")) folder = "brown-self-shine"
+                      else if (handle.includes("easy-care")) folder = "easy-care-combo-pack-neutral"
+                      else if (handle.includes("foam-cleaner") || (handle.includes("foam") && !handle.includes("insole"))) folder = "foam-cleaner"
+                      else if (handle.includes("hydroshield")) folder = "hydroshield"
+                      else if (handle.includes("moisturizer")) folder = "leather-moisturizer"
+                      else if (handle.includes("naivy-white") || handle.includes("navy-white")) folder = "navy-white"
+                      else if (handle.includes("perfect-clean-gel")) folder = "perfect-clean-gel"
+                      else if (handle.includes("shampoo") || handle.includes("power-cleaning")) folder = "power-cleaning-shampoo"
+                      else if (handle.includes("premium-sneaker-care-kit")) folder = "premium-sneaker-care-kit"
+                      else if (handle.includes("shoe-deo") || handle.includes("deo")) folder = "shoe-deo"
+                      else if (handle.includes("sports-sneaker-cleaning") || handle.includes("sports-and-sneaker")) folder = "sports-and-sneaker-cleaning"
+                      else if (handle.includes("suede-and-nubuck-renovator") || handle.includes("suede-n-nubuck")) folder = "suede-n-nubuck-renovator"
+                      else if (handle.includes("kit")) folder = "sneaker-cleaning-kit"
+                      else if (handle.includes("wipes")) folder = "sneaker-wipes"
+                    }
+
                     const metaImages = metadata.how_to_use_images
                     if (Array.isArray(metaImages) && metaImages[index]) {
                       stepImgUrl = metaImages[index]
@@ -976,26 +997,6 @@ const formatSpecValue = (value: any): string => {
                     }
 
                     if (!stepImgUrl) {
-                      let folder = metadata.how_to_use_folder
-                      if (!folder) {
-                        const handle = (product.handle || "").toLowerCase()
-                        if (handle.includes("shoe-cream-with-applicator")) folder = "shoe-cream-with-applicator"
-                        else if (handle.includes("shoe-cream") || handle.includes("black-shoe-cream")) folder = "black-shoe-cream"
-                        else if (handle.includes("self-shine") && !handle.includes("instant-shine")) folder = "brown-self-shine"
-                        else if (handle.includes("easy-care")) folder = "easy-care-combo-pack-neutral"
-                        else if (handle.includes("foam-cleaner") || (handle.includes("foam") && !handle.includes("insole"))) folder = "foam-cleaner"
-                        else if (handle.includes("hydroshield")) folder = "hydroshield"
-                        else if (handle.includes("moisturizer")) folder = "leather-moisturizer"
-                        else if (handle.includes("naivy-white") || handle.includes("navy-white")) folder = "navy-white"
-                        else if (handle.includes("perfect-clean-gel")) folder = "perfect-clean-gel"
-                        else if (handle.includes("shampoo") || handle.includes("power-cleaning")) folder = "power-cleaning-shampoo"
-                        else if (handle.includes("premium-sneaker-care-kit")) folder = "premium-sneaker-care-kit"
-                        else if (handle.includes("shoe-deo") || handle.includes("deo")) folder = "shoe-deo"
-                        else if (handle.includes("sports-sneaker-cleaning") || handle.includes("sports-and-sneaker")) folder = "sports-and-sneaker-cleaning"
-                        else if (handle.includes("suede-and-nubuck-renovator") || handle.includes("suede-n-nubuck")) folder = "suede-n-nubuck-renovator"
-                        else if (handle.includes("kit")) folder = "sneaker-cleaning-kit"
-                        else if (handle.includes("wipes")) folder = "sneaker-wipes"
-                      }
                       if (folder) {
                         stepImgUrl = `/images/how-to-use/${folder}/step-${index + 1}.png`
                       } else {
@@ -1013,7 +1014,9 @@ const formatSpecValue = (value: any): string => {
                             onError={(e) => {
                               // Fallback if specific step image doesn't exist
                               const target = e.target as HTMLImageElement
-                              if (!target.src.includes("landing-page-images")) {
+                              if (folder && !target.src.includes("recommended.png") && !target.src.includes("product-detail-images")) {
+                                target.src = `/images/how-to-use/${folder}/recommended.png`
+                              } else if (!target.src.includes("product-detail-images") && !target.src.includes("landing-page-images")) {
                                 target.src = `${imgBase}how${(index % 4) + 1}.png`
                               }
                             }}
