@@ -1080,9 +1080,9 @@ const formatSpecValue = (value: any): string => {
       <div className="flex flex-col md:flex-row w-full bg-white mb-20 min-h-[600px]">
         <div className="flex-1 bg-black relative overflow-hidden group min-h-[400px] md:min-h-full flex items-center justify-center">
           <iframe
-            src="https://www.youtube.com/embed/vGIpohuaV5k?autoplay=1&mute=1&loop=1&playlist=vGIpohuaV5k&playsinline=1&controls=1"
+            src="https://www.youtube-nocookie.com/embed/vGIpohuaV5k?autoplay=1&mute=1&loop=1&playlist=vGIpohuaV5k&playsinline=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3"
             title="Meet the PRO Shoe Care Range | Care Is The New Flex"
-            className="w-full h-full min-h-[450px] border-0"
+            className="w-full h-full min-h-[450px] border-0 pointer-events-none scale-105"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />

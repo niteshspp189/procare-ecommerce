@@ -218,9 +218,9 @@ export default async function StagingHome(props: {
             </div>
             <div className="flex-1 w-full lg:w-1/2 bg-black rounded-[32px] h-[520px] overflow-hidden group shadow-2xl relative flex items-center justify-center">
               <iframe
-                src="https://www.youtube.com/embed/vGIpohuaV5k?autoplay=1&mute=1&loop=1&playlist=vGIpohuaV5k&playsinline=1&controls=1"
+                src="https://www.youtube-nocookie.com/embed/vGIpohuaV5k?autoplay=1&mute=1&loop=1&playlist=vGIpohuaV5k&playsinline=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3"
                 title="Meet the PRO Shoe Care Range | Care Is The New Flex"
-                className="w-full h-full rounded-[32px] border-0"
+                className="w-full h-full rounded-[32px] border-0 pointer-events-none scale-105"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
