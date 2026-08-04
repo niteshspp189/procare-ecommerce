@@ -67,3 +67,7 @@ latest/
 
 # Storefront Product Images
 storefront/public/images/products/
+
+# Temporary ignored files
+untracked_files/
+backend/public/admin/
