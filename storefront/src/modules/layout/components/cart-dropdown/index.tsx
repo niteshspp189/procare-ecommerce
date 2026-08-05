@@ -55,8 +55,8 @@ const CartDropdown = ({
     cartState?.items?.reduce((acc, item) => acc + (localQuantities[item.id] ?? item.quantity), 0) || 0
   const subtotal = cartState?.items?.reduce((acc, item) => {
     const qty = localQuantities[item.id] ?? item.quantity
-    const unitPrice = item.unit_price ?? 0
-    return acc + unitPrice * qty
+    const unitPriceWithTax = item.quantity > 0 ? ((item.total ?? 0) / item.quantity) : (item.unit_price ?? 0)
+    return acc + unitPriceWithTax * qty
   }, 0) ?? 0
   const currencyCode = cartState?.currency_code ?? "inr"
   const amountToFreeShipping = Math.max(0, threshold - subtotal)

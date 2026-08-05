@@ -47,7 +47,9 @@ const Summary = ({ cart }: SummaryProps) => {
   }, [])
 
   const step = getCheckoutStep(cart)
-  const subtotal = cart.subtotal ?? 0
+  const effectiveTotal = cart.total ?? 0
+  const effectiveShipping = cart.shipping_total ?? cart.shipping_subtotal ?? 0
+  const subtotal = effectiveTotal - effectiveShipping
   const amountToFreeShipping = Math.max(0, threshold - subtotal)
   const freeShippingProgress = Math.min(100, (subtotal / threshold) * 100)
   const hasFreeShipping = subtotal >= threshold
