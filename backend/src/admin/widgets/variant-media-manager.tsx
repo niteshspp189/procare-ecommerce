@@ -70,37 +70,45 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     fetchVariantImages()
   }, [variantId])
 
-  // Hide the native media widget
+  // Hide the native media widget instantly using MutationObserver to prevent flicker
   useEffect(() => {
-    if (hasMultipleVariants) {
-      const hideNativeMedia = () => {
-        const headings = Array.from(document.querySelectorAll('h2'))
-        headings.forEach(h => {
-          if (h.textContent?.trim() === "Media" && !h.textContent.includes("Smooth")) {
-            // Find the closest container card and hide it
-            let curr: HTMLElement | null = h
-            for (let i = 0; i < 5; i++) {
-              if (curr && curr.classList.contains("bg-white")) {
+    if (!hasMultipleVariants) return;
+
+    const hideNativeMedia = () => {
+      const headings = Array.from(document.querySelectorAll('h2'))
+      headings.forEach(h => {
+        if (h.textContent?.trim() === "Media" && !h.textContent.includes("Smooth")) {
+          // Find the closest container card and hide it
+          let curr: HTMLElement | null = h
+          for (let i = 0; i < 5; i++) {
+            if (curr && curr.classList.contains("bg-white")) {
+              if (curr.style.display !== "none") {
                 curr.style.display = "none"
-                return
               }
-              if (curr) curr = curr.parentElement
+              return
             }
-            // Fallback: hide parent's parent if bg-white not found
-            if (h.parentElement?.parentElement) {
+            if (curr) curr = curr.parentElement
+          }
+          // Fallback: hide parent's parent if bg-white not found
+          if (h.parentElement?.parentElement) {
+            if (h.parentElement.parentElement.style.display !== "none") {
               h.parentElement.parentElement.style.display = "none"
             }
           }
-        })
-      }
-      
-      hideNativeMedia()
-      const t1 = setTimeout(hideNativeMedia, 100)
-      const t2 = setTimeout(hideNativeMedia, 500)
-      const t3 = setTimeout(hideNativeMedia, 1500)
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+        }
+      })
     }
-  }, [hasMultipleVariants, fetching, images])
+    
+    hideNativeMedia()
+
+    const observer = new MutationObserver(() => {
+      hideNativeMedia()
+    })
+
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
+  }, [hasMultipleVariants])
 
   // Smooth Drag & Drop with Drop Target Highlight
   const handleDragStart = (e: React.DragEvent, index: number) => {
