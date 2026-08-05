@@ -49,19 +49,7 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
         </div>
       )}
 
-      {!!image.url && (
-        <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
-          <Image
-            src={getFormattedUrl(image.url)}
-            className="absolute inset-0 object-cover blur-2xl opacity-40 scale-105"
-            alt=""
-            fill
-            sizes="120px"
-            unoptimized={true}
-            priority={index === 0}
-          />
-        </div>
-      )}
+
 
       {!!image.url && (
         <TransformWrapper
@@ -235,7 +223,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
               e.preventDefault()
               handleDesktopThumb(image, index)
             }}
-            className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-gray-50 flex-shrink-0 cursor-pointer
+            className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
               ${activeIndex === index
                 ? "border-black shadow-md"
                 : "border-transparent hover:border-gray-400"
@@ -287,7 +275,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
                   e.preventDefault()
                   handleMobileThumb(image, index)
                 }}
-                className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-gray-50 flex-shrink-0 cursor-pointer
+                className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
                   ${activeIndex === index
                     ? "border-black shadow-sm"
                     : "border-gray-200 hover:border-gray-400"

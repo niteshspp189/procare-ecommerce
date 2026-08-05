@@ -63,7 +63,7 @@ const ImageOrPlaceholder = ({
       unoptimized={isLocalImage}
     />
   ) : (
-    <div className="w-full h-full absolute inset-0 flex items-center justify-center bg-slate-50">
+    <div className="w-full h-full absolute inset-0 flex items-center justify-center bg-white">
       <Image
         src="/images/polish.jpeg"
         alt="No picture"
