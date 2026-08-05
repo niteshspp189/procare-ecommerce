@@ -10,6 +10,7 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
   const [images, setImages] = useState<Array<{ id: string; url: string }>>([])
   const [productImages, setProductImages] = useState<Array<{ id: string; url: string }>>([])
   const [saving, setSaving] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -21,6 +22,7 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
 
   const fetchVariantImages = async () => {
     if (!variantId) return
+    setFetching(true)
     try {
       const res = await fetch(`/admin/products/${productId}?fields=*variants,+variants.metadata,*images`, { credentials: "include" })
       const data = await res.json()
@@ -59,12 +61,46 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
       setImages(vImgs)
     } catch (e: any) {
       console.error("Error fetching variant images:", e)
+    } finally {
+      setFetching(false)
     }
   }
 
   useEffect(() => {
     fetchVariantImages()
   }, [variantId])
+
+  // Hide the native media widget
+  useEffect(() => {
+    if (hasMultipleVariants) {
+      const hideNativeMedia = () => {
+        const headings = Array.from(document.querySelectorAll('h2'))
+        headings.forEach(h => {
+          if (h.textContent?.trim() === "Media" && !h.textContent.includes("Smooth")) {
+            // Find the closest container card and hide it
+            let curr: HTMLElement | null = h
+            for (let i = 0; i < 5; i++) {
+              if (curr && curr.classList.contains("bg-white")) {
+                curr.style.display = "none"
+                return
+              }
+              if (curr) curr = curr.parentElement
+            }
+            // Fallback: hide parent's parent if bg-white not found
+            if (h.parentElement?.parentElement) {
+              h.parentElement.parentElement.style.display = "none"
+            }
+          }
+        })
+      }
+      
+      hideNativeMedia()
+      const t1 = setTimeout(hideNativeMedia, 100)
+      const t2 = setTimeout(hideNativeMedia, 500)
+      const t3 = setTimeout(hideNativeMedia, 1500)
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+    }
+  }, [hasMultipleVariants, fetching, images])
 
   // Smooth Drag & Drop with Drop Target Highlight
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -185,15 +221,6 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
 
   return (
     <Container className="p-5 mb-6 bg-white rounded-2xl border border-gray-200 shadow-sm select-none">
-      {hasMultipleVariants && (
-        <style>{`
-          /* Hide the native variant media accordion to avoid confusion and desync */
-          div[id="media"], 
-          div:has(> div > h2:contains("Media")):not(:has(h2:contains("Smooth"))) {
-            display: none !important;
-          }
-        `}</style>
-      )}
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
         <div>
           <Heading level="h2" className="text-base font-bold text-gray-900 flex items-center gap-2">
@@ -222,7 +249,12 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
         </div>
       </div>
 
-      {images.length === 0 ? (
+      {fetching ? (
+        <div className="p-6 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200 h-[200px]">
+          <div className="w-8 h-8 border-4 border-[#00bda5] border-t-transparent rounded-full animate-spin mb-3"></div>
+          <span className="font-semibold text-gray-500">Loading variant images...</span>
+        </div>
+      ) : images.length === 0 ? (
         <div className="p-6 text-center text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
           No images assigned to this variant yet. Click "+ Add Product Images" to select.
         </div>
