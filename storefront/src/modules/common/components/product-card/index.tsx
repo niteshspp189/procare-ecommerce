@@ -96,7 +96,7 @@ export default function ProductCard({
         href={`/products/${product.handle}`}
         className="flex-1 flex flex-col no-underline"
       >
-        <div className="relative w-full h-[180px] sm:h-[240px] md:h-[320px] rounded-[16px] overflow-hidden bg-white mb-3 small:mb-4 transition-colors shrink-0">
+        <div className="relative w-full aspect-[4/5] rounded-[16px] overflow-hidden bg-white mb-3 small:mb-4 transition-colors shrink-0">
           <Thumbnail
             thumbnail={product.thumbnail}
             images={product.images}
