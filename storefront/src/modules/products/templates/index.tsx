@@ -984,8 +984,8 @@ const formatSpecValue = (value: any): string => {
                       else if (handle.includes("shoe-deo") || handle.includes("deo")) folder = "shoe-deo"
                       else if (handle.includes("sports-sneaker-cleaning") || handle.includes("sports-and-sneaker")) folder = "sports-and-sneaker-cleaning"
                       else if (handle.includes("suede-and-nubuck-renovator") || handle.includes("suede-n-nubuck")) folder = "suede-n-nubuck-renovator"
-                      else if (handle.includes("kit")) folder = "sneaker-cleaning-kit"
-                      else if (handle.includes("wipes")) folder = "sneaker-wipes"
+                      else if (handle === "pro-sneaker-cleaning-kit" || handle === "sneaker-cleaning-kit" || handle === "pro-gold-sneaker-cleaning-kit-shampoo-mini-brush") folder = "sneaker-cleaning-kit"
+                      else if (handle === "pro-gold-sneaker-wipes-pack-of-30" || handle === "sneaker-wipes") folder = "sneaker-wipes"
                     }
 
                     const metaImages = metadata.how_to_use_images
