@@ -145,24 +145,37 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
   }, [])
 
   // ── IntersectionObserver: highlight thumbnail as user swipes/scrolls ──────
+  const intersectionRatios = useRef<number[]>([])
+
   useEffect(() => {
+    intersectionRatios.current = new Array(images.length).fill(0)
     const container = document.getElementById("main-gallery-container")
     if (!container || images.length === 0) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        let bestRatio = 0
-        let bestIdx = -1
         entries.forEach((entry) => {
-          if (entry.intersectionRatio > bestRatio) {
-            bestRatio = entry.intersectionRatio
-            const idx = images.findIndex(
-              (img) => `gallery-img-${img.id}` === entry.target.id
-            )
-            if (idx !== -1) bestIdx = idx
+          const idx = images.findIndex(
+            (img) => `gallery-img-${img.id}` === entry.target.id
+          )
+          if (idx !== -1) {
+            intersectionRatios.current[idx] = entry.intersectionRatio
           }
         })
-        if (bestIdx !== -1 && bestRatio >= 0.45) setActiveIndex(bestIdx)
+
+        let bestRatio = 0
+        let bestIdx = -1
+        
+        intersectionRatios.current.forEach((ratio, idx) => {
+          if (ratio > bestRatio) {
+            bestRatio = ratio
+            bestIdx = idx
+          }
+        })
+
+        if (bestIdx !== -1 && bestRatio >= 0.45) {
+          setActiveIndex(bestIdx)
+        }
       },
       {
         root: container,
