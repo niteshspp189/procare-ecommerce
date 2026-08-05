@@ -15,7 +15,6 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [isSingleVariant, setIsSingleVariant] = useState(false)
-  const [hasMultipleVariants, setHasMultipleVariants] = useState(false)
 
   const variantId = variant?.id
   const productId = variant?.product_id || variant?.product?.id || (typeof window !== "undefined" ? window.location.pathname.split("/products/")[1]?.split("/")[0] : null)
@@ -35,8 +34,6 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
       const pVariants = p.variants || []
       if (pVariants.length <= 1) {
         setIsSingleVariant(true)
-      } else {
-        setHasMultipleVariants(true)
       }
 
       const v = pVariants.find((vItem: any) => vItem.id === variantId)
@@ -70,26 +67,20 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     fetchVariantImages()
   }, [variantId])
 
-  // Hide the native media widget instantly using MutationObserver to prevent flicker
+  // Hide the native media widget instantly using MutationObserver to prevent flicker on mount
   useEffect(() => {
-    if (!hasMultipleVariants) return;
-
     const hideNativeMedia = () => {
       const headings = Array.from(document.querySelectorAll('h2'))
       headings.forEach(h => {
         if (h.textContent?.trim() === "Media" && !h.textContent.includes("Smooth")) {
-          // Find the closest container card and hide it
           let curr: HTMLElement | null = h
           for (let i = 0; i < 5; i++) {
             if (curr && curr.classList.contains("bg-white")) {
-              if (curr.style.display !== "none") {
-                curr.style.display = "none"
-              }
+              if (curr.style.display !== "none") curr.style.display = "none"
               return
             }
             if (curr) curr = curr.parentElement
           }
-          // Fallback: hide parent's parent if bg-white not found
           if (h.parentElement?.parentElement) {
             if (h.parentElement.parentElement.style.display !== "none") {
               h.parentElement.parentElement.style.display = "none"
@@ -100,21 +91,21 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     }
     
     hideNativeMedia()
-
-    const observer = new MutationObserver(() => {
-      hideNativeMedia()
-    })
-
+    const observer = new MutationObserver(() => hideNativeMedia())
     observer.observe(document.body, { childList: true, subtree: true })
 
-    return () => observer.disconnect()
-  }, [hasMultipleVariants])
+    return () => {
+      observer.disconnect()
+      // Note: we don't unhide it when unmounting because if we are in variant view, we always want it hidden.
+    }
+  }, []) // Empty dependency array means it runs immediately on mount!
+
+  const [imageToDelete, setImageToDelete] = useState<number | null>(null)
 
   // Smooth Drag & Drop with Drop Target Highlight
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index)
     e.dataTransfer.effectAllowed = "move"
-    // Transparent drag ghost image for smooth dragging
     const ghost = document.createElement("div")
     ghost.style.width = "0px"
     ghost.style.height = "0px"
@@ -170,10 +161,11 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     toast.success("Set as primary thumbnail")
   }
 
-  const removeImage = (index: number) => {
-    if (window.confirm("Are you sure you want to remove this image from the variant?")) {
-      const updated = images.filter((_, i) => i !== index)
+  const confirmRemoveImage = () => {
+    if (imageToDelete !== null) {
+      const updated = images.filter((_, i) => i !== imageToDelete)
       setImages(updated)
+      setImageToDelete(null)
     }
   }
 
@@ -337,9 +329,9 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
 
                   <button
                     type="button"
-                    onClick={() => removeImage(idx)}
-                    className="px-1.5 py-0.5 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded cursor-pointer transition-colors"
-                    title="Remove Image"
+                    className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                    onClick={() => setImageToDelete(idx)}
+                    title="Remove image"
                   >
                     ✕
                   </button>
@@ -347,6 +339,39 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {imageToDelete !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-5 border-b border-gray-100">
+              <Heading level="h2" className="text-lg font-bold text-gray-900">
+                Remove Image
+              </Heading>
+            </div>
+            <div className="p-5">
+              <Text className="text-gray-600 mb-4">
+                Are you sure you want to remove this image from the variant? This action can be saved later.
+              </Text>
+              
+              {images[imageToDelete] && (
+                <div className="w-24 h-24 mx-auto rounded-lg border border-gray-200 overflow-hidden mb-2">
+                  <img src={images[imageToDelete].url} className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">
+              <Button variant="secondary" onClick={() => setImageToDelete(null)}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={confirmRemoveImage} className="bg-red-500 hover:bg-red-600 text-white">
+                Remove
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
