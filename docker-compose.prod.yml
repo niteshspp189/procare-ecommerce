@@ -7,7 +7,6 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgres://propremiumcare:Mvsc2026%23%2356@database-1.c5wkcis2qg1p.ap-south-1.rds.amazonaws.com:5432/prepreimiumcare_ecommerce?ssl=true&sslmode=no-verify
       - REDIS_URL=redis://redis:6379
-    volumes: []
 
   storefront:
     depends_on:
@@ -18,7 +17,6 @@ services:
       - MEDUSA_BACKEND_URL=http://procare_backend:9000
       - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://propremiumcare.com
       - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_b0890f83a696f8c2238795063abafa10b07f4e5622a64c10c63c9fcbf3412613
-    volumes: []
 
   nginx:
     build:
