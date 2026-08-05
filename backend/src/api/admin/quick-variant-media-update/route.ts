@@ -6,6 +6,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const body = req.body as {
     variant_id: string
+    product_id: string
     image_urls: string[]
     metadata: Record<string, string>
   }
@@ -15,13 +16,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   }
 
   try {
-    const { variant_id, image_urls = [], metadata = {} } = body
+    const { variant_id, product_id, image_urls = [], metadata = {} } = body
 
     // 1. Fetch current variant metadata and merge
     const varRows = await pgConnection("product_variant").select("metadata").where({ id: variant_id })
     const currentMeta = varRows[0]?.metadata || {}
     
     // Clear out old images so they don't persist if they were removed
+    delete currentMeta['thumbnail']
     for (let i = 1; i <= 10; i++) {
       delete currentMeta[`image_${i}`]
     }
@@ -41,7 +43,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       let imgRow = await pgConnection("image").select("id").where({ url }).first()
       if (!imgRow) {
         const newId = `img_var_${Date.now()}_${idx}`
-        await pgConnection("image").insert({ id: newId, url, created_at: new Date(), updated_at: new Date() })
+        await pgConnection("image").insert({ 
+          id: newId, 
+          url, 
+          product_id, // Required by DB constraint
+          created_at: new Date(), 
+          updated_at: new Date() 
+        })
         imgRow = { id: newId }
       }
       await pgConnection("product_variant_product_image").insert({

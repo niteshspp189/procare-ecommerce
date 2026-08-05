@@ -157,6 +157,7 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
         credentials: "include",
         body: JSON.stringify({
           variant_id: variantId,
+          product_id: productId,
           image_urls: images.map(i => i.url),
           metadata: metaUpdate
         })
@@ -184,9 +185,10 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     <Container className="p-5 mb-6 bg-white rounded-2xl border border-gray-200 shadow-sm select-none">
       {hasMultipleVariants && (
         <style>{`
-          /* Attempt to visually hide the native variant media accordion to avoid confusion */
-          #media, [id*="media"] {
-            /* This is a soft attempt, exact ID depends on Medusa version, but this targets the Media block */
+          /* Hide the native variant media accordion to avoid confusion and desync */
+          div[id="media"], 
+          div:has(> div > h2:contains("Media")):not(:has(h2:contains("Smooth"))) {
+            display: none !important;
           }
         `}</style>
       )}
@@ -248,6 +250,7 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
                 <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-white mb-2 shadow-2xs">
                   <img
                     src={img.url}
+                    loading="lazy"
                     alt={`Variant Image ${idx + 1}`}
                     className="w-full h-full object-cover pointer-events-none"
                   />
