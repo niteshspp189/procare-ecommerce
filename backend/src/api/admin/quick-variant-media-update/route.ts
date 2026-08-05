@@ -46,7 +46,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       }
       await pgConnection("product_variant_product_image").insert({
         variant_id,
-        image_id: imgRow.id
+        image_id: imgRow.id,
+        created_at: new Date(Date.now() + idx * 1000), // Space out by 1 sec to enforce sort order
+        updated_at: new Date(Date.now() + idx * 1000)
       })
     }
 
