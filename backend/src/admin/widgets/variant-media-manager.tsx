@@ -127,8 +127,10 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
   }
 
   const removeImage = (index: number) => {
-    const updated = images.filter((_, i) => i !== index)
-    setImages(updated)
+    if (window.confirm("Are you sure you want to remove this image from the variant?")) {
+      const updated = images.filter((_, i) => i !== index)
+      setImages(updated)
+    }
   }
 
   const addImageToVariant = (url: string) => {
@@ -202,6 +204,9 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
           </Text>
         </div>
         <div className="flex items-center gap-2">
+          <Button size="small" variant="transparent" onClick={fetchVariantImages} title="Refresh Images from Database">
+            🔄 Refresh
+          </Button>
           <Button size="small" variant="secondary" onClick={() => setShowAddModal(true)}>
             + Add Product Images
           </Button>
