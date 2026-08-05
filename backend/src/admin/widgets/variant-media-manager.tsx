@@ -13,6 +13,8 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [isSingleVariant, setIsSingleVariant] = useState(false)
+  const [hasMultipleVariants, setHasMultipleVariants] = useState(false)
 
   const variantId = variant?.id
   const productId = variant?.product_id
@@ -27,8 +29,15 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
 
       const pImgs = (p.images || []).map((i: any) => ({ id: i.id, url: i.url }))
       setProductImages(pImgs)
+      
+      const pVariants = p.variants || []
+      if (pVariants.length <= 1) {
+        setIsSingleVariant(true)
+      } else {
+        setHasMultipleVariants(true)
+      }
 
-      const v = (p.variants || []).find((vItem: any) => vItem.id === variantId)
+      const v = pVariants.find((vItem: any) => vItem.id === variantId)
       const meta = v?.metadata || {}
       
       const vImgs: Array<{ id: string; url: string }> = []
@@ -167,8 +176,20 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     }
   }
 
+  if (isSingleVariant) {
+    return null;
+  }
+
   return (
     <Container className="p-5 mb-6 bg-white rounded-2xl border border-gray-200 shadow-sm select-none">
+      {hasMultipleVariants && (
+        <style>{`
+          /* Attempt to visually hide the native variant media accordion to avoid confusion */
+          #media, [id*="media"] {
+            /* This is a soft attempt, exact ID depends on Medusa version, but this targets the Media block */
+          }
+        `}</style>
+      )}
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
         <div>
           <Heading level="h2" className="text-base font-bold text-gray-900 flex items-center gap-2">
