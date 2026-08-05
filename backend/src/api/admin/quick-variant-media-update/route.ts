@@ -20,6 +20,12 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     // 1. Fetch current variant metadata and merge
     const varRows = await pgConnection("product_variant").select("metadata").where({ id: variant_id })
     const currentMeta = varRows[0]?.metadata || {}
+    
+    // Clear out old images so they don't persist if they were removed
+    for (let i = 1; i <= 10; i++) {
+      delete currentMeta[`image_${i}`]
+    }
+    
     const updatedMeta = { ...currentMeta, ...metadata }
 
     // Update variant metadata
