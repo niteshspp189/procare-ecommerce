@@ -17,12 +17,12 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
   const [hasMultipleVariants, setHasMultipleVariants] = useState(false)
 
   const variantId = variant?.id
-  const productId = variant?.product_id
+  const productId = variant?.product_id || variant?.product?.id || (typeof window !== "undefined" ? window.location.pathname.split("/products/")[1]?.split("/")[0] : null)
 
   const fetchVariantImages = async () => {
     if (!variantId) return
     try {
-      const res = await fetch(`/admin/products/${productId}?fields=*variants,*images`, { credentials: "include" })
+      const res = await fetch(`/admin/products/${productId}?fields=*variants,+variants.metadata,*images`, { credentials: "include" })
       const data = await res.json()
       const p = data?.product
       if (!p) return
