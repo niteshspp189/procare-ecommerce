@@ -333,16 +333,18 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [product?.variants, options])
 
   const images = useMemo(() => {
-    const productImages = product?.images?.length
-      ? product.images
-      : product?.thumbnail
-        ? ([
-          { id: "thumbnail", url: product.thumbnail },
-        ] as HttpTypes.StoreProductImage[])
-        : []
+    let productImages: HttpTypes.StoreProductImage[] = []
+    
+    if (product?.thumbnail) {
+      productImages.push({ id: "thumbnail", url: product.thumbnail } as any)
+    }
+    
+    if (product?.images?.length) {
+      productImages = [...productImages, ...product.images]
+    }
 
     if (productImages.length === 0) {
-      productImages.push({ id: 'placeholder', url: '/images/polish.jpeg' } as HttpTypes.StoreProductImage)
+      productImages.push({ id: 'placeholder', url: '/images/polish.jpeg' } as any)
     }
 
     if (!selectedVariant) {
