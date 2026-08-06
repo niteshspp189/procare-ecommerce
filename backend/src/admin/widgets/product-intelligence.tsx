@@ -57,6 +57,8 @@ const AVAILABLE_BADGES: { label: string; imgFile: string }[] = [
     { label: "Remove Callus & Dead Skin",     imgFile: "remove-callus-and-dead-skin.png" },
     { label: "Maintains Original Shape",      imgFile: "maintains-the-originals-shape.png" },
     { label: "Contain High Quality",          imgFile: "contain-high-quality.png" },
+    { label: "Protect",                       imgFile: "protect.png" },
+    { label: "Multi purpose design",          imgFile: "multi-purpose-design.png" },
     // Logistics
     { label: "Free Shipping",                 imgFile: "free-shipping.png" },
     { label: "15 Day Return",                 imgFile: "15-day-return.png" },
