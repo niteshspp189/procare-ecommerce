@@ -14,7 +14,6 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [isSingleVariant, setIsSingleVariant] = useState(false)
 
   const variantId = variant?.id
   const productId = variant?.product_id || variant?.product?.id || (typeof window !== "undefined" ? window.location.pathname.split("/products/")[1]?.split("/")[0] : null)
@@ -32,9 +31,6 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
       setProductImages(pImgs)
       
       const pVariants = p.variants || []
-      if (pVariants.length <= 1) {
-        setIsSingleVariant(true)
-      }
 
       const v = pVariants.find((vItem: any) => vItem.id === variantId)
       const meta = v?.metadata || {}
@@ -213,10 +209,6 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
     } finally {
       setSaving(false)
     }
-  }
-
-  if (isSingleVariant) {
-    return null;
   }
 
   return (
