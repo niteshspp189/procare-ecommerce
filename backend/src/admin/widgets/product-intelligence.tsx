@@ -58,7 +58,7 @@ const AVAILABLE_BADGES: { label: string; imgFile: string }[] = [
     { label: "Maintains Original Shape",      imgFile: "maintains-the-originals-shape.png" },
     { label: "Contain High Quality",          imgFile: "contain-high-quality.png" },
     { label: "Protect",                       imgFile: "protect.png" },
-    { label: "Multi purpose design",          imgFile: "multi-purpose-design.png" },
+    { label: "Water Protection",              imgFile: "water-protection.png" },
     // Logistics
     { label: "Free Shipping",                 imgFile: "free-shipping.png" },
     { label: "15 Day Return",                 imgFile: "15-day-return.png" },
