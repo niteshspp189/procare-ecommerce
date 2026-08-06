@@ -18,6 +18,7 @@ const AVAILABLE_BADGES: { label: string; imgFile: string }[] = [
     { label: "PRO Accessories",     imgFile: "pro-accessories.png" },
     { label: "PRO Color",           imgFile: "pro-color-green.png" },
     // Benefits
+    { label: "Ease",                          imgFile: "ease.png" },
     { label: "Essentials",                    imgFile: "essentials.png" },
     { label: "Comfort",                       imgFile: "comfort.png" },
     { label: "Cushioning",                    imgFile: "cushioning.png" },
