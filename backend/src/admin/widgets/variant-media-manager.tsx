@@ -216,11 +216,8 @@ export default function VariantMediaManagerWidget({ data: variant }: { data: any
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
         <div>
           <Heading level="h2" className="text-base font-bold text-gray-900 flex items-center gap-2">
-            📸 Smooth Variant Gallery (Drag & Drop Reordering)
+            Variant Gallery
           </Heading>
-          <Text size="small" className="text-gray-500">
-            Smooth drag-and-drop or click arrows to re-order images. The 1st image is used as the primary thumbnail.
-          </Text>
         </div>
         <div className="flex items-center gap-2">
           <Button size="small" variant="transparent" onClick={fetchVariantImages} title="Refresh Images from Database">
