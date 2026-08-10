@@ -85,9 +85,9 @@ export default async function orderPlacedHandler({
         const code = generateOTP()
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
         
-        const dbConnection = container.resolve("pg_connection") as any
-        await dbConnection.query(
-            "INSERT INTO otp_code (email, code, expires_at) VALUES ($1, $2, $3)",
+        const dbConnection = container.resolve("__pg_connection__") as any
+        await dbConnection.raw(
+            "INSERT INTO otp_code (email, code, expires_at) VALUES (?, ?, ?)",
             [order.email, code, expiresAt]
         )
 
@@ -111,17 +111,20 @@ export default async function orderPlacedHandler({
 
   // Auto-capture payment for the order so it shows as Paid in Admin
   try {
-      const dbConnection = container.resolve("pg_connection") as any
-      // In Medusa v2 payment_collection holds the status
-      await dbConnection.query(
-          "UPDATE payment_collection SET status = 'captured' WHERE order_id = $1",
-          [order.id]
-      )
-      // Fallback for direct order table
-      await dbConnection.query(
-          "UPDATE \"order\" SET payment_status = 'captured' WHERE id = $1",
-          [order.id]
-      )
+    const dbConnection = container.resolve("__pg_connection__") as any
+      await dbConnection.raw(`
+          UPDATE payment_collection 
+          SET status = 'completed', captured_amount = amount, raw_captured_amount = raw_amount
+          WHERE id IN (SELECT payment_collection_id FROM order_payment_collection WHERE order_id = ?)
+      `, [order.id])
+
+      await dbConnection.raw(`
+          UPDATE payment 
+          SET captured_at = NOW()
+          WHERE payment_collection_id IN (SELECT payment_collection_id FROM order_payment_collection WHERE order_id = ?)
+      `, [order.id])
+      
+
       console.log(`[OrderPlacedSubscriber] Marked payment as captured for order ${order.id}`)
   } catch (e) {
       console.error("[OrderPlacedSubscriber] Failed to auto-capture payment:", e)

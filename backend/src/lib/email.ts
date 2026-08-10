@@ -77,11 +77,12 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.fontSize(8).font(KELSON_BOLD).text("SHIPPING ADDRESS:", 40, sectionY)
     doc.font(KELSON_REGULAR)
     const addr = order.shipping_address || {}
-    doc.text(`${addr.first_name || ''} ${addr.last_name || ''}`, 40, doc.y + 5)
-    if (addr.address_1) doc.text(addr.address_1)
-    if (addr.address_2) doc.text(addr.address_2)
-    if (addr.city || addr.province) doc.text(`${addr.city || ''}, ${addr.province || ''} ${addr.postal_code || ''}`)
-    if (addr.country_code) doc.text(addr.country_code.toUpperCase())
+    const addrOpts = { width: 140 }
+    doc.text(`${addr.first_name || ''} ${addr.last_name || ''}`, 40, doc.y + 5, addrOpts)
+    if (addr.address_1) doc.text(addr.address_1, addrOpts)
+    if (addr.address_2) doc.text(addr.address_2, addrOpts)
+    if (addr.city || addr.province) doc.text(`${addr.city || ''}, ${addr.province || ''} ${addr.postal_code || ''}`, addrOpts)
+    if (addr.country_code) doc.text(addr.country_code.toUpperCase(), addrOpts)
 
     // 2. SOLD BY
     // Dotted borders

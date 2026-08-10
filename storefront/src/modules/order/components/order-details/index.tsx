@@ -94,7 +94,14 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
       </Text>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-compact-small mt-4">
-        {showStatus && (
+        {showStatus && order.fulfillment_status === "fulfilled" && order.payment_status === "captured" ? (
+          <Text>
+            Order status:{" "}
+            <span className="text-[#00b5a4] font-bold" data-testid="order-status">
+              Success
+            </span>
+          </Text>
+        ) : showStatus ? (
           <>
             <Text>
               Order status:{" "}
@@ -109,7 +116,7 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
               </span>
             </Text>
           </>
-        )}
+        ) : null}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {trackingInfo && (
             <button
@@ -147,10 +154,27 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
             </div>
           )}
           {trackingError && trackingError === "No tracking data available yet." ? (
-            <div className="text-center py-4 bg-white border border-gray-100 rounded-xl">
-              <p className="text-sm text-slate-800 font-medium">
-                No tracking data available yet.
-              </p>
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-x-1.5 items-center mb-1">
+                {trackingInfo?.awb ? (
+                  <span className="text-xs text-slate-500">AWB: <span className="font-mono font-bold text-slate-800">{trackingInfo.awb}</span></span>
+                ) : (
+                  <span className="text-xs text-slate-500">Shipment ID: <span className="font-mono font-bold text-slate-800">{trackingInfo?.shipmentId}</span>
+                    <span className="ml-1 text-orange-500 font-semibold">(AWB pending)</span>
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3 bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Status</p>
+                  <p className="text-base font-black text-[#00b5a4] capitalize mt-0.5">Ready to Ship</p>
+                </div>
+              </div>
+              <div className="text-center py-2">
+                <p className="text-xs text-slate-500">
+                  Your order is packed and waiting for the courier to pick it up.
+                </p>
+              </div>
             </div>
           ) : trackingError && (
             <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-700">

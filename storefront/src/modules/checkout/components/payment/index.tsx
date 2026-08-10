@@ -22,7 +22,7 @@ const Payment = ({
   availablePaymentMethods: any[]
 }) => {
   const filteredPaymentMethods = (availablePaymentMethods ?? []).filter(
-    (method: any) => method.id !== "manual"
+    (method: any) => method.id !== "manual" && method.id !== "pp_system_default"
   )
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(

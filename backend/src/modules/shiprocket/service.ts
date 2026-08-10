@@ -38,7 +38,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     // This is only called if the shipping option is mistakenly set to "Calculated" in Admin
     // We return a fallback here, but flat rate should be used.
     return {
-      calculated_amount: 1,
+      calculated_amount: 80,
       is_calculated_price_tax_inclusive: true
     }
   }
