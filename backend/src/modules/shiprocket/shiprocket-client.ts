@@ -1,8 +1,6 @@
 import fetch from "node-fetch"
 
 export class ShiprocketClient {
-  private email: string
-  private password: string
   private token: string | null = null
   private tokenExpiresAt: number = 0
   private baseUrl = "https://apiv2.shiprocket.in/v1/external"
@@ -18,6 +16,10 @@ export class ShiprocketClient {
 
     const email = process.env.SHIPROCKET_EMAIL || ""
     const password = process.env.SHIPROCKET_PASSWORD || ""
+    
+    console.log(">>> SHIPROCKET AUTH DEBUG <<<");
+    console.log("Email length:", email.length, "Value:", email);
+    console.log("Password length:", password.length, "Starts with:", password.substring(0, 3));
 
     const response = await fetch(`${this.baseUrl}/auth/login`, {
       method: "POST",

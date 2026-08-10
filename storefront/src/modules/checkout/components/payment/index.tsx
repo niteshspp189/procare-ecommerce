@@ -24,7 +24,6 @@ const Payment = ({
   const filteredPaymentMethods = (availablePaymentMethods ?? []).filter(
     (method: any) =>
       method.id !== "pp_system_default" &&
-      method.id !== "manual" &&
       !method.id?.startsWith("pp_system")
   )
 
