@@ -8,8 +8,7 @@ export class ShiprocketClient {
   private baseUrl = "https://apiv2.shiprocket.in/v1/external"
 
   constructor() {
-    this.email = process.env.SHIPROCKET_EMAIL || ""
-    this.password = process.env.SHIPROCKET_PASSWORD || ""
+    // Read directly at runtime to ensure dotenv is loaded
   }
 
   private async authenticate() {
@@ -17,10 +16,13 @@ export class ShiprocketClient {
       return this.token
     }
 
+    const email = process.env.SHIPROCKET_EMAIL || ""
+    const password = process.env.SHIPROCKET_PASSWORD || ""
+
     const response = await fetch(`${this.baseUrl}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: this.email, password: this.password })
+      body: JSON.stringify({ email, password })
     })
 
     if (!response.ok) {
