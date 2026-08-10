@@ -328,7 +328,7 @@ export async function sendOrderConfirmationEmail(order: any) {
       from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'orders@propremiumcare.com'}>`,
       replyTo: 'customercare@mvscindia.com',
       to: order.email,
-      bcc: 'customercare@mvscindia.com',
+      bcc: 'customercare@mvscindia.com, team@webclixs.in',
       subject: `Order Confirmation #${formattedId} - ProPremium Care`,
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">

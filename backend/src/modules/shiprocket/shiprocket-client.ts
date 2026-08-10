@@ -116,6 +116,29 @@ export class ShiprocketClient {
 
     return await response.json()
   }
+
+  public async assignAWB(shipmentId: string) {
+    const token = await this.authenticate()
+    const response = await fetch(`${this.baseUrl}/courier/assign/awb`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        shipment_id: shipmentId,
+        courier_id: "" // Empty lets Shiprocket choose auto-assigned courier if configured
+      })
+    })
+
+    if (!response.ok) {
+      const err = await response.text()
+      console.warn("Shiprocket assign AWB failed:", err)
+      throw new Error(err)
+    }
+
+    return await response.json()
+  }
 }
 
 export const shiprocketClient = new ShiprocketClient()

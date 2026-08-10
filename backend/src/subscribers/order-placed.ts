@@ -109,6 +109,24 @@ export default async function orderPlacedHandler({
       console.log(`[OrderPlacedSubscriber] Set auto_login_token for existing customer`)
   }
 
+  // Auto-capture payment for the order so it shows as Paid in Admin
+  try {
+      const dbConnection = container.resolve("pg_connection") as any
+      // In Medusa v2 payment_collection holds the status
+      await dbConnection.query(
+          "UPDATE payment_collection SET status = 'captured' WHERE order_id = $1",
+          [order.id]
+      )
+      // Fallback for direct order table
+      await dbConnection.query(
+          "UPDATE \"order\" SET payment_status = 'captured' WHERE id = $1",
+          [order.id]
+      )
+      console.log(`[OrderPlacedSubscriber] Marked payment as captured for order ${order.id}`)
+  } catch (e) {
+      console.error("[OrderPlacedSubscriber] Failed to auto-capture payment:", e)
+  }
+
   // 5. Send Order Confirmation Email (for all orders)
   try {
     const { sendOrderConfirmationEmail } = require("../lib/email")

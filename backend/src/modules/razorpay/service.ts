@@ -28,7 +28,7 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
       case "authorized":
         return "authorized"
       case "captured":
-        return "authorized"
+        return "captured"
       case "refunded":
         return "canceled"
       default:
