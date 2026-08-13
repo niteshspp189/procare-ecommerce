@@ -39,28 +39,66 @@ const RestrictedAdminGuardWidget = () => {
             document.head.appendChild(styleEl)
           }
 
-          // Set up MutationObserver to hide any button or menuitem with text "Delete"
-          const hideDeleteElements = () => {
-            const elements = document.querySelectorAll(
-              '[role="menuitem"], button, a, div[data-state], [data-radix-collection-item]'
-            )
-            elements.forEach((el) => {
-              const text = el.textContent?.trim().toLowerCase()
+          // Set up a performant MutationObserver that only checks newly added nodes
+          const processNode = (node: Node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const el = node as HTMLElement;
+              // If the element itself is a target
               if (
-                text === "delete" ||
-                text?.includes("delete product") ||
-                text?.includes("delete order") ||
-                text?.includes("delete customer") ||
-                text?.includes("delete variant")
+                el.matches &&
+                el.matches('[role="menuitem"], button, a, [data-radix-collection-item]')
               ) {
-                (el as HTMLElement).style.setProperty("display", "none", "important")
+                checkAndHide(el);
               }
-            })
-          }
+              // Check its children
+              if (el.querySelectorAll) {
+                const children = el.querySelectorAll('[role="menuitem"], button, a, [data-radix-collection-item]');
+                children.forEach(checkAndHide);
+              }
+            }
+          };
 
-          hideDeleteElements()
-          const observer = new MutationObserver(hideDeleteElements)
-          observer.observe(document.body, { childList: true, subtree: true })
+          const checkAndHide = (el: Element) => {
+            // Only check immediate text to avoid hiding parent containers
+            const text = el.textContent?.trim().toLowerCase() || "";
+            if (
+              text === "delete" ||
+              text === "delete product" ||
+              text === "delete order" ||
+              text === "delete customer" ||
+              text === "delete variant"
+            ) {
+              (el as HTMLElement).style.setProperty("display", "none", "important");
+            }
+          };
+
+          // Initial run
+          document.querySelectorAll('[role="menuitem"], button, a, [data-radix-collection-item]').forEach(checkAndHide);
+
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              mutation.addedNodes.forEach(processNode);
+            });
+          });
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        if (user && user.email === "digitalteam@propremiumcare.com") {
+          let viewerStyleEl = document.getElementById("viewer-admin-style")
+          if (!viewerStyleEl) {
+            viewerStyleEl = document.createElement("style")
+            viewerStyleEl.id = "viewer-admin-style"
+            // Hide Settings, DB Backup, and external links like Documentation and Changelog
+            viewerStyleEl.innerHTML = `
+              a[href*="/settings"],
+              a[href*="/backup"],
+              a[href*="docs.medusajs.com"],
+              a[href*="medusajs.com/changelog"] {
+                display: none !important;
+              }
+            `
+            document.head.appendChild(viewerStyleEl)
+          }
         }
       })
       .catch(() => {})

@@ -76,8 +76,41 @@ async function preventDeleteForRestrictedAdmin(
   next()
 }
 
+async function preventModificationsForViewer(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+    const actorId = (req as any).auth_context?.actor_id || (req as any).user?.id
+    if (actorId) {
+      try {
+        const userService = req.scope.resolve("user") as any
+        const user = await userService.retrieveUser(actorId)
+        if (
+          user &&
+          user.email === "digitalteam@propremiumcare.com"
+        ) {
+          return res.status(403).json({
+            type: "forbidden",
+            message: "Action restricted. This account has view-only permissions.",
+          })
+        }
+      } catch (err) {
+        // Continue if user retrieval fails
+      }
+    }
+  }
+  next()
+}
+
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/admin/*",
+      method: ["POST", "PUT", "PATCH", "DELETE"],
+      middlewares: [preventModificationsForViewer],
+    },
     {
       matcher: "/admin/*",
       method: "DELETE",

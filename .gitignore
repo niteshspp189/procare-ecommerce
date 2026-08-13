@@ -74,3 +74,5 @@ backend/public/admin/
 
 untracked_files/
 scratch/
+clean.js
+create_user.js
