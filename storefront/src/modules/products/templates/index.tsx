@@ -744,6 +744,10 @@ const formatSpecValue = (value: any): string => {
                           mappedIconUrl = "/images/icons/cleaning.png";
                         } else if (norm === "shine" || norm === "natural shine" || id === "shine") {
                           mappedIconUrl = "/images/icons/shine.png";
+                        } else if (norm === "protect" || id === "protect") {
+                          mappedIconUrl = "/images/icons/protect.png";
+                        } else if (norm === "water protection" || norm === "water protect" || id === "water-protection") {
+                          mappedIconUrl = "/images/icons/water-protection.png";
                         } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("steel") || id === "contain-high-quality") {
                           mappedIconUrl = "/images/icons/contain-high-quality.png";
                         }
