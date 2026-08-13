@@ -139,8 +139,15 @@ module.exports = defineConfig({
                     });
                   }
 
+                  function redirectOn404() {
+                    if (document.body && (document.body.innerText.includes('Product not found') || document.body.innerText.includes('404 - There is no page at this address')) && window.location.pathname.includes('/products/')) {
+                      window.location.href = '/store-backend/products';
+                    }
+                  }
+
                   setInterval(applyBranding, 1000);
                   setInterval(hideDevTools, 500);
+                  setInterval(redirectOn404, 500);
                 </script><style>
                   /* Force color scheme to light on browser-level */
                   html, body, :root {
