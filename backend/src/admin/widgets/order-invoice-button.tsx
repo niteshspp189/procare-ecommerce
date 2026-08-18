@@ -11,7 +11,7 @@ const OrderInvoiceWidget = ({ data }: { data: any }) => {
   return (
     <Container className="p-6 mb-4 flex flex-col sm:flex-row items-center justify-between bg-white border border-gray-200 rounded-lg shadow-sm">
       <div>
-        <Heading level="h2" className="text-xl font-semibold mb-1">Official Invoice</Heading>
+        <Heading level="h2" className="text-xl font-semibold mb-1">Order Invoice</Heading>
         <Text className="text-gray-500 text-sm">Download the generated PDF invoice for this order</Text>
       </div>
       <div className="mt-4 sm:mt-0">

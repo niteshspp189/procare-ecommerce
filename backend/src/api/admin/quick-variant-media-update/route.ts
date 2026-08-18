@@ -60,6 +60,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       })
     }
 
+    // Trigger storefront cache revalidation
+    try {
+      const storeUrl = process.env.STORE_CORS?.split(",")[0] || "http://localhost:8000"
+      await fetch(`${storeUrl}/api/revalidate`, { method: "POST" })
+    } catch (e) {
+      console.error("Failed to revalidate storefront cache", e)
+    }
+
     return res.json({ success: true, message: "Variant images updated successfully!" })
   } catch (err: any) {
     console.error("Error in quick-variant-media-update:", err)

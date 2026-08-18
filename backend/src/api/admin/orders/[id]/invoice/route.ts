@@ -16,8 +16,12 @@ export const GET = async (
       "shipping_address.*",
       "items.*",
       "items.item.*",
+      "items.adjustments.*",
       "summary.*",
-      "payments.*",
+      "shipping_methods.*",
+      "shipping_methods.adjustments.*",
+      "payment_collections.*",
+      "payment_collections.payments.*",
     ],
     filters: {
       id: [id]

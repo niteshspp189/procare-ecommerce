@@ -132,8 +132,9 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.text("PAYMENT METHOD", labelX, doc.y + 2)
     // simplistic check for payment method
     let payMethod = "Prepaid"
-    if (order.payments && order.payments.length > 0) {
-      if (order.payments[0].provider_id?.includes("cod") || order.payments[0].provider_id?.includes("manual")) {
+    const payments = order.payments || (order.payment_collections ? order.payment_collections.flatMap((pc: any) => pc.payments || []) : []);
+    if (payments && payments.length > 0) {
+      if (payments[0].provider_id?.includes("cod") || payments[0].provider_id?.includes("manual")) {
         payMethod = "COD"
       }
     }
@@ -170,15 +171,21 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     for (const item of order.items || []) {
       const qty = item.quantity || 1
       const unitPrice = item.unit_price ?? item.item?.unit_price ?? 0 // Check nested item relation if unit_price is null
-      const discountPerUnit = (item.discount_total || 0) / qty
-      
       const taxRate = 18 // 18% inclusive GST
+      
+      let computedItemDiscount = item.discount_total;
+      if (computedItemDiscount === undefined) {
+        const sumAdj = item.adjustments?.reduce((sum: number, adj: any) => sum + adj.amount, 0) ?? 0;
+        computedItemDiscount = sumAdj * (1 + taxRate / 100);
+      }
+      const itemDiscount = computedItemDiscount ?? 0;
+      const discountPerUnit = itemDiscount / qty
       
       const roundedUnitPrice = Math.round(unitPrice)
       const roundedDiscountPerUnit = Math.round(discountPerUnit)
 
       const total = roundedUnitPrice * qty
-      const taxableValue = Math.round((roundedUnitPrice / (1 + (taxRate / 100)) - roundedDiscountPerUnit) * qty)
+      const taxableValue = Math.round(total / (1 + (taxRate / 100)))
       const taxValue = total - taxableValue
       
       itemsTaxableSubtotal += taxableValue
@@ -214,7 +221,24 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     
     // Add Shipping and Discount
     const shippingFee = Math.round(order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0)
-    const discountTotal = Math.round(order.discount_total ?? order.summary?.discount_total ?? 0)
+    
+    let manualDiscount = 0;
+    if (order.items) {
+      for (const item of order.items) {
+        if (item.adjustments) {
+          for (const adj of item.adjustments) manualDiscount += adj.amount * (1 + 18 / 100);
+        }
+      }
+    }
+    if (order.shipping_methods) {
+      for (const sm of order.shipping_methods) {
+        if (sm.adjustments) {
+          for (const adj of sm.adjustments) manualDiscount += adj.amount * (1 + 18 / 100);
+        }
+      }
+    }
+    
+    const discountTotal = Math.round(order.discount_total ?? order.summary?.discount_total ?? manualDiscount)
     const netTotal = itemsTotalSubtotal + shippingFee - discountTotal
 
     // Summary block fields

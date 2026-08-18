@@ -27,8 +27,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
     shipping_subtotal,
     discount_total,
     discount_subtotal,
-    item_total,
-    item_subtotal,
+    tax_total,
     shipping_methods,
   } = totals
 
@@ -37,12 +36,13 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   const effectiveTotal = total ?? 0
        
   const effectiveDiscount = discount_total ?? discount_subtotal ?? 0
+  const effectiveTax = tax_total ?? 0
 
   // Check if a shipping method has actually been selected
   const hasShippingMethod = (shipping_methods?.length ?? 0) > 0
 
   // The Selling Price Subtotal (inc. taxes)
-  const spSubtotal = item_total ?? (effectiveTotal - effectiveShipping + effectiveDiscount)
+  const spSubtotal = effectiveTotal - effectiveShipping + effectiveDiscount
 
   // Determine shipping display text
   const shippingDisplay = !hasShippingMethod
@@ -96,6 +96,15 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
           {convertToLocale({ amount: effectiveTotal, currency_code })}
         </span>
       </div>
+      
+      {!!effectiveTax && (
+        <div className="flex items-center justify-between text-ui-fg-subtle txt-small">
+          <span>Includes Tax</span>
+          <span data-testid="cart-taxes" data-value={effectiveTax}>
+            {convertToLocale({ amount: effectiveTax, currency_code })}
+          </span>
+        </div>
+      )}
       <div className="h-px w-full border-b border-gray-200 mt-4" />
     </div>
   )
