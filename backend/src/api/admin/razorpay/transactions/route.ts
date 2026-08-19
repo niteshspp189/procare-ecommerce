@@ -40,7 +40,8 @@ export const GET = async (
     const query = req.scope.resolve("query")
     const { data: orders } = await query.graph({
       entity: "order",
-      fields: ["id", "display_id", "payment_collections.payment_sessions.*"]
+      fields: ["id", "display_id", "payment_collections.payment_sessions.*"],
+      pagination: { skip: 0, take: 500 }
     })
 
     // Create a mapping of razorpay_order_id or payment_id to Medusa Order details
@@ -76,7 +77,8 @@ export const GET = async (
         "items.variant.*",
         "shipping_address.*",
         "billing_address.*"
-      ]
+      ],
+      pagination: { skip: 0, take: 500 }
     })
     
     const rzpOrderToMedusaCart: Record<string, any> = {}
