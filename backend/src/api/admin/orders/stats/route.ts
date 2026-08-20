@@ -12,7 +12,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         "payment_status", 
         "fulfillment_status", 
         "total", 
-        "customer_id"
+        "customer_id",
+        "payment_collections.*",
+        "fulfillments.*"
       ],
       pagination: {
         skip: 0,
@@ -34,7 +36,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       
       totalRevenue += (order.total || 0)
 
-      if (order.status === "completed") {
+      if (order.status === "completed" || (order.payment_status === "captured" && (order.fulfillment_status === "fulfilled" || order.fulfillment_status === "shipped"))) {
         completed++
       }
       
