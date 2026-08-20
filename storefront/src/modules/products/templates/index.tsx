@@ -16,6 +16,73 @@ import Button from "@modules/common/components/button"
 import { isGenuineOption } from "@lib/util/product"
 import { trackMetaEvent } from "@lib/util/meta-pixel"
 
+const AVAILABLE_BADGES: { label: string; imgFile: string }[] = [
+    // PRO Line
+    { label: "PRO CLEAN",           imgFile: "pro-clean.png" },
+    { label: "PRO FRESH",           imgFile: "pro-fresh.png" },
+    { label: "PRO CARE",            imgFile: "pro-care.png" },
+    { label: "PRO SHINE",           imgFile: "pro-shine.png" },
+    { label: "PRO Active",          imgFile: "pro-active.png" },
+    { label: "PRO Accessories",     imgFile: "pro-accessories.png" },
+    { label: "PRO Color",           imgFile: "pro-color-green.png" },
+    // Benefits
+    { label: "Ease",                          imgFile: "ease.png" },
+    { label: "Essentials",                    imgFile: "essentials.png" },
+    { label: "Comfort",                       imgFile: "comfort.png" },
+    { label: "Cushioning",                    imgFile: "cushioning.png" },
+    { label: "Stability",                     imgFile: "stability.png" },
+    { label: "Skin Friendly",                 imgFile: "skin-friendly.png" },
+    { label: "Eco Friendly",                  imgFile: "eco-friendly.png" },
+    { label: "Lightweight",                   imgFile: "light-weight.png" },
+    { label: "Made in Europe",                imgFile: "made-in-europe.png" },
+    { label: "European Expertise",            imgFile: "europian-experts.png" },
+    { label: "Fragrance",                     imgFile: "fragnance.png" },
+    { label: "Shine",                         imgFile: "shine.png" },
+    { label: "Create Natural Shine",          imgFile: "create-natural-shine.png" },
+    { label: "Cleaning",                      imgFile: "cleaning.png" },
+    { label: "Effective Cleaning Agent",      imgFile: "effective-cleaning-agent.png" },
+    { label: "Color Refreshing",              imgFile: "color-refreshing.png" },
+    { label: "Long Lasting Freshness",        imgFile: "long-lasting-freshness.png" },
+    { label: "Helps Fight Fungi & Bacteria",  imgFile: "helps-fight-fungi-and-bacteria.png" },
+    { label: "Absorb Moisture",               imgFile: "absorb-mositure.png" },
+    { label: "Odour Control",                 imgFile: "odour-control.png" },
+    { label: "Hand Washable",                 imgFile: "hand-washable.png" },
+    { label: "Help Remove Trapped Dust",      imgFile: "help-remove-trapped-dust.png" },
+    { label: "Help Slide Feet Into Shoes",    imgFile: "help-to-slidethe-feet-into-shoes.png" },
+    // Features / Materials
+    { label: "Complete Kit",                  imgFile: "complete-kit.png" },
+    { label: "With Cleaning Brush",           imgFile: "with-cleaning-brush.png" },
+    { label: "Brush & Pumice Combo",          imgFile: "brush-and-pumice-combo.png" },
+    { label: "Gel Comfort",                   imgFile: "gel-comfort.png" },
+    { label: "High Density Sponge",           imgFile: "high-density-sponge.png" },
+    { label: "High Quality Wood",             imgFile: "high-quality-wood.png" },
+    { label: "High Quality Bristles",         imgFile: "high-quality-bristles.png" },
+    { label: "Genuine Horse Hair Bristles",   imgFile: "genuine-hair-horse-brush.png" },
+    { label: "High Grade Steel",              imgFile: "high-grade-steel.png" },
+    { label: "Leather Grip Handle",           imgFile: "leather-grip-handle.png" },
+    { label: "Anti Slip Handle",              imgFile: "anti-slip-handle.png" },
+    { label: "Replaceable Rollers",           imgFile: "replacable-rollers.png" },
+    { label: "For Coarse & Fine Filing",      imgFile: "for-coarse-and-fine-filing.png" },
+    { label: "Remove Callus & Dead Skin",     imgFile: "remove-callus-and-dead-skin.png" },
+    { label: "Maintains Original Shape",      imgFile: "maintains-the-originals-shape.png" },
+    { label: "Contain High Quality",          imgFile: "contain-high-quality.png" },
+    { label: "Protect",                       imgFile: "protect.png" },
+    { label: "Water Protection",              imgFile: "water-protection.png" },
+    { label: "Water Protect",                 imgFile: "water-protect.png" },
+    { label: "Multi-Purpose Design",          imgFile: "multi-purpose-design.png" },
+    { label: "Chromium Plated Finish",        imgFile: "chromium-plated-finish.png" },
+    { label: "Pack of 2 Rollers",             imgFile: "pack-of-2-roller.png" },
+    { label: "Multi Step Nail Buffer",        imgFile: "multi-step-nail-buffer.png" },
+    { label: "Premium Stainless Steel",       imgFile: "premium-stainless-steel.png" },
+    { label: "Natural Lotus Wood",            imgFile: "natural-lotus-wood.png" },
+    { label: "Prevents Creasing",             imgFile: "prevents-creasing.png" },
+    { label: "Natural Cedar Wood",            imgFile: "natural-cedar-wood.png" },
+    { label: "Beech Wood Handle",             imgFile: "beech-wood-handle.png" },
+    // Logistics
+    { label: "Free Shipping",                 imgFile: "free-shipping.png" },
+    { label: "15 Day Return",                 imgFile: "15-day-return.png" },
+    { label: "Travel Friendly",               imgFile: "travel-freindly.png" },
+]
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
   inner: { maxWidth: '1488px', margin: '0 auto', padding: '0 24px' },
@@ -720,36 +787,36 @@ const formatSpecValue = (value: any): string => {
                       if (!mappedIconUrl) {
                         const norm = (displayLabel || "").toLowerCase().trim();
                         const id = (badge.iconId || "").toLowerCase().trim();
-                        if (norm === "pro clean" || norm === "proclean" || id === "pro-clean") {
-                          mappedIconUrl = "/images/icons/pro-clean.png";
-                        } else if (norm === "pro fresh" || norm === "profresh" || id === "pro-fresh") {
-                          mappedIconUrl = "/images/icons/pro-fresh.png";
-                        } else if (norm === "pro care" || norm === "procare" || id === "pro-care") {
-                          mappedIconUrl = "/images/icons/pro-care.png";
-                        } else if (norm === "pro shine" || norm === "proshine" || id === "pro-shine") {
-                          mappedIconUrl = "/images/icons/pro-shine.png";
-                        } else if (norm === "pro color" || norm === "procolor" || id === "pro-color" || id === "pro-color-green") {
-                          mappedIconUrl = "/images/icons/pro-color-green.png";
-                        } else if (norm.includes("european exper") || norm.includes("euro exper") || norm.includes("europe") || norm.includes("euro tech") || id === "european-expertise" || id === "europian-experts") {
-                          mappedIconUrl = "/images/icons/europian-experts.png";
-                        } else if (norm === "color refreshing" || norm === "color refresh" || norm === "colour" || norm.includes("color restore") || id === "color-refreshing") {
-                          mappedIconUrl = "/images/icons/color-refreshing.png";
-                        } else if (norm === "fight fungi" || id === "helps-fight-fungi-and-bacteria") {
-                          mappedIconUrl = "/images/icons/helps-fight-fungi-and-bacteria.png";
-                        } else if (norm.includes("freshness") || id === "long-lasting-freshness") {
-                          mappedIconUrl = "/images/icons/long-lasting-freshness.png";
-                        } else if (norm === "effective clean" || norm === "effective cleaning agent" || id === "effective-clean" || id === "effective-cleaning-agent") {
-                          mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
-                        } else if (norm === "cleaning" || id === "cleaning") {
-                          mappedIconUrl = "/images/icons/cleaning.png";
-                        } else if (norm === "shine" || norm === "natural shine" || id === "shine") {
-                          mappedIconUrl = "/images/icons/shine.png";
-                        } else if (norm === "protect" || id === "protect") {
-                          mappedIconUrl = "/images/icons/protect.png";
-                        } else if (norm === "water protection" || norm === "water protect" || id === "water-protection") {
-                          mappedIconUrl = "/images/icons/water-protection.png";
-                        } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("steel") || id === "contain-high-quality") {
-                          mappedIconUrl = "/images/icons/contain-high-quality.png";
+                        
+                        const presetMatch = AVAILABLE_BADGES.find(
+                          b => b.label.toLowerCase() === norm || b.label.toLowerCase() === id
+                        );
+                        
+                        if (presetMatch) {
+                          mappedIconUrl = `/images/icons/${presetMatch.imgFile}`;
+                        } else {
+                          // Fallbacks for fuzzy matching (like "european exper")
+                          if (norm.includes("european exper") || norm.includes("euro exper") || norm.includes("europe") || norm.includes("euro tech") || id === "european-expertise" || id === "europian-experts") {
+                            mappedIconUrl = "/images/icons/europian-experts.png";
+                          } else if (norm === "color refreshing" || norm === "color refresh" || norm === "colour" || norm.includes("color restore") || id === "color-refreshing") {
+                            mappedIconUrl = "/images/icons/color-refreshing.png";
+                          } else if (norm === "fight fungi" || id === "helps-fight-fungi-and-bacteria") {
+                            mappedIconUrl = "/images/icons/helps-fight-fungi-and-bacteria.png";
+                          } else if (norm.includes("freshness") || id === "long-lasting-freshness") {
+                            mappedIconUrl = "/images/icons/long-lasting-freshness.png";
+                          } else if (norm === "effective clean" || norm === "effective cleaning agent" || id === "effective-clean" || id === "effective-cleaning-agent") {
+                            mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
+                          } else if (norm === "cleaning" || id === "cleaning") {
+                            mappedIconUrl = "/images/icons/cleaning.png";
+                          } else if (norm === "shine" || norm === "natural shine" || id === "shine") {
+                            mappedIconUrl = "/images/icons/shine.png";
+                          } else if (norm === "protect" || id === "protect") {
+                            mappedIconUrl = "/images/icons/protect.png";
+                          } else if (norm === "water protection" || norm === "water protect" || id === "water-protection") {
+                            mappedIconUrl = "/images/icons/water-protection.png";
+                          } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("steel") || id === "contain-high-quality") {
+                            mappedIconUrl = "/images/icons/contain-high-quality.png";
+                          }
                         }
                       }
 
