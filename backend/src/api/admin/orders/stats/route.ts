@@ -36,7 +36,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       
       totalRevenue += (order.total || 0)
 
-      if (order.status === "completed" || (order.payment_status === "captured" && (order.fulfillment_status === "fulfilled" || order.fulfillment_status === "shipped"))) {
+      const isCaptured = order.payment_collections?.some((pc: any) => pc.status === "captured" || pc.status === "authorized" || (pc.captured_amount && pc.captured_amount > 0))
+      const isFulfilled = order.fulfillments?.some((f: any) => !f.canceled_at)
+
+      if (order.status === "completed" || (isCaptured && isFulfilled)) {
         completed++
       }
       
