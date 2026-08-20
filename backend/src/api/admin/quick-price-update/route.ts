@@ -101,6 +101,14 @@ export const POST = async (
       .where({ id: variant_id })
       .update({ metadata: JSON.stringify(updatedMeta) })
 
+    // Trigger storefront cache revalidation
+    try {
+      const storeUrl = process.env.STORE_CORS?.split(",")[0] || "http://localhost:8000"
+      await fetch(`${storeUrl}/api/revalidate`, { method: "POST" })
+    } catch (e) {
+      console.error("Failed to revalidate storefront cache", e)
+    }
+
     return res.json({ success: true, message: "Prices updated successfully" })
   } catch (error: any) {
     console.error("Quick price update error:", error)

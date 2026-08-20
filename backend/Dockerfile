@@ -28,7 +28,7 @@ RUN find .medusa -maxdepth 4
 
 # Copy admin build output to the path Medusa server expects
 # Try multiple common paths for v2
-RUN mkdir -p /server/public && \
+RUN rm -rf /server/public/admin && mkdir -p /server/public && \
     (cp -r /server/.medusa/server/public/admin /server/public/admin 2>/dev/null || \
      cp -r /server/.medusa/server/admin /server/public/admin 2>/dev/null || \
      cp -r /server/.medusa/admin /server/public/admin 2>/dev/null || \

@@ -13,7 +13,7 @@ export const GET = async (
   try {
     console.log(`[BackendInvoice] Fetching invoice for order ID: ${id}`)
     const order = await orderModuleService.retrieveOrder(id, {
-      relations: ["shipping_address", "items", "billing_address", "shipping_methods"]
+      relations: ["shipping_address", "items", "items.adjustments", "items.item", "billing_address", "shipping_methods", "shipping_methods.adjustments"]
     })
 
     if (!order) {
@@ -22,6 +22,7 @@ export const GET = async (
     }
 
     console.log(`[BackendInvoice] Generating PDF for order: ${order.display_id || order.id}`)
+    console.log(JSON.stringify(order, null, 2))
     const pdfBuffer = await generateInvoicePDF(order)
     console.log(`[BackendInvoice] PDF generated successfully, size: ${pdfBuffer.length} bytes`)
 

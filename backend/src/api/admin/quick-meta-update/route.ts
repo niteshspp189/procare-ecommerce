@@ -41,6 +41,14 @@ export const POST = async (
         updated_at: new Date(),
       })
 
+    // Trigger storefront cache revalidation
+    try {
+      const storeUrl = process.env.STORE_CORS?.split(",")[0] || "http://localhost:8000"
+      await fetch(`${storeUrl}/api/revalidate`, { method: "POST" })
+    } catch (e) {
+      console.error("Failed to revalidate storefront cache", e)
+    }
+
     return res.json({ success: true, message: "Metadata updated successfully", metadata: updatedMeta })
   } catch (error: any) {
     console.error("Quick meta update error:", error)

@@ -213,22 +213,34 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
             const sEdit: Record<string, string> = {}
 
             for (const v of fetchedVariants) {
+                // Try reading from metadata first for exact user-input values
+                const metaMrp = v.metadata?.mrp ? parseFloat(String(v.metadata.mrp)) : null
+                const metaSell = v.metadata?.sellingPrice ? parseFloat(String(v.metadata.sellingPrice)) : null
+
                 const inrPrice = v.prices?.find((p: any) => p.currency_code === "inr" && !p.price_list_id)
-                if (inrPrice) {
+                if (metaMrp !== null && !isNaN(metaMrp)) {
+                    mPrices[v.id] = metaMrp
+                    mEdit[v.id] = String(metaMrp)
+                } else if (inrPrice) {
                     const val = parseFloat(inrPrice.amount)
                     mPrices[v.id] = val
                     mEdit[v.id] = String(val)
                 }
 
-                const salePrice = v.prices?.find((p: any) => p.currency_code === "inr" && (p.price_list_id === "pl_online_sale" || p.price_list?.id === "pl_online_sale"))
-                if (salePrice) {
-                    const val = parseFloat(salePrice.amount)
-                    sPrices[v.id] = val
-                    sEdit[v.id] = String(val)
-                } else if (inrPrice) {
-                    const val = parseFloat(inrPrice.amount)
-                    sPrices[v.id] = val
-                    sEdit[v.id] = String(val)
+                if (metaSell !== null && !isNaN(metaSell)) {
+                    sPrices[v.id] = metaSell
+                    sEdit[v.id] = String(metaSell)
+                } else {
+                    const salePrice = v.prices?.find((p: any) => p.currency_code === "inr" && (p.price_list_id === "pl_online_sale" || p.price_list?.id === "pl_online_sale"))
+                    if (salePrice) {
+                        const val = parseFloat(salePrice.amount)
+                        sPrices[v.id] = val
+                        sEdit[v.id] = String(val)
+                    } else if (inrPrice) {
+                        const val = parseFloat(inrPrice.amount)
+                        sPrices[v.id] = val
+                        sEdit[v.id] = String(val)
+                    }
                 }
             }
 
