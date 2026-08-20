@@ -9,8 +9,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       fields: [
         "id", 
         "status", 
-        "payment_status", 
-        "fulfillment_status", 
         "total", 
         "customer_id",
         "payment_collections.*",
