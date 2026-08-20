@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         p.description ||
           (p.metadata?.key_benefits ? String(p.metadata.key_benefits).replace(/\*\*/g, "") : title)
       )
-      const link = `${baseUrl}/in/products/${p.handle}`
+      const link = `${baseUrl}/products/${p.handle}`
 
       // Raw thumbnail or main image
       let rawImage = p.thumbnail || (p.images && p.images[0]?.url) || "/images/polish.jpeg"

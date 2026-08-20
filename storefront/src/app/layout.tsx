@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 
 import PageProgress from "@modules/layout/components/page-progress"
 import { Suspense } from "react"
+import MetaPixelPageViewTracker from "@modules/common/components/meta-pixel-page-view-tracker"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
@@ -29,8 +30,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {/* End Google Tag Manager */}
 
         {/* Meta Pixel Code */}
-        <script
+        <Script
           id="meta-pixel-script"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -68,6 +70,7 @@ fbq('track', 'PageView');`,
 
         <Suspense fallback={null}>
           <PageProgress />
+          <MetaPixelPageViewTracker />
         </Suspense>
         <main className="relative">{props.children}</main>
       </body>
