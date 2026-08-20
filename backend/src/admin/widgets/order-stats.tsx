@@ -39,13 +39,14 @@ const OrderStatsWidget = () => {
 
   const stats = [
     { label: 'Total Orders', value: data.totalOrders.toString(), change: 'All time', trend: 'neutral' },
-    { label: 'Completed vs Refund/Ret', value: `${data.completed} / ${data.refundedOrReturned}`, change: 'Status', trend: data.refundedOrReturned > 0 ? 'neutral' : 'positive' },
+    { label: 'Completed', value: data.completed.toString(), change: 'Status', trend: 'positive' },
+    { label: 'Refund/Returned', value: data.refundedOrReturned.toString(), change: 'Status', trend: data.refundedOrReturned > 0 ? 'negative' : 'neutral' },
     { label: 'Pending Fulfillment', value: data.needsShipping.toString(), change: 'Needs Shipping', trend: data.needsShipping > 0 ? 'positive' : 'neutral' },
     { label: 'Net Revenue', value: formatCurrency(data.totalRevenue), change: `Avg: ${formatCurrency(avgOrder)}`, trend: 'positive' }
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
       {stats.map((stat) => (
         <Container key={stat.label} className="p-4">
           <Text size="xsmall" className="text-ui-fg-subtle uppercase tracking-wider font-semibold">
