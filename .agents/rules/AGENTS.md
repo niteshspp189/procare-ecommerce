@@ -27,25 +27,25 @@ These rules are strictly enforced for all AI agents working on the Procare E-com
 ## 5. Maintenance Mode
 To enable maintenance mode while whitelisting your local Fedora IP, you must **SSH into the AWS VPS** and modify the host's Nginx configuration located at `/etc/nginx/` (e.g., `/etc/nginx/nginx.conf` or a specific file like `/etc/nginx/conf.d/procare.conf` / `whitelist.conf`).
 
-1. Define the `$maintenance` variable using a `map` block before the `server` block:
+1. Set the `$maintenance` variable using the `geo` block in `/etc/nginx/conf.d/whitelist.conf`:
    ```nginx
-   map $remote_addr $maintenance {
-       default 1;              # Enable maintenance for everyone
-       <YOUR_FEDORA_IP> 0;     # Replace with your local IP to bypass
+   geo $maintenance {
+       default 1;              # 1 = maintenance on, 0 = maintenance off
+       <YOUR_FEDORA_IP> 0;     # Your local IP bypasses maintenance
    }
    ```
-2. Configure the 503 error page to serve `maintenance.html` inside the `server` block:
+2. The 503 error page is configured in `/etc/nginx/sites-available/propremiumcare.conf` inside the `server` block using a named location:
    ```nginx
-   error_page 503 /maintenance.html;
-   location = /maintenance.html {
-       root /usr/share/nginx/html;
-       internal;
+   location @maintenance {
+       root /var/www/procare-ecommerce;
+       try_files /maintenance.html =503;
    }
    ```
-3. Trigger the 503 inside the `location /` block:
+3. The maintenance trigger is in the `location /` block:
    ```nginx
+   error_page 503 @maintenance;
    if ($maintenance = 1) {
        return 503;
    }
    ```
-4. Push the changes and deploy.
+4. Reload Nginx on the VPS: `sudo systemctl reload nginx`
