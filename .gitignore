@@ -55,3 +55,9 @@ docker-compose.override.yml
 
 # Ignored Folders
 untracked/
+
+# Temporary media storage
+.tempmediaStorage/
+
+# Backend Admin Build
+backend/public/admin/
