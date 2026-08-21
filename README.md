@@ -19,3 +19,9 @@ Refer to [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) for detailed technical specifica
 - Run `docker-compose up` to start the entire stack.
 - Storefront runs on `http://localhost:8000` (proxied via Nginx on `9000`).
 - Admin UI runs on `http://localhost:9000/admin`.
+
+## 🤖 Agent Workflow & Rules
+All autonomous agents must adhere to the rules defined in **[.agents/rules/AGENTS.md](./.agents/rules/AGENTS.md)**.
+- **Root Cleanliness**: The root directory is strictly for core application code. 
+- **Untracked Environment**: All scratch scripts, database backups, and legacy files are stored in `untracked/`. 
+- **Deployments**: The deploy script is located at `untracked/deployment/deploy.sh`.

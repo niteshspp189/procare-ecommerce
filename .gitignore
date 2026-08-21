@@ -41,9 +41,6 @@ yarn-error.log*
 
 # Data and Backups
 postgres_data/
-backups/
-*.sql
-*.sql.gz
 
 # Misc
 coverage/
@@ -55,26 +52,6 @@ playwright/.auth
 dump.rdb
 docker-compose.override.yml
 .local/
-procare-mail/
-*.zip
-*.csv
-*.tar.gz
-*.dump
-*.xlsx
-others/
-latest/db-backup/
-latest/
 
-# Storefront Product Images
-
-
-# Temporary ignored files
-untracked_files/
-backend/public/admin/
-
-untracked_files/
-scratch/
-clean.js
-create_user.js
-untracked_scripts/
-storefront/public/images/footcare_images_backup
+# Ignored Folders
+untracked/
