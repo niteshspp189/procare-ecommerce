@@ -25,7 +25,8 @@ These rules are strictly enforced for all AI agents working on the Procare E-com
 - **Workflow:** Make your changes, push to GitHub on `main`, then run `untracked/deployment/deploy.sh` to trigger the VPS to pull and rebuild.
 
 ## 5. Maintenance Mode
-To enable maintenance mode while whitelisting your local Fedora IP, modify `nginx.conf` (or `whitelist.conf` which is included):
+To enable maintenance mode while whitelisting your local Fedora IP, you must **SSH into the AWS VPS** and modify the host's Nginx configuration located at `/etc/nginx/` (e.g., `/etc/nginx/nginx.conf` or a specific file like `/etc/nginx/conf.d/procare.conf` / `whitelist.conf`).
+
 1. Define the `$maintenance` variable using a `map` block before the `server` block:
    ```nginx
    map $remote_addr $maintenance {
