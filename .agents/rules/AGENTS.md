@@ -23,3 +23,28 @@ These rules are strictly enforced for all AI agents working on the Procare E-com
 - **NODE_ENV:** When building and running in production, *always* ensure `NODE_ENV=production`.
 - **Deployment Script:** The script used to deploy to the VPS is located at `untracked/deployment/deploy.sh`. 
 - **Workflow:** Make your changes, push to GitHub on `main`, then run `untracked/deployment/deploy.sh` to trigger the VPS to pull and rebuild.
+
+## 5. Maintenance Mode
+To enable maintenance mode while whitelisting your local Fedora IP, modify `nginx.conf` (or `whitelist.conf` which is included):
+1. Define the `$maintenance` variable using a `map` block before the `server` block:
+   ```nginx
+   map $remote_addr $maintenance {
+       default 1;              # Enable maintenance for everyone
+       <YOUR_FEDORA_IP> 0;     # Replace with your local IP to bypass
+   }
+   ```
+2. Configure the 503 error page to serve `maintenance.html` inside the `server` block:
+   ```nginx
+   error_page 503 /maintenance.html;
+   location = /maintenance.html {
+       root /usr/share/nginx/html;
+       internal;
+   }
+   ```
+3. Trigger the 503 inside the `location /` block:
+   ```nginx
+   if ($maintenance = 1) {
+       return 503;
+   }
+   ```
+4. Push the changes and deploy.

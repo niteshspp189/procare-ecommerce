@@ -25,3 +25,4 @@ All autonomous agents must adhere to the rules defined in **[.agents/rules/AGENT
 - **Root Cleanliness**: The root directory is strictly for core application code. 
 - **Untracked Environment**: All scratch scripts, database backups, and legacy files are stored in `untracked/`. 
 - **Deployments**: The deploy script is located at `untracked/deployment/deploy.sh`.
+- **Maintenance Mode**: Instructions for enabling maintenance mode with IP whitelisting via Nginx are fully documented in section 5 of the agent rules.
