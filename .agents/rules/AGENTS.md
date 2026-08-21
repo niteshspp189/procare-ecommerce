@@ -3,8 +3,8 @@
 These rules are strictly enforced for all AI agents working on the Procare E-commerce repository.
 
 ## 1. Database Updates & Backups
-- **Mandatory Backup First:** Before performing *any* database updates on the production RDS database, you **must** take a backup first using `pg_dump`. 
-- **Backup Location:** Save local backups in `untracked/db_backups/`.
+- **Mandatory Backup First:** Before performing *any* database updates on the production RDS database, or prior to any major deployment, you **must** take a backup first using the provided backup script: `untracked/backup-database.sh` (select Option 2 for Production RDS backup).
+- **Backup Location:** The script will automatically save the backups in `untracked/db_backups/`.
 - **Targeted Updates:** Updates should strictly target only what needs to be changed.
 - **Verification:** After the update, match the updated data against the backup to ensure *only* the intended target was updated.
 

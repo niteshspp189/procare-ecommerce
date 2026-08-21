@@ -24,5 +24,6 @@ Refer to [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) for detailed technical specifica
 All autonomous agents must adhere to the rules defined in **[.agents/rules/AGENTS.md](./.agents/rules/AGENTS.md)**.
 - **Root Cleanliness**: The root directory is strictly for core application code. 
 - **Untracked Environment**: All scratch scripts, database backups, and legacy files are stored in `untracked/`. 
+- **Backups**: Database backups must be executed using the `untracked/backup-database.sh` script and saved to `untracked/db_backups/`.
 - **Deployments**: The deploy script is located at `untracked/deployment/deploy.sh`.
 - **Maintenance Mode**: Instructions for enabling maintenance mode with IP whitelisting via Nginx are fully documented in section 5 of the agent rules.
