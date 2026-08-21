@@ -15,8 +15,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
       <head>
-      </head>
-      <body>
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
@@ -46,6 +44,8 @@ fbq('track', 'PageView');`,
           }}
         />
         {/* End Meta Pixel Code */}
+      </head>
+      <body>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
