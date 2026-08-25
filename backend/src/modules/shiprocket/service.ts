@@ -60,24 +60,42 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let fullOrder = order
     if (order && order.id && this.container) {
       try {
-        console.log("[ShiprocketService] Attempting to resolve ORDER service from container keys:", Object.keys(this.container || {}))
-        const orderModuleService = this.container.order || this.container.orderModuleService
-        if (!orderModuleService) {
-          throw new Error("ORDER module service not found on injected container.")
+        console.log("[ShiprocketService] Attempting to resolve query from container...")
+        const query = this.container.resolve ? this.container.resolve("query", { allowUnregistered: true }) : this.container.query
+        if (query) {
+          const { data: orders } = await query.graph({
+            entity: "order",
+            fields: [
+              "*",
+              "shipping_address.*",
+              "billing_address.*",
+              "items.*",
+              "items.item.*",
+              "items.adjustments.*",
+              "summary.*",
+              "shipping_methods.*",
+              "shipping_methods.adjustments.*",
+              "payment_collections.*",
+              "payment_collections.payments.*",
+            ],
+            filters: {
+              id: [order.id]
+            }
+          })
+          if (orders && orders.length > 0) {
+            fullOrder = orders[0]
+            console.log("[ShiprocketService] Successfully retrieved full order details via query.graph:", fullOrder.id)
+            email = fullOrder.email || email
+            phoneVal = fullOrder.shipping_address?.phone || phoneVal
+            displayId = fullOrder.display_id || displayId
+            const pid1 = fullOrder.payment_collections?.[0]?.payments?.[0]?.provider_id
+            const pid2 = order?.payment_collections?.[0]?.payments?.[0]?.provider_id
+            isCOD = pid1 === "manual" || pid1 === "pp_system_default" || pid1?.startsWith("pp_system") ||
+                    pid2 === "manual" || pid2 === "pp_system_default" || pid2?.startsWith("pp_system")
+          }
         }
-        fullOrder = await orderModuleService.retrieveOrder(order.id, {
-          relations: ["shipping_address", "items", "billing_address", "shipping_methods", "payment_collections.payments"]
-        })
-        console.log("[ShiprocketService] Successfully retrieved full order details:", fullOrder.id)
-        email = fullOrder.email || email
-        phoneVal = fullOrder.shipping_address?.phone || phoneVal
-        displayId = fullOrder.display_id || displayId
-        const pid1 = fullOrder.payment_collections?.[0]?.payments?.[0]?.provider_id
-        const pid2 = order?.payment_collections?.[0]?.payments?.[0]?.provider_id
-        isCOD = pid1 === "manual" || pid1 === "pp_system_default" || pid1?.startsWith("pp_system") ||
-                pid2 === "manual" || pid2 === "pp_system_default" || pid2?.startsWith("pp_system")
       } catch (err: any) {
-        console.warn("[ShiprocketService] Failed to retrieve full order details via orderModuleService, trying pgConnection fallback:", err.message)
+        console.warn("[ShiprocketService] Failed to retrieve full order details via query.graph, trying pgConnection fallback:", err.message)
         
         // pgConnection Fallback query
         try {
@@ -87,7 +105,12 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
             
             // Query Order
             try {
-              const orderRes = await pgConnection.raw('SELECT display_id, email, shipping_address_id FROM "order" WHERE id = ?', [order.id])
+              const orderRes = await pgConnection.raw(`
+                SELECT o.display_id, o.email, o.shipping_address_id, os.current_order_total, os.discount_total
+                FROM "order" o
+                LEFT JOIN "order_summary" os ON os.order_id = o.id
+                WHERE o.id = ?
+              `, [order.id])
               const orderRow = orderRes?.rows?.[0]
               
               if (orderRow) {
@@ -124,9 +147,15 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
               }
             }
             
-            // Query Line Items
+            // Query Line Items with adjustments
             try {
-              const itemsRes = await pgConnection.raw('SELECT oli.title, oli.variant_sku, oli.unit_price, oi.quantity FROM "order_item" oi JOIN "order_line_item" oli ON oi.item_id = oli.id WHERE oi.order_id = ?', [order.id])
+              const itemsRes = await pgConnection.raw(`
+                SELECT oli.title, oli.variant_sku, oli.unit_price, oi.quantity,
+                       COALESCE((SELECT SUM(oia.amount * (CASE WHEN oia.is_tax_inclusive THEN 1 ELSE 1.18 END)) FROM "order_line_item_adjustment" oia WHERE oia.item_id = oi.item_id), 0) as discount_total
+                FROM "order_item" oi
+                JOIN "order_line_item" oli ON oi.item_id = oli.id
+                WHERE oi.order_id = ?
+              `, [order.id])
               dbItems = itemsRes?.rows || []
             } catch (itemsErr: any) {
               console.error("[ShiprocketService] Failed to query line items from DB:", itemsErr.message)
@@ -180,34 +209,44 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     
     const emailVal = email || fullOrder?.email || order?.email || "customer@example.com"
 
-    let subTotal = 0
     let totalTax = 0
+    let totalItemDiscountSum = 0
 
     // Map items from database if available, otherwise fall back to items parameter
-    const orderItems = (dbItems.length > 0 ? dbItems : items).map(item => {
-      const title = item.title || item.name || "Product"
-      const sku = item.variant_sku || item.sku || "PRO-SKU"
+    const sourceItems = (fullOrder?.items && fullOrder.items.length > 0) ? fullOrder.items : (dbItems.length > 0 ? dbItems : (items || []))
+    const orderItems = sourceItems.map((item: any) => {
+      const title = item.title || item.name || item.item?.title || "Product"
+      const sku = item.variant_sku || item.sku || item.item?.variant_sku || "PRO-SKU"
       const qty = parseInt(item.quantity?.toString() || "1")
-      const inclusivePrice = Math.round(parseFloat((item.unit_price || item.selling_price || 0).toString()))
+      const inclusivePrice = Math.round(parseFloat((item.unit_price ?? item.selling_price ?? item.item?.unit_price ?? 0).toString()))
       
-      // Calculate 18% inclusive tax using rounded inclusivePrice
+      let itemDiscountTotal = 0
+      if (item.discount_total !== undefined && item.discount_total !== null) {
+        itemDiscountTotal = parseFloat(item.discount_total.toString())
+      } else if (item.adjustments && Array.isArray(item.adjustments)) {
+        itemDiscountTotal = item.adjustments.reduce((sum: number, adj: any) => sum + adj.amount * (adj.is_tax_inclusive ? 1 : 1.18), 0)
+      }
+      
+      const discountPerUnit = qty > 0 ? Math.round(itemDiscountTotal / qty) : 0
+      totalItemDiscountSum += (discountPerUnit * qty)
+
+      const discountedPrice = Math.max(0, inclusivePrice - discountPerUnit)
+      
+      // Calculate 18% inclusive tax on discounted amount
       const taxRate = 18
-      const taxablePrice = inclusivePrice / (1 + (taxRate / 100))
-      const taxPerUnit = inclusivePrice - taxablePrice
+      const taxablePrice = discountedPrice / (1 + (taxRate / 100))
+      const taxPerUnit = discountedPrice - taxablePrice
       
-      const itemSubtotal = taxablePrice * qty
       const itemTax = taxPerUnit * qty
-      
-      subTotal += itemSubtotal
       totalTax += itemTax
       
       return {
         name: title,
         sku: sku,
         units: qty,
-        selling_price: inclusivePrice, // Shiprocket expects inclusive price!
+        selling_price: inclusivePrice, // Shiprocket expects original selling price
         tax: 18, // Tax percentage rate
-        discount: 0
+        discount: discountPerUnit // Per-unit discount subtracted by Shiprocket
       }
     })
 
@@ -218,6 +257,16 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
                          fullOrder?.shipping_total ?? 
                          0)
     const shippingCharges = Math.round(parseFloat(shippingFee.toString()))
+
+    let shippingDiscount = 0
+    if (fullOrder?.shipping_methods?.[0]?.adjustments) {
+      shippingDiscount = fullOrder.shipping_methods[0].adjustments.reduce((sum: number, adj: any) => sum + adj.amount * (adj.is_tax_inclusive ? 1 : 1.18), 0)
+    }
+
+    const undiscountedItemsTotal = orderItems.reduce((sum: number, it: any) => sum + (it.selling_price * it.units), 0)
+    const totalDiscount = Math.round(fullOrder?.discount_total ?? fullOrder?.summary?.discount_total ?? (totalItemDiscountSum + shippingDiscount))
+    const rawGrandTotal = fullOrder?.total ?? fullOrder?.summary?.total ?? fullOrder?.summary?.current_order_total ?? (undiscountedItemsTotal + shippingCharges - totalDiscount)
+    const grandTotal = Math.round(parseFloat(rawGrandTotal.toString()))
 
     const orderData = {
       order_id: `OD${(displayId || fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,
@@ -238,10 +287,10 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       shipping_charges: shippingCharges,
       giftwrap_charges: 0,
       transaction_charges: 0,
-      total_discount: 0,
-      sub_total: Math.round(subTotal + totalTax), // top level sub_total is inclusive item totals
+      total_discount: totalDiscount,
+      sub_total: undiscountedItemsTotal, // Shiprocket sub_total is original selling prices sum
       tax: Math.round(totalTax),
-      grand_total: Math.round(subTotal + totalTax + shippingCharges),
+      grand_total: grandTotal, // Shiprocket grand_total = sub_total + shipping_charges - total_discount
       length: 10,
       breadth: 10,
       height: 10,

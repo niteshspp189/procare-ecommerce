@@ -166,37 +166,40 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     let itemsTaxableSubtotal = 0
     let itemsTaxSubtotal = 0
     let itemsTotalSubtotal = 0
+    let totalDiscountSum = 0
     let i = 1
 
     for (const item of order.items || []) {
       const qty = item.quantity || 1
-      const unitPrice = item.unit_price ?? item.item?.unit_price ?? 0 // Check nested item relation if unit_price is null
+      const unitPrice = item.unit_price ?? item.item?.unit_price ?? 0
       const taxRate = 18 // 18% inclusive GST
       
       let computedItemDiscount = item.discount_total;
       if (computedItemDiscount === undefined) {
-        const sumAdj = item.adjustments?.reduce((sum: number, adj: any) => sum + adj.amount, 0) ?? 0;
-        computedItemDiscount = sumAdj * (1 + taxRate / 100);
+        const sumAdj = item.adjustments?.reduce((sum: number, adj: any) => sum + adj.amount * (adj.is_tax_inclusive ? 1 : (1 + taxRate / 100)), 0) ?? 0;
+        computedItemDiscount = sumAdj;
       }
       const itemDiscount = computedItemDiscount ?? 0;
-      const discountPerUnit = itemDiscount / qty
+      const discountPerUnit = qty > 0 ? (itemDiscount / qty) : 0
       
       const roundedUnitPrice = Math.round(unitPrice)
       const roundedDiscountPerUnit = Math.round(discountPerUnit)
+      const discountedUnitPrice = Math.max(0, roundedUnitPrice - roundedDiscountPerUnit)
 
-      const total = roundedUnitPrice * qty
-      const taxableValue = Math.round(total / (1 + (taxRate / 100)))
-      const taxValue = total - taxableValue
+      const lineTotal = discountedUnitPrice * qty
+      const taxableValue = Math.round(lineTotal / (1 + (taxRate / 100)))
+      const taxValue = lineTotal - taxableValue
       
       itemsTaxableSubtotal += taxableValue
       itemsTaxSubtotal += taxValue
-      itemsTotalSubtotal += total
+      itemsTotalSubtotal += lineTotal
+      totalDiscountSum += Math.round(itemDiscount)
       
       doc.text(i.toString(), 40, currentY)
       doc.text(item.title || "Unknown Product", 65, currentY, { width: 170 })
       
       const titleHeight = doc.heightOfString(item.title || "Unknown Product", { width: 170, fontSize: 6 })
-      const sku = item.variant_sku || item.sku || "";
+      const sku = item.variant_sku || item.sku || item.item?.variant_sku || "";
       if (sku) {
         doc.fillColor("#666666").fontSize(5).text(`SKU : ${sku}`, 65, currentY + titleHeight + 1, { width: 170 })
         doc.fillColor("#000000").fontSize(6) // restore color/size
@@ -210,7 +213,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       doc.text(roundedDiscountPerUnit.toFixed(0), 360, currentY, { align: "center", width: 50 })
       doc.text(taxableValue.toFixed(0), 410, currentY, { align: "center", width: 50 })
       doc.text(taxValue.toFixed(0), 460, currentY, { align: "center", width: 45 })
-      doc.text(total.toFixed(0), 505, currentY, { align: "right", width: 50 })
+      doc.text(lineTotal.toFixed(0), 505, currentY, { align: "right", width: 50 })
       
       currentY += Math.max(15, totalItemHeight + 5)
       i++
@@ -222,31 +225,27 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     // Add Shipping and Discount
     const shippingFee = Math.round(order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0)
     
-    let manualDiscount = 0;
-    if (order.items) {
-      for (const item of order.items) {
-        if (item.adjustments) {
-          for (const adj of item.adjustments) manualDiscount += adj.amount * (1 + 18 / 100);
-        }
-      }
-    }
+    let shippingDiscount = 0;
     if (order.shipping_methods) {
       for (const sm of order.shipping_methods) {
         if (sm.adjustments) {
-          for (const adj of sm.adjustments) manualDiscount += adj.amount * (1 + 18 / 100);
+          for (const adj of sm.adjustments) {
+            shippingDiscount += adj.amount * (adj.is_tax_inclusive ? 1 : (1 + 18 / 100));
+          }
         }
       }
     }
     
-    const discountTotal = Math.round(order.discount_total ?? order.summary?.discount_total ?? manualDiscount)
-    const netTotal = itemsTotalSubtotal + shippingFee - discountTotal
+    const overallDiscount = Math.round(order.discount_total ?? order.summary?.discount_total ?? (totalDiscountSum + shippingDiscount))
+    const calculatedNetTotal = itemsTotalSubtotal + shippingFee - Math.round(shippingDiscount)
+    const netTotal = Math.round(order.total ?? order.summary?.total ?? order.summary?.current_order_total ?? calculatedNetTotal)
 
     // Summary block fields
     const summaryX = 350
     const summaryValueX = 510
     const labelWidth = 140
     
-    // Subtotal
+    // Subtotal (Taxable value of items)
     doc.font(KELSON_BOLD).fontSize(7).fillColor("#333333")
     doc.text("Subtotal", summaryX, currentY, { align: "right", width: labelWidth })
     doc.text(`Rs. ${itemsTaxableSubtotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
@@ -278,13 +277,6 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     doc.text("Shipping Charges", summaryX, currentY, { align: "right", width: labelWidth })
     doc.text(`Rs. ${shippingFee.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
     currentY += 12
-    
-    // Discount
-    if (discountTotal > 0) {
-      doc.text("Discount", summaryX, currentY, { align: "right", width: labelWidth })
-      doc.text(`-Rs. ${discountTotal.toFixed(0)}`, summaryValueX, currentY, { align: "right", width: 45 })
-      currentY += 12
-    }
     
     // Line separator
     currentY += 2
@@ -341,8 +333,31 @@ export async function sendOrderConfirmationEmail(order: any) {
     
     const shippingFee = order.shipping_total ?? order.summary?.shipping_total ?? order.shipping_methods?.[0]?.amount ?? 0
     
+    let manualDiscount = 0
+    if (order.items) {
+      for (const item of order.items) {
+        if (item.discount_total !== undefined) {
+          manualDiscount += Number(item.discount_total)
+        } else if (item.adjustments) {
+          for (const adj of item.adjustments) {
+            manualDiscount += adj.amount * (adj.is_tax_inclusive ? 1 : 1.18)
+          }
+        }
+      }
+    }
+    if (order.shipping_methods) {
+      for (const sm of order.shipping_methods) {
+        if (sm.adjustments) {
+          for (const adj of sm.adjustments) {
+            manualDiscount += adj.amount * (adj.is_tax_inclusive ? 1 : 1.18)
+          }
+        }
+      }
+    }
+    const discountTotal = Math.round(order.discount_total ?? order.summary?.discount_total ?? manualDiscount)
+
     // Total is calculated directly - Medusa v2 stores directly in INR
-    const rawTotal = order.total ?? order.summary?.total ?? (itemsSubtotal + shippingFee)
+    const rawTotal = order.total ?? order.summary?.total ?? order.summary?.current_order_total ?? (itemsSubtotal + shippingFee - discountTotal)
     const displayTotalAmount = typeof rawTotal === "number" && !isNaN(rawTotal)
       ? Math.round(rawTotal).toFixed(0)
       : "0"
