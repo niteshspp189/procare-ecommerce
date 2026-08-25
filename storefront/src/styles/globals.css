@@ -431,7 +431,7 @@ code, pre, kbd, samp {
   }
 }
 
-/* Custom marquee scrolling for promotional bar on mobile */
+/* Custom marquee scrolling for promotional bar */
 @keyframes marquee {
   0% {
     transform: translateX(0%);
@@ -441,10 +441,30 @@ code, pre, kbd, samp {
   }
 }
 
+@keyframes marquee-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 20s linear infinite;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 28s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-ltr:hover {
+  animation-play-state: paused;
 }
 
 /* Custom highly readable pulse animation for the top promo bar */

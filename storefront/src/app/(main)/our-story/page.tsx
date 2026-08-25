@@ -1,58 +1,81 @@
 import React from "react"
 import CustomVideoPlayer from "./CustomVideoPlayer"
 
-const CheckCircle = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+const AwardIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="6"></circle>
+    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
   </svg>
 )
 
-const Lightbulb = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"></path>
-    <path d="M9 18h6"></path>
-    <path d="M10 22h4"></path>
+const FlaskIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 2v7.31L4.15 20.3c-.77 1.25.13 2.7 1.6 2.7h12.5c1.47 0 2.37-1.45 1.6-2.7L14 9.31V2"></path>
+    <path d="M8.5 2h7"></path>
+    <path d="M7 16h10"></path>
   </svg>
 )
 
-const Globe = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+const GlobeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
     <line x1="2" y1="12" x2="22" y2="12"></line>
     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
   </svg>
 )
 
-const Users = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-    <circle cx="9" cy="7" r="4"></circle>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+const TrophyIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+    <path d="M4 22h16"></path>
+    <path d="M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34"></path>
+    <path d="M6 4h12v7a6 6 0 0 1-12 0V4Z"></path>
   </svg>
 )
 
 const OurStoryPage = () => {
+    const trustPillars = [
+        {
+            title: "BACKED BY EUROPEAN EXPERTISE",
+            description: "Formulated in collaboration with leading European laboratories and master chemical specialists.",
+            image: "/images/our-story/backed-by-european-expertise.png",
+            icon: <FlaskIcon />
+        },
+        {
+            title: "15+ YEARS OF PROVEN EXCELLENCE",
+            description: "Over a decade and a half of footwear care innovation, craftsmanship, and unwavering quality.",
+            image: "/images/our-story/15-years-of-proven-excellence.png",
+            icon: <AwardIcon />
+        },
+        {
+            title: "TRUSTED IN 17+ COUNTRIES",
+            description: "Delivering international standard shoe care products to footwear lovers across 17+ global markets.",
+            image: "/images/our-story/trusted-in-17-countries.png",
+            icon: <GlobeIcon />
+        },
+        {
+            title: "INDIA'S NO. 1 LEADING SHOE CARE BRAND",
+            description: "India's foremost choice for premium leather care, sneaker care, and foot comfort solutions.",
+            image: "/images/our-story/indias-no-1-shoe-care-brand.png",
+            icon: <TrophyIcon />
+        }
+    ]
+
     return (
         <div className="bg-white">
+            {/* HERO BANNER */}
             <div className="relative overflow-hidden flex items-center justify-center bg-black text-white w-full" style={{aspectRatio: '1920 / 800', height: 'auto', maxHeight: '550px'}}>
                 <div className="absolute inset-0">
                     <img src="/images/story-page-banner.png" className="w-full h-full object-cover object-center" alt="Our Story Banner" />
                 </div>
-                {/* 
-                <div className="relative z-10 text-center animate-fade-in-up px-4 max-w-4xl">
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter mb-4">Our Story</h1>
-                    <p className="text-lg sm:text-2xl font-medium tracking-wide text-gray-200 italic">"Every great journey begins with a single step."</p>
-                </div> 
-                */}
             </div>
 
             {/* MAIN STORY TEXT & VIDEO */}
-            <div className="py-16 sm:py-24 max-w-7xl mx-auto px-6 sm:px-8 text-gray-800 leading-relaxed">
+            <div className="py-14 sm:py-20 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 text-gray-800 leading-relaxed">
                 <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                     {/* VIDEO LEFT */}
-                    <div className="w-full lg:w-[55%] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative aspect-video bg-gray-50 flex-shrink-0 self-start hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-500">
+                    <div className="w-full lg:w-[55%] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-100 relative aspect-video bg-gray-50 flex-shrink-0 self-start hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] transition-shadow duration-500">
                         <CustomVideoPlayer videoId="rCl2DY4quFI" />
                     </div>
 
@@ -81,110 +104,81 @@ const OurStoryPage = () => {
                 </div>
 
                 {/* REDEFINE BANNER */}
-                <div className="py-8 my-16 border border-[#0bb799]/30 rounded-xl shadow-sm text-center bg-[#0bb799]/5 relative overflow-hidden">
+                <div className="py-8 my-14 border border-[#0bb799]/30 rounded-2xl shadow-sm text-center bg-[#0bb799]/5 relative overflow-hidden">
                     <p className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wide text-black px-4 relative z-10">
                         To redefine shoe care through quality, innovation, and ease of use.
                     </p>
                 </div>
 
-                {/* VALUES SECTION HEAD */}
-                <div className="text-center mb-12">
+                {/* TRUST PILLARS HEAD */}
+                <div className="text-center mb-10">
                     <p className="font-bold text-black uppercase tracking-wider text-base sm:text-lg md:text-xl">
                         As we continue to grow, we remain driven by the same values that shaped our beginnings:
                     </p>
                 </div>
 
-                {/* VALUES GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* CARD 1 */}
-                    <div className="p-4 pb-6 bg-white border border-gray-100 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex flex-col relative group">
-                        <div className="absolute top-8 left-8 z-10 bg-[#0bb799] p-2.5 rounded-full text-white shadow-lg">
-                            <CheckCircle />
+                {/* TRUST PILLARS GRID (Expanded cards with wider footprint and padding) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+                    {trustPillars.map((pillar, idx) => (
+                        <div 
+                            key={idx} 
+                            className="p-6 pb-7 bg-white border border-gray-100/90 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col relative group"
+                        >
+                            <div className="absolute top-5 left-5 z-10 bg-[#0bb799] p-2 rounded-full text-white shadow-md">
+                                {pillar.icon}
+                            </div>
+                            
+                            <div className="w-full aspect-[362/297] rounded-xl overflow-hidden mb-5 relative bg-white flex items-center justify-center">
+                                <img 
+                                    src={pillar.image} 
+                                    alt={pillar.title} 
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                            
+                            <h3 className="font-bold uppercase text-sm sm:text-[15px] text-black mb-2 tracking-wide text-center leading-snug">
+                                {pillar.title}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-gray-600 text-center leading-relaxed px-1">
+                                {pillar.description}
+                            </p>
                         </div>
-                        <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 relative">
-                            <img src="/images/landing-page-images/img_000_370x480.png" alt="Quality First" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                        <h3 className="font-bold uppercase text-base text-black mb-2 tracking-wide text-center">Quality First</h3>
-                        <p className="text-sm text-gray-600 text-center leading-relaxed px-2">Products crafted to deliver professional results you can trust.</p>
-                    </div>
-                    {/* CARD 2 */}
-                    <div className="p-4 pb-6 bg-white border border-gray-100 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex flex-col relative group">
-                        <div className="absolute top-8 left-8 z-10 bg-[#0bb799] p-2.5 rounded-full text-white shadow-lg">
-                            <Lightbulb />
-                        </div>
-                        <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 relative">
-                            <img src="/images/landing-page-images/img_002_370x480.png" alt="Innovation with Purpose" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                        <h3 className="font-bold uppercase text-base text-black mb-2 tracking-wide text-center">Innovation with Purpose</h3>
-                        <p className="text-sm text-gray-600 text-center leading-relaxed px-2">Thoughtfully designed solutions that make shoe care simple and effective.</p>
-                    </div>
-                    {/* CARD 3 */}
-                    <div className="p-4 pb-6 bg-white border border-gray-100 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex flex-col relative group">
-                        <div className="absolute top-8 left-8 z-10 bg-[#0bb799] p-2.5 rounded-full text-white shadow-lg">
-                            <Globe />
-                        </div>
-                        <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 relative">
-                            <img src="/images/landing-page-images/img_004_370x480.png" alt="Global Expertise" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                        <h3 className="font-bold uppercase text-base text-black mb-2 tracking-wide text-center">Global Expertise, Made in India</h3>
-                        <p className="text-sm text-gray-600 text-center leading-relaxed px-2">Combining international know-how with world-class manufacturing in India.</p>
-                    </div>
-                    {/* CARD 4 */}
-                    <div className="p-4 pb-6 bg-white border border-gray-100 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex flex-col relative group">
-                        <div className="absolute top-8 left-8 z-10 bg-[#0bb799] p-2.5 rounded-full text-white shadow-lg">
-                            <Users />
-                        </div>
-                        <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 relative">
-                            <img src="/images/landing-page-images/img_009_370x480.png" alt="Care Beyond Products" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                        <h3 className="font-bold uppercase text-base text-black mb-2 tracking-wide text-center">Care Beyond Products</h3>
-                        <p className="text-sm text-gray-600 text-center leading-relaxed px-2">Helping consumers protect, maintain, and enjoy their footwear for longer.</p>
-                    </div>
+                    ))}
                 </div>
             </div>
 
-            {/* BLACK BANNER SECTION */}
-            <div className="bg-[#111] text-white my-10 mx-4 sm:mx-8 rounded-[2rem] overflow-hidden flex flex-col lg:flex-row items-stretch shadow-2xl">
-                <div className="w-full lg:w-[45%] p-10 lg:p-16 flex flex-col justify-center bg-gradient-to-br from-[#1a1a1a] to-black relative">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#0bb799] to-transparent"></div>
-                    <p className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white mb-3 leading-[1.1]">
-                        Because<br/>every pair<br/>has a story.
-                    </p>
-                    <p className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#0bb799]">
-                        And we're here to help it last.
-                    </p>
-                </div>
-                <div className="w-full lg:w-[55%] h-[300px] lg:h-auto min-h-[400px] relative">
-                    <img src="/images/landing-page-images/img_006_1920x700.png" className="absolute inset-0 w-full h-full object-cover object-left" alt="Procare Products Collage" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#111] via-transparent to-transparent hidden lg:block"></div>
+            {/* EVERY PAIR HAS A STORY BANNER (Framed, well-proportioned container) */}
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 my-8">
+                <div className="rounded-3xl overflow-hidden shadow-2xl bg-black border border-gray-900">
+                    <img 
+                        src="/images/our-story/every-pair-has-a-story.png" 
+                        alt="Because every pair has a story. And we're here to help it last." 
+                        className="w-full h-auto object-cover rounded-3xl"
+                    />
                 </div>
             </div>
 
-            {/* BRAND PROMISE BANNER */}
-            <div className="mb-16 mx-4 sm:mx-8 bg-black rounded-[2rem] p-8 sm:p-16 text-center text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 opacity-30">
-                    <img src="/images/landing-page-images/img_010_1920x700.png" className="w-full h-full object-cover" alt="Background" />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30"></div>
-                
-                <div className="relative z-10">
-                    <div className="flex items-center justify-center gap-4 mb-6">
-                        <div className="h-px bg-gray-600 flex-1 max-w-[100px]"></div>
-                        <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-[#0bb799] uppercase">Trusted Worldwide</p>
-                        <div className="h-px bg-gray-600 flex-1 max-w-[100px]"></div>
+            {/* BRAND PROMISE BANNER (Lighter, elegant fresh style to avoid heavy black stacking) */}
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 my-12 mb-20">
+                <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-3xl p-8 sm:p-14 text-center text-white relative overflow-hidden shadow-xl border border-gray-800">
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-center gap-4 mb-4">
+                            <div className="h-px bg-gray-700 flex-1 max-w-[80px]"></div>
+                            <p className="text-xs font-bold tracking-[0.25em] text-[#0bb799] uppercase">Trusted Worldwide</p>
+                            <div className="h-px bg-gray-700 flex-1 max-w-[80px]"></div>
+                        </div>
+                        
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase leading-tight mb-8 max-w-3xl mx-auto drop-shadow-md">
+                            Join the Revolution in Footwear Care
+                        </h2>
+                        
+                        <a 
+                            href="/shop" 
+                            className="bg-[#0bb799] text-white px-8 py-3.5 rounded-full font-bold text-sm sm:text-base hover:bg-[#099980] hover:-translate-y-0.5 transition-all shadow-[0_0_20px_rgba(11,183,153,0.35)] hover:shadow-[0_0_30px_rgba(11,183,153,0.55)] inline-block uppercase tracking-wider cursor-pointer"
+                        >
+                            Shop The Collection
+                        </a>
                     </div>
-                    
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase leading-tight mb-10 max-w-4xl mx-auto drop-shadow-lg">
-                        Join the Revolution in Footwear Care
-                    </h2>
-                    
-                    <a href="/shop" className="bg-[#0bb799] text-white px-10 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-[#099980] hover:-translate-y-1 transition-all shadow-[0_0_20px_rgba(11,183,153,0.4)] hover:shadow-[0_0_30px_rgba(11,183,153,0.6)] inline-block uppercase tracking-wider">
-                        Shop The Collection
-                    </a>
                 </div>
             </div>
         </div>

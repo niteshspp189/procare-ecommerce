@@ -190,9 +190,9 @@ export default function AllProductsPage() {
                         <Table.Body>
                             {isLoading ? (
                                 <Table.Row>
-                                    <Table.Cell colSpan={7 as any} className="text-center py-8 text-ui-fg-subtle">
+                                    <td colSpan={7} className="text-center py-8 text-ui-fg-subtle">
                                         Loading products...
-                                    </Table.Cell>
+                                    </td>
                                 </Table.Row>
                             ) : paginatedProducts.map((product) => (
                                 <Table.Row key={product.id}>
@@ -251,9 +251,9 @@ export default function AllProductsPage() {
                             ))}
                             {!isLoading && paginatedProducts.length === 0 && (
                                 <Table.Row>
-                                    <Table.Cell colSpan={7 as any} className="text-center py-8 text-ui-fg-subtle">
+                                    <td colSpan={7} className="text-center py-8 text-ui-fg-subtle">
                                         No products found.
-                                    </Table.Cell>
+                                    </td>
                                 </Table.Row>
                             )}
                         </Table.Body>

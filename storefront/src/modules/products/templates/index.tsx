@@ -17,70 +17,112 @@ import { isGenuineOption } from "@lib/util/product"
 import { trackMetaEvent } from "@lib/util/meta-pixel"
 import MetaViewContentTracker from "@modules/products/components/meta-view-content-tracker"
 
-const AVAILABLE_BADGES: { label: string; imgFile: string }[] = [
-    { label: "15 Day Return", imgFile: "15-day-return.png" },
-    { label: "Absorb Mositure", imgFile: "absorb-mositure.png" },
-    { label: "Anti Slip Handle", imgFile: "anti-slip-handle.png" },
-    { label: "Beech Wood Handle", imgFile: "beech-wood-handle.png" },
-    { label: "Brush And Pumice Combo", imgFile: "brush-and-pumice-combo.png" },
-    { label: "Chromium Plated Finish", imgFile: "chromium-plated-finish.png" },
-    { label: "Cleaning", imgFile: "cleaning.png" },
-    { label: "Color Refreshing", imgFile: "color-refreshing.png" },
-    { label: "Comfort", imgFile: "comfort.png" },
-    { label: "Complete Kit", imgFile: "complete-kit.png" },
-    { label: "Contain High Quality", imgFile: "contain-high-quality.png" },
-    { label: "Create Natural Shine", imgFile: "create-natural-shine.png" },
-    { label: "Cushioning", imgFile: "cushioning.png" },
-    { label: "Ease", imgFile: "ease.png" },
-    { label: "Eco Friendly", imgFile: "eco-friendly.png" },
-    { label: "Effective Cleaning Agent", imgFile: "effective-cleaning-agent.png" },
-    { label: "Essentials", imgFile: "essentials.png" },
-    { label: "Europian Experts", imgFile: "europian-experts.png" },
-    { label: "For Coarse And Fine Filing", imgFile: "for-coarse-and-fine-filing.png" },
-    { label: "Fragnance", imgFile: "fragnance.png" },
-    { label: "Free Shipping", imgFile: "free-shipping.png" },
-    { label: "Gel Comfort", imgFile: "gel-comfort.png" },
-    { label: "Genuine Hair Horse Brush", imgFile: "genuine-hair-horse-brush.png" },
-    { label: "Hand Washable", imgFile: "hand-washable.png" },
-    { label: "Help Remove Trapped Dust", imgFile: "help-remove-trapped-dust.png" },
-    { label: "Help To Slidethe Feet Into Shoes", imgFile: "help-to-slidethe-feet-into-shoes.png" },
-    { label: "Helps Fight Fungi And Bacteria", imgFile: "helps-fight-fungi-and-bacteria.png" },
-    { label: "High Density Sponge", imgFile: "high-density-sponge.png" },
-    { label: "High Grade Steel", imgFile: "high-grade-steel.png" },
-    { label: "High Quality Bristles", imgFile: "high-quality-bristles.png" },
-    { label: "High Quality Wood 1", imgFile: "high-quality-wood-1.png" },
-    { label: "High Quality Wood", imgFile: "high-quality-wood.png" },
-    { label: "Leather Grip Handle", imgFile: "leather-grip-handle.png" },
-    { label: "Light Weight", imgFile: "light-weight.png" },
-    { label: "Long Lasting Freshness", imgFile: "long-lasting-freshness.png" },
-    { label: "Made In Europe", imgFile: "made-in-europe.png" },
-    { label: "Maintains The Originals Shape", imgFile: "maintains-the-originals-shape.png" },
-    { label: "Multi Purpose Design", imgFile: "multi-purpose-design.png" },
-    { label: "Multi Step Nail Buffer", imgFile: "multi-step-nail-buffer.png" },
-    { label: "Natural Cedar Wood", imgFile: "natural-cedar-wood.png" },
-    { label: "Natural Lotus Wood", imgFile: "natural-lotus-wood.png" },
-    { label: "Odour Control", imgFile: "odour-control.png" },
-    { label: "Pack Of 2 Roller", imgFile: "pack-of-2-roller.png" },
-    { label: "Premium Stainless Steel", imgFile: "premium-stainless-steel.png" },
-    { label: "Prevents Creasing", imgFile: "prevents-creasing.png" },
-    { label: "Pro Accessories", imgFile: "pro-accessories.png" },
-    { label: "Pro Active", imgFile: "pro-active.png" },
-    { label: "Pro Care", imgFile: "pro-care.png" },
-    { label: "Pro Clean", imgFile: "pro-clean.png" },
-    { label: "Pro Color Green", imgFile: "pro-color-green.png" },
-    { label: "Pro Fresh", imgFile: "pro-fresh.png" },
-    { label: "Pro Shine", imgFile: "pro-shine.png" },
-    { label: "Protect", imgFile: "protect.png" },
-    { label: "Remove Callus And Dead Skin", imgFile: "remove-callus-and-dead-skin.png" },
-    { label: "Replacable Rollers", imgFile: "replacable-rollers.png" },
-    { label: "Shine", imgFile: "shine.png" },
-    { label: "Skin Friendly", imgFile: "skin-friendly.png" },
-    { label: "Stability", imgFile: "stability.png" },
-    { label: "Travel Freindly", imgFile: "travel-freindly.png" },
-    { label: "Water Protect", imgFile: "water-protect.png" },
-    { label: "Water Protection", imgFile: "water-protection.png" },
-    { label: "With Cleaning Brush", imgFile: "with-cleaning-brush.png" },
+const AVAILABLE_BADGES: { label: string; imgFile: string; id?: string }[] = [
+    // PRO Line
+    { label: "PRO CLEAN", imgFile: "pro-clean.png", id: "pro-clean" },
+    { label: "PRO FRESH", imgFile: "pro-fresh.png", id: "pro-fresh" },
+    { label: "PRO CARE", imgFile: "pro-care.png", id: "pro-care" },
+    { label: "PRO SHINE", imgFile: "pro-shine.png", id: "pro-shine" },
+    { label: "PRO Active", imgFile: "pro-active.png", id: "pro-active" },
+    { label: "PRO Accessories", imgFile: "pro-accessories.png", id: "pro-accessories" },
+    { label: "PRO Color", imgFile: "pro-color-green.png", id: "pro-color-green" },
+    { label: "PRO Color Green", imgFile: "pro-color-green.png", id: "pro-color-green" },
+
+    // Benefits
+    { label: "Ease", imgFile: "ease.png", id: "ease" },
+    { label: "Essentials", imgFile: "essentials.png", id: "essentials" },
+    { label: "Comfort", imgFile: "comfort.png", id: "comfort" },
+    { label: "Cushioning", imgFile: "cushioning.png", id: "cushioning" },
+    { label: "Stability", imgFile: "stability.png", id: "stability" },
+    { label: "Skin Friendly", imgFile: "skin-friendly.png", id: "skin-friendly" },
+    { label: "Eco Friendly", imgFile: "eco-friendly.png", id: "eco-friendly" },
+    { label: "Lightweight", imgFile: "light-weight.png", id: "light-weight" },
+    { label: "Light Weight", imgFile: "light-weight.png", id: "light-weight" },
+    { label: "Made in Europe", imgFile: "made-in-europe.png", id: "made-in-europe" },
+    { label: "Made In Europe", imgFile: "made-in-europe.png", id: "made-in-europe" },
+    { label: "European Expertise", imgFile: "europian-experts.png", id: "europian-experts" },
+    { label: "Europian Experts", imgFile: "europian-experts.png", id: "europian-experts" },
+    { label: "Fragrance", imgFile: "fragnance.png", id: "fragnance" },
+    { label: "Fragnance", imgFile: "fragnance.png", id: "fragnance" },
+    { label: "Shine", imgFile: "shine.png", id: "shine" },
+    { label: "Create Natural Shine", imgFile: "create-natural-shine.png", id: "create-natural-shine" },
+    { label: "Cleaning", imgFile: "cleaning.png", id: "cleaning" },
+    { label: "Effective Cleaning Agent", imgFile: "effective-cleaning-agent.png", id: "effective-cleaning-agent" },
+    { label: "Color Refreshing", imgFile: "color-refreshing.png", id: "color-refreshing" },
+    { label: "Long Lasting Freshness", imgFile: "long-lasting-freshness.png", id: "long-lasting-freshness" },
+    { label: "Helps Fight Fungi & Bacteria", imgFile: "helps-fight-fungi-and-bacteria.png", id: "helps-fight-fungi-and-bacteria" },
+    { label: "Helps Fight Fungi And Bacteria", imgFile: "helps-fight-fungi-and-bacteria.png", id: "helps-fight-fungi-and-bacteria" },
+    { label: "Absorb Moisture", imgFile: "absorb-mositure.png", id: "absorb-mositure" },
+    { label: "Absorb Mositure", imgFile: "absorb-mositure.png", id: "absorb-mositure" },
+    { label: "Odour Control", imgFile: "odour-control.png", id: "odour-control" },
+    { label: "Hand Washable", imgFile: "hand-washable.png", id: "hand-washable" },
+    { label: "Help Remove Trapped Dust", imgFile: "help-remove-trapped-dust.png", id: "help-remove-trapped-dust" },
+    { label: "Help Slide Feet Into Shoes", imgFile: "help-to-slidethe-feet-into-shoes.png", id: "help-to-slidethe-feet-into-shoes" },
+    { label: "Help To Slidethe Feet Into Shoes", imgFile: "help-to-slidethe-feet-into-shoes.png", id: "help-to-slidethe-feet-into-shoes" },
+
+    // Features / Materials
+    { label: "Complete Kit", imgFile: "complete-kit.png", id: "complete-kit" },
+    { label: "With Cleaning Brush", imgFile: "with-cleaning-brush.png", id: "with-cleaning-brush" },
+    { label: "Brush & Pumice Combo", imgFile: "brush-and-pumice-combo.png", id: "brush-and-pumice-combo" },
+    { label: "Brush And Pumice Combo", imgFile: "brush-and-pumice-combo.png", id: "brush-and-pumice-combo" },
+    { label: "Gel Comfort", imgFile: "gel-comfort.png", id: "gel-comfort" },
+    { label: "High Density Sponge", imgFile: "high-density-sponge.png", id: "high-density-sponge" },
+    { label: "High Quality Wood", imgFile: "high-quality-wood.png", id: "high-quality-wood" },
+    { label: "High Quality Wood 1", imgFile: "high-quality-wood-1.png", id: "high-quality-wood-1" },
+    { label: "High Quality Bristles", imgFile: "high-quality-bristles.png", id: "high-quality-bristles" },
+    { label: "Genuine Horse Hair Bristles", imgFile: "genuine-hair-horse-brush.png", id: "genuine-hair-horse-brush" },
+    { label: "Genuine Hair Horse Brush", imgFile: "genuine-hair-horse-brush.png", id: "genuine-hair-horse-brush" },
+    { label: "High Grade Steel", imgFile: "high-grade-steel.png", id: "high-grade-steel" },
+    { label: "Leather Grip Handle", imgFile: "leather-grip-handle.png", id: "leather-grip-handle" },
+    { label: "Anti Slip Handle", imgFile: "anti-slip-handle.png", id: "anti-slip-handle" },
+    { label: "Replaceable Rollers", imgFile: "replacable-rollers.png", id: "replacable-rollers" },
+    { label: "Replacable Rollers", imgFile: "replacable-rollers.png", id: "replacable-rollers" },
+    { label: "For Coarse & Fine Filing", imgFile: "for-coarse-and-fine-filing.png", id: "for-coarse-and-fine-filing" },
+    { label: "For Coarse And Fine Filing", imgFile: "for-coarse-and-fine-filing.png", id: "for-coarse-and-fine-filing" },
+    { label: "Remove Callus & Dead Skin", imgFile: "remove-callus-and-dead-skin.png", id: "remove-callus-and-dead-skin" },
+    { label: "Remove Callus And Dead Skin", imgFile: "remove-callus-and-dead-skin.png", id: "remove-callus-and-dead-skin" },
+    { label: "Maintains Original Shape", imgFile: "maintains-the-originals-shape.png", id: "maintains-the-originals-shape" },
+    { label: "Maintains The Originals Shape", imgFile: "maintains-the-originals-shape.png", id: "maintains-the-originals-shape" },
+    { label: "Contain High Quality", imgFile: "contain-high-quality.png", id: "contain-high-quality" },
+    { label: "Protect", imgFile: "protect.png", id: "protect" },
+    { label: "Water Protection", imgFile: "water-protection.png", id: "water-protection" },
+    { label: "Water Protect", imgFile: "water-protect.png", id: "water-protect" },
+    { label: "Multi-Purpose Design", imgFile: "multi-purpose-design.png", id: "multi-purpose-design" },
+    { label: "Multi Purpose Design", imgFile: "multi-purpose-design.png", id: "multi-purpose-design" },
+    { label: "Chromium Plated Finish", imgFile: "chromium-plated-finish.png", id: "chromium-plated-finish" },
+    { label: "Pack of 2 Rollers", imgFile: "pack-of-2-roller.png", id: "pack-of-2-roller" },
+    { label: "Pack Of 2 Roller", imgFile: "pack-of-2-roller.png", id: "pack-of-2-roller" },
+    { label: "Multi Step Nail Buffer", imgFile: "multi-step-nail-buffer.png", id: "multi-step-nail-buffer" },
+    { label: "Premium Stainless Steel", imgFile: "premium-stainless-steel.png", id: "premium-stainless-steel" },
+    { label: "Natural Lotus Wood", imgFile: "natural-lotus-wood.png", id: "natural-lotus-wood" },
+    { label: "Prevents Creasing", imgFile: "prevents-creasing.png", id: "prevents-creasing" },
+    { label: "Natural Cedar Wood", imgFile: "natural-cedar-wood.png", id: "natural-cedar-wood" },
+    { label: "Beech Wood Handle", imgFile: "beech-wood-handle.png", id: "beech-wood-handle" },
+
+    // Logistics
+    { label: "Free Shipping", imgFile: "free-shipping.png", id: "free-shipping" },
+    { label: "15 Day Return", imgFile: "15-day-return.png", id: "15-day-return" },
+    { label: "Travel Friendly", imgFile: "travel-freindly.png", id: "travel-freindly" },
+    { label: "Travel Freindly", imgFile: "travel-freindly.png", id: "travel-freindly" },
 ]
+
+function normalizeBadgeString(str: string): string {
+    return (str || "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/replacable/g, "replaceable")
+        .replace(/rollers/g, "roller")
+        .replace(/freindly/g, "friendly")
+        .replace(/mositure/g, "moisture")
+        .replace(/fragnance/g, "fragrance")
+        .replace(/europian/g, "european")
+        .replace(/experts/g, "expertise")
+        .replace(/[-_]/g, " ")
+        .replace(/[^a-z0-9 ]/g, "")
+        .trim()
+        .replace(/\s+/g, " ")
+}
+
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
   inner: { maxWidth: '1488px', margin: '0 auto', padding: '0 24px' },
@@ -784,37 +826,61 @@ const formatSpecValue = (value: any): string => {
                       
                       let mappedIconUrl = badge.iconUrl;
                       if (!mappedIconUrl) {
-                        const norm = (displayLabel || "").toLowerCase().trim();
-                        const id = (badge.iconId || "").toLowerCase().trim();
-                        
-                        const presetMatch = AVAILABLE_BADGES.find(
-                          b => b.label.toLowerCase() === norm || b.label.toLowerCase() === id
+                        const rawLabel = (displayLabel || "").trim();
+                        const rawId = (badge.iconId || "").trim();
+                        const normLabel = normalizeBadgeString(rawLabel);
+                        const normId = normalizeBadgeString(rawId);
+
+                        // 1. Direct match on AVAILABLE_BADGES by label, id, or imgFile
+                        const directMatch = AVAILABLE_BADGES.find(
+                          b => b.label.toLowerCase() === rawLabel.toLowerCase() ||
+                               (b.id && b.id.toLowerCase() === rawId.toLowerCase()) ||
+                               b.imgFile.replace(".png", "").toLowerCase() === rawId.toLowerCase()
                         );
-                        
-                        if (presetMatch) {
-                          mappedIconUrl = `/images/icons/${presetMatch.imgFile}`;
+
+                        if (directMatch) {
+                          mappedIconUrl = `/images/icons/${directMatch.imgFile}`;
                         } else {
-                          // Fallbacks for fuzzy matching (like "european exper")
-                          if (norm.includes("european exper") || norm.includes("euro exper") || norm.includes("europe") || norm.includes("euro tech") || id === "european-expertise" || id === "europian-experts") {
-                            mappedIconUrl = "/images/icons/europian-experts.png";
-                          } else if (norm === "color refreshing" || norm === "color refresh" || norm === "colour" || norm.includes("color restore") || id === "color-refreshing") {
-                            mappedIconUrl = "/images/icons/color-refreshing.png";
-                          } else if (norm === "fight fungi" || id === "helps-fight-fungi-and-bacteria") {
-                            mappedIconUrl = "/images/icons/helps-fight-fungi-and-bacteria.png";
-                          } else if (norm.includes("freshness") || id === "long-lasting-freshness") {
-                            mappedIconUrl = "/images/icons/long-lasting-freshness.png";
-                          } else if (norm === "effective clean" || norm === "effective cleaning agent" || id === "effective-clean" || id === "effective-cleaning-agent") {
-                            mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
-                          } else if (norm === "cleaning" || id === "cleaning") {
-                            mappedIconUrl = "/images/icons/cleaning.png";
-                          } else if (norm === "shine" || norm === "natural shine" || id === "shine") {
-                            mappedIconUrl = "/images/icons/shine.png";
-                          } else if (norm === "protect" || id === "protect") {
-                            mappedIconUrl = "/images/icons/protect.png";
-                          } else if (norm === "water protection" || norm === "water protect" || id === "water-protection") {
-                            mappedIconUrl = "/images/icons/water-protection.png";
-                          } else if (norm.includes("carnauba") || norm.includes("bristles") || norm.includes("steel") || id === "contain-high-quality") {
-                            mappedIconUrl = "/images/icons/contain-high-quality.png";
+                          // 2. Match on normalized label or ID
+                          const normMatch = AVAILABLE_BADGES.find(
+                            b => normalizeBadgeString(b.label) === normLabel ||
+                                 (b.id && normalizeBadgeString(b.id) === normId) ||
+                                 normalizeBadgeString(b.imgFile.replace(".png", "")) === normId ||
+                                 normalizeBadgeString(b.imgFile.replace(".png", "")) === normLabel
+                          );
+
+                          if (normMatch) {
+                            mappedIconUrl = `/images/icons/${normMatch.imgFile}`;
+                          } else if (rawId && rawId.length > 2 && !["eco", "shipping", "star", "check"].includes(rawId)) {
+                            // 3. Direct image slug fallback
+                            mappedIconUrl = `/images/icons/${rawId.endsWith(".png") ? rawId : rawId + ".png"}`;
+                          } else {
+                            // 4. Fuzzy fallback logic for edge cases
+                            if (normLabel.includes("european exper") || normLabel.includes("europe") || normId.includes("europ")) {
+                              mappedIconUrl = "/images/icons/europian-experts.png";
+                            } else if (normLabel.includes("callus") || normLabel.includes("dead skin") || normId.includes("callus")) {
+                              mappedIconUrl = "/images/icons/remove-callus-and-dead-skin.png";
+                            } else if (normLabel.includes("roller") || normId.includes("roller")) {
+                              mappedIconUrl = normLabel.includes("2") ? "/images/icons/pack-of-2-roller.png" : "/images/icons/replacable-rollers.png";
+                            } else if (normLabel.includes("color refresh") || normId.includes("color")) {
+                              mappedIconUrl = "/images/icons/color-refreshing.png";
+                            } else if (normLabel.includes("fungi") || normId.includes("fungi")) {
+                              mappedIconUrl = "/images/icons/helps-fight-fungi-and-bacteria.png";
+                            } else if (normLabel.includes("freshness") || normId.includes("freshness")) {
+                              mappedIconUrl = "/images/icons/long-lasting-freshness.png";
+                            } else if (normLabel.includes("effective clean") || normId.includes("effective")) {
+                              mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
+                            } else if (normLabel.includes("clean") || normId.includes("clean")) {
+                              mappedIconUrl = "/images/icons/cleaning.png";
+                            } else if (normLabel.includes("shine") || normId.includes("shine")) {
+                              mappedIconUrl = "/images/icons/shine.png";
+                            } else if (normLabel.includes("protect") || normId.includes("protect")) {
+                              mappedIconUrl = "/images/icons/protect.png";
+                            } else if (normLabel.includes("water protect") || normId.includes("water-protect")) {
+                              mappedIconUrl = "/images/icons/water-protection.png";
+                            } else if (normLabel.includes("carnauba") || normLabel.includes("bristle") || normLabel.includes("steel") || normId === "contain-high-quality") {
+                              mappedIconUrl = "/images/icons/contain-high-quality.png";
+                            }
                           }
                         }
                       }

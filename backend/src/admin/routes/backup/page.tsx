@@ -47,7 +47,7 @@ const BackupPage = () => {
 }
 
 export const config = defineRouteConfig({
-  label: "DB Backup",
+  label: "Database Backup",
   icon: CircleStack,
 })
 

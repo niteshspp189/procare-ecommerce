@@ -12,6 +12,8 @@ import SideMenu from "@modules/layout/components/side-menu"
 import SearchModal from "@modules/layout/components/search-modal"
 
 import { getShippingThreshold } from "@lib/data/fulfillment"
+import { getAnnouncements } from "@lib/data/announcements"
+import AnnouncementMarquee from "@modules/layout/components/announcement-marquee"
 
 const styles = {
   topNav: {
@@ -38,35 +40,85 @@ const styles = {
     padding: '12px var(--container-padding)',
     position: 'relative',
     zIndex: 1000,
+    borderBottom: '1px solid #e5e7eb',
+    background: '#fff'
   },
   logo: {
-    height: '44px',
-    transition: 'transform 0.3s ease'
+    height: '28px',
+    width: 'auto',
+    display: 'block'
   },
   menu: {
-    gap: '36px',
+    display: 'flex',
+    gap: '28px',
     alignItems: 'center'
   },
   menuLink: {
     textDecoration: 'none',
-    fontSize: '15px',
-    fontWeight: '700',
+    fontSize: '13px',
+    fontWeight: '600',
+    transition: 'color 0.2s ease',
+    display: 'flex',
     alignItems: 'center',
-    gap: '6px',
-    padding: '8px 0',
-    transition: 'color 0.2s'
+    gap: '4px'
+  },
+  actions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px'
+  },
+  actionBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'inherit',
+    position: 'relative' as const,
+    padding: '4px'
+  },
+  cartCount: {
+    position: 'absolute' as const,
+    top: '-2px',
+    right: '-4px',
+    backgroundColor: '#00b5a4',
+    color: '#fff',
+    fontSize: '9px',
+    fontWeight: '700',
+    width: '15px',
+    height: '15px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   rightSection: {
+    display: 'flex',
     alignItems: 'center',
     gap: '24px'
   },
   searchContainer: {
-    position: 'relative',
+    position: 'relative' as const,
+    display: 'flex',
     alignItems: 'center',
   },
   icon: {
-    fontSize: '22px',
+    display: 'flex',
+    alignItems: 'center',
     cursor: 'pointer',
+    textDecoration: 'none',
+    color: 'inherit',
+    transition: 'transform 0.2s ease',
+  },
+  tagPill: {
+    backgroundColor: '#00b5a4',
+    color: '#fff',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    fontSize: '11px',
+    fontWeight: '700',
+    display: 'flex',
     textDecoration: 'none',
     transition: 'transform 0.2s ease',
     alignItems: 'center'
@@ -74,12 +126,13 @@ const styles = {
 }
 
 export default async function Nav() {
-  const [regions, locales, currentLocale, customer, thresholdData] = await Promise.all([
+  const [regions, locales, currentLocale, customer, thresholdData, announcements] = await Promise.all([
     listRegions().then((regions: StoreRegion[]) => regions),
     listLocales(),
     getLocale(),
     retrieveCustomer().catch(() => null),
     getShippingThreshold(),
+    getAnnouncements(),
   ])
 
   const threshold = thresholdData?.threshold ?? 499
@@ -87,39 +140,19 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 animate-fade-in">
       {/* Black Top bar for premium feel */}
-      <div className="flex justify-between items-center px-2 sm:px-4 md:px-6 py-2 bg-[#141414] text-white uppercase tracking-normal sm:tracking-wider border-b border-gray-800 w-full max-w-full relative" style={{overflowX: 'clip', overflowY: 'visible'}}>
-        {/* Left flex spacer for perfect centering on desktop/laptop */}
-        <div className="hidden md:block flex-1 min-w-0 shrink-0"></div>
+      <div className="flex justify-between items-center px-2 sm:px-4 md:px-6 py-2 bg-[#141414] text-white uppercase tracking-normal sm:tracking-wider border-b border-gray-800 w-full max-w-full relative gap-2 sm:gap-4" style={{overflowX: 'clip', overflowY: 'visible'}}>
         
-        {/* Promo text and Shop Now button (Centered) */}
-        <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-1 md:flex-none min-w-0 mx-auto px-2 sm:px-3">
-          {/* Mobile scrolling version */}
-          <div className="flex sm:hidden overflow-hidden relative flex-1 items-center min-w-0">
-            <div className="flex whitespace-nowrap animate-marquee font-bold text-[#00b5a4] text-[10px] items-center">
-              <div className="flex shrink-0 items-center gap-1.5 pr-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] animate-promo-pulse"></span>
-                <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5 pr-4" aria-hidden="true">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] animate-promo-pulse"></span>
-                <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Desktop/tablet static version — kept centered with whitespace-nowrap */}
-          <span className="hidden sm:inline-flex items-center gap-1.5 font-bold text-[#00b5a4] whitespace-nowrap text-[10.5px] md:text-[11.5px] lg:text-[12.5px] shrink-0">
-            <span className="w-2 h-2 rounded-full bg-[#00b5a4] animate-promo-pulse flex-shrink-0"></span>
-            <span className="animate-promo-pulse">Free Delivery Eligible On Orders Above ₹{threshold}</span>
-          </span>
-
-          <LocalizedClientLink href="/shop" className="bg-white/10 hover:bg-white/20 text-white font-bold px-2.5 sm:px-3 py-1 text-[9px] sm:text-[10px] md:text-[10.5px] rounded transition-all whitespace-nowrap shrink-0 leading-none inline-flex items-center justify-center">
-            Shop Now
-          </LocalizedClientLink>
+        {/* Dynamic Scrolling Announcements Marquee & Shop Now button */}
+        <div className="flex-1 min-w-0">
+          <AnnouncementMarquee
+            announcements={announcements}
+            threshold={threshold}
+            shopNowLink="/shop"
+          />
         </div>
 
         {/* Right Navigation Links */}
-        <div className="hidden md:flex items-center justify-end gap-2.5 lg:gap-4 xl:gap-5 font-semibold text-gray-300 whitespace-nowrap text-[10.5px] md:text-[11px] lg:text-[11.5px] shrink-0 flex-1 min-w-0">
+        <div className="hidden md:flex items-center justify-end gap-2.5 lg:gap-4 xl:gap-5 font-semibold text-gray-300 whitespace-nowrap text-[10.5px] md:text-[11px] lg:text-[11.5px] shrink-0 min-w-0">
           <LocalizedClientLink href="/" className="hover:text-white transition-colors shrink-0">Home</LocalizedClientLink>
           <LocalizedClientLink href="/faq" className="hover:text-white transition-colors shrink-0">FAQ</LocalizedClientLink>
           <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors shrink-0">Our Story</LocalizedClientLink>
@@ -129,7 +162,6 @@ export default async function Nav() {
           </LocalizedClientLink>
         </div>
       </div>
-
 
       <nav style={styles.mainNav as any} className="flex bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none">
         <div className="flex items-center">

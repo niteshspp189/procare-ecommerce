@@ -12,3 +12,6 @@ coverage
 *.log
 dist
 build
+.medusa
+public/admin
+static

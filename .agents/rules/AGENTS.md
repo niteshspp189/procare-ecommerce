@@ -16,13 +16,15 @@ These rules are strictly enforced for all AI agents working on the Procare E-com
 ## 3. Codebase Organization & Git Hygiene
 - **Root Directory:** Keep the root directory completely clean.
 - **Git Status:** Both the local and production Git repositories must always be clean. Do not commit scratch files.
+- **Docker Restart Safety:** Before running any Docker commands or restarting containers on the VPS, you **must** use the `untracked/deployment/vps-manager.sh` script. This script automatically checks `git status` on the VPS and will abort if uncommitted changes (especially in mounted volumes like `backend-static` containing uploaded images) are found, preventing accidental data loss when containers reset.
 - **Untracked Directory:** All old scripts, unused files, and agent experiments are stored in the `untracked/` directory, which is ignored by git.
 - **Agent Environment:** Any test scripts, one-off node/python scripts, or experimental code created by agents *must* be placed in `untracked/agent_environment/`.
 
 ## 4. Deployment
 - **NODE_ENV:** When building and running in production, *always* ensure `NODE_ENV=production`.
-- **Deployment Script:** The script used to deploy to the VPS is located at `untracked/deployment/deploy.sh`. 
-- **Workflow:** Make your changes, push to GitHub on `main`, then run `untracked/deployment/deploy.sh` to trigger the VPS to pull and rebuild.
+- **VPS Execution Wrapper:** For **any** custom commands, Docker restarts, or deployment actions executed on the VPS, you must route them through `untracked/deployment/vps-manager.sh "<command>"`.
+- **Deployment Script:** The script used to deploy to the VPS is located at `untracked/deployment/deploy.sh` (which safely wraps `vps-manager.sh`). 
+- **Workflow:** Make your changes, push to GitHub on `main`, then run `untracked/deployment/deploy.sh` to trigger the VPS to safely pull and rebuild.
 
 ## 5. Maintenance Mode
 To enable maintenance mode while whitelisting your local Fedora IP, you must **SSH into the AWS VPS** and modify the host's Nginx configuration located at `/etc/nginx/` (e.g., `/etc/nginx/nginx.conf` or a specific file like `/etc/nginx/conf.d/procare.conf` / `whitelist.conf`).

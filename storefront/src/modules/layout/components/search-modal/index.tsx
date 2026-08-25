@@ -8,6 +8,7 @@ type ProductResult = {
   title: string
   handle: string
   thumbnail: string | null
+  variant_id?: string
 }
 
 export default function SearchModal() {
@@ -19,6 +20,7 @@ export default function SearchModal() {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // Auto-focus input when modal opens
   useEffect(() => {
@@ -27,6 +29,10 @@ export default function SearchModal() {
     } else {
       setQuery("")
       setResults([])
+      setLoading(false)
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
     }
   }, [open])
 
@@ -40,21 +46,42 @@ export default function SearchModal() {
   }, [])
 
   const searchProducts = async (q: string) => {
-    if (!q.trim()) { setResults([]); return }
+    const trimmed = q.trim()
+    if (!trimmed) {
+      setResults([])
+      setLoading(false)
+      return
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
+
     setLoading(true)
     try {
       const res = await fetch(
-        `/api/search?q=${encodeURIComponent(q)}`,
-        { method: "GET" }
+        `/api/search?q=${encodeURIComponent(trimmed)}`,
+        { 
+          method: "GET",
+          signal: abortController.signal
+        }
       )
       if (res.ok) {
         const data = await res.json()
         setResults(data.products || [])
+      } else {
+        setResults([])
       }
-    } catch {
-      setResults([])
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        setResults([])
+      }
     } finally {
-      setLoading(false)
+      if (abortControllerRef.current === abortController) {
+        setLoading(false)
+      }
     }
   }
 
@@ -62,7 +89,7 @@ export default function SearchModal() {
     const val = e.target.value
     setQuery(val)
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => searchProducts(val), 300)
+    debounceRef.current = setTimeout(() => searchProducts(val), 200)
   }
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -72,7 +99,7 @@ export default function SearchModal() {
     startTransition(() => router.push(`/shop?q=${encodeURIComponent(query.trim())}`))
   }
 
-  const handleSuggestionClick = (item: any) => {
+  const handleSuggestionClick = (item: ProductResult) => {
     setOpen(false)
     const url = item.variant_id ? `/products/${item.handle}?v_id=${item.variant_id}` : `/products/${item.handle}`
     startTransition(() => router.push(url))
