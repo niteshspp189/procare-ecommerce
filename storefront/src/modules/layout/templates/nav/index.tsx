@@ -15,116 +15,6 @@ import { getShippingThreshold } from "@lib/data/fulfillment"
 import { getAnnouncements } from "@lib/data/announcements"
 import AnnouncementMarquee from "@modules/layout/components/announcement-marquee"
 
-const styles = {
-  topNav: {
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    padding: '8px var(--container-padding)',
-    backgroundColor: '#1a1a1a',
-    fontSize: '11px',
-    gap: '24px',
-    color: '#fff',
-    letterSpacing: '0.05em',
-    textTransform: 'uppercase'
-  },
-  topLink: {
-    textDecoration: 'none',
-    color: '#fff',
-    fontWeight: '500',
-    opacity: '0.8',
-    transition: 'opacity 0.2s'
-  },
-  mainNav: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '12px var(--container-padding)',
-    position: 'relative',
-    zIndex: 1000,
-    borderBottom: '1px solid #e5e7eb',
-    background: '#fff'
-  },
-  logo: {
-    height: '28px',
-    width: 'auto',
-    display: 'block'
-  },
-  menu: {
-    display: 'flex',
-    gap: '28px',
-    alignItems: 'center'
-  },
-  menuLink: {
-    textDecoration: 'none',
-    fontSize: '13px',
-    fontWeight: '600',
-    transition: 'color 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px'
-  },
-  actions: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px'
-  },
-  actionBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'inherit',
-    position: 'relative' as const,
-    padding: '4px'
-  },
-  cartCount: {
-    position: 'absolute' as const,
-    top: '-2px',
-    right: '-4px',
-    backgroundColor: '#00b5a4',
-    color: '#fff',
-    fontSize: '9px',
-    fontWeight: '700',
-    width: '15px',
-    height: '15px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  rightSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '24px'
-  },
-  searchContainer: {
-    position: 'relative' as const,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  icon: {
-    display: 'flex',
-    alignItems: 'center',
-    cursor: 'pointer',
-    textDecoration: 'none',
-    color: 'inherit',
-    transition: 'transform 0.2s ease',
-  },
-  tagPill: {
-    backgroundColor: '#00b5a4',
-    color: '#fff',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: '700',
-    display: 'flex',
-    textDecoration: 'none',
-    transition: 'transform 0.2s ease',
-    alignItems: 'center'
-  }
-}
-
 export default async function Nav() {
   const [regions, locales, currentLocale, customer, thresholdData, announcements] = await Promise.all([
     listRegions().then((regions: StoreRegion[]) => regions),
@@ -163,43 +53,46 @@ export default async function Nav() {
         </div>
       </div>
 
-      <nav style={styles.mainNav as any} className="flex bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none">
-        <div className="flex items-center">
+      <nav className="flex items-center justify-between px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 bg-white dark:bg-[#111] border-b border-[#f3f4f6] dark:border-[#2d2d2d] shadow-[0_4px_15px_rgba(0,0,0,0.03)] dark:shadow-none relative z-40 w-full">
+        {/* Brand Logo */}
+        <div className="flex items-center shrink-0">
           <LocalizedClientLink href="/" className="flex items-center group">
-            <img src="/images/logos/logo.png" alt="PRO" style={styles.logo} className="group-hover:scale-105" />
+            <img src="/images/logos/logo.png" alt="PRO" className="h-6 sm:h-7 w-auto block group-hover:scale-105 transition-transform" />
           </LocalizedClientLink>
         </div>
 
-        <div style={styles.menu as any} className="hidden lg:flex">
-          <LocalizedClientLink href="/shop" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
+        {/* Center Desktop Navigation Menu */}
+        <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <LocalizedClientLink href="/shop" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Shop All
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/shoe-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
+          <LocalizedClientLink href="/categories/shoe-care" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Shoe Care
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/insoles" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
+          <LocalizedClientLink href="/categories/insoles" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Insoles
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/foot-care" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
+          <LocalizedClientLink href="/categories/foot-care" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Foot Care
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories/accessories" style={styles.menuLink} className="nav-item-animated group uppercase tracking-widest text-[13px] text-black dark:text-gray-100 hover:text-black dark:hover:text-white">
+          <LocalizedClientLink href="/categories/accessories" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Accessories
           </LocalizedClientLink>
         </div>
 
-        <div style={styles.rightSection as any} className="flex">
-          <div style={styles.searchContainer as any} className="flex group">
+        {/* Right Section: Search, Wishlist/Account, Cart, Mobile Hamburger */}
+        <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-5 shrink-0">
+          <div className="flex group">
             <SearchModal />
           </div>
 
-          <LocalizedClientLink href="/account" style={styles.icon} className="hidden md:flex hover:scale-110 text-black dark:text-gray-100">
+          <LocalizedClientLink href="/account" className="hidden md:flex items-center hover:scale-110 text-black dark:text-gray-100 transition-transform">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </LocalizedClientLink>
 
-          <div className="flex items-center gap-x-5">
+          <div className="flex items-center">
             <Suspense
               fallback={
                 <LocalizedClientLink
@@ -207,7 +100,7 @@ export default async function Nav() {
                   href="/cart"
                   aria-label="Cart (0)"
                 >
-                  <span className="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-200 group-hover:bg-gray-100">
+                  <span className="relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full transition-colors duration-200 group-hover:bg-gray-100">
                     <ShoppingBag
                       size={24}
                       className="transition-transform duration-200 group-hover:scale-105"
@@ -223,7 +116,9 @@ export default async function Nav() {
               <CartButton />
             </Suspense>
           </div>
-          <div className="flex lg:hidden ml-3">
+
+          {/* Mobile Hamburger Side Menu */}
+          <div className="flex lg:hidden items-center ml-0.5 sm:ml-1">
             <SideMenu regions={regions} locales={locales} currentLocale={currentLocale} customer={customer} />
           </div>
         </div>
