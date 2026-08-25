@@ -57,7 +57,7 @@ export default async function Nav() {
         {/* Brand Logo */}
         <div className="flex items-center shrink-0">
           <LocalizedClientLink href="/" className="flex items-center group">
-            <img src="/images/logos/logo.png" alt="PRO" className="h-6 sm:h-7 w-auto block group-hover:scale-105 transition-transform" />
+            <img src="/images/logos/logo.png" alt="PRO" className="h-[28px] sm:h-[32px] md:h-[36px] w-auto block dark:invert group-hover:scale-105 transition-transform" />
           </LocalizedClientLink>
         </div>
 
