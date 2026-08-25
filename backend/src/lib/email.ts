@@ -359,7 +359,7 @@ export async function sendOrderConfirmationEmail(order: any) {
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">
           <!-- Brand Header -->
           <div style="background-color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #00bda5;">
-            <a href="${storeUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
+            <a href="${storeUrl}" ses:no-track="true" target="_blank" style="text-decoration: none; display: inline-block;">
               <img src="${storeUrl}/images/logos/logo.png" alt="PRO" style="height: 48px; width: auto; max-width: 200px; display: inline-block; vertical-align: middle;" />
             </a>
           </div>
@@ -378,7 +378,7 @@ export async function sendOrderConfirmationEmail(order: any) {
             
             <p style="color: #334155; font-size: 15px; line-height: 1.6;">You can track your shipping and order status anytime in your account dashboard.</p>
             <div style="text-align: center; margin: 28px 0 10px 0;">
-              <a href="${storeUrl}/account/orders" style="display: inline-block; background: #00bda5; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
+              <a href="${storeUrl}/account/orders" ses:no-track="true" style="display: inline-block; background: #00bda5; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 30px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">View Order Status</a>
             </div>
           </div>
           <!-- Footer -->

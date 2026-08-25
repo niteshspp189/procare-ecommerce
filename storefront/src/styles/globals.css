@@ -107,11 +107,20 @@ code, pre, kbd, samp {
   }
 
   input:focus~label,
-  input:not(:placeholder-shown)~label {
-    @apply -translate-y-2 text-xsmall-regular;
+  input:not(:placeholder-shown)~label,
+  input:-webkit-autofill~label,
+  input:autofill~label,
+  .peer:focus~label,
+  .peer:not(:placeholder-shown)~label,
+  .peer:-webkit-autofill~label,
+  .peer:autofill~label {
+    transform: translateY(-0.25rem) !important;
+    font-size: 11px !important;
+    top: 4px !important;
   }
 
-  input:focus~label {
+  input:focus~label,
+  .peer:focus~label {
     @apply left-0;
   }
 
