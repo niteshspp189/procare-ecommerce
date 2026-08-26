@@ -9,7 +9,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       search = "", 
       status = "all", 
       sort = "created_at_desc",
-      date_range = "all_time"
+      date_range = "all_time",
+      archived = "false",
     } = req.query as Record<string, string>
 
     const take = Math.min(parseInt(limit, 10) || 1000, 5000)
@@ -142,10 +143,17 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       }
     })
 
+    // Filter by Archive State (Archived vs Active orders)
+    const isArchivedRequested = archived === "true"
+    const activeOrArchivedOrders = enrichedOrders.filter((o: any) => {
+      const isArchived = o.metadata?.is_archived === true || o.metadata?.is_archived === "true"
+      return isArchivedRequested ? isArchived : !isArchived
+    })
+
     // Filter by Date Range (if specified)
-    let dateFilteredOrders = enrichedOrders
+    let dateFilteredOrders = activeOrArchivedOrders
     if (startDate) {
-      dateFilteredOrders = enrichedOrders.filter((o: any) => {
+      dateFilteredOrders = activeOrArchivedOrders.filter((o: any) => {
         const orderDate = new Date(o.created_at)
         return orderDate >= startDate!
       })

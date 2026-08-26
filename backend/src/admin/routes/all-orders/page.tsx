@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Table, Text, Button, Input, toast } from "@medusajs/ui"
-import { ArrowDownTray, ArrowPath, DocumentText, Calendar, Bolt } from "@medusajs/icons"
+import { ArrowDownTray, ArrowPath, DocumentText, Calendar, Bolt, ArchiveBox } from "@medusajs/icons"
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -21,6 +21,7 @@ export default function AllOrdersPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [syncingOrderId, setSyncingOrderId] = useState<string | null>(null)
+  const [archivingOrderId, setArchivingOrderId] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<string>("all_time")
@@ -53,6 +54,30 @@ export default function AllOrdersPage() {
       toast.error(err.message || "Error syncing order")
     } finally {
       setSyncingOrderId(null)
+    }
+  }
+
+  const handleArchiveOrder = async (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      setArchivingOrderId(orderId)
+      const res = await fetch("/admin/custom/orders/archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ order_id: orderId, is_archived: true }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success("Order moved to Archived Orders!")
+        fetchOrders()
+      } else {
+        toast.error(data.message || "Failed to archive order")
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Error archiving order")
+    } finally {
+      setArchivingOrderId(null)
     }
   }
 
@@ -540,6 +565,16 @@ export default function AllOrdersPage() {
                     >
                       <DocumentText className="w-4 h-4" />
                     </a>
+
+                    <button
+                      type="button"
+                      disabled={archivingOrderId === order.id}
+                      onClick={(e) => handleArchiveOrder(order.id, e)}
+                      title="Archive Order (Move to Archived Orders)"
+                      className="p-1 text-ui-fg-subtle hover:text-rose-600 hover:bg-rose-50 rounded transition-colors inline-flex items-center"
+                    >
+                      <ArchiveBox className="w-4 h-4" />
+                    </button>
 
                     <Button
                       size="small"
