@@ -9,7 +9,7 @@ These rules are strictly enforced for all AI agents working on the Procare E-com
 - **Verification:** After the update, match the updated data against the backup to ensure *only* the intended target was updated.
 
 ## 2. Infrastructure Knowledge
-- **Production Database:** The production database is an AWS RDS Postgres instance. 
+- **Production Database:** The production database is an AWS RDS Postgres instance (`database-1.c5wkcis2qg...rds.amazonaws.com`). 
 - **VPS Postgres:** Do NOT use or run the local `postgres` container on the VPS. It is not needed and should remain turned off.
 - **Local Development:** The local development environment is on Fedora.
 
@@ -51,3 +51,28 @@ To enable maintenance mode while whitelisting your local Fedora IP, you must **S
    }
    ```
 4. Reload Nginx on the VPS: `sudo systemctl reload nginx`
+
+---
+
+## 6. Post-Production Verification Checklist & Diagnostics
+Whenever maintenance mode is turned ON/OFF, or immediately following any production deployment, you **must** execute the automated verification audit or manually verify the following 5 critical checkpoints:
+
+### 🚀 Automated Verification Command
+Run the built-in health audit on the VPS:
+```bash
+ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verify_production.js
+```
+
+### 📋 5-Point Manual Verification Checklist
+
+| Checkpoint | Target State | How to Verify |
+| :--- | :--- | :--- |
+| **1. NODE_ENV** | Must be `production` | `docker exec procare_backend node -e "console.log(process.env.NODE_ENV)"`<br>Output must be `production`. |
+| **2. Payment Gateway** | Live Razorpay credentials | `docker exec procare_backend node -e "console.log(process.env.RAZORPAY_KEY_ID?.startsWith('rzp_live_'))"`<br>Must start with `rzp_live_` (NOT `rzp_test_`). |
+| **3. Shiprocket Logistics** | `production` mode & Auth HTTP 200 | `docker exec procare_backend node -e "console.log(process.env.SHIPROCKET_ENV)"`<br>Output must be `production`, and token auth must return HTTP 200. |
+| **4. Database Target** | AWS RDS Postgres | `docker exec procare_backend node -e "console.log(process.env.DATABASE_URL.includes('rds.amazonaws.com'))"`<br>Must connect to AWS RDS (`database-1...rds.amazonaws.com`), NEVER local VPS Postgres (`localhost` / `127.0.0.1`). |
+| **5. Nightly Cron & Fulfillment** | Scheduled job active & 100% orders fulfilled | Query unfulfilled orders from last 7 days. Ensure Medusa scheduled job (`nightly-shiprocket-fulfill` in `src/jobs/auto-fulfill-nightly.ts`) is present, and recent orders have valid Shiprocket order & shipment IDs. |
+
+### 🛠️ In Case of Fulfillment Anomaly:
+- Use the **1-Click "⚡ Fulfill & Sync to Shiprocket"** button in Admin Order Details or the **"⚡ Sync"** button in All Orders table (`/admin/all-orders`).
+- Alternatively, run `untracked/agent_environment/test_nightly_job.js` to immediately batch-fulfill any missing orders.
