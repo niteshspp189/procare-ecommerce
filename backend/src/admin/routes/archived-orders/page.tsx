@@ -3,6 +3,7 @@ import { Container, Heading, Table, Text, Button, Input, toast } from "@medusajs
 import { ArrowDownTray, ArrowPath, DocumentText, Calendar, ArchiveBox, ArrowUturnLeft } from "@medusajs/icons"
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
+import { exportToCSV } from "../../utils/csv-export"
 
 export const config = defineRouteConfig({
   label: "Archived Orders",
@@ -26,6 +27,47 @@ export default function ArchivedOrdersPage() {
   const [pageSize, setPageSize] = useState(25)
 
   const navigate = useNavigate()
+
+  const handleExportCSV = () => {
+    if (orders.length === 0) {
+      toast.error("No archived orders found to export")
+      return
+    }
+
+    const headers = [
+      "Order Number",
+      "Order ID",
+      "Order Date & Time",
+      "Customer Name",
+      "Customer Email",
+      "Customer Phone",
+      "Payment Status",
+      "Fulfillment Status",
+      "Total Items Quantity",
+      "Total Amount (INR)",
+    ]
+
+    const rows = orders.map((o) => {
+      const totalQty = o.items?.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0) || 0
+
+      return [
+        o.displayId || `#${o.display_id || o.id.slice(-4)}`,
+        o.id,
+        new Date(o.created_at).toLocaleString("en-IN"),
+        o.customerName || "Guest User",
+        o.customerEmail !== "-" ? o.customerEmail : "",
+        o.customerPhone !== "-" ? o.customerPhone : "",
+        o.paymentState || "pending",
+        o.fulfillmentState || "not_fulfilled",
+        totalQty,
+        Number(o.total || 0).toFixed(2),
+      ]
+    })
+
+    const filename = `ProCare_Archived_Orders_${dateRange}_${new Date().toISOString().slice(0, 10)}.csv`
+    exportToCSV(filename, headers, rows)
+    toast.success(`Exported ${orders.length} archived orders to CSV successfully!`)
+  }
 
   const handleUnarchiveOrder = async (orderId: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -132,6 +174,16 @@ export default function ArchivedOrdersPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5"
+          >
+            <ArrowDownTray className="w-3.5 h-3.5" />
+            Export CSV
+          </Button>
+
           <Button
             variant="secondary"
             size="small"

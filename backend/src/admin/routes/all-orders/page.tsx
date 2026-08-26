@@ -3,6 +3,7 @@ import { Container, Heading, Table, Text, Button, Input, toast } from "@medusajs
 import { ArrowDownTray, ArrowPath, DocumentText, Calendar, Bolt, ArchiveBox } from "@medusajs/icons"
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
+import { exportToCSV } from "../../utils/csv-export"
 
 export const config = defineRouteConfig({
   label: "All Orders",
@@ -152,44 +153,65 @@ export default function AllOrdersPage() {
     }
   }
 
-  // Export to CSV
+  // Export to CSV with full order details and UTF-8 BOM
   const handleExportCSV = () => {
-    if (orders.length === 0) return
+    if (orders.length === 0) {
+      toast.error("No orders found to export")
+      return
+    }
 
     const headers = [
+      "Order Number",
       "Order ID",
-      "Display ID",
-      "Date",
+      "Order Date & Time",
       "Customer Name",
       "Customer Email",
       "Customer Phone",
+      "Shipping Address",
+      "City",
+      "State",
+      "Pincode",
       "Payment Status",
       "Fulfillment Status",
-      "Total (INR)",
-      "Item Count",
+      "Shiprocket Order ID",
+      "AWB Tracking Number",
+      "Courier Name",
+      "Items Summary",
+      "Total Quantity",
+      "Total Amount (INR)",
     ]
 
-    const rows = orders.map((o) => [
-      o.id,
-      o.displayId || `#${o.display_id || o.id.slice(-4)}`,
-      formatDate(o.created_at),
-      `"${(o.customerName || "").replace(/"/g, '""')}"`,
-      o.customerEmail || "",
-      o.customerPhone || "",
-      o.paymentState || "",
-      o.fulfillmentState || "",
-      o.total || 0,
-      o.items ? o.items.length : 0,
-    ])
+    const rows = orders.map((o) => {
+      const shiprocketData = o.fulfillments?.find((f: any) => !f.canceled_at)?.data || {}
+      const address = [o.shipping_address?.address_1, o.shipping_address?.address_2].filter(Boolean).join(", ")
+      const itemsSummary = o.items?.map((it: any) => `${it.title} (x${it.quantity})`).join("; ") || ""
+      const totalQty = o.items?.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0) || 0
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n")
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement("a")
-    link.setAttribute("href", encodedUri)
-    link.setAttribute("download", `ProCare_Orders_${statusFilter}_${dateRange}_${new Date().toISOString().slice(0, 10)}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+      return [
+        o.displayId || `#${o.display_id || o.id.slice(-4)}`,
+        o.id,
+        new Date(o.created_at).toLocaleString("en-IN"),
+        o.customerName || "Guest User",
+        o.customerEmail !== "-" ? o.customerEmail : "",
+        o.customerPhone !== "-" ? o.customerPhone : "",
+        address,
+        o.shipping_address?.city || "",
+        o.shipping_address?.province || "",
+        o.shipping_address?.postal_code || "",
+        o.paymentState || "pending",
+        o.fulfillmentState || "not_fulfilled",
+        shiprocketData.shiprocket_order_id || shiprocketData.order_id || "",
+        shiprocketData.awb_code || shiprocketData.tracking_number || "",
+        shiprocketData.courier_name || "",
+        itemsSummary,
+        totalQty,
+        Number(o.total || 0).toFixed(2),
+      ]
+    })
+
+    const filename = `ProCare_Orders_${statusFilter}_${dateRange}_${new Date().toISOString().slice(0, 10)}.csv`
+    exportToCSV(filename, headers, rows)
+    toast.success(`Exported ${orders.length} orders to CSV successfully!`)
   }
 
   // Paginated slice

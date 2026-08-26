@@ -1,7 +1,8 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { Container, Heading, Table, Badge, Button, Textarea, Text } from "@medusajs/ui"
+import { Container, Heading, Table, Badge, Button, Textarea, Text, toast } from "@medusajs/ui"
 import { useEffect, useState } from "react"
-import { ChatBubbleLeftRight } from "@medusajs/icons"
+import { ChatBubbleLeftRight, ArrowDownTray, ArrowPath } from "@medusajs/icons"
+import { exportToCSV } from "../../utils/csv-export"
 
 const TicketsPage = () => {
   const [tickets, setTickets] = useState<any[]>([])
@@ -29,6 +30,37 @@ const TicketsPage = () => {
   useEffect(() => {
     fetchTickets()
   }, [])
+
+  const handleExportCSV = () => {
+    if (tickets.length === 0) {
+      toast.error("No support tickets found to export")
+      return
+    }
+
+    const headers = [
+      "Ticket ID",
+      "Customer ID",
+      "Subject",
+      "Status",
+      "Description",
+      "Admin Reply",
+      "Created Date",
+    ]
+
+    const rows = tickets.map((t) => [
+      t.id,
+      t.customer_id || "",
+      t.subject || "",
+      t.status || "open",
+      t.description || "",
+      t.admin_reply || "",
+      t.created_at ? new Date(t.created_at).toLocaleString("en-IN") : "-",
+    ])
+
+    const filename = `ProCare_Support_Tickets_${new Date().toISOString().slice(0, 10)}.csv`
+    exportToCSV(filename, headers, rows)
+    toast.success(`Exported ${tickets.length} support tickets to CSV successfully!`)
+  }
 
   const handleUpdate = async () => {
     if (!selectedTicket) return
@@ -63,7 +95,16 @@ const TicketsPage = () => {
       <Container className="py-8">
         <div className="flex items-center justify-between mb-8">
           <Heading level="h1">Support Tickets</Heading>
-          <Button variant="secondary" size="small" onClick={fetchTickets}>Refresh</Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="small" onClick={handleExportCSV} className="flex items-center gap-1.5">
+              <ArrowDownTray className="w-3.5 h-3.5" />
+              Export CSV
+            </Button>
+            <Button variant="secondary" size="small" onClick={fetchTickets} className="flex items-center gap-1.5">
+              <ArrowPath className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">

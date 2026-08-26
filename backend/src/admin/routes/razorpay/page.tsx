@@ -1,8 +1,9 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { CreditCard, ArrowPath, ArrowUpRightOnBox } from "@medusajs/icons"
+import { CreditCard, ArrowPath, ArrowUpRightOnBox, ArrowDownTray } from "@medusajs/icons"
 import { Container, Heading, Table, Text, Button, toast, Drawer, Copy } from "@medusajs/ui"
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
+import { exportToCSV } from "../../utils/csv-export"
 
 const RazorpayTransactionsPage = () => {
   const [payments, setPayments] = useState<any[]>([])
@@ -123,6 +124,59 @@ const RazorpayTransactionsPage = () => {
     })
   }, [payments, activeTab, statusFilter, monthFilter, search])
 
+  const handleExportCSV = () => {
+    if (filteredPayments.length === 0) {
+      toast.error("No transactions match the selected filters to export")
+      return
+    }
+
+    const headers = [
+      "Payment ID",
+      "Razorpay Order ID",
+      "Date & Time",
+      "Customer Email",
+      "Customer Phone",
+      "Amount (INR)",
+      "Fee (INR)",
+      "Tax (INR)",
+      "Net Settled Amount (INR)",
+      "Method",
+      "UPI / Card Details",
+      "Status",
+      "Amount Refunded (INR)",
+      "Medusa Order ID",
+    ]
+
+    const rows = filteredPayments.map((p) => {
+      const fee = p.fee ? (p.fee / 100).toFixed(2) : "0.00"
+      const tax = p.tax ? (p.tax / 100).toFixed(2) : "0.00"
+      const net = p.fee ? ((p.amount - p.fee) / 100).toFixed(2) : (p.amount / 100).toFixed(2)
+      const refunded = p.amount_refunded ? (p.amount_refunded / 100).toFixed(2) : "0.00"
+      const methodDetail = p.vpa || (p.card ? `${p.card.network} •••• ${p.card.last4}` : p.bank || "")
+
+      return [
+        p.id,
+        p.order_id || p.id,
+        formatDateTime(p.created_at),
+        p.email || p.medusa_cart?.email || "",
+        p.contact || "",
+        (p.amount / 100).toFixed(2),
+        fee,
+        tax,
+        net,
+        (p.method || p.type || "N/A").toUpperCase(),
+        methodDetail,
+        p.status,
+        refunded,
+        p.medusa_order_display_id || "",
+      ]
+    })
+
+    const filename = `ProCare_Razorpay_Transactions_${new Date().toISOString().slice(0, 10)}.csv`
+    exportToCSV(filename, headers, rows)
+    toast.success(`Exported ${filteredPayments.length} transactions to CSV successfully!`)
+  }
+
   return (
     <Container className="p-6 divide-y max-w-[1600px] mx-auto min-h-screen bg-ui-bg-subtle">
       {/* Header */}
@@ -139,6 +193,10 @@ const RazorpayTransactionsPage = () => {
           </Text>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="secondary" size="small" onClick={handleExportCSV} className="flex items-center gap-1.5">
+            <ArrowDownTray className="w-3.5 h-3.5" />
+            Export CSV
+          </Button>
           <Button variant="secondary" size="small" onClick={fetchTransactions} className="flex items-center gap-2">
             <ArrowPath className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh

@@ -1,7 +1,9 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { Container, Heading, Table, Text, Button, Input, DropdownMenu, IconButton } from "@medusajs/ui"
+import { Container, Heading, Table, Text, Button, Input, DropdownMenu, IconButton, toast } from "@medusajs/ui"
+import { ArrowDownTray } from "@medusajs/icons"
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
+import { exportToCSV } from "../../utils/csv-export"
 
 export const config = defineRouteConfig({
     label: "All Products",
@@ -22,6 +24,51 @@ export default function AllProductsPage() {
     const [currentUser, setCurrentUser] = useState<any>(null)
 
     const navigate = useNavigate()
+
+    const handleExportCSV = () => {
+        if (products.length === 0) {
+            toast.error("No products found to export")
+            return
+        }
+
+        const headers = [
+            "Product ID",
+            "Title",
+            "Handle",
+            "Status",
+            "Categories",
+            "Collection",
+            "Price Range (INR)",
+            "Variants Count",
+            "Variant Titles & SKUs",
+            "Created Date",
+            "Thumbnail URL",
+        ]
+
+        const rows = products.map((p) => {
+            const categories = p.categories?.map((c: any) => c.name).join(", ") || ""
+            const collection = p.collection?.title || ""
+            const variantDetails = p.variants?.map((v: any) => `${v.title || "Default"} (SKU: ${v.sku || "-"})`).join("; ") || ""
+
+            return [
+                p.id,
+                p.title,
+                p.handle,
+                p.status,
+                categories,
+                collection,
+                getPriceRange(p),
+                p.variants?.length || 0,
+                variantDetails,
+                p.created_at ? new Date(p.created_at).toLocaleDateString("en-IN") : "-",
+                p.thumbnail || "",
+            ]
+        })
+
+        const filename = `ProCare_Products_${new Date().toISOString().slice(0, 10)}.csv`
+        exportToCSV(filename, headers, rows)
+        toast.success(`Exported ${products.length} products to CSV successfully!`)
+    }
 
     useEffect(() => {
         fetch("/admin/users/me", { credentials: "include" })
@@ -116,7 +163,10 @@ export default function AllProductsPage() {
                 <div className="flex items-center justify-between mb-8">
                     <Heading level="h1" className="text-2xl font-semibold">Products</Heading>
                     <div className="flex items-center gap-2">
-                        <Button variant="secondary" size="small" onClick={() => navigate("/products/export")}>Export</Button>
+                        <Button variant="secondary" size="small" onClick={handleExportCSV} className="flex items-center gap-1">
+                            <ArrowDownTray className="w-3.5 h-3.5" />
+                            Export CSV
+                        </Button>
                         <Button variant="secondary" size="small" onClick={() => navigate("/products/import")}>Import</Button>
                         <Button variant="primary" size="small" onClick={() => navigate("/products/create")}>Create</Button>
                     </div>
