@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { Container, Heading, Table, Text, Button, Input } from "@medusajs/ui"
-import { ArrowDownTray, ArrowPath, DocumentText, Calendar } from "@medusajs/icons"
+import { Container, Heading, Table, Text, Button, Input, toast } from "@medusajs/ui"
+import { ArrowDownTray, ArrowPath, DocumentText, Calendar, Bolt } from "@medusajs/icons"
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -20,6 +20,7 @@ export default function AllOrdersPage() {
     totalRevenue: 0,
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [syncingOrderId, setSyncingOrderId] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<string>("all_time")
@@ -30,6 +31,30 @@ export default function AllOrdersPage() {
   const [pageSize, setPageSize] = useState(25)
 
   const navigate = useNavigate()
+
+  const handleSyncOrder = async (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      setSyncingOrderId(orderId)
+      const res = await fetch("/admin/custom/orders/sync-shiprocket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ order_id: orderId }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success("Order fulfilled and synced with Shiprocket successfully!")
+        fetchOrders()
+      } else {
+        toast.error(data.message || "Failed to sync order with Shiprocket")
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Error syncing order")
+    } finally {
+      setSyncingOrderId(null)
+    }
+  }
 
   const fetchOrders = async () => {
     try {
@@ -468,10 +493,20 @@ export default function AllOrdersPage() {
                         <span>Fulfilled</span>
                       </>
                     ) : (
-                      <>
+                      <div className="flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                        <span>Not fulfilled</span>
-                      </>
+                        <span className="text-red-600 font-medium">Not fulfilled</span>
+                        <button
+                          type="button"
+                          disabled={syncingOrderId === order.id}
+                          onClick={(e) => handleSyncOrder(order.id, e)}
+                          title="Fulfill and sync this order with Shiprocket immediately"
+                          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-900 hover:bg-black text-white rounded transition-colors disabled:opacity-50 cursor-pointer shadow-xs ml-1"
+                        >
+                          <Bolt className="w-2.5 h-2.5" />
+                          {syncingOrderId === order.id ? "Syncing..." : "Sync"}
+                        </button>
+                      </div>
                     )}
                   </div>
                 </Table.Cell>
@@ -484,6 +519,18 @@ export default function AllOrdersPage() {
                 {/* Actions */}
                 <Table.Cell className="text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                    {order.fulfillmentState === "not_fulfilled" && (
+                      <button
+                        type="button"
+                        disabled={syncingOrderId === order.id}
+                        onClick={(e) => handleSyncOrder(order.id, e)}
+                        title="Sync with Shiprocket"
+                        className="p-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors inline-flex items-center"
+                      >
+                        <Bolt className="w-4 h-4" />
+                      </button>
+                    )}
+
                     <a
                       href={`/admin/orders/${order.id}/invoice`}
                       target="_blank"

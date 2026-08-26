@@ -59,6 +59,24 @@ export class ShiprocketClient {
     return await response.json()
   }
 
+  public async getOrders(queryParams: string = "") {
+    const token = await this.authenticate()
+    const response = await fetch(`${this.baseUrl}/orders${queryParams}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const err = await response.text()
+      console.warn("Shiprocket getOrders failed:", err)
+      return { data: [] }
+    }
+
+    return await response.json() as any
+  }
+
   public async checkServiceability(deliveryPostcode: string, isCod: boolean = false) {
     const token = await this.authenticate()
     const url = new URL(`${this.baseUrl}/courier/serviceability/`)
