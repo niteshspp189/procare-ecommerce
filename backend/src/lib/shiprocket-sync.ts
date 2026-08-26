@@ -266,3 +266,104 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
     }
   }
 }
+
+export async function syncAllShiprocketStatuses(container: any, daysBack: number = 30): Promise<{
+  matchedCount: number
+  updatedCount: number
+}> {
+  const pgConnection = container.__pg_connection__ || 
+    (container.resolve ? container.resolve("__pg_connection__", { allowUnregistered: true }) : null) ||
+    (container.resolve ? container.resolve("pg_connection", { allowUnregistered: true }) : null)
+
+  if (!pgConnection) {
+    throw new Error("Could not resolve database connection from container")
+  }
+
+  const fromDate = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  console.log(`[ShiprocketStatusSync] Fetching Shiprocket orders since ${fromDate}...`)
+
+  let page = 1
+  let hasMore = true
+  let allSrOrders: any[] = []
+
+  while (hasMore && page <= 5) {
+    try {
+      const resData = await shiprocketClient.getOrders(`?from=${fromDate}&per_page=50&page=${page}`)
+      if (resData && Array.isArray(resData.data) && resData.data.length > 0) {
+        allSrOrders = allSrOrders.concat(resData.data)
+        if (resData.data.length < 50 || (resData.meta && page >= resData.meta.pagination?.total_pages)) {
+          hasMore = false
+        } else {
+          page++
+        }
+      } else {
+        hasMore = false
+      }
+    } catch (e: any) {
+      console.warn(`[ShiprocketStatusSync] Error on page ${page}:`, e.message)
+      hasMore = false
+    }
+  }
+
+  console.log(`[ShiprocketStatusSync] Fetched ${allSrOrders.length} Shiprocket orders. Matching against Medusa DB...`)
+
+  let matchedCount = 0
+  let updatedCount = 0
+
+  for (const srOrder of allSrOrders) {
+    const channelOrderId = srOrder.channel_order_id || ""
+    const cleanIdMatch = channelOrderId.match(/OD0*(\d+)/i)
+    const displayId = cleanIdMatch ? parseInt(cleanIdMatch[1], 10) : null
+
+    if (!displayId) continue
+
+    const medusaOrder = await pgConnection("order").where("display_id", displayId).first()
+    if (!medusaOrder) continue
+
+    matchedCount++
+    const shipment = srOrder.shipments?.[0] || srOrder.shipment || {}
+    const awbCode = srOrder.awb_code || shipment.awb || shipment.awb_code || ""
+    const courierName = srOrder.courier_name || shipment.courier_name || ""
+    const pickupDate = shipment.pickup_date || shipment.pickedup_date || srOrder.pickup_date
+    const deliveredDate = shipment.delivered_date || srOrder.delivered_date
+
+    const isShipped = ["IN TRANSIT", "SHIPPED", "OUT FOR DELIVERY", "DELIVERED", "RTO INITIATED", "RTO DELIVERED"].includes((srOrder.status || "").toUpperCase())
+    const isDelivered = (srOrder.status || "").toUpperCase() === "DELIVERED"
+    const isCanceled = (srOrder.status || "").toUpperCase() === "CANCELED"
+
+    const orderFulfillments = await pgConnection("order_fulfillment").where("order_id", medusaOrder.id)
+    let existingFul: any = null
+
+    if (orderFulfillments.length > 0) {
+      existingFul = await pgConnection("fulfillment").where("id", orderFulfillments[0].fulfillment_id).first()
+    }
+
+    const shippedAtDate = isShipped ? (pickupDate ? new Date(pickupDate) : (existingFul?.shipped_at || new Date(srOrder.updated_at || Date.now()))) : null
+    const deliveredAtDate = isDelivered ? (deliveredDate ? new Date(deliveredDate) : (existingFul?.delivered_at || new Date(srOrder.updated_at || Date.now()))) : null
+
+    if (existingFul) {
+      const currentData = typeof existingFul.data === "object" && existingFul.data !== null ? existingFul.data : {}
+      const updatedData = {
+        ...currentData,
+        awb_code: awbCode || currentData.awb_code || "",
+        courier_name: courierName || currentData.courier_name || "",
+        shiprocket_status: srOrder.status,
+        shiprocket_status_code: srOrder.status_code,
+        shiprocket_order_id: srOrder.id.toString(),
+        shiprocket_shipment_id: (shipment.id || currentData.shiprocket_shipment_id || "").toString(),
+        shiprocket_response: srOrder,
+      }
+
+      await pgConnection("fulfillment").where("id", existingFul.id).update({
+        data: JSON.stringify(updatedData),
+        shipped_at: shippedAtDate || existingFul.shipped_at,
+        delivered_at: deliveredAtDate || existingFul.delivered_at,
+        updated_at: new Date(),
+      })
+      updatedCount++
+    }
+  }
+
+  console.log(`[ShiprocketStatusSync] Finished: Matched ${matchedCount}, updated ${updatedCount} fulfillments.`)
+  return { matchedCount, updatedCount }
+}

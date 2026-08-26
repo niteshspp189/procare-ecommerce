@@ -1,5 +1,5 @@
 import { MedusaContainer } from "@medusajs/framework/types"
-import { syncOrderToShiprocket } from "../lib/shiprocket-sync"
+import { syncOrderToShiprocket, syncAllShiprocketStatuses } from "../lib/shiprocket-sync"
 
 export default async function nightlyAutoFulfillJob(container: MedusaContainer) {
   if (process.env.SHIPROCKET_ENV !== "production") {
@@ -20,7 +20,7 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       return
     }
 
-    // Look for orders created in the last 7 days that are not canceled and have 0 fulfillments
+    // Step 1: Look for orders created in the last 7 days that are not canceled and have 0 fulfillments
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
     const unfulfilledOrders = await pgConnection.raw(`
@@ -36,7 +36,7 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       ORDER BY o.display_id ASC;
     `, [sevenDaysAgo]).then((r: any) => r.rows || [])
 
-    console.log(`[NightlyAutoFulfillJob] Found ${unfulfilledOrders.length} unfulfilled order(s) to process.`)
+    console.log(`[NightlyAutoFulfillJob] Step 1: Found ${unfulfilledOrders.length} unfulfilled order(s) to process.`)
 
     let successCount = 0
     let failedCount = 0
@@ -54,7 +54,13 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       }
     }
 
-    console.log(`[NightlyAutoFulfillJob] Finished scan: ${successCount} synced, ${failedCount} failed out of ${unfulfilledOrders.length} total.`)
+    console.log(`[NightlyAutoFulfillJob] Finished unfulfilled scan: ${successCount} synced, ${failedCount} failed out of ${unfulfilledOrders.length} total.`)
+
+    // Step 2: Synchronize tracking, AWBs, Shipped & Delivered statuses from Shiprocket
+    console.log("[NightlyAutoFulfillJob] Step 2: Synchronizing live tracking & shipping statuses from Shiprocket...")
+    const statusSyncRes = await syncAllShiprocketStatuses(container, 30)
+    console.log(`[NightlyAutoFulfillJob] Live status sync complete: ${statusSyncRes.matchedCount} orders checked, ${statusSyncRes.updatedCount} fulfillments updated.`)
+
   } catch (error: any) {
     console.error("[NightlyAutoFulfillJob] Fatal error during nightly fulfillment scan:", error)
   }
