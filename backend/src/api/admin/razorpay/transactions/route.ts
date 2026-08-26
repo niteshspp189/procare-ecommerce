@@ -6,8 +6,8 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   try {
-    const key_id = process.env.RAZORPAY_ID
-    const key_secret = process.env.RAZORPAY_SECRET
+    const key_id = process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_ID
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_SECRET
 
     if (!key_id || !key_secret) {
       return res.status(500).json({ message: "Razorpay credentials not found in environment" })

@@ -1,19 +1,24 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { CreditCard } from "@medusajs/icons"
-import { Container, Heading, Table, Text, Badge, Button, toast, Drawer } from "@medusajs/ui"
-import { useEffect, useState } from "react"
+import { CreditCard, ArrowPath, ArrowUpRightOnBox } from "@medusajs/icons"
+import { Container, Heading, Table, Text, Button, toast, Drawer, Copy } from "@medusajs/ui"
+import { useEffect, useState, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
 
 const RazorpayTransactionsPage = () => {
-  const [payments, setPayments] = useState([])
+  const [payments, setPayments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState<string | null>(null)
-  const [previewPayment, setPreviewPayment] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState("all") // 'all', 'missing', 'created'
+  const [selectedTx, setSelectedTx] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState("all") // 'all', 'missing', 'created', 'refunded'
   const [monthFilter, setMonthFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("real")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [search, setSearch] = useState("")
 
-  useEffect(() => {
-    fetch("/admin/razorpay/transactions")
+  const navigate = useNavigate()
+
+  const fetchTransactions = () => {
+    setLoading(true)
+    fetch("/admin/razorpay/transactions", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setPayments(data.payments || [])
@@ -21,8 +26,13 @@ const RazorpayTransactionsPage = () => {
       })
       .catch(err => {
         console.error(err)
+        toast.error("Failed to load Razorpay transactions")
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchTransactions()
   }, [])
 
   const handleSync = async (cartId: string) => {
@@ -31,6 +41,7 @@ const RazorpayTransactionsPage = () => {
       const res = await fetch("/admin/razorpay/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ cart_id: cartId })
       })
       const data = await res.json()
@@ -38,255 +49,518 @@ const RazorpayTransactionsPage = () => {
         toast.success("Order Synchronized", {
           description: "The order has been created successfully."
         })
-        // refresh data
-        const refreshRes = await fetch("/admin/razorpay/transactions")
-        const refreshData = await refreshRes.json()
-        setPayments(refreshData.payments || [])
+        fetchTransactions()
       } else {
         toast.error("Sync Failed", {
           description: data.message || "Failed to sync order"
         })
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      toast.error("Error", {
-        description: "An error occurred while syncing"
-      })
+      toast.error("Error syncing order")
     } finally {
       setSyncing(null)
     }
   }
 
+  const formatCurrency = (amountInPaise: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(amountInPaise / 100)
+  }
+
+  const formatDateTime = (unixTimestamp: number) => {
+    if (!unixTimestamp) return "-"
+    const d = new Date(unixTimestamp * 1000)
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+  }
+
+  const filteredPayments = useMemo(() => {
+    return payments.filter((p: any) => {
+      // Tab filter
+      if (activeTab === "missing") {
+        if (!(p.status === "captured" && !p.medusa_order_display_id)) return false
+      } else if (activeTab === "created") {
+        if (!(p.status === "created" || p.status === "attempted")) return false
+      } else if (activeTab === "refunded") {
+        if (p.status !== "refunded" && !(p.amount_refunded && p.amount_refunded > 0)) return false
+      }
+
+      // Status dropdown filter
+      if (statusFilter === "captured" && p.status !== "captured" && p.status !== "paid") return false
+      if (statusFilter === "refunded" && p.status !== "refunded") return false
+      if (statusFilter === "failed" && p.status !== "failed") return false
+      if (statusFilter === "real" && (p.status === "created" || p.status === "attempted")) return false
+
+      // Month filter
+      if (monthFilter !== "all") {
+        const d = new Date(p.created_at * 1000)
+        const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        if (m !== monthFilter) return false
+      }
+
+      // Search
+      if (search.trim()) {
+        const q = search.toLowerCase().trim()
+        const matchId = p.id?.toLowerCase().includes(q)
+        const matchOrder = p.order_id?.toLowerCase().includes(q)
+        const matchEmail = p.email?.toLowerCase().includes(q)
+        const matchPhone = p.contact?.includes(q)
+        const matchMedusa = p.medusa_order_display_id?.toLowerCase().includes(q)
+        if (!matchId && !matchOrder && !matchEmail && !matchPhone && !matchMedusa) return false
+      }
+
+      return true
+    })
+  }, [payments, activeTab, statusFilter, monthFilter, search])
+
   return (
-    <Container className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <Container className="p-6 divide-y max-w-[1600px] mx-auto min-h-screen bg-ui-bg-subtle">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6">
         <div>
-          <Heading level="h1">Razorpay Transactions</Heading>
-          <Text className="text-ui-fg-subtle mt-1">View recent Razorpay payments and identify missing Medusa orders.</Text>
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-6 h-6 text-ui-fg-muted" />
+            <Heading level="h1" className="text-xl font-semibold">
+              Razorpay Transactions
+            </Heading>
+          </div>
+          <Text className="text-ui-fg-muted text-xs mt-1">
+            Real-time audit log of Razorpay payment transactions with deep order verification and slide-over details.
+          </Text>
         </div>
-        <Button variant="secondary" onClick={() => window.location.reload()}>Refresh</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="small" onClick={fetchTransactions} className="flex items-center gap-2">
+            <ArrowPath className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      <div className="flex space-x-2 mb-4">
-        <button 
-          onClick={() => setActiveTab("all")} 
-          className={`px-4 py-2 text-sm font-medium rounded-md ${activeTab === "all" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-sm border" : "text-ui-fg-subtle hover:bg-ui-bg-base-hover"}`}
-        >
-          All Transactions
-        </button>
-        <button 
-          onClick={() => setActiveTab("missing")} 
-          className={`px-4 py-2 text-sm font-medium rounded-md ${activeTab === "missing" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-sm border" : "text-ui-fg-subtle hover:bg-ui-bg-base-hover"}`}
-        >
-          Missing Orders
-        </button>
-        <button 
-          onClick={() => setActiveTab("created")} 
-          className={`px-4 py-2 text-sm font-medium rounded-md ${activeTab === "created" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-sm border" : "text-ui-fg-subtle hover:bg-ui-bg-base-hover"}`}
-        >
-          Incomplete / Created
-        </button>
+      {/* Filter Tabs & Controls */}
+      <div className="py-4 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            <button 
+              onClick={() => setActiveTab("all")} 
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeTab === "all" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-xs border" : "text-ui-fg-subtle hover:bg-ui-bg-base"}`}
+            >
+              All Transactions ({payments.length})
+            </button>
+            <button 
+              onClick={() => setActiveTab("missing")} 
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeTab === "missing" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-xs border" : "text-ui-fg-subtle hover:bg-ui-bg-base"}`}
+            >
+              Missing Medusa Orders
+            </button>
+            <button 
+              onClick={() => setActiveTab("refunded")} 
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeTab === "refunded" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-xs border" : "text-ui-fg-subtle hover:bg-ui-bg-base"}`}
+            >
+              Refunded
+            </button>
+            <button 
+              onClick={() => setActiveTab("created")} 
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeTab === "created" ? "bg-ui-bg-base-pressed text-ui-fg-base shadow-xs border" : "text-ui-fg-subtle hover:bg-ui-bg-base"}`}
+            >
+              Incomplete / Abandoned
+            </button>
+          </div>
 
-        <div className="ml-auto flex items-center space-x-4">
-          <div className="flex items-center">
-            <Text className="text-sm text-ui-fg-subtle mr-2">Status:</Text>
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              type="text"
+              placeholder="Search pay_id, email, phone, order..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="text-xs bg-ui-bg-base border border-ui-border-base rounded-md px-2.5 py-1 w-56 focus:outline-none focus:ring-1 focus:ring-ui-border-interactive"
+            />
+
             <select 
               value={statusFilter} 
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-sm border rounded-md px-2 py-1 bg-white"
+              className="text-xs bg-ui-bg-base border border-ui-border-base rounded-md px-2 py-1 focus:outline-none"
             >
-              <option value="all">All</option>
-              <option value="real">Real Payments</option>
-              <option value="captured">Captured</option>
-              <option value="failed">Failed</option>
+              <option value="all">All Statuses</option>
+              <option value="real">Real (Captured/Refunded)</option>
+              <option value="captured">Captured Only</option>
+              <option value="refunded">Refunded Only</option>
+              <option value="failed">Failed Only</option>
+            </select>
+
+            <select 
+              value={monthFilter} 
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="text-xs bg-ui-bg-base border border-ui-border-base rounded-md px-2 py-1 focus:outline-none"
+            >
+              <option value="all">All Months</option>
+              <option value="2026-08">August 2026</option>
+              <option value="2026-07">July 2026</option>
+              <option value="2026-06">June 2026</option>
+              <option value="2026-05">May 2026</option>
             </select>
           </div>
-          <div className="pl-4 border-l flex items-center">
-            <Text className="text-sm text-ui-fg-subtle mr-2">Month:</Text>
-          <select 
-            value={monthFilter} 
-            onChange={(e) => setMonthFilter(e.target.value)}
-            className="text-sm border rounded-md px-2 py-1 bg-white"
-          >
-            <option value="all">All (Since Apr 2026)</option>
-            <option value="2026-08">August 2026</option>
-            <option value="2026-07">July 2026</option>
-            <option value="2026-06">June 2026</option>
-            <option value="2026-05">May 2026</option>
-            <option value="2026-04">April 2026</option>
-          </select>
-        </div>
         </div>
       </div>
 
-      {loading ? (
-        <Text>Loading transactions...</Text>
-      ) : (
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Date</Table.HeaderCell>
-              <Table.HeaderCell>Payment ID</Table.HeaderCell>
-              <Table.HeaderCell>Razorpay Order</Table.HeaderCell>
-              <Table.HeaderCell>Amount</Table.HeaderCell>
-              <Table.HeaderCell>Method</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
-              <Table.HeaderCell>Medusa Order</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {payments.filter((p: any) => {
-              if (activeTab === "missing") return p.status === "captured" && !p.medusa_order_display_id;
-              if (activeTab === "created") return p.status === "created" || p.status === "attempted";
-              
-              if (activeTab === "all") {
-                if (statusFilter === "real") return p.status !== "created" && p.status !== "attempted";
-                if (statusFilter === "captured") return p.status === "captured" || p.status === "paid";
-                if (statusFilter === "failed") return p.status === "failed";
-              }
-              return true;
-            }).filter((p: any) => {
-              if (monthFilter === "all") return true;
-              const d = new Date(p.created_at * 1000);
-              const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-              return m === monthFilter;
-            }).map((p: any) => (
-              <Table.Row key={p.id}>
-                <Table.Cell>{new Date(p.created_at * 1000).toLocaleString()}</Table.Cell>
-                <Table.Cell>{p.id}</Table.Cell>
-                <Table.Cell>{p.type === 'order' ? p.id : (p.order_id || "-")}</Table.Cell>
-                <Table.Cell>₹{(p.amount / 100).toFixed(2)}</Table.Cell>
-                <Table.Cell>{p.method || <Text className="text-ui-fg-subtle">N/A</Text>}</Table.Cell>
-                <Table.Cell>
-                  <Badge color={p.status === "captured" || p.status === "paid" ? "green" : (p.status === "failed" ? "red" : "orange")}>
-                    {p.status}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell>
-                  {p.medusa_order_display_id ? (
-                    <a href={`/a/orders/${p.medusa_order_uuid}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      <Badge color="green">{p.medusa_order_display_id}</Badge>
-                    </a>
-                  ) : p.status === "captured" ? (
-                    <div className="flex items-center space-x-2">
-                      <Badge color="red">Missing Order</Badge>
-                        {p.medusa_cart?.id && (
-                           <Button 
-                             size="small" 
-                             variant="secondary"
-                             isLoading={syncing === p.medusa_cart.id}
-                             onClick={() => setPreviewPayment(p)}
-                           >
-                             Sync / Create
-                           </Button>
-                        )}
-                    </div>
-                  ) : (
-                    <Text className="text-ui-fg-subtle">-</Text>
-                  )}
-                </Table.Cell>
+      {/* Table */}
+      <div className="pt-4">
+        <div className="bg-ui-bg-base border border-ui-border-base rounded-lg overflow-hidden shadow-2xs">
+          <Table>
+            <Table.Header>
+              <Table.Row className="bg-ui-bg-subtle hover:bg-ui-bg-subtle text-xs">
+                <Table.HeaderCell>Date & Time</Table.HeaderCell>
+                <Table.HeaderCell>Payment ID</Table.HeaderCell>
+                <Table.HeaderCell>Customer / Contact</Table.HeaderCell>
+                <Table.HeaderCell>Amount</Table.HeaderCell>
+                <Table.HeaderCell>Method</Table.HeaderCell>
+                <Table.HeaderCell>Status</Table.HeaderCell>
+                <Table.HeaderCell>Medusa Order</Table.HeaderCell>
+                <Table.HeaderCell className="text-right w-24">Action</Table.HeaderCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      )}
+            </Table.Header>
+            <Table.Body>
+              {loading ? (
+                <Table.Row>
+                  <td colSpan={8} className="text-center py-12 text-ui-fg-muted">
+                    <div className="flex items-center justify-center gap-2">
+                      <ArrowPath className="w-4 h-4 animate-spin text-ui-fg-subtle" />
+                      <Text className="text-xs">Loading Razorpay transactions...</Text>
+                    </div>
+                  </td>
+                </Table.Row>
+              ) : filteredPayments.length === 0 ? (
+                <Table.Row>
+                  <td colSpan={8} className="text-center py-12 text-ui-fg-muted">
+                    <Text className="text-xs">No transactions match the selected filters.</Text>
+                  </td>
+                </Table.Row>
+              ) : (
+                filteredPayments.map((p: any) => {
+                  const isCaptured = p.status === "captured" || p.status === "paid"
+                  const isRefunded = p.status === "refunded"
+                  const isFailed = p.status === "failed"
 
-      {previewPayment && (
-        <Drawer open={!!previewPayment} onOpenChange={(open) => !open && setPreviewPayment(null)}>
-          <Drawer.Content className="right-2 inset-y-2 rounded-lg max-w-[500px] w-full">
-            <Drawer.Header>
-              <Drawer.Title>Order Sync Preview</Drawer.Title>
-              <Drawer.Description>Review cart details before creating the order.</Drawer.Description>
-            </Drawer.Header>
-            <Drawer.Body className="p-4 overflow-y-auto">
-              <div className="space-y-6">
+                  const badgeStyle = isRefunded
+                    ? "bg-purple-50 text-purple-700 border-purple-200"
+                    : isCaptured
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : isFailed
+                    ? "bg-rose-50 text-rose-700 border-rose-200"
+                    : "bg-amber-50 text-amber-700 border-amber-200"
+
+                  const dotStyle = isRefunded
+                    ? "bg-purple-500"
+                    : isCaptured
+                    ? "bg-emerald-500"
+                    : isFailed
+                    ? "bg-rose-500"
+                    : "bg-amber-500"
+
+                  return (
+                    <Table.Row 
+                      key={p.id} 
+                      onClick={() => setSelectedTx(p)}
+                      className="cursor-pointer hover:bg-ui-bg-subtle-hover transition-colors"
+                    >
+                      {/* Date */}
+                      <Table.Cell className="text-xs text-ui-fg-subtle whitespace-nowrap">
+                        {formatDateTime(p.created_at)}
+                      </Table.Cell>
+
+                      {/* Payment ID */}
+                      <Table.Cell className="font-mono text-xs text-ui-fg-base whitespace-nowrap">
+                        {p.id}
+                      </Table.Cell>
+
+                      {/* Customer / Contact */}
+                      <Table.Cell className="text-xs">
+                        <div className="flex flex-col max-w-[190px]">
+                          <span className="text-ui-fg-base truncate">{p.email || p.medusa_cart?.email || "—"}</span>
+                          <span className="text-ui-fg-muted text-[11px]">{p.contact || "—"}</span>
+                        </div>
+                      </Table.Cell>
+
+                      {/* Amount */}
+                      <Table.Cell className="font-medium text-xs text-ui-fg-base whitespace-nowrap">
+                        {formatCurrency(p.amount)}
+                      </Table.Cell>
+
+                      {/* Method */}
+                      <Table.Cell className="text-xs uppercase text-ui-fg-subtle">
+                        {p.method || p.type || "N/A"}
+                      </Table.Cell>
+
+                      {/* Status */}
+                      <Table.Cell className="text-xs whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${badgeStyle}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${dotStyle}`} />
+                          {p.status}
+                        </span>
+                      </Table.Cell>
+
+                      {/* Medusa Order */}
+                      <Table.Cell className="text-xs whitespace-nowrap">
+                        {p.medusa_order_display_id ? (
+                          <span 
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (p.medusa_order_uuid) navigate(`/orders/${p.medusa_order_uuid}`)
+                            }}
+                            className="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {p.medusa_order_display_id}
+                          </span>
+                        ) : isCaptured ? (
+                          <span className="text-rose-600 font-medium text-xs">Missing Order</span>
+                        ) : (
+                          <span className="text-ui-fg-muted text-xs">—</span>
+                        )}
+                      </Table.Cell>
+
+                      {/* Action */}
+                      <Table.Cell className="text-right whitespace-nowrap">
+                        <Button
+                          size="small"
+                          variant="secondary"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedTx(p)
+                          }}
+                          className="text-xs py-1 px-2.5"
+                        >
+                          Details →
+                        </Button>
+                      </Table.Cell>
+                    </Table.Row>
+                  )
+                })
+              )}
+            </Table.Body>
+          </Table>
+        </div>
+      </div>
+
+      {/* Slide-over Transaction Details Drawer */}
+      {selectedTx && (
+        <Drawer open={!!selectedTx} onOpenChange={(open) => !open && setSelectedTx(null)}>
+          <Drawer.Content className="right-2 inset-y-2 rounded-lg max-w-[550px] w-full bg-white shadow-xl border">
+            <Drawer.Header className="border-b p-5">
+              <div className="flex items-center justify-between">
                 <div>
-                  <Heading level="h3" className="mb-2">Payment Details</Heading>
-                  <Text size="small" className="text-ui-fg-subtle">Payment ID: {previewPayment.id}</Text>
-                  <Text size="small" className="text-ui-fg-subtle">Amount Paid: ₹{(previewPayment.amount / 100).toFixed(2)}</Text>
-                  <Text size="small" className="text-ui-fg-subtle">Method: {previewPayment.method}</Text>
+                  <Drawer.Title className="text-lg font-semibold flex items-center gap-2">
+                    Transaction Details
+                  </Drawer.Title>
+                  <Drawer.Description className="text-xs text-ui-fg-muted mt-0.5">
+                    Live Razorpay Record & Medusa Cross-Reference
+                  </Drawer.Description>
                 </div>
-                
-                {previewPayment.medusa_cart && (
-                  <>
-                    <div className="border-t border-ui-border-base pt-4">
-                      <Heading level="h3" className="mb-2">Customer Info</Heading>
-                      <Text size="small" className="text-ui-fg-subtle">Email: {previewPayment.medusa_cart.email}</Text>
-                      {previewPayment.medusa_cart.shipping_address && (
-                        <div className="mt-2 text-sm text-ui-fg-subtle">
-                          <strong>Shipping Address:</strong><br />
-                          {previewPayment.medusa_cart.shipping_address.first_name} {previewPayment.medusa_cart.shipping_address.last_name}<br />
-                          {previewPayment.medusa_cart.shipping_address.address_1}, {previewPayment.medusa_cart.shipping_address.city}<br />
-                          {previewPayment.medusa_cart.shipping_address.postal_code}<br />
-                          Phone: {previewPayment.medusa_cart.shipping_address.phone}
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="border-t border-ui-border-base pt-4">
-                      <Heading level="h3" className="mb-2">Cart Items ({previewPayment.medusa_cart.items?.length || 0})</Heading>
-                      <div className="space-y-2">
-                        {previewPayment.medusa_cart.items?.map((item: any) => (
-                          <div key={item.id} className="flex justify-between items-center bg-ui-bg-base-hover p-2 rounded-md">
-                            <div className="flex-1 pr-2">
-                              <Text size="small" className="font-medium line-clamp-1" title={item.title}>
-                                {item.title} {item.variant?.title ? `(${item.variant.title})` : ''}
-                              </Text>
-                              <Text size="small" className="text-ui-fg-subtle">Qty: {item.quantity}</Text>
-                            </div>
-                            <Text size="small" className="font-medium">
-                              ₹{(Number(item.unit_price) * Number(item.quantity)).toFixed(2)}
-                            </Text>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase ${
+                  selectedTx.status === "captured" || selectedTx.status === "paid"
+                    ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                    : selectedTx.status === "refunded"
+                    ? "bg-purple-100 text-purple-900 border border-purple-300"
+                    : "bg-amber-100 text-amber-900 border border-amber-300"
+                }`}>
+                  {selectedTx.status}
+                </span>
+              </div>
+            </Drawer.Header>
 
-                    <div className="border-t border-ui-border-base pt-4 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Text size="small" className="text-ui-fg-subtle">Subtotal</Text>
-                        <Text size="small">₹{previewPayment.medusa_cart.items?.reduce((acc: number, item: any) => acc + (Number(item.unit_price) * Number(item.quantity)), 0).toFixed(2)}</Text>
-                      </div>
-                      {Number(previewPayment.medusa_cart.discount_total) > 0 && (
-                        <div className="flex justify-between items-center">
-                          <Text size="small" className="text-ui-fg-subtle">Discount</Text>
-                          <Text size="small" className="text-ui-tag-red-text">-₹{Number(previewPayment.medusa_cart.discount_total).toFixed(2)}</Text>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <Text size="small" className="text-ui-fg-subtle">Shipping</Text>
-                        <Text size="small">₹{Number(previewPayment.medusa_cart.shipping_total || 0).toFixed(2)}</Text>
-                      </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-ui-border-base mt-2">
-                        <div>
-                          <Heading level="h3">Cart Total</Heading>
-                          {Number(previewPayment.medusa_cart.tax_total) > 0 && (
-                            <Text size="small" className="text-ui-fg-subtle">Includes ₹{Number(previewPayment.medusa_cart.tax_total).toFixed(2)} Tax</Text>
-                          )}
-                        </div>
-                        <Text className="font-bold text-ui-fg-base">
-                          ₹{Number(previewPayment.medusa_cart.total || 0).toFixed(2)}
-                        </Text>
-                      </div>
-                    </div>
-                  </>
+            <Drawer.Body className="p-6 overflow-y-auto space-y-6">
+              {/* Financial Breakdown Card */}
+              <div className="bg-ui-bg-subtle p-4 rounded-lg border border-ui-border-base space-y-3">
+                <div className="flex justify-between items-center pb-2 border-b border-ui-border-base">
+                  <Text className="text-xs text-ui-fg-muted font-medium">Transaction Amount</Text>
+                  <Text className="text-xl font-bold text-ui-fg-base">{formatCurrency(selectedTx.amount)}</Text>
+                </div>
+
+                {selectedTx.fee > 0 && (
+                  <div className="flex justify-between text-xs text-ui-fg-subtle">
+                    <span>Razorpay Fee & GST</span>
+                    <span>-₹{(selectedTx.fee / 100).toFixed(2)} {selectedTx.tax ? `(Tax: ₹${(selectedTx.tax / 100).toFixed(2)})` : ''}</span>
+                  </div>
+                )}
+
+                {selectedTx.fee > 0 && (
+                  <div className="flex justify-between text-xs font-medium text-ui-fg-base pt-1 border-t border-ui-border-base">
+                    <span>Net Settled Amount</span>
+                    <span>₹{((selectedTx.amount - selectedTx.fee) / 100).toFixed(2)}</span>
+                  </div>
+                )}
+
+                {selectedTx.amount_refunded > 0 && (
+                  <div className="flex justify-between text-xs font-semibold text-purple-700 pt-1">
+                    <span>Total Refunded to Customer</span>
+                    <span>₹{(selectedTx.amount_refunded / 100).toFixed(2)}</span>
+                  </div>
                 )}
               </div>
+
+              {/* IDs and References */}
+              <div className="space-y-3">
+                <Heading level="h3" className="text-xs font-semibold uppercase tracking-wider text-ui-fg-muted">
+                  Identifiers & References
+                </Heading>
+
+                <div className="bg-white p-3 rounded-lg border border-ui-border-base space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-ui-fg-muted">Razorpay Payment ID:</span>
+                    <div className="flex items-center gap-1 font-mono font-medium">
+                      <span>{selectedTx.id}</span>
+                      <Copy content={selectedTx.id} className="w-3.5 h-3.5 text-ui-fg-muted cursor-pointer" />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-ui-fg-muted">Razorpay Order ID:</span>
+                    <div className="flex items-center gap-1 font-mono">
+                      <span>{selectedTx.order_id || selectedTx.id}</span>
+                      <Copy content={selectedTx.order_id || selectedTx.id} className="w-3.5 h-3.5 text-ui-fg-muted cursor-pointer" />
+                    </div>
+                  </div>
+
+                  {selectedTx.medusa_order_display_id && (
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <span className="text-ui-fg-muted">Medusa Order:</span>
+                      <button
+                        onClick={() => {
+                          if (selectedTx.medusa_order_uuid) navigate(`/orders/${selectedTx.medusa_order_uuid}`)
+                        }}
+                        className="font-semibold text-blue-600 hover:underline inline-flex items-center gap-1"
+                      >
+                        {selectedTx.medusa_order_display_id}
+                        <ArrowUpRightOnBox className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Details */}
+              <div className="space-y-3">
+                <Heading level="h3" className="text-xs font-semibold uppercase tracking-wider text-ui-fg-muted">
+                  Payment Method & Customer
+                </Heading>
+
+                <div className="bg-white p-3 rounded-lg border border-ui-border-base space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-ui-fg-muted">Method:</span>
+                    <span className="font-medium uppercase">{selectedTx.method || selectedTx.type || "N/A"}</span>
+                  </div>
+
+                  {selectedTx.vpa && (
+                    <div className="flex justify-between">
+                      <span className="text-ui-fg-muted">UPI VPA:</span>
+                      <span className="font-mono">{selectedTx.vpa}</span>
+                    </div>
+                  )}
+
+                  {selectedTx.bank && (
+                    <div className="flex justify-between">
+                      <span className="text-ui-fg-muted">Bank:</span>
+                      <span className="font-medium">{selectedTx.bank}</span>
+                    </div>
+                  )}
+
+                  {selectedTx.card && (
+                    <div className="flex justify-between">
+                      <span className="text-ui-fg-muted">Card:</span>
+                      <span>{selectedTx.card.network} •••• {selectedTx.card.last4} ({selectedTx.card.type})</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between pt-2 border-t">
+                    <span className="text-ui-fg-muted">Customer Email:</span>
+                    <span className="font-medium">{selectedTx.email || selectedTx.medusa_cart?.email || "—"}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-ui-fg-muted">Customer Phone:</span>
+                    <span>{selectedTx.contact || "—"}</span>
+                  </div>
+
+                  <div className="flex justify-between pt-2 border-t">
+                    <span className="text-ui-fg-muted">Timestamp:</span>
+                    <span>{formatDateTime(selectedTx.created_at)}</span>
+                  </div>
+
+                  {selectedTx.error_description && (
+                    <div className="p-2 bg-rose-50 border border-rose-200 rounded text-rose-700 text-xs mt-2">
+                      <strong>Gateway Error:</strong> {selectedTx.error_description} ({selectedTx.error_code})
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Cart Items if present */}
+              {selectedTx.medusa_cart && selectedTx.medusa_cart.items?.length > 0 && (
+                <div className="space-y-3">
+                  <Heading level="h3" className="text-xs font-semibold uppercase tracking-wider text-ui-fg-muted">
+                    Cart Items ({selectedTx.medusa_cart.items.length})
+                  </Heading>
+
+                  <div className="bg-white p-3 rounded-lg border border-ui-border-base space-y-2">
+                    {selectedTx.medusa_cart.items.map((it: any) => (
+                      <div key={it.id} className="flex justify-between items-center text-xs pb-1.5 border-b last:border-0 last:pb-0">
+                        <div>
+                          <span className="font-medium">{it.title}</span>
+                          <span className="text-ui-fg-muted ml-2">× {it.quantity}</span>
+                        </div>
+                        <span className="font-semibold">₹{(Number(it.unit_price) * Number(it.quantity)).toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Drawer.Body>
-            <Drawer.Footer className="flex justify-end space-x-2 p-4 border-t border-ui-border-base">
-              <Drawer.Close asChild>
-                <Button variant="secondary" onClick={() => setPreviewPayment(null)}>Cancel</Button>
-              </Drawer.Close>
-              <Button 
-                variant="primary" 
-                isLoading={syncing === previewPayment.medusa_cart?.id}
-                onClick={() => {
-                  handleSync(previewPayment.medusa_cart?.id)
-                  setPreviewPayment(null)
-                }}
+
+            <Drawer.Footer className="flex items-center justify-between p-4 border-t bg-ui-bg-subtle">
+              <a
+                href={`https://dashboard.razorpay.com/app/payments/${selectedTx.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-ui-fg-muted hover:text-ui-fg-base inline-flex items-center gap-1 underline"
               >
-                Confirm & Sync
-              </Button>
+                Open in Razorpay Dashboard <ArrowUpRightOnBox className="w-3 h-3" />
+              </a>
+
+              <div className="flex items-center gap-2">
+                <Drawer.Close asChild>
+                  <Button variant="secondary" size="small" onClick={() => setSelectedTx(null)}>Close</Button>
+                </Drawer.Close>
+
+                {selectedTx.medusa_order_uuid && (
+                  <Button 
+                    size="small"
+                    className="bg-gray-900 text-white"
+                    onClick={() => navigate(`/orders/${selectedTx.medusa_order_uuid}`)}
+                  >
+                    Go to Order →
+                  </Button>
+                )}
+
+                {selectedTx.status === "captured" && !selectedTx.medusa_order_display_id && selectedTx.medusa_cart?.id && (
+                  <Button 
+                    size="small"
+                    isLoading={syncing === selectedTx.medusa_cart.id}
+                    onClick={() => handleSync(selectedTx.medusa_cart.id)}
+                    className="bg-emerald-600 text-white hover:bg-emerald-700"
+                  >
+                    Create Medusa Order
+                  </Button>
+                )}
+              </div>
             </Drawer.Footer>
           </Drawer.Content>
         </Drawer>
