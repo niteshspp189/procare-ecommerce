@@ -435,8 +435,11 @@ export default function AllOrdersPage() {
           <Table.Body>
             {isLoading ? (
               <Table.Row>
-                <td colSpan={8} className="text-center py-12 text-ui-fg-subtle text-xs">
-                  Loading orders...
+                <td colSpan={8} className="text-center py-12 text-ui-fg-muted">
+                  <div className="flex items-center justify-center gap-2">
+                    <ArrowPath className="w-4 h-4 animate-spin text-ui-fg-subtle" />
+                    <Text className="text-xs">Loading orders...</Text>
+                  </div>
                 </td>
               </Table.Row>
             ) : paginatedOrders.map((order) => (
@@ -521,16 +524,18 @@ export default function AllOrdersPage() {
                       <div className="flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                         <span className="text-red-600 font-medium">Not fulfilled</span>
-                        <button
-                          type="button"
-                          disabled={syncingOrderId === order.id}
-                          onClick={(e) => handleSyncOrder(order.id, e)}
-                          title="Fulfill and sync this order with Shiprocket immediately"
-                          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-900 hover:bg-black text-white rounded transition-colors disabled:opacity-50 cursor-pointer shadow-xs ml-1"
-                        >
-                          <Bolt className="w-2.5 h-2.5" />
-                          {syncingOrderId === order.id ? "Syncing..." : "Sync"}
-                        </button>
+                        {order.paymentState === "captured" && (
+                          <button
+                            type="button"
+                            disabled={syncingOrderId === order.id}
+                            onClick={(e) => handleSyncOrder(order.id, e)}
+                            title="Fulfill and sync this order with Shiprocket immediately"
+                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-900 hover:bg-black text-white rounded transition-colors disabled:opacity-50 cursor-pointer shadow-xs ml-1"
+                          >
+                            <Bolt className="w-2.5 h-2.5" />
+                            {syncingOrderId === order.id ? "Syncing..." : "Sync"}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -544,7 +549,7 @@ export default function AllOrdersPage() {
                 {/* Actions */}
                 <Table.Cell className="text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                    {order.fulfillmentState === "not_fulfilled" && (
+                    {order.paymentState === "captured" && order.fulfillmentState === "not_fulfilled" && (
                       <button
                         type="button"
                         disabled={syncingOrderId === order.id}

@@ -218,16 +218,16 @@ export default function ArchivedOrdersPage() {
             <Table.Body>
               {isLoading ? (
                 <Table.Row>
-                  <Table.Cell className="text-center py-12 text-ui-fg-muted">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <ArrowPath className="w-5 h-5 animate-spin" />
+                  <td colSpan={8} className="text-center py-12 text-ui-fg-muted">
+                    <div className="flex items-center justify-center gap-2">
+                      <ArrowPath className="w-4 h-4 animate-spin text-ui-fg-subtle" />
                       <Text className="text-xs">Loading archived orders...</Text>
                     </div>
-                  </Table.Cell>
+                  </td>
                 </Table.Row>
               ) : paginatedOrders.length === 0 ? (
                 <Table.Row>
-                  <Table.Cell className="text-center py-12 text-ui-fg-muted">
+                  <td colSpan={8} className="text-center py-12 text-ui-fg-muted">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <ArchiveBox className="w-8 h-8 text-ui-fg-subtle opacity-50" />
                       <Text className="text-xs font-medium">No archived orders found</Text>
@@ -235,7 +235,7 @@ export default function ArchivedOrdersPage() {
                         To archive an order, click the archive button on any order row in the All Orders table.
                       </Text>
                     </div>
-                  </Table.Cell>
+                  </td>
                 </Table.Row>
               ) : (
                 paginatedOrders.map((order) => (
@@ -246,7 +246,7 @@ export default function ArchivedOrdersPage() {
                   >
                     {/* Order ID */}
                     <Table.Cell className="font-medium text-xs text-ui-fg-base whitespace-nowrap">
-                      #{order.displayId}
+                      {order.displayId}
                     </Table.Cell>
 
                     {/* Date */}
@@ -267,7 +267,7 @@ export default function ArchivedOrdersPage() {
                     {/* Items */}
                     <Table.Cell className="text-xs text-ui-fg-subtle">
                       <div className="flex flex-col max-w-[220px]">
-                        <span className="truncate text-ui-fg-base">{order.itemsSummary}</span>
+                        <span className="truncate text-ui-fg-base">{order.itemsSummary || "—"}</span>
                         {order.itemsCount > 1 && (
                           <span className="text-xs text-ui-fg-muted">
                             +{order.itemsCount - 1} more item(s)
@@ -278,14 +278,34 @@ export default function ArchivedOrdersPage() {
 
                     {/* Payment */}
                     <Table.Cell className="text-xs">
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-ui-bg-subtle text-ui-fg-subtle">
-                        {order.paymentStatus}
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
+                        order.paymentState === "captured"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : order.paymentState === "refunded"
+                          ? "bg-purple-50 text-purple-700 border border-purple-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                          order.paymentState === "captured" ? "bg-emerald-500" : "bg-amber-500"
+                        }`} />
+                        {order.paymentState === "captured" ? "Captured" : "Pending"}
                       </span>
                     </Table.Cell>
 
                     {/* Fulfillment */}
-                    <Table.Cell className="text-xs text-ui-fg-subtle">
-                      {order.fulfillmentState === "fulfilled" ? "Fulfilled" : "Not Fulfilled"}
+                    <Table.Cell className="text-xs">
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
+                        order.fulfillmentState === "fulfilled" || order.fulfillmentState === "shipped"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-gray-100 text-gray-700"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                          order.fulfillmentState === "fulfilled" || order.fulfillmentState === "shipped"
+                            ? "bg-emerald-500" : "bg-gray-400"
+                        }`} />
+                        {order.fulfillmentState === "fulfilled" || order.fulfillmentState === "shipped"
+                          ? "Fulfilled" : "Not fulfilled"}
+                      </span>
                     </Table.Cell>
 
                     {/* Total */}
