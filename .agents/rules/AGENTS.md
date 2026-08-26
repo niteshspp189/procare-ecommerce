@@ -17,6 +17,7 @@ These rules are strictly enforced for all AI agents working on the Procare E-com
 - **Root Directory:** Keep the root directory completely clean.
 - **Git Status:** Both the local and production Git repositories must always be clean. Do not commit scratch files.
 - **Docker Restart Safety:** Before running any Docker commands or restarting containers on the VPS, you **must** use the `untracked/deployment/vps-manager.sh` script. This script automatically checks `git status` on the VPS and will abort if uncommitted changes (especially in mounted volumes like `backend-static` containing uploaded images) are found, preventing accidental data loss when containers reset.
+- **Process Safety & No Intrusive Process Killing:** NEVER execute `pkill node`, `killall node`, or indiscriminate `kill` commands inside `procare_backend`. The main process (`node medusa start`) hosts both the live API server AND the background cron/scheduled jobs worker. Killing it terminates the background scheduler. For container restarts, always route through `untracked/deployment/vps-manager.sh "docker compose restart backend"`.
 - **Untracked Directory:** All old scripts, unused files, and agent experiments are stored in the `untracked/` directory, which is ignored by git.
 - **Agent Environment:** Any test scripts, one-off node/python scripts, or experimental code created by agents *must* be placed in `untracked/agent_environment/`.
 
@@ -55,7 +56,7 @@ To enable maintenance mode while whitelisting your local Fedora IP, you must **S
 ---
 
 ## 6. Post-Production Verification Checklist & Diagnostics
-Whenever maintenance mode is turned ON/OFF, or immediately following any production deployment, you **must** execute the automated verification audit or manually verify the following 5 critical checkpoints:
+Whenever maintenance mode is turned ON/OFF, or immediately following any production deployment, you **must** execute the automated verification audit or manually verify the following critical checkpoints:
 
 ### 🚀 Automated Verification Command
 Run the built-in health audit on the VPS:
@@ -63,7 +64,7 @@ Run the built-in health audit on the VPS:
 ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verify_production.js
 ```
 
-### 📋 6-Point Manual Verification Checklist
+### 📋 7-Point Manual Verification Checklist
 
 | Checkpoint | Target State | How to Verify |
 | :--- | :--- | :--- |
@@ -71,8 +72,9 @@ ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verif
 | **2. Payment Gateway** | Live Razorpay credentials | `docker exec procare_backend node -e "console.log(process.env.RAZORPAY_KEY_ID?.startsWith('rzp_live_'))"`<br>Must start with `rzp_live_` (NOT `rzp_test_`). |
 | **3. Shiprocket Logistics** | `production` mode & Auth HTTP 200 | `docker exec procare_backend node -e "console.log(process.env.SHIPROCKET_ENV)"`<br>Output must be `production`, and token auth must return HTTP 200. |
 | **4. Database Target** | AWS RDS Postgres | `docker exec procare_backend node -e "console.log(process.env.DATABASE_URL.includes('rds.amazonaws.com'))"`<br>Must connect to AWS RDS (`database-1...rds.amazonaws.com`), NEVER local VPS Postgres (`localhost` / `127.0.0.1`). |
-| **5. Nightly Cron & Fulfillment** | Scheduled job active & 100% orders fulfilled | Query unfulfilled orders from last 7 days. Ensure Medusa scheduled job (`nightly-shiprocket-fulfill` in `src/jobs/auto-fulfill-nightly.ts`) is present, and recent orders have valid Shiprocket order & shipment IDs. |
-| **6. GTM & Meta Pixel (`/confirm`)** | `Purchase` event triggered on thank-you page | Inspect browser console on `/order/<id>/confirmed`:<br>1. **GTM dataLayer**: `window.dataLayer.find(e => e.event === 'purchase')` returns `{ transaction_id, value, currency: 'INR' }`.<br>2. **Meta Pixel**: `fbq` function exists and Meta Pixel Helper shows `Purchase` event with exact order value and currency. |
+| **5. Process Liveness & Cron Worker** | `medusa start` running & worker active | `docker exec procare_backend ps aux`<br>Must show `node ... medusa start` running as the main process. Do NOT kill this process. |
+| **6. Nightly Cron & Fulfillment** | Scheduled job active & 100% orders fulfilled | Query unfulfilled orders from last 7 days. Ensure Medusa scheduled job (`nightly-shiprocket-fulfill` in `src/jobs/auto-fulfill-nightly.ts`) is present, and recent orders have valid Shiprocket order & shipment IDs. |
+| **7. GTM & Meta Pixel (`/confirm`)** | `Purchase` event triggered on thank-you page | Inspect browser console on `/order/<id>/confirmed`:<br>1. **GTM dataLayer**: `window.dataLayer.find(e => e.event === 'purchase')` returns `{ transaction_id, value, currency: 'INR' }`.<br>2. **Meta Pixel**: `fbq` function exists and Meta Pixel Helper shows `Purchase` event with exact order value and currency. |
 
 ### 🛠️ In Case of Fulfillment Anomaly:
 - Use the **1-Click "⚡ Fulfill & Sync to Shiprocket"** button in Admin Order Details or the **"⚡ Sync"** button in All Orders table (`/admin/all-orders`).

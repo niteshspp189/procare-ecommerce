@@ -35,12 +35,13 @@ Whenever maintenance mode is enabled/disabled or following any production deploy
 ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verify_production.js
 ```
 
-This validates all 6 critical production checkpoints:
+This validates all 7 critical production checkpoints:
 1. **NODE_ENV**: Verified as `production`.
 2. **Razorpay**: Verified live API credentials (`rzp_live_...`).
 3. **Shiprocket**: Verified `production` environment and auth token (HTTP 200).
 4. **AWS RDS**: Verified connection to AWS RDS Postgres (never local VPS Postgres).
-5. **Nightly Cron & Fulfillment**: Verified scheduled job is active and 100% of recent orders are fulfilled.
-6. **GTM & Meta Pixel**: Verified `Purchase` tracking on `/order/<id>/confirmed`.
+5. **Process Liveness**: Verified `medusa start` main process is active and running background cron workers.
+6. **Nightly Cron & Fulfillment**: Verified scheduled job is active and 100% of recent orders are fulfilled.
+7. **GTM & Meta Pixel**: Verified `Purchase` tracking on `/order/<id>/confirmed`.
 
 For detailed troubleshooting and instructions, see **[.agents/rules/AGENTS.md](./.agents/rules/AGENTS.md)**.
