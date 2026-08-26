@@ -321,7 +321,23 @@ const RazorpayTransactionsPage = () => {
                             {p.medusa_order_display_id}
                           </span>
                         ) : isCaptured ? (
-                          <span className="text-rose-600 font-medium text-xs">Missing Order</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-rose-600 font-medium text-xs">Missing Order</span>
+                            {p.medusa_cart?.id && (
+                              <Button
+                                size="small"
+                                variant="secondary"
+                                isLoading={syncing === p.medusa_cart.id}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSync(p.medusa_cart.id)
+                                }}
+                                className="text-[11px] py-0 px-2 h-5 text-emerald-700 hover:bg-emerald-50 border-emerald-300 font-medium"
+                              >
+                                ⚡ Create Order
+                              </Button>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-ui-fg-muted text-xs">—</span>
                         )}
