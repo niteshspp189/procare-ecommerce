@@ -27,3 +27,20 @@ All autonomous agents must adhere to the rules defined in **[.agents/rules/AGENT
 - **Backups**: Database backups must be executed using the `untracked/backup-database.sh` script and saved to `untracked/db_backups/`.
 - **Deployments**: The deploy script is located at `untracked/deployment/deploy.sh`.
 - **Maintenance Mode**: Instructions for enabling maintenance mode with IP whitelisting via Nginx are fully documented in section 5 of the agent rules.
+
+## 🔍 Post-Production Verification & Health Audit
+Whenever maintenance mode is enabled/disabled or following any production deployment, execute the automated verification audit:
+
+```bash
+ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verify_production.js
+```
+
+This validates all 6 critical production checkpoints:
+1. **NODE_ENV**: Verified as `production`.
+2. **Razorpay**: Verified live API credentials (`rzp_live_...`).
+3. **Shiprocket**: Verified `production` environment and auth token (HTTP 200).
+4. **AWS RDS**: Verified connection to AWS RDS Postgres (never local VPS Postgres).
+5. **Nightly Cron & Fulfillment**: Verified scheduled job is active and 100% of recent orders are fulfilled.
+6. **GTM & Meta Pixel**: Verified `Purchase` tracking on `/order/<id>/confirmed`.
+
+For detailed troubleshooting and instructions, see **[.agents/rules/AGENTS.md](./.agents/rules/AGENTS.md)**.
