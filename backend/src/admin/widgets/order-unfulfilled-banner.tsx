@@ -110,7 +110,11 @@ const OrderUnfulfilledBannerWidget = ({ data }: { data: any }) => {
       <div className="flex-1 pr-2">
         <div className="flex flex-wrap items-center gap-2 mb-1.5">
           <Heading level="h2" className="text-base font-semibold text-ui-fg-base">
-            {isRefunded ? "Order Refunded — Do Not Fulfill" : isCaptured ? "Order Needs Shipping" : "Order Payment Pending"}
+            {isRefunded 
+              ? "Order Refunded — Do Not Fulfill" 
+              : isCaptured 
+              ? "Order Needs Shipping" 
+              : "No Payment Recorded — Do Not Fulfill"}
           </Heading>
 
           <span className={`inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full border shadow-2xs ${badgeBg}`}>
@@ -125,29 +129,18 @@ const OrderUnfulfilledBannerWidget = ({ data }: { data: any }) => {
             </span>
           ) : isCaptured ? (
             <span className="text-amber-800">
-              Payment is verified and captured. Click below to fulfill and push the shipment to Shiprocket.
+              Payment is verified and captured in Razorpay. Click below to fulfill and push the shipment to Shiprocket.
             </span>
           ) : (
-            <span className="text-amber-800">
-              Customer payment was not completed or captured. Please review before dispatching.
+            <span className="text-amber-800 font-medium">
+              ⚠️ No payment was recorded in payment gateway provider Razorpay for this order. Dispatching to Shiprocket is disabled. You can archive this order.
             </span>
           )}
         </Text>
       </div>
 
       <div className="flex flex-wrap items-center gap-2.5">
-        {isRefunded ? (
-          <Button
-            size="small"
-            variant="secondary"
-            isLoading={archiving}
-            onClick={handleArchive}
-            className="flex items-center gap-x-1.5 text-purple-900 hover:bg-purple-100 border-purple-300"
-          >
-            <ArchiveBox className="w-3.5 h-3.5" />
-            Archive Order
-          </Button>
-        ) : (
+        {isCaptured ? (
           <Button
             size="small"
             isLoading={syncing}
@@ -156,6 +149,21 @@ const OrderUnfulfilledBannerWidget = ({ data }: { data: any }) => {
           >
             <Bolt className="w-3.5 h-3.5" />
             Fulfill & Sync to Shiprocket
+          </Button>
+        ) : (
+          <Button
+            size="small"
+            variant="secondary"
+            isLoading={archiving}
+            onClick={handleArchive}
+            className={`flex items-center gap-x-1.5 font-medium ${
+              isRefunded 
+                ? "text-purple-900 hover:bg-purple-100 border-purple-300" 
+                : "text-amber-900 hover:bg-amber-100 border-amber-300"
+            }`}
+          >
+            <ArchiveBox className="w-3.5 h-3.5" />
+            Archive Order
           </Button>
         )}
 

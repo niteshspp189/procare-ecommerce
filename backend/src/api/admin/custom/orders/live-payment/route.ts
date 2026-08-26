@@ -129,7 +129,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     } else {
       isSafeToFulfill = false
       badgeType = "pending"
-      friendlyMessage = `Payment was NOT received / completed (Pending since ${formatDt(createdAt)})`
+      friendlyMessage = `No payment recorded in payment gateway provider Razorpay (Pending since ${formatDt(createdAt)})`
     }
 
     return res.json({
