@@ -1,13 +1,62 @@
-import fetch from "node-fetch"
+import https from "https"
+import zlib from "zlib"
+
+function requestJson(urlStr: string, options: { method?: string; headers?: Record<string, string>; body?: string } = {}): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr)
+    const headers = {
+      "Accept": "application/json",
+      "Accept-Encoding": "gzip, deflate",
+      ...(options.headers || {})
+    }
+
+    const req = https.request(url, {
+      method: options.method || "GET",
+      headers,
+      timeout: 10000,
+    }, (res) => {
+      let stream: any = res
+      const enc = res.headers["content-encoding"]
+      if (enc === "gzip") {
+        stream = res.pipe(zlib.createGunzip())
+      } else if (enc === "deflate") {
+        stream = res.pipe(zlib.createInflate())
+      }
+
+      let data = ""
+      stream.on("data", (chunk: any) => { data += chunk })
+      stream.on("end", () => {
+        try {
+          const parsed = JSON.parse(data)
+          resolve(parsed)
+        } catch (e) {
+          resolve(data)
+        }
+      })
+    })
+
+    req.on("timeout", () => {
+      req.destroy()
+      reject(new Error(`Shiprocket request timeout: ${urlStr}`))
+    })
+
+    req.on("error", (err) => {
+      reject(err)
+    })
+
+    if (options.body) {
+      req.write(options.body)
+    }
+    req.end()
+  })
+}
 
 export class ShiprocketClient {
   private token: string | null = null
   private tokenExpiresAt: number = 0
   private baseUrl = "https://apiv2.shiprocket.in/v1/external"
 
-  constructor() {
-    // Read directly at runtime to ensure dotenv is loaded
-  }
+  constructor() {}
 
   private async authenticate() {
     if (this.token && Date.now() < this.tokenExpiresAt) {
@@ -16,32 +65,25 @@ export class ShiprocketClient {
 
     const email = process.env.SHIPROCKET_EMAIL || ""
     const password = process.env.SHIPROCKET_PASSWORD || ""
-    
-    console.log(">>> SHIPROCKET AUTH DEBUG <<<");
-    console.log("Email length:", email.length, "Value:", email);
-    console.log("Password length:", password.length, "Starts with:", password.substring(0, 3));
 
-    const response = await fetch(`${this.baseUrl}/auth/login`, {
+    const data = await requestJson(`${this.baseUrl}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
     })
 
-    if (!response.ok) {
-      const err = await response.text()
-      throw new Error(`Shiprocket auth failed: ${err}`)
+    if (!data || !data.token) {
+      throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
     }
 
-    const data = await response.json() as any
     this.token = data.token
-    // Token typically expires in 10 days, we'll refresh every 24 hours just in case
     this.tokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000 
     return this.token
   }
 
   public async createOrder(orderData: any) {
     const token = await this.authenticate()
-    const response = await fetch(`${this.baseUrl}/orders/create/adhoc`, {
+    return await requestJson(`${this.baseUrl}/orders/create/adhoc`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,32 +91,17 @@ export class ShiprocketClient {
       },
       body: JSON.stringify(orderData)
     })
-
-    if (!response.ok) {
-      const err = await response.text()
-      console.error("Shiprocket create order failed:", err)
-      throw new Error(`Shiprocket create order failed: ${err}`)
-    }
-
-    return await response.json()
   }
 
   public async getOrders(queryParams: string = "") {
     const token = await this.authenticate()
-    const response = await fetch(`${this.baseUrl}/orders${queryParams}`, {
+    const result = await requestJson(`${this.baseUrl}/orders${queryParams}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
       }
     })
-
-    if (!response.ok) {
-      const err = await response.text()
-      console.warn("Shiprocket getOrders failed:", err)
-      return { data: [] }
-    }
-
-    return await response.json() as any
+    return result || { data: [] }
   }
 
   public async checkServiceability(deliveryPostcode: string, isCod: boolean = false) {
@@ -85,63 +112,40 @@ export class ShiprocketClient {
     url.searchParams.append("cod", isCod ? "1" : "0")
     url.searchParams.append("weight", "1")
 
-    const response = await fetch(url.toString(), {
+    const result = await requestJson(url.toString(), {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
       }
     })
 
-    if (!response.ok) {
-      const err = await response.text()
-      console.warn("Shiprocket serviceability check failed:", err)
-      return { serviceable: false, error: err }
-    }
-
-    const result = await response.json() as any
     const serviceable = !!(result?.status === 200 && result?.data?.available_courier_companies?.length > 0)
     return { serviceable, data: result }
   }
 
   public async getTrackingDetails(awbCode: string) {
     const token = await this.authenticate()
-    const response = await fetch(`${this.baseUrl}/courier/track/awb/${awbCode}`, {
+    return await requestJson(`${this.baseUrl}/courier/track/awb/${awbCode}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
       }
     })
-
-    if (!response.ok) {
-      const err = await response.text()
-      console.warn("Shiprocket tracking check failed:", err)
-      return { success: false, error: err }
-    }
-
-    return await response.json()
   }
 
   public async getShipmentTracking(shipmentId: string) {
     const token = await this.authenticate()
-    const response = await fetch(`${this.baseUrl}/courier/track?shipment_id=${shipmentId}`, {
+    return await requestJson(`${this.baseUrl}/courier/track?shipment_id=${shipmentId}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
       }
     })
-
-    if (!response.ok) {
-      const err = await response.text()
-      console.warn("Shiprocket shipment tracking check failed:", err)
-      return { success: false, error: err }
-    }
-
-    return await response.json()
   }
 
   public async assignAWB(shipmentId: string) {
     const token = await this.authenticate()
-    const response = await fetch(`${this.baseUrl}/courier/assign/awb`, {
+    return await requestJson(`${this.baseUrl}/courier/assign/awb`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -149,17 +153,9 @@ export class ShiprocketClient {
       },
       body: JSON.stringify({
         shipment_id: shipmentId,
-        courier_id: "" // Empty lets Shiprocket choose auto-assigned courier if configured
+        courier_id: ""
       })
     })
-
-    if (!response.ok) {
-      const err = await response.text()
-      console.warn("Shiprocket assign AWB failed:", err)
-      throw new Error(err)
-    }
-
-    return await response.json()
   }
 }
 
