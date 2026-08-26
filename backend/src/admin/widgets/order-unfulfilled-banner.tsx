@@ -13,6 +13,44 @@ const OrderUnfulfilledBannerWidget = ({ data }: { data: any }) => {
     return null
   }
 
+  // Extract payment collection and payments
+  const pCollections = data.payment_collections || []
+  const payments = Array.isArray(data.payments) && data.payments.length > 0 
+    ? data.payments 
+    : pCollections.flatMap((pc: any) => pc.payments || [])
+  const primaryPayment = payments[0]
+  const pData = primaryPayment?.data || {}
+  const rzpPaymentId = pData.razorpay_payment_id || (pData.id && String(pData.id).startsWith("pay_") ? pData.id : null)
+
+  const isCaptured = 
+    pCollections.some((pc: any) => pc.status === "captured" || pc.status === "completed") ||
+    data.payment_status === "captured" ||
+    Boolean(primaryPayment?.captured_at)
+
+  const isRefunded = 
+    pCollections.some((pc: any) => pc.status === "refunded") ||
+    data.payment_status === "refunded"
+
+  const isAuthorized = 
+    pCollections.some((pc: any) => pc.status === "authorized") ||
+    data.payment_status === "authorized"
+
+  let paymentText = "Razorpay: Unpaid / Not Captured"
+  let badgeClasses = "bg-amber-100/90 text-amber-900 border-amber-300"
+
+  if (isRefunded) {
+    paymentText = `Razorpay: Refunded ${rzpPaymentId ? `(${rzpPaymentId})` : ""}`
+    badgeClasses = "bg-purple-100 text-purple-900 border-purple-300"
+  } else if (isCaptured) {
+    paymentText = `Razorpay: Captured & Paid ${rzpPaymentId ? `(${rzpPaymentId})` : ""}`
+    badgeClasses = "bg-emerald-100 text-emerald-900 border-emerald-300"
+  } else if (isAuthorized) {
+    paymentText = `Razorpay: Authorized / Uncaptured ${rzpPaymentId ? `(${rzpPaymentId})` : ""}`
+    badgeClasses = "bg-amber-100 text-amber-900 border-amber-300"
+  } else if (rzpPaymentId) {
+    paymentText = `Razorpay ID: ${rzpPaymentId}`
+  }
+
   const handleDownload = () => {
     window.open(`/admin/orders/${data.id}/invoice`, "_blank")
   }
@@ -44,13 +82,18 @@ const OrderUnfulfilledBannerWidget = ({ data }: { data: any }) => {
   }
 
   return (
-    <Container className="p-6 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-amber-50/50 border border-amber-200 rounded-lg shadow-xs">
+    <Container className="p-6 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-amber-50/60 border border-amber-200 rounded-lg shadow-xs">
       <div>
-        <Heading level="h2" className="text-lg font-semibold text-amber-900 mb-0.5">
-          Order Needs Shipping
-        </Heading>
-        <Text className="text-amber-700 text-xs">
-          This order has not been dispatched to Shiprocket yet. Click to fulfill and register shipment.
+        <div className="flex flex-wrap items-center gap-2 mb-1">
+          <Heading level="h2" className="text-base font-semibold text-amber-950">
+            Order Needs Shipping
+          </Heading>
+          <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeClasses}`}>
+            {paymentText}
+          </span>
+        </div>
+        <Text className="text-amber-800/90 text-xs">
+          This order has not been dispatched to Shiprocket yet. {isCaptured ? "Click below to fulfill and register shipment." : "Please review payment status before dispatching."}
         </Text>
       </div>
 
