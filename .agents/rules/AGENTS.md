@@ -63,7 +63,7 @@ Run the built-in health audit on the VPS:
 ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verify_production.js
 ```
 
-### 📋 5-Point Manual Verification Checklist
+### 📋 6-Point Manual Verification Checklist
 
 | Checkpoint | Target State | How to Verify |
 | :--- | :--- | :--- |
@@ -72,6 +72,7 @@ ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verif
 | **3. Shiprocket Logistics** | `production` mode & Auth HTTP 200 | `docker exec procare_backend node -e "console.log(process.env.SHIPROCKET_ENV)"`<br>Output must be `production`, and token auth must return HTTP 200. |
 | **4. Database Target** | AWS RDS Postgres | `docker exec procare_backend node -e "console.log(process.env.DATABASE_URL.includes('rds.amazonaws.com'))"`<br>Must connect to AWS RDS (`database-1...rds.amazonaws.com`), NEVER local VPS Postgres (`localhost` / `127.0.0.1`). |
 | **5. Nightly Cron & Fulfillment** | Scheduled job active & 100% orders fulfilled | Query unfulfilled orders from last 7 days. Ensure Medusa scheduled job (`nightly-shiprocket-fulfill` in `src/jobs/auto-fulfill-nightly.ts`) is present, and recent orders have valid Shiprocket order & shipment IDs. |
+| **6. GTM & Meta Pixel (`/confirm`)** | `Purchase` event triggered on thank-you page | Inspect browser console on `/order/<id>/confirmed`:<br>1. **GTM dataLayer**: `window.dataLayer.find(e => e.event === 'purchase')` returns `{ transaction_id, value, currency: 'INR' }`.<br>2. **Meta Pixel**: `fbq` function exists and Meta Pixel Helper shows `Purchase` event with exact order value and currency. |
 
 ### 🛠️ In Case of Fulfillment Anomaly:
 - Use the **1-Click "⚡ Fulfill & Sync to Shiprocket"** button in Admin Order Details or the **"⚡ Sync"** button in All Orders table (`/admin/all-orders`).
