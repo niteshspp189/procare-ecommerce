@@ -61,3 +61,7 @@ untracked/
 
 # Backend Admin Build
 backend/public/admin/
+
+# Backend static temporary files
+backend-static/*.csv
+backend-static/*.tmp
