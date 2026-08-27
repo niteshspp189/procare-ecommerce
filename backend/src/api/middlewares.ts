@@ -107,6 +107,13 @@ async function preventModificationsForViewer(
 export default defineMiddlewares({
   routes: [
     {
+      matcher: "/admin/custom/banners/upload",
+      method: "POST",
+      bodyParser: {
+        sizeLimit: "50mb",
+      },
+    },
+    {
       matcher: "/admin/*",
       method: ["POST", "PUT", "PATCH", "DELETE"],
       middlewares: [preventModificationsForViewer],

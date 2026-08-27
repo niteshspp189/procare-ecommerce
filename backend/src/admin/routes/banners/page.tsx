@@ -94,6 +94,75 @@ const getSlotSpecs = (type: string) => {
   }
 }
 
+const optimizeImageForUpload = (file: File): Promise<{ filename: string; dataUrl: string }> => {
+  return new Promise((resolve, reject) => {
+    // If SVG, don't rasterize through canvas
+    if (file.type === "image/svg+xml") {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        resolve({ filename: file.name, dataUrl: e.target?.result as string })
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+      return
+    }
+
+    const img = new Image()
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      img.src = e.target?.result as string
+    }
+    reader.onerror = reject
+
+    img.onload = () => {
+      const MAX_WIDTH = 2560
+      const MAX_HEIGHT = 2560
+      let width = img.width
+      let height = img.height
+
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        if (width > height) {
+          height = Math.round((height * MAX_WIDTH) / width)
+          width = MAX_WIDTH
+        } else {
+          width = Math.round((width * MAX_HEIGHT) / height)
+          height = MAX_HEIGHT
+        }
+      }
+
+      const canvas = document.createElement("canvas")
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext("2d")
+
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingQuality = "high"
+        ctx.drawImage(img, 0, 0, width, height)
+      }
+
+      const isPng = file.type === "image/png"
+      const outputType = isPng ? "image/png" : "image/jpeg"
+      const dataUrl = canvas.toDataURL(outputType, isPng ? 0.95 : 0.90)
+      const ext = isPng ? ".png" : ".jpg"
+      const baseName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name
+      resolve({ filename: `${baseName}${ext}`, dataUrl })
+    }
+
+    img.onerror = () => {
+      const fallbackReader = new FileReader()
+      fallbackReader.onload = (ev) => {
+        resolve({ filename: file.name, dataUrl: ev.target?.result as string })
+      }
+      fallbackReader.onerror = reject
+      fallbackReader.readAsDataURL(file)
+    }
+
+    reader.readAsDataURL(file)
+  })
+}
+
 const BannersCMSPage = () => {
   const [banners, setBanners] = useState<Banner[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -162,43 +231,47 @@ const BannersCMSPage = () => {
     else setIsUploadingMobile(true)
 
     try {
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        const dataUrl = e.target?.result as string
-        if (!dataUrl) {
-          toast.error("Failed to read image file")
-          if (isDesktop) setIsUploadingDesktop(false)
-          else setIsUploadingMobile(false)
-          return
+      const { filename, dataUrl } = await optimizeImageForUpload(file)
+
+      const res = await fetch("/admin/custom/banners/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename, dataUrl }),
+        credentials: "include",
+      })
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        let errMsg = `Upload failed with HTTP ${res.status}`
+        try {
+          const parsed = JSON.parse(errorText)
+          if (parsed.message) errMsg = parsed.message
+        } catch {
+          if (res.status === 413) errMsg = "Image file is too large. Please select a smaller image or compressed file."
         }
-
-        const res = await fetch("/admin/custom/banners/upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filename: file.name, dataUrl }),
-          credentials: "include",
-        })
-        const data = await res.json()
-
-        if (data.success && data.url) {
-          if (isDesktop) {
-            setFormDesktopUrl(data.url)
-            toast.success("Desktop image uploaded successfully!")
-          } else {
-            setFormMobileUrl(data.url)
-            toast.success("Mobile image uploaded successfully!")
-          }
-        } else {
-          toast.error(data.message || "Upload failed")
-        }
-
+        toast.error(errMsg)
         if (isDesktop) setIsUploadingDesktop(false)
         else setIsUploadingMobile(false)
+        return
       }
-      reader.readAsDataURL(file)
+
+      const data = await res.json()
+
+      if (data.success && data.url) {
+        if (isDesktop) {
+          setFormDesktopUrl(data.url)
+          toast.success("Desktop image uploaded successfully!")
+        } else {
+          setFormMobileUrl(data.url)
+          toast.success("Mobile image uploaded successfully!")
+        }
+      } else {
+        toast.error(data.message || "Upload failed")
+      }
     } catch (err: any) {
       console.error(err)
       toast.error(err.message || "Image upload failed")
+    } finally {
       if (isDesktop) setIsUploadingDesktop(false)
       else setIsUploadingMobile(false)
     }
