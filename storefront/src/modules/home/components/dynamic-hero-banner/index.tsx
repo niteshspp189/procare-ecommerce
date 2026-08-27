@@ -39,7 +39,7 @@ const DynamicHeroBanner: React.FC<DynamicHeroBannerProps> = ({ banners = [] }) =
           <img
             src={desktopSrc}
             alt={altText}
-            className="w-full h-full object-cover block transition-transform duration-[5s] group-hover:scale-105"
+            className="w-full h-full object-cover object-top block transition-transform duration-[5s] group-hover:scale-105"
             loading="eager"
             fetchPriority="high"
           />

@@ -97,7 +97,7 @@ const OurStoryPage = async () => {
             {/* HERO BANNER */}
             <div className="relative overflow-hidden flex items-center justify-center bg-black text-white w-full" style={{aspectRatio: '1920 / 800', height: 'auto', maxHeight: '550px'}}>
                 <div className="absolute inset-0">
-                    <img src={heroBannerImg} className="w-full h-full object-cover object-center" alt={heroBannerAlt} />
+                    <img src={heroBannerImg} className="w-full h-full object-cover object-top" alt={heroBannerAlt} />
                 </div>
             </div>
 
