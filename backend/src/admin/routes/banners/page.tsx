@@ -8,7 +8,6 @@ import {
   Badge,
   Input,
   Label,
-  Switch,
   toast,
 } from "@medusajs/ui"
 import {
@@ -16,8 +15,6 @@ import {
   ArrowPath,
   PencilSquare,
   ArrowUpRightOnBox,
-  CheckCircleSolid,
-  XCircleSolid,
   LaptopMobile,
 } from "@medusajs/icons"
 import { useState, useEffect, useRef } from "react"
@@ -54,8 +51,6 @@ const BannersCMSPage = () => {
   const [formMobileUrl, setFormMobileUrl] = useState("")
   const [formLinkUrl, setFormLinkUrl] = useState("/shop")
   const [formAltText, setFormAltText] = useState("")
-  const [formIsActive, setFormIsActive] = useState(true)
-  const [formDisplayOrder, setFormDisplayOrder] = useState(0)
 
   // Uploading state
   const [isUploadingDesktop, setIsUploadingDesktop] = useState(false)
@@ -94,8 +89,6 @@ const BannersCMSPage = () => {
     setFormMobileUrl(banner.mobile_image_url || "")
     setFormLinkUrl(banner.link_url || "/shop")
     setFormAltText(banner.alt_text || "")
-    setFormIsActive(banner.is_active)
-    setFormDisplayOrder(banner.display_order)
     setIsFormOpen(true)
   }
 
@@ -170,8 +163,7 @@ const BannersCMSPage = () => {
         mobile_image_url: formMobileUrl.trim() || null,
         link_url: formLinkUrl.trim() || "/shop",
         alt_text: formAltText.trim() || formTitle.trim(),
-        is_active: formIsActive,
-        display_order: Number(formDisplayOrder) || 0,
+        is_active: true,
       }
 
       let res
@@ -204,27 +196,6 @@ const BannersCMSPage = () => {
       toast.error(err.message || "Network error updating media")
     } finally {
       setIsSaving(false)
-    }
-  }
-
-  const handleToggleActive = async (banner: Banner) => {
-    try {
-      const res = await fetch(`/admin/custom/banners/${banner.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: !banner.is_active }),
-        credentials: "include",
-      })
-      const data = await res.json()
-      if (data.success) {
-        toast.success(`Media slot is now ${!banner.is_active ? "Active" : "Inactive"}`)
-        await fetchBanners()
-      } else {
-        toast.error(data.message || "Failed to update status")
-      }
-    } catch (err: any) {
-      console.error(err)
-      toast.error(err.message || "Error updating status")
     }
   }
 
@@ -379,8 +350,7 @@ const BannersCMSPage = () => {
                 <Table.HeaderCell>Media Slot</Table.HeaderCell>
                 <Table.HeaderCell>Placement</Table.HeaderCell>
                 <Table.HeaderCell>Target Link</Table.HeaderCell>
-                <Table.HeaderCell>Order</Table.HeaderCell>
-                <Table.HeaderCell>Status</Table.HeaderCell>
+                <Table.HeaderCell>Alt Text (SEO)</Table.HeaderCell>
                 <Table.HeaderCell className="text-right">Action</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
@@ -459,26 +429,9 @@ const BannersCMSPage = () => {
                     </Table.Cell>
 
                     <Table.Cell>
-                      <Text className="text-xs font-mono font-medium">#{b.display_order}</Text>
-                    </Table.Cell>
-
-                    <Table.Cell>
-                      <button
-                        onClick={() => handleToggleActive(b)}
-                        className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer"
-                      >
-                        {b.is_active ? (
-                          <Badge size="small" color="green" className="flex items-center gap-1">
-                            <CheckCircleSolid className="w-3 h-3" />
-                            Active
-                          </Badge>
-                        ) : (
-                          <Badge size="small" color="grey" className="flex items-center gap-1">
-                            <XCircleSolid className="w-3 h-3" />
-                            Inactive
-                          </Badge>
-                        )}
-                      </button>
+                      <Text className="text-xs text-gray-600 truncate max-w-[200px]">
+                        {b.alt_text || "—"}
+                      </Text>
                     </Table.Cell>
 
                     <Table.Cell className="text-right">
@@ -510,7 +463,7 @@ const BannersCMSPage = () => {
                   Edit Media: {formTitle}
                 </Heading>
                 <Text className="text-xs text-gray-500">
-                  Update images, target redirection link, and display options for this fixed UI slot.
+                  Update images, target redirection link, and SEO alt text for this fixed UI slot.
                 </Text>
               </div>
               <button
@@ -672,34 +625,14 @@ const BannersCMSPage = () => {
                 </div>
               </div>
 
-              {/* SEO Alt Text & Display Order */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Alt Text (SEO)</Label>
-                  <Input
-                    placeholder="e.g. Shop Premium Shoe Care Creams"
-                    value={formAltText}
-                    onChange={(e) => setFormAltText(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Display Order (0 = First)</Label>
-                  <Input
-                    type="number"
-                    value={formDisplayOrder}
-                    onChange={(e) => setFormDisplayOrder(Number(e.target.value))}
-                  />
-                </div>
-              </div>
-
-              {/* Active Toggle */}
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div>
-                  <Text className="text-xs font-semibold text-gray-900">Active Visibility</Text>
-                  <Text className="text-[11px] text-gray-500">Show this banner on the live storefront</Text>
-                </div>
-                <Switch checked={formIsActive} onCheckedChange={setFormIsActive} />
+              {/* SEO Alt Text */}
+              <div>
+                <Label className="text-xs font-semibold text-gray-700 block mb-1">Alt Text (SEO)</Label>
+                <Input
+                  placeholder="e.g. Shop Premium Shoe Care Creams"
+                  value={formAltText}
+                  onChange={(e) => setFormAltText(e.target.value)}
+                />
               </div>
 
               {/* Action Buttons */}
@@ -708,7 +641,7 @@ const BannersCMSPage = () => {
                   Cancel
                 </Button>
                 <Button type="submit" variant="primary" isLoading={isSaving} className="bg-black text-white hover:bg-gray-800">
-                  {editingBanner ? "Save Changes" : "Create Banner"}
+                  Save Changes
                 </Button>
               </div>
             </form>
@@ -725,3 +658,4 @@ export const config = defineRouteConfig({
 })
 
 export default BannersCMSPage
+
