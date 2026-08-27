@@ -88,8 +88,9 @@ export default async function CategoryTemplate({
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
+  const country = countryCode || "in"
 
-  if (!category || !countryCode) notFound()
+  if (!category) notFound()
 
   // Fetch available filter options specifically for this category and dynamic header banners
   const [
@@ -98,7 +99,7 @@ export default async function CategoryTemplate({
     categoryBanners,
   ] = await Promise.all([
     listProducts({
-      countryCode,
+      countryCode: country,
       queryParams: {
         category_id: [category.id],
         limit: 100,
@@ -195,7 +196,7 @@ export default async function CategoryTemplate({
                 page={pageNumber}
                 categoryId={category.id}
                 categoryHandle={category.handle}
-                countryCode={countryCode}
+                countryCode={country}
                 collectionHandle={collection}
                 typeValue={type}
                 sizeValue={size}

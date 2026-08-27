@@ -56,19 +56,20 @@ export default async function CollectionTemplate({
   sortBy?: SortOptions
   collection: HttpTypes.StoreCollection
   page?: string
-  countryCode: string
+  countryCode?: string
   type?: string
   size?: string
   color?: string
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
+  const country = countryCode || "in"
 
   if (!collection) {
     notFound()
   }
 
-  const region = await getRegion(countryCode)
+  const region = await getRegion(country)
   if (!region) {
     notFound()
   }
@@ -117,7 +118,7 @@ export default async function CollectionTemplate({
             sortBy={sort}
             page={pageNumber}
             collectionId={collection.id}
-            countryCode={countryCode}
+            countryCode={country}
             typeValue={type}
             sizeValue={size}
             colorValue={color}
