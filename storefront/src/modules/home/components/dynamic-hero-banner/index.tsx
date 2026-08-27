@@ -29,17 +29,17 @@ const DynamicHeroBanner: React.FC<DynamicHeroBannerProps> = ({ banners = [] }) =
   const altText = currentBanner.alt_text || currentBanner.title || "Shop Pro Care Products"
 
   return (
-    <section className="relative w-full overflow-hidden bg-white group">
+    <section className="relative w-full overflow-hidden bg-gray-50 group">
       <LocalizedClientLink
         href={linkHref}
-        className="block relative overflow-hidden w-full bg-white cursor-pointer"
+        className="block relative overflow-hidden w-full cursor-pointer aspect-[390/520] sm:aspect-[16/7] md:aspect-[1600/583] max-h-[583px]"
       >
-        <picture className="w-full h-auto block">
+        <picture className="w-full h-full block">
           <source media="(max-width: 767px)" srcSet={mobileSrc} />
           <img
             src={desktopSrc}
             alt={altText}
-            className="w-full h-auto object-contain block transition-transform duration-[5s] group-hover:scale-105"
+            className="w-full h-full object-cover block transition-transform duration-[5s] group-hover:scale-105"
             loading="eager"
             fetchPriority="high"
           />

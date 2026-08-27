@@ -98,6 +98,11 @@ const optimizeImageForUpload = (file: File): Promise<{ filename: string; dataUrl
   return new Promise((resolve, reject) => {
     // If SVG, don't rasterize through canvas
     if (file.type === "image/svg+xml") {
+      if (file.size > 1 * 1024 * 1024) {
+        toast.error("SVG file exceeds 1MB limit. Please upload an SVG under 1MB.")
+        reject(new Error("File too large"))
+        return
+      }
       const reader = new FileReader()
       reader.onload = (e) => {
         resolve({ filename: file.name, dataUrl: e.target?.result as string })
@@ -116,13 +121,14 @@ const optimizeImageForUpload = (file: File): Promise<{ filename: string; dataUrl
     reader.onerror = reject
 
     img.onload = () => {
-      const MAX_WIDTH = 2560
-      const MAX_HEIGHT = 2560
+      // Max desktop dimension: 2000px for optimal crispness & fast loading
+      const MAX_WIDTH = 1920
+      const MAX_HEIGHT = 1200
       let width = img.width
       let height = img.height
 
       if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-        if (width > height) {
+        if (width / MAX_WIDTH > height / MAX_HEIGHT) {
           height = Math.round((height * MAX_WIDTH) / width)
           width = MAX_WIDTH
         } else {
@@ -144,8 +150,15 @@ const optimizeImageForUpload = (file: File): Promise<{ filename: string; dataUrl
 
       const isPng = file.type === "image/png"
       const outputType = isPng ? "image/png" : "image/jpeg"
-      const dataUrl = canvas.toDataURL(outputType, isPng ? 0.95 : 0.90)
-      const ext = isPng ? ".png" : ".jpg"
+      // Smart quality: keep size strictly < 800KB for instant loading & zero errors
+      let dataUrl = canvas.toDataURL(outputType, isPng ? 0.90 : 0.85)
+
+      // If still over 1.2MB, re-compress with lower quality
+      if (dataUrl.length > 1.2 * 1024 * 1024) {
+        dataUrl = canvas.toDataURL("image/jpeg", 0.78)
+      }
+
+      const ext = dataUrl.startsWith("data:image/png") ? ".png" : ".jpg"
       const baseName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name
       resolve({ filename: `${baseName}${ext}`, dataUrl })
     }
@@ -153,7 +166,13 @@ const optimizeImageForUpload = (file: File): Promise<{ filename: string; dataUrl
     img.onerror = () => {
       const fallbackReader = new FileReader()
       fallbackReader.onload = (ev) => {
-        resolve({ filename: file.name, dataUrl: ev.target?.result as string })
+        const result = ev.target?.result as string
+        if (file.size > 1 * 1024 * 1024) {
+          toast.error("Image file exceeds 1MB limit. Please upload an image under 1MB.")
+          reject(new Error("File too large"))
+          return
+        }
+        resolve({ filename: file.name, dataUrl: result })
       }
       fallbackReader.onerror = reject
       fallbackReader.readAsDataURL(file)
@@ -247,11 +266,9 @@ const BannersCMSPage = () => {
           const parsed = JSON.parse(errorText)
           if (parsed.message) errMsg = parsed.message
         } catch {
-          if (res.status === 413) errMsg = "Image file is too large. Please select a smaller image or compressed file."
+          if (res.status === 413) errMsg = "Image file is too large (Max 1MB allowed). Please select an image under 1MB."
         }
         toast.error(errMsg)
-        if (isDesktop) setIsUploadingDesktop(false)
-        else setIsUploadingMobile(false)
         return
       }
 
@@ -260,17 +277,19 @@ const BannersCMSPage = () => {
       if (data.success && data.url) {
         if (isDesktop) {
           setFormDesktopUrl(data.url)
-          toast.success("Desktop image uploaded successfully!")
+          toast.success("Desktop image uploaded successfully (< 1MB)!")
         } else {
           setFormMobileUrl(data.url)
-          toast.success("Mobile image uploaded successfully!")
+          toast.success("Mobile image uploaded successfully (< 1MB)!")
         }
       } else {
         toast.error(data.message || "Upload failed")
       }
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message || "Image upload failed")
+      if (err.message !== "File too large") {
+        toast.error(err.message || "Image upload failed. Ensure file is under 1MB.")
+      }
     } finally {
       if (isDesktop) setIsUploadingDesktop(false)
       else setIsUploadingMobile(false)
@@ -635,6 +654,12 @@ const BannersCMSPage = () => {
               <div className="px-3 py-2 bg-blue-50/70 border border-blue-200/80 rounded-lg text-xs text-blue-900">
                 <span className="font-semibold">Placement Info: </span>
                 {slotSpecs.guide}
+              </div>
+
+              {/* File Size Notice */}
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 font-medium">
+                <span className="font-bold">⚡ File Size Limit:</span>
+                <span>Maximum 1 MB per image (Recommended: WebP/PNG/JPEG under 1MB for optimal performance).</span>
               </div>
 
               {/* Desktop Banner Uploader */}

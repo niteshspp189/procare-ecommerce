@@ -179,11 +179,11 @@ const OurStoryPage = async () => {
 
             {/* EVERY PAIR HAS A STORY BANNER (Framed, well-proportioned container) */}
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 my-8">
-                <div className="rounded-3xl overflow-hidden shadow-2xl bg-black border border-gray-900">
+                <div className="rounded-3xl overflow-hidden shadow-2xl bg-black border border-gray-900 aspect-[1920/700] max-h-[500px]">
                     <img 
                         src={wideBannerImg} 
                         alt={wideBannerAlt} 
-                        className="w-full h-auto object-cover rounded-3xl"
+                        className="w-full h-full object-cover rounded-3xl"
                     />
                 </div>
             </div>
