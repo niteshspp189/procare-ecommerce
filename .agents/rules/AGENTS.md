@@ -79,3 +79,44 @@ ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verif
 ### 🛠️ In Case of Fulfillment Anomaly:
 - Use the **1-Click "⚡ Fulfill & Sync to Shiprocket"** button in Admin Order Details or the **"⚡ Sync"** button in All Orders table (`/admin/all-orders`).
 - Alternatively, run `untracked/agent_environment/test_nightly_job.js` to immediately batch-fulfill any missing orders.
+
+---
+
+## 7. Frontend, Media & Nginx Safety Guidelines (Learned Lessons)
+
+To avoid regressions across storefront routing, banner assets, media uploads, and catalog sorting, all agents must strictly adhere to the following rules:
+
+### 1. Nginx Reverse Proxy Body Size (`client_max_body_size`)
+- **Requirement:** Both the **VPS Host Nginx** (`/etc/nginx/sites-available/propremiumcare.conf` & `/etc/nginx/nginx.conf`) and the **Docker Nginx container** (`nginx.conf`) MUST have `client_max_body_size 50M;` configured.
+- **Why:** Base64 JSON image uploads add ~33% payload overhead. Without `client_max_body_size 50M;`, Nginx defaults to `1M`, rejecting uploads with `413 Request Entity Too Large` before reaching Medusa.
+
+### 2. Next.js Route Architecture & `countryCode` Parameter Guard
+- **Requirement:** The storefront does NOT use a `[countryCode]` URL segment for routes like `/categories/*`, `/collections/*`, `/shop`, `/our-story`, etc.
+- **Strict Rule:** NEVER write `if (!countryCode) notFound()` in templates or server components.
+- **Safe Pattern:** ALWAYS provide a fallback to `"in"`:
+  ```ts
+  const country = countryCode || "in"
+  ```
+- **Why:** `notFound()` invokes `storefront/src/app/(main)/not-found.tsx`, which triggers `window.location.replace("/")`, incorrectly redirecting users back to the homepage.
+
+### 3. Banner Image Alignment & Headroom (`object-position: top`)
+- **Requirement:** Wide banners, category headers, and hero banners with text or high focal points must use `object-position: top` (`objectPosition: 'top'` in inline styles or `object-top` in Tailwind classes) combined with `object-cover`.
+- **Target Slots:**
+  - Category Headers (`/categories/*`): `heroBg: { objectFit: 'cover', objectPosition: 'top' }`
+  - Our Story Top Hero (`/our-story`): `className="w-full h-full object-cover object-top"`
+  - Dynamic Hero Banner (`/`): `className="w-full h-full object-cover object-top"`
+- **Why:** Default `object-position: center` clips the top headroom and slices off category title text (e.g., `"SHOE CARE"`, `"CARE IS THE NEW FLEX"`).
+
+### 4. Product Catalog Default Sorting (`created_at_asc`)
+- **Requirement:** All storefront listing pages (Store `/shop`, Categories `/categories/*`, Collections `/collections/*`) MUST default to `created_at_asc` (Oldest Arrivals / Catalog Creation Order).
+- **Strict Rule:** NEVER inject hardcoded descending timestamp overrides in `paginated-products.tsx`.
+- **Why:** `created_at_asc` preserves the curated brand catalog presentation where flagship products (Pro Gold Shoe Cream, Cream with Applicator, Self Shine) appear first, rather than newer kits/accessories.
+
+### 5. Media Upload Limits & Allowed Formats
+- **Allowed Formats:** Strictly `.webp`, `.png`, `.jpg`, `.jpeg` (reject `.avif`, `.gif`, `.svg`, `.bmp`, `.tiff`).
+- **File Size Limit:** Strictly `<= 1.0 MB` enforced on both the client (pre-upload) and backend API (`/admin/custom/banners/upload`) with clear user toast messages.
+
+### 6. Docker Restart & VPS Media Persistence
+- **Requirement:** Uploaded media on the VPS lives in `backend-static/` (mounted to container volume).
+- **Safety Rule:** Always route VPS commands through `untracked/deployment/deploy.sh` or `vps-manager.sh`. If untracked images exist in `backend-static/` on the VPS, commit them before restarting containers to prevent accidental data loss.
+
