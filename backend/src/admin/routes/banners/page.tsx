@@ -94,93 +94,9 @@ const getSlotSpecs = (type: string) => {
   }
 }
 
-const optimizeImageForUpload = (file: File): Promise<{ filename: string; dataUrl: string }> => {
-  return new Promise((resolve, reject) => {
-    // If SVG, don't rasterize through canvas
-    if (file.type === "image/svg+xml") {
-      if (file.size > 1 * 1024 * 1024) {
-        toast.error("SVG file exceeds 1MB limit. Please upload an SVG under 1MB.")
-        reject(new Error("File too large"))
-        return
-      }
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        resolve({ filename: file.name, dataUrl: e.target?.result as string })
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-      return
-    }
-
-    const img = new Image()
-    const reader = new FileReader()
-
-    reader.onload = (e) => {
-      img.src = e.target?.result as string
-    }
-    reader.onerror = reject
-
-    img.onload = () => {
-      // Max desktop dimension: 2000px for optimal crispness & fast loading
-      const MAX_WIDTH = 1920
-      const MAX_HEIGHT = 1200
-      let width = img.width
-      let height = img.height
-
-      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-        if (width / MAX_WIDTH > height / MAX_HEIGHT) {
-          height = Math.round((height * MAX_WIDTH) / width)
-          width = MAX_WIDTH
-        } else {
-          width = Math.round((width * MAX_HEIGHT) / height)
-          height = MAX_HEIGHT
-        }
-      }
-
-      const canvas = document.createElement("canvas")
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext("2d")
-
-      if (ctx) {
-        ctx.imageSmoothingEnabled = true
-        ctx.imageSmoothingQuality = "high"
-        ctx.drawImage(img, 0, 0, width, height)
-      }
-
-      const isPng = file.type === "image/png"
-      const outputType = isPng ? "image/png" : "image/jpeg"
-      // Smart quality: keep size strictly < 800KB for instant loading & zero errors
-      let dataUrl = canvas.toDataURL(outputType, isPng ? 0.90 : 0.85)
-
-      // If still over 1.2MB, re-compress with lower quality
-      if (dataUrl.length > 1.2 * 1024 * 1024) {
-        dataUrl = canvas.toDataURL("image/jpeg", 0.78)
-      }
-
-      const ext = dataUrl.startsWith("data:image/png") ? ".png" : ".jpg"
-      const baseName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name
-      resolve({ filename: `${baseName}${ext}`, dataUrl })
-    }
-
-    img.onerror = () => {
-      const fallbackReader = new FileReader()
-      fallbackReader.onload = (ev) => {
-        const result = ev.target?.result as string
-        if (file.size > 1 * 1024 * 1024) {
-          toast.error("Image file exceeds 1MB limit. Please upload an image under 1MB.")
-          reject(new Error("File too large"))
-          return
-        }
-        resolve({ filename: file.name, dataUrl: result })
-      }
-      fallbackReader.onerror = reject
-      fallbackReader.readAsDataURL(file)
-    }
-
-    reader.readAsDataURL(file)
-  })
-}
+const ALLOWED_EXTS = [".webp", ".png", ".jpg", ".jpeg"]
+const ALLOWED_MIMES = ["image/webp", "image/png", "image/jpeg", "image/jpg"]
+const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024 // 1.0 MB
 
 const BannersCMSPage = () => {
   const [banners, setBanners] = useState<Banner[]>([])
@@ -246,51 +162,76 @@ const BannersCMSPage = () => {
     target: "desktop" | "mobile"
   ) => {
     const isDesktop = target === "desktop"
+    
+    // 1. Format validation
+    const fileExt = ("." + (file.name.split(".").pop() || "")).toLowerCase()
+    const mimeType = (file.type || "").toLowerCase()
+    if (!ALLOWED_EXTS.includes(fileExt) && !ALLOWED_MIMES.includes(mimeType)) {
+      toast.error(`Unsupported format (${fileExt})! Only WebP (.webp), PNG (.png), and JPEG (.jpg, .jpeg) images are allowed.`)
+      // Reset input value so user can re-select
+      if (isDesktop && desktopFileInputRef.current) desktopFileInputRef.current.value = ""
+      if (!isDesktop && mobileFileInputRef.current) mobileFileInputRef.current.value = ""
+      return
+    }
+
+    // 2. Size validation (Strict <= 1MB)
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
+      toast.error(`File size (${sizeMB} MB) exceeds the 1MB limit. Maximum allowed size is 1.0 MB. Please compress your image.`)
+      if (isDesktop && desktopFileInputRef.current) desktopFileInputRef.current.value = ""
+      if (!isDesktop && mobileFileInputRef.current) mobileFileInputRef.current.value = ""
+      return
+    }
+
     if (isDesktop) setIsUploadingDesktop(true)
     else setIsUploadingMobile(true)
 
     try {
-      const { filename, dataUrl } = await optimizeImageForUpload(file)
-
-      const res = await fetch("/admin/custom/banners/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename, dataUrl }),
-        credentials: "include",
-      })
-
-      if (!res.ok) {
-        const errorText = await res.text()
-        let errMsg = `Upload failed with HTTP ${res.status}`
-        try {
-          const parsed = JSON.parse(errorText)
-          if (parsed.message) errMsg = parsed.message
-        } catch {
-          if (res.status === 413) errMsg = "Image file is too large (Max 1MB allowed). Please select an image under 1MB."
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const dataUrl = e.target?.result as string
+        if (!dataUrl) {
+          toast.error("Failed to read image file")
+          if (isDesktop) setIsUploadingDesktop(false)
+          else setIsUploadingMobile(false)
+          return
         }
-        toast.error(errMsg)
-        return
-      }
 
-      const data = await res.json()
+        const res = await fetch("/admin/custom/banners/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: file.name, dataUrl }),
+          credentials: "include",
+        })
 
-      if (data.success && data.url) {
-        if (isDesktop) {
-          setFormDesktopUrl(data.url)
-          toast.success("Desktop image uploaded successfully (< 1MB)!")
+        const data = await res.json()
+
+        if (res.ok && data.success && data.url) {
+          if (isDesktop) {
+            setFormDesktopUrl(data.url)
+            toast.success("Desktop image uploaded successfully!")
+          } else {
+            setFormMobileUrl(data.url)
+            toast.success("Mobile image uploaded successfully!")
+          }
         } else {
-          setFormMobileUrl(data.url)
-          toast.success("Mobile image uploaded successfully (< 1MB)!")
+          toast.error(data.message || `Upload failed with status ${res.status}`)
         }
-      } else {
-        toast.error(data.message || "Upload failed")
+
+        if (isDesktop) setIsUploadingDesktop(false)
+        else setIsUploadingMobile(false)
       }
+
+      reader.onerror = () => {
+        toast.error("Error reading file")
+        if (isDesktop) setIsUploadingDesktop(false)
+        else setIsUploadingMobile(false)
+      }
+
+      reader.readAsDataURL(file)
     } catch (err: any) {
       console.error(err)
-      if (err.message !== "File too large") {
-        toast.error(err.message || "Image upload failed. Ensure file is under 1MB.")
-      }
-    } finally {
+      toast.error(err.message || "Image upload failed")
       if (isDesktop) setIsUploadingDesktop(false)
       else setIsUploadingMobile(false)
     }
@@ -676,7 +617,7 @@ const BannersCMSPage = () => {
                   <input
                     type="file"
                     ref={desktopFileInputRef}
-                    accept="image/*"
+                    accept=".webp,.png,.jpg,.jpeg,image/webp,image/png,image/jpeg"
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "desktop")
@@ -726,7 +667,7 @@ const BannersCMSPage = () => {
                   <input
                     type="file"
                     ref={mobileFileInputRef}
-                    accept="image/*"
+                    accept=".webp,.png,.jpg,.jpeg,image/webp,image/png,image/jpeg"
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "mobile")
