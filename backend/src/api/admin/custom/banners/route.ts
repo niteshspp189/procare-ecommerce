@@ -1,5 +1,31 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { randomUUID } from "crypto"
+
+export function getPgConnection(req: MedusaRequest): any {
+  let pgConnection: any = null
+  try {
+    pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION, { allowUnregistered: true })
+  } catch {}
+  if (!pgConnection) {
+    try {
+      pgConnection = req.scope.resolve("__pg_connection__", { allowUnregistered: true })
+    } catch {}
+  }
+  if (!pgConnection) {
+    try {
+      pgConnection = req.scope.resolve("pg_connection", { allowUnregistered: true })
+    } catch {}
+  }
+  if (!pgConnection) {
+    const knex = require("knex")
+    pgConnection = knex({
+      client: "pg",
+      connection: process.env.DATABASE_URL,
+    })
+  }
+  return pgConnection
+}
 
 export async function ensureBannerTableExists(knex: any) {
   const exists = await knex.schema.hasTable("cms_banner")
@@ -37,7 +63,7 @@ export async function ensureBannerTableExists(knex: any) {
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const pgConnection = req.scope.resolve("pg_connection") as any
+    const pgConnection = getPgConnection(req)
     await ensureBannerTableExists(pgConnection)
 
     const type = (req.query.type as string) || undefined
@@ -62,7 +88,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const pgConnection = req.scope.resolve("pg_connection") as any
+    const pgConnection = getPgConnection(req)
     await ensureBannerTableExists(pgConnection)
 
     const {

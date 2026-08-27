@@ -1,10 +1,10 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ensureBannerTableExists } from "../route"
+import { ensureBannerTableExists, getPgConnection } from "../route"
 
 export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const { id } = req.params
-    const pgConnection = req.scope.resolve("pg_connection") as any
+    const pgConnection = getPgConnection(req)
     await ensureBannerTableExists(pgConnection)
 
     const existing = await pgConnection("cms_banner").where("id", id).first()
@@ -54,7 +54,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const { id } = req.params
-    const pgConnection = req.scope.resolve("pg_connection") as any
+    const pgConnection = getPgConnection(req)
     await ensureBannerTableExists(pgConnection)
 
     const count = await pgConnection("cms_banner").where("id", id).delete()
