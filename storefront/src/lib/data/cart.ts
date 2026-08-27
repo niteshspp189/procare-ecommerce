@@ -313,6 +313,7 @@ export async function applyPromotions(codes: string[]) {
   }
 
   const cleanCodes = codes.map((c) => c.trim().toUpperCase()).filter(Boolean)
+  const lastCode = cleanCodes[cleanCodes.length - 1]
 
   const headers = {
     ...(await getAuthHeaders()),
@@ -327,11 +328,33 @@ export async function applyPromotions(codes: string[]) {
     revalidateTag(fulfillmentCacheTag)
     return { success: true }
   } catch (e: any) {
-    let msg = e?.response?.data?.message || e?.message || "Invalid promotion code"
-    if (msg.includes("is invalid") && cleanCodes.includes("RAKHI5")) {
-      msg = "Code RAKHI5 is only applicable on cart values of ₹999 or more."
+    // If update failed, check coupon details to provide intelligent, exact error message
+    if (lastCode) {
+      try {
+        const info = await sdk.client.fetch<any>(
+          `/store/custom/coupon-info?code=${encodeURIComponent(lastCode)}`,
+          { method: "GET" }
+        )
+        if (info && info.exists) {
+          if (info.status === "inactive") {
+            return { error: `Coupon ${lastCode} is currently inactive.` }
+          }
+          if (info.starts_at && new Date(info.starts_at) > new Date()) {
+            return { error: `Coupon ${lastCode} is not active yet.` }
+          }
+          if (info.ends_at && new Date(info.ends_at) < new Date()) {
+            return { error: `Coupon ${lastCode} has expired.` }
+          }
+          if (info.min_order_value > 0) {
+            return { error: `Coupon ${lastCode} is only applicable on orders of ₹${info.min_order_value} or more.` }
+          }
+        }
+      } catch (checkErr) {
+        console.error("Failed to check coupon info:", checkErr)
+      }
     }
-    return { error: msg }
+
+    return { error: `Invalid promotion code '${lastCode || ""}'` }
   }
 }
 
