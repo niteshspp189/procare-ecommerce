@@ -9,6 +9,7 @@ import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-g
 
 import { listCollections } from "@lib/data/collections"
 import { listProducts } from "@lib/data/products"
+import { getBanners } from "@lib/data/banners"
 import { HttpTypes } from "@medusajs/types"
 
 const s = {
@@ -58,11 +59,8 @@ const getProductOptionValues = (
           )
           .flatMap(
             (option) =>
-              option.values
-                ?.map((value) => value.value)
-                .filter((value) => value && value.toLowerCase() !== "default") ??
-              []
-          ) ?? []
+              option.values?.map((value) => value.value || "") || []
+          ) || []
     )
   ).map((value) => ({
     value,
@@ -75,28 +73,29 @@ export default async function CategoryTemplate({
   page,
   countryCode,
   collection,
+  type,
   size,
   color,
-  type,
 }: {
   category: HttpTypes.StoreProductCategory
   sortBy?: SortOptions
   page?: string
   countryCode?: string
   collection?: string
+  type?: string
   size?: string
   color?: string
-  type?: string
 }) {
   const pageNumber = page ? parseInt(page) : 1
-  const sort = sortBy || "created_at_asc"
+  const sort = sortBy || "created_at"
 
-  if (!category) notFound()
+  if (!category || !countryCode) notFound()
 
-  // Fetch available filter options specifically for this category
+  // Fetch available filter options specifically for this category and dynamic header banners
   const [
     { response: { products } },
     { collections },
+    categoryBanners,
   ] = await Promise.all([
     listProducts({
       countryCode,
@@ -108,6 +107,7 @@ export default async function CategoryTemplate({
     listCollections({
       limit: "100",
     }),
+    getBanners("category_banner"),
   ])
 
   const activeCollectionIds = new Set(
@@ -134,6 +134,10 @@ export default async function CategoryTemplate({
   const colorOptions = getProductOptionValues(products, "Color")
 
   const imgBase = '/images/product-category-images/'
+  const dynamicBanner = categoryBanners.find(
+    (b) => b.link_url.includes(category.handle) || b.title.toLowerCase().includes(category.handle.replace("-", " "))
+  )
+  const bannerImageSrc = dynamicBanner?.desktop_image_url || (imgBase + (['shoe-care', 'insoles', 'foot-care', 'accessories'].includes(category.handle) ? `banner-${category.handle}.png` : 'top-side-banner-background.png'))
 
   return (
     <div style={s.container as any} className="animate-fade-in">
@@ -148,9 +152,9 @@ export default async function CategoryTemplate({
 
         <div style={s.heroBanner as any} className="animate-scale-in">
           <img 
-            src={imgBase + (['shoe-care', 'insoles', 'foot-care', 'accessories'].includes(category.handle) ? `banner-${category.handle}.png` : 'top-side-banner-background.png')} 
+            src={bannerImageSrc} 
             style={s.heroBg as any} 
-            alt="Banner" 
+            alt={dynamicBanner?.alt_text || `${category.name} Banner`} 
           />
         </div>
 

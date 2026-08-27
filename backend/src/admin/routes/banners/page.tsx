@@ -9,7 +9,6 @@ import {
   Input,
   Label,
   Switch,
-  Select,
   toast,
 } from "@medusajs/ui"
 import {
@@ -43,6 +42,7 @@ const BannersCMSPage = () => {
   const [banners, setBanners] = useState<Banner[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
+  const [activeTypeTab, setActiveTypeTab] = useState<string>("all")
 
   // Modal / Form state
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -91,7 +91,7 @@ const BannersCMSPage = () => {
   const handleOpenCreate = () => {
     setEditingBanner(null)
     setFormTitle("")
-    setFormType("hero")
+    setFormType(activeTypeTab !== "all" ? activeTypeTab : "hero")
     setFormDesktopUrl("")
     setFormMobileUrl("")
     setFormLinkUrl("/shop")
@@ -266,8 +266,20 @@ const BannersCMSPage = () => {
     }
   }
 
+  const filteredBanners = banners.filter(
+    (b) => activeTypeTab === "all" || b.type === activeTypeTab
+  )
+
   const activeHeroBanners = banners.filter((b) => b.is_active && b.type === "hero")
   const primaryBanner = activeHeroBanners[0] || banners[0]
+
+  const typeTabs = [
+    { id: "all", label: "All Banners", count: banners.length },
+    { id: "hero", label: "Homepage Hero", count: banners.filter((b) => b.type === "hero").length },
+    { id: "category_card", label: "Category Cards", count: banners.filter((b) => b.type === "category_card").length },
+    { id: "category_banner", label: "Category Headers", count: banners.filter((b) => b.type === "category_banner").length },
+    { id: "promo", label: "Promotional", count: banners.filter((b) => b.type === "promo").length },
+  ]
 
   return (
     <div className="flex flex-col gap-y-6 pb-12">
@@ -282,7 +294,7 @@ const BannersCMSPage = () => {
               </Heading>
             </div>
             <Text className="text-ui-fg-muted text-sm">
-              Upload and manage storefront hero banners, promotional sliders, and redirect links in real-time.
+              Upload and manage storefront hero banners, category showcase cards, category page headers, and visual media.
             </Text>
           </div>
 
@@ -318,7 +330,7 @@ const BannersCMSPage = () => {
                 Live Storefront Preview: {primaryBanner.title}
               </Heading>
               <Text className="text-xs text-gray-500">
-                Target Link: <span className="font-mono text-gray-700">{primaryBanner.link_url}</span>
+                Type: <span className="font-semibold uppercase">{primaryBanner.type}</span> | Target Link: <span className="font-mono text-gray-700">{primaryBanner.link_url}</span>
               </Text>
             </div>
 
@@ -380,12 +392,29 @@ const BannersCMSPage = () => {
         </Container>
       )}
 
-      {/* Banner List Table */}
+      {/* Banner List Table with Type Filter Tabs */}
       <Container className="p-0 overflow-hidden">
-        <div className="p-4 border-b border-ui-border-base flex items-center justify-between">
+        <div className="p-4 border-b border-ui-border-base flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <Heading level="h2" className="text-base font-semibold">
-            All Banners ({banners.length})
+            All Banners ({filteredBanners.length})
           </Heading>
+
+          {/* Type Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1 rounded-lg">
+            {typeTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTypeTab(tab.id)}
+                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                  activeTypeTab === tab.id
+                    ? "bg-white text-gray-900 shadow-2xs font-semibold"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {tab.label} ({tab.count})
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -407,25 +436,25 @@ const BannersCMSPage = () => {
                     Loading banners...
                   </Table.Cell>
                 </Table.Row>
-              ) : banners.length === 0 ? (
+              ) : filteredBanners.length === 0 ? (
                 <Table.Row>
                   <Table.Cell className="text-center py-12 text-ui-fg-muted">
-                    No banners created yet. Click "Add Banner" to create your first dynamic banner.
+                    No banners found in this category. Click "Add Banner" to create one.
                   </Table.Cell>
                 </Table.Row>
               ) : (
-                banners.map((b) => (
+                filteredBanners.map((b) => (
                   <Table.Row key={b.id}>
                     <Table.Cell>
                       <div className="flex items-center gap-3">
                         <img
                           src={b.desktop_image_url}
                           alt={b.title}
-                          className="w-16 h-10 object-cover rounded border border-gray-200 bg-gray-50"
+                          className="w-16 h-10 object-cover rounded border border-gray-200 bg-gray-50 shrink-0"
                         />
                         <div>
                           <Text className="font-semibold text-sm text-ui-fg-base">{b.title}</Text>
-                          <Text className="text-xs text-ui-fg-muted font-mono truncate max-w-[200px]">
+                          <Text className="text-xs text-ui-fg-muted font-mono truncate max-w-[240px]">
                             {b.desktop_image_url}
                           </Text>
                         </div>
@@ -433,8 +462,25 @@ const BannersCMSPage = () => {
                     </Table.Cell>
 
                     <Table.Cell>
-                      <Badge size="small" color={b.type === "hero" ? "blue" : "grey"}>
-                        {b.type.toUpperCase()}
+                      <Badge
+                        size="small"
+                        color={
+                          b.type === "hero"
+                            ? "blue"
+                            : b.type === "category_card"
+                            ? "purple"
+                            : b.type === "category_banner"
+                            ? "orange"
+                            : "grey"
+                        }
+                      >
+                        {b.type === "hero"
+                          ? "HERO"
+                          : b.type === "category_card"
+                          ? "CATEGORY CARD"
+                          : b.type === "category_banner"
+                          ? "CATEGORY HEADER"
+                          : b.type.toUpperCase()}
                       </Badge>
                     </Table.Cell>
 
@@ -532,15 +578,16 @@ const BannersCMSPage = () => {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Banner Type</Label>
+                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Banner Location / Type</Label>
                   <select
                     className="w-full h-8 px-3 text-xs bg-white border border-gray-300 rounded-md shadow-2xs focus:border-black focus:outline-hidden"
                     value={formType}
                     onChange={(e) => setFormType(e.target.value)}
                   >
-                    <option value="hero">Hero Banner (Top of Homepage)</option>
+                    <option value="hero">Homepage Hero Banner</option>
+                    <option value="category_card">Homepage Category Card (Shoe Care, Insoles, etc.)</option>
+                    <option value="category_banner">Category Page Header Banner (/categories/...)</option>
                     <option value="promo">Promotional Banner</option>
-                    <option value="category">Category Showcase</option>
                   </select>
                 </div>
               </div>
@@ -549,7 +596,7 @@ const BannersCMSPage = () => {
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-xs font-semibold text-gray-900">
-                    Desktop Banner Image * (Recommended: 1920x600 or 16:9)
+                    Desktop Banner Image * (Recommended: 1920x600 or 16:9 for Hero, 800x900 for Cards)
                   </Label>
                   <input
                     type="file"
@@ -660,10 +707,17 @@ const BannersCMSPage = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormLinkUrl("/categories/shoe-cream")}
+                    onClick={() => setFormLinkUrl("/categories/foot-care")}
                     className="px-2 py-0.5 text-[11px] bg-gray-100 hover:bg-gray-200 rounded border text-gray-700 cursor-pointer"
                   >
-                    /categories/shoe-cream
+                    /categories/foot-care
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormLinkUrl("/categories/accessories")}
+                    className="px-2 py-0.5 text-[11px] bg-gray-100 hover:bg-gray-200 rounded border text-gray-700 cursor-pointer"
+                  >
+                    /categories/accessories
                   </button>
                 </div>
               </div>

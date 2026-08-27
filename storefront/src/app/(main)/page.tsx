@@ -28,12 +28,13 @@ export default async function StagingHome(props: {
   const params = await props.params
   const { countryCode } = params
   
-  const [region, productCategories, collectionsData, thresholdData, heroBanners] = await Promise.all([
+  const [region, productCategories, collectionsData, thresholdData, heroBanners, categoryCards] = await Promise.all([
     getRegion(countryCode),
     listCategories(),
     listCollections({ limit: "100" }),
     getShippingThreshold(),
     getBanners("hero"),
+    getBanners("category_card"),
   ])
 
   const { collections } = collectionsData || { collections: [] }
@@ -44,6 +45,12 @@ export default async function StagingHome(props: {
     const fallbackRegion = regions?.[0]
     if (!fallbackRegion) return null
     return <StagingHome params={Promise.resolve({ countryCode: fallbackRegion.countries?.[0]?.iso_2 || "in" })} />
+  }
+
+  // Helper for dynamic category card images
+  const getCatCardImg = (handle: string, fallback: string) => {
+    const card = categoryCards.find((c) => c.link_url.includes(handle) || c.title.toLowerCase().includes(handle.replace("-", " ")))
+    return card?.desktop_image_url || fallback
   }
 
   // Fetch products for best sellers categories
@@ -105,7 +112,7 @@ export default async function StagingHome(props: {
             <div className="flex flex-col group">
               <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-shoecare-new.webp'} 
+                  src={getCatCardImg('shoe-care', imgBase + 'cat-shoecare-new.webp')} 
                   alt="Shoe Care" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -121,7 +128,7 @@ export default async function StagingHome(props: {
             <div className="flex flex-col group">
               <LocalizedClientLink href="/categories/insoles" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-insoles-new.webp'} 
+                  src={getCatCardImg('insoles', imgBase + 'cat-insoles-new.webp')} 
                   alt="Insoles" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -137,7 +144,7 @@ export default async function StagingHome(props: {
             <div className="flex flex-col group">
               <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-footcare-new.webp'} 
+                  src={getCatCardImg('foot-care', imgBase + 'cat-footcare-new.webp')} 
                   alt="Foot Care" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
@@ -153,7 +160,7 @@ export default async function StagingHome(props: {
             <div className="flex flex-col group">
               <LocalizedClientLink href="/categories/accessories" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
-                  src={imgBase + 'cat-accessories-new.png'} 
+                  src={getCatCardImg('accessories', imgBase + 'cat-accessories-new.png')} 
                   alt="Accessories" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />

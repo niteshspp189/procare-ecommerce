@@ -27,6 +27,110 @@ export function getPgConnection(req: MedusaRequest): any {
   return pgConnection
 }
 
+export const DEFAULT_SEED_BANNERS = [
+  {
+    id: "banner_hero_default",
+    title: "Homepage Hero Banner",
+    type: "hero",
+    desktop_image_url: "/images/landing-page-images/hero-banner-desktop.jpg",
+    mobile_image_url: "/images/landing-page-images/hero-banner-mobile.jpg",
+    link_url: "/shop",
+    alt_text: "Shop Pro Care Shoe Care Products",
+    is_active: true,
+    display_order: 0,
+  },
+  // Homepage Category Showcase Cards
+  {
+    id: "banner_cat_card_shoecare",
+    title: "Shoe Care - Category Card",
+    type: "category_card",
+    desktop_image_url: "/images/landing-page-images/cat-shoecare-new.webp",
+    mobile_image_url: "/images/landing-page-images/cat-shoecare-new.webp",
+    link_url: "/categories/shoe-care",
+    alt_text: "Shoe Care",
+    is_active: true,
+    display_order: 1,
+  },
+  {
+    id: "banner_cat_card_insoles",
+    title: "Insoles - Category Card",
+    type: "category_card",
+    desktop_image_url: "/images/landing-page-images/cat-insoles-new.webp",
+    mobile_image_url: "/images/landing-page-images/cat-insoles-new.webp",
+    link_url: "/categories/insoles",
+    alt_text: "Insoles",
+    is_active: true,
+    display_order: 2,
+  },
+  {
+    id: "banner_cat_card_footcare",
+    title: "Foot Care - Category Card",
+    type: "category_card",
+    desktop_image_url: "/images/landing-page-images/cat-footcare-new.webp",
+    mobile_image_url: "/images/landing-page-images/cat-footcare-new.webp",
+    link_url: "/categories/foot-care",
+    alt_text: "Foot Care",
+    is_active: true,
+    display_order: 3,
+  },
+  {
+    id: "banner_cat_card_accessories",
+    title: "Accessories - Category Card",
+    type: "category_card",
+    desktop_image_url: "/images/landing-page-images/cat-accessories-new.webp",
+    mobile_image_url: "/images/landing-page-images/cat-accessories-new.webp",
+    link_url: "/categories/accessories",
+    alt_text: "Accessories",
+    is_active: true,
+    display_order: 4,
+  },
+  // Category Page Header Banners
+  {
+    id: "banner_cat_header_shoecare",
+    title: "Shoe Care - Header Banner",
+    type: "category_banner",
+    desktop_image_url: "/images/product-category-images/banner-shoe-care.png",
+    mobile_image_url: "/images/product-category-images/banner-shoe-care.png",
+    link_url: "/categories/shoe-care",
+    alt_text: "Shoe Care Products Header Banner",
+    is_active: true,
+    display_order: 1,
+  },
+  {
+    id: "banner_cat_header_insoles",
+    title: "Insoles - Header Banner",
+    type: "category_banner",
+    desktop_image_url: "/images/product-category-images/banner-insoles.png",
+    mobile_image_url: "/images/product-category-images/banner-insoles.png",
+    link_url: "/categories/insoles",
+    alt_text: "Insoles Header Banner",
+    is_active: true,
+    display_order: 2,
+  },
+  {
+    id: "banner_cat_header_footcare",
+    title: "Foot Care - Header Banner",
+    type: "category_banner",
+    desktop_image_url: "/images/product-category-images/banner-foot-care.png",
+    mobile_image_url: "/images/product-category-images/banner-foot-care.png",
+    link_url: "/categories/foot-care",
+    alt_text: "Foot Care Header Banner",
+    is_active: true,
+    display_order: 3,
+  },
+  {
+    id: "banner_cat_header_accessories",
+    title: "Accessories - Header Banner",
+    type: "category_banner",
+    desktop_image_url: "/images/product-category-images/banner-accessories.png",
+    mobile_image_url: "/images/product-category-images/banner-accessories.png",
+    link_url: "/categories/accessories",
+    alt_text: "Accessories Header Banner",
+    is_active: true,
+    display_order: 4,
+  },
+]
+
 export async function ensureBannerTableExists(knex: any) {
   const exists = await knex.schema.hasTable("cms_banner")
   if (!exists) {
@@ -43,21 +147,19 @@ export async function ensureBannerTableExists(knex: any) {
       table.timestamp("created_at").defaultTo(knex.fn.now())
       table.timestamp("updated_at").defaultTo(knex.fn.now())
     })
+  }
 
-    // Seed default hero banner
-    await knex("cms_banner").insert({
-      id: `banner_${randomUUID().replace(/-/g, "").slice(0, 24)}`,
-      title: "Hero Banner - Default",
-      type: "hero",
-      desktop_image_url: "/images/landing-page-images/hero-banner-desktop.jpg",
-      mobile_image_url: "/images/landing-page-images/hero-banner-mobile.jpg",
-      link_url: "/shop",
-      alt_text: "Shop Pro Care Shoe Care Products",
-      is_active: true,
-      display_order: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+  // Ensure all standard default banners exist
+  const existingIds = await knex("cms_banner").select("id").then((rows: any[]) => rows.map((r) => r.id))
+
+  for (const banner of DEFAULT_SEED_BANNERS) {
+    if (!existingIds.includes(banner.id)) {
+      await knex("cms_banner").insert({
+        ...banner,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+    }
   }
 }
 
