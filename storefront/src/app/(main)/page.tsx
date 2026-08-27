@@ -9,8 +9,10 @@ import CarouselWrapper from "@modules/products/components/related-products/carou
 import ProductCard from "@modules/common/components/product-card"
 import Button from "@modules/common/components/button"
 import Section from "@modules/layout/components/section"
+import DynamicHeroBanner from "@modules/home/components/dynamic-hero-banner"
 
 import { getShippingThreshold } from "@lib/data/fulfillment"
+import { getBanners } from "@lib/data/banners"
 
 export const revalidate = 60
 
@@ -26,11 +28,12 @@ export default async function StagingHome(props: {
   const params = await props.params
   const { countryCode } = params
   
-  const [region, productCategories, collectionsData, thresholdData] = await Promise.all([
+  const [region, productCategories, collectionsData, thresholdData, heroBanners] = await Promise.all([
     getRegion(countryCode),
     listCategories(),
     listCollections({ limit: "100" }),
     getShippingThreshold(),
+    getBanners("hero"),
   ])
 
   const { collections } = collectionsData || { collections: [] }
@@ -86,17 +89,8 @@ export default async function StagingHome(props: {
 
   return (
     <div className="animate-fade-in font-sans bg-white overflow-x-hidden w-full">
-      {/* HERO SECTION */}
-      <LocalizedClientLink href="/shop" className="block relative overflow-hidden group w-full bg-white cursor-pointer">
-        <picture className="w-full h-auto block">
-          <source media="(max-width: 767px)" srcSet="/images/landing-page-images/hero-banner-mobile.jpg" />
-          <img
-            src="/images/landing-page-images/hero-banner-desktop.jpg"
-            alt="Shop Pro Care Products"
-            className="w-full h-auto object-contain block transition-transform duration-[5s] group-hover:scale-105"
-          />
-        </picture>
-      </LocalizedClientLink>
+      {/* DYNAMIC HERO BANNER */}
+      <DynamicHeroBanner banners={heroBanners} />
 
       <div className="w-full">
         {/* INTRODUCTION & CATEGORY GRID */}
