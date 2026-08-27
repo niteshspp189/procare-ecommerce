@@ -218,7 +218,10 @@ export async function ensureBannerTableExists(knex: any) {
     })
   }
 
-  // Ensure all standard default banners exist
+  // Ensure only the 15 fixed UI slots exist and clean up any legacy orphan IDs
+  const validSeedIds = DEFAULT_SEED_BANNERS.map((b) => b.id)
+  await knex("cms_banner").whereNotIn("id", validSeedIds).delete()
+
   const existingIds = await knex("cms_banner").select("id").then((rows: any[]) => rows.map((r) => r.id))
 
   for (const banner of DEFAULT_SEED_BANNERS) {

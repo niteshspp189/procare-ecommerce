@@ -14,8 +14,6 @@ import {
 import {
   Photo,
   ArrowPath,
-  Plus,
-  Trash,
   PencilSquare,
   ArrowUpRightOnBox,
   CheckCircleSolid,
@@ -88,19 +86,6 @@ const BannersCMSPage = () => {
     fetchBanners()
   }, [])
 
-  const handleOpenCreate = () => {
-    setEditingBanner(null)
-    setFormTitle("")
-    setFormType(activeTypeTab !== "all" ? activeTypeTab : "hero")
-    setFormDesktopUrl("")
-    setFormMobileUrl("")
-    setFormLinkUrl("/shop")
-    setFormAltText("")
-    setFormIsActive(true)
-    setFormDisplayOrder(banners.length)
-    setIsFormOpen(true)
-  }
-
   const handleOpenEdit = (banner: Banner) => {
     setEditingBanner(banner)
     setFormTitle(banner.title)
@@ -144,10 +129,10 @@ const BannersCMSPage = () => {
         if (data.success && data.url) {
           if (isDesktop) {
             setFormDesktopUrl(data.url)
-            toast.success("Desktop banner uploaded successfully!")
+            toast.success("Desktop image uploaded successfully!")
           } else {
             setFormMobileUrl(data.url)
-            toast.success("Mobile banner uploaded successfully!")
+            toast.success("Mobile image uploaded successfully!")
           }
         } else {
           toast.error(data.message || "Upload failed")
@@ -168,7 +153,7 @@ const BannersCMSPage = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formTitle.trim()) {
-      toast.error("Banner title is required")
+      toast.error("Media title is required")
       return
     }
     if (!formDesktopUrl.trim()) {
@@ -208,15 +193,15 @@ const BannersCMSPage = () => {
 
       const data = await res.json()
       if (data.success) {
-        toast.success(editingBanner ? "Banner updated successfully" : "Banner created successfully")
+        toast.success("Media slot updated successfully")
         setIsFormOpen(false)
         await fetchBanners()
       } else {
-        toast.error(data.message || "Failed to save banner")
+        toast.error(data.message || "Failed to update media")
       }
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message || "Network error saving banner")
+      toast.error(err.message || "Network error updating media")
     } finally {
       setIsSaving(false)
     }
@@ -232,37 +217,14 @@ const BannersCMSPage = () => {
       })
       const data = await res.json()
       if (data.success) {
-        toast.success(`Banner is now ${!banner.is_active ? "Active" : "Inactive"}`)
+        toast.success(`Media slot is now ${!banner.is_active ? "Active" : "Inactive"}`)
         await fetchBanners()
       } else {
         toast.error(data.message || "Failed to update status")
       }
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message || "Error updating banner status")
-    }
-  }
-
-  const handleDelete = async (banner: Banner) => {
-    if (!window.confirm(`Are you sure you want to delete banner "${banner.title}"?`)) {
-      return
-    }
-
-    try {
-      const res = await fetch(`/admin/custom/banners/${banner.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      })
-      const data = await res.json()
-      if (data.success) {
-        toast.success("Banner deleted successfully")
-        await fetchBanners()
-      } else {
-        toast.error(data.message || "Failed to delete banner")
-      }
-    } catch (err: any) {
-      console.error(err)
-      toast.error(err.message || "Network error deleting banner")
+      toast.error(err.message || "Error updating status")
     }
   }
 
@@ -281,7 +243,6 @@ const BannersCMSPage = () => {
     { id: "story_hero", label: "Our Story Hero", count: banners.filter((b) => b.type === "story_hero").length },
     { id: "story_card", label: "Our Story 4 Cards", count: banners.filter((b) => b.type === "story_card").length },
     { id: "story_wide_banner", label: "Our Story Wide Banner", count: banners.filter((b) => b.type === "story_wide_banner").length },
-    { id: "promo", label: "Promotional", count: banners.filter((b) => b.type === "promo").length },
   ]
 
   return (
@@ -297,7 +258,7 @@ const BannersCMSPage = () => {
               </Heading>
             </div>
             <Text className="text-ui-fg-muted text-sm">
-              Upload and manage storefront hero banners, category showcase cards, category page headers, and visual media.
+              Update and manage media for all 15 fixed slots across Homepage, Category Pages, and Our Story.
             </Text>
           </div>
 
@@ -310,15 +271,6 @@ const BannersCMSPage = () => {
             >
               <ArrowPath className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
               Refresh
-            </Button>
-            <Button
-              variant="primary"
-              size="small"
-              onClick={handleOpenCreate}
-              className="bg-black hover:bg-gray-800 text-white flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Banner
             </Button>
           </div>
         </div>
@@ -399,7 +351,7 @@ const BannersCMSPage = () => {
       <Container className="p-0 overflow-hidden">
         <div className="p-4 border-b border-ui-border-base flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <Heading level="h2" className="text-base font-semibold">
-            All Banners ({filteredBanners.length})
+            Storefront Media Slots ({filteredBanners.length})
           </Heading>
 
           {/* Type Filter Tabs */}
@@ -424,25 +376,25 @@ const BannersCMSPage = () => {
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell>Banner</Table.HeaderCell>
-                <Table.HeaderCell>Type</Table.HeaderCell>
+                <Table.HeaderCell>Media Slot</Table.HeaderCell>
+                <Table.HeaderCell>Placement</Table.HeaderCell>
                 <Table.HeaderCell>Target Link</Table.HeaderCell>
-                <Table.HeaderCell>Display Order</Table.HeaderCell>
+                <Table.HeaderCell>Order</Table.HeaderCell>
                 <Table.HeaderCell>Status</Table.HeaderCell>
-                <Table.HeaderCell className="text-right">Actions</Table.HeaderCell>
+                <Table.HeaderCell className="text-right">Action</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
               {isLoading ? (
                 <Table.Row>
                   <Table.Cell className="text-center py-12 text-ui-fg-muted">
-                    Loading banners...
+                    Loading media slots...
                   </Table.Cell>
                 </Table.Row>
               ) : filteredBanners.length === 0 ? (
                 <Table.Row>
                   <Table.Cell className="text-center py-12 text-ui-fg-muted">
-                    No banners found in this category. Click "Add Banner" to create one.
+                    No media slots found in this category.
                   </Table.Cell>
                 </Table.Row>
               ) : (
@@ -484,9 +436,9 @@ const BannersCMSPage = () => {
                         }
                       >
                         {b.type === "hero"
-                          ? "HERO"
+                          ? "HOMEPAGE HERO"
                           : b.type === "category_card"
-                          ? "CATEGORY CARD"
+                          ? "HOMEPAGE CARD"
                           : b.type === "category_banner"
                           ? "CATEGORY HEADER"
                           : b.type === "story_hero"
@@ -530,25 +482,15 @@ const BannersCMSPage = () => {
                     </Table.Cell>
 
                     <Table.Cell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => handleOpenEdit(b)}
-                          className="flex items-center gap-1"
-                        >
-                          <PencilSquare className="w-3.5 h-3.5" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="small"
-                          onClick={() => handleDelete(b)}
-                          className="flex items-center gap-1"
-                        >
-                          <Trash className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => handleOpenEdit(b)}
+                        className="inline-flex items-center gap-1 font-medium"
+                      >
+                        <PencilSquare className="w-3.5 h-3.5" />
+                        Edit / Replace
+                      </Button>
                     </Table.Cell>
                   </Table.Row>
                 ))
@@ -558,17 +500,17 @@ const BannersCMSPage = () => {
         </div>
       </Container>
 
-      {/* Create / Edit Modal */}
+      {/* Edit Modal */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
           <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <Heading level="h2" className="text-lg font-bold text-gray-900">
-                  {editingBanner ? "Edit Banner" : "Add New Banner"}
+                  Edit Media: {formTitle}
                 </Heading>
                 <Text className="text-xs text-gray-500">
-                  Configure banner images, target redirection link, and display options.
+                  Update images, target redirection link, and display options for this fixed UI slot.
                 </Text>
               </div>
               <button
@@ -580,12 +522,12 @@ const BannersCMSPage = () => {
             </div>
 
             <form onSubmit={handleSave} className="p-6 space-y-5">
-              {/* Title & Type */}
+              {/* Title & Placement Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Banner Title *</Label>
+                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Slot Name *</Label>
                   <Input
-                    placeholder="e.g. Festive Shoe Care Sale"
+                    placeholder="e.g. Shoe Care - Category Card"
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
                     required
@@ -593,20 +535,10 @@ const BannersCMSPage = () => {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Banner Location / Type</Label>
-                  <select
-                    className="w-full h-8 px-3 text-xs bg-white border border-gray-300 rounded-md shadow-2xs focus:border-black focus:outline-hidden"
-                    value={formType}
-                    onChange={(e) => setFormType(e.target.value)}
-                  >
-                    <option value="hero">Homepage Hero Banner</option>
-                    <option value="category_card">Homepage 4 Category Cards</option>
-                    <option value="category_banner">Category Page Header Banner (/categories/...)</option>
-                    <option value="story_hero">Our Story Top Hero Banner</option>
-                    <option value="story_card">Our Story 4 Trust Pillar Cards</option>
-                    <option value="story_wide_banner">Our Story Wide Feature Banner</option>
-                    <option value="promo">Promotional Banner</option>
-                  </select>
+                  <Label className="text-xs font-semibold text-gray-700 block mb-1">UI Placement</Label>
+                  <div className="h-8 px-3 flex items-center text-xs bg-gray-100 text-gray-700 font-semibold rounded-md border border-gray-200 uppercase">
+                    {formType.replace(/_/g, " ")}
+                  </div>
                 </div>
               </div>
 
@@ -614,7 +546,7 @@ const BannersCMSPage = () => {
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-xs font-semibold text-gray-900">
-                    Desktop Banner Image * (Recommended: 1920x600 or 16:9 for Hero, 800x900 for Cards)
+                    Desktop Image * (Recommended: 1920x600 for Hero, 800x900 for Cards)
                   </Label>
                   <input
                     type="file"
@@ -655,7 +587,7 @@ const BannersCMSPage = () => {
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-xs font-semibold text-gray-900">
-                    Mobile Banner Image (Optional, Recommended: 800x800 or 4:5)
+                    Mobile Image (Optional, falls back to desktop image)
                   </Label>
                   <input
                     type="file"
@@ -678,7 +610,7 @@ const BannersCMSPage = () => {
                 </div>
 
                 <Input
-                  placeholder="Mobile Image URL (optional, falls back to desktop image)"
+                  placeholder="Mobile Image URL (optional)"
                   value={formMobileUrl}
                   onChange={(e) => setFormMobileUrl(e.target.value)}
                   className="font-mono text-xs mb-2"
