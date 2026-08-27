@@ -33,6 +33,67 @@ interface Banner {
   updated_at?: string
 }
 
+const getSlotSpecs = (type: string) => {
+  switch (type) {
+    case "hero":
+      return {
+        label: "Homepage Top Hero Banner",
+        desktop: "1600 × 580 px (or 1920 × 700 px, ~16:6 Aspect Ratio)",
+        mobile: "390 × 520 px (3:4 Mobile Portrait Ratio)",
+        aspectClass: "aspect-[16/6] object-cover max-h-[260px]",
+        guide: "Rendered at the very top of the storefront homepage with responsive desktop/mobile picture tag."
+      }
+    case "category_card":
+      return {
+        label: "Homepage 4 Category Cards",
+        desktop: "1000 × 1000 px (1:1 Square, or 9:10 Aspect Ratio)",
+        mobile: "Optional (falls back to desktop square image)",
+        aspectClass: "aspect-square object-cover max-w-[200px] mx-auto",
+        guide: "Rendered in the 4-card category showcase grid (Shoe Care, Insoles, Foot Care, Accessories) on the homepage."
+      }
+    case "category_banner":
+      return {
+        label: "Category Page Header Banner",
+        desktop: "1400 × 300 px (14:3 Ultra-Wide Banner)",
+        mobile: "Optional (falls back to desktop header)",
+        aspectClass: "aspect-[14/3] object-cover max-h-[140px]",
+        guide: "Rendered as the top collection banner on /categories/[handle] pages."
+      }
+    case "story_hero":
+      return {
+        label: "Our Story Top Hero Banner",
+        desktop: "1920 × 800 px (12:5 Wide Story Hero)",
+        mobile: "Optional (falls back to desktop hero)",
+        aspectClass: "aspect-[192/80] object-cover max-h-[200px]",
+        guide: "Rendered as the full-width top header on the /our-story page."
+      }
+    case "story_card":
+      return {
+        label: "Our Story 4 Trust Pillar Cards",
+        desktop: "362 × 297 px (or 724 × 594 px Retina, ~6:5 Card Ratio)",
+        mobile: "Optional (falls back to desktop card)",
+        aspectClass: "aspect-[362/297] object-contain max-w-[200px] mx-auto bg-gray-50 p-2",
+        guide: "Rendered inside the 4 trust pillar cards (European Expertise, 15+ Years, 17+ Countries, India's No. 1) on /our-story."
+      }
+    case "story_wide_banner":
+      return {
+        label: "Our Story Wide Feature Banner",
+        desktop: "1920 × 700 px (or 5760 × 2100 px High-Res, ~19:7 Wide Banner)",
+        mobile: "Optional (falls back to desktop banner)",
+        aspectClass: "aspect-[19/7] object-cover max-h-[180px]",
+        guide: "Rendered as the wide 'Because Every Pair Has A Story' banner section on the /our-story page."
+      }
+    default:
+      return {
+        label: "Storefront Media Slot",
+        desktop: "Recommended: 1920 × 600 px",
+        mobile: "Optional: 800 × 800 px",
+        aspectClass: "h-28 object-cover",
+        guide: "Storefront media slot."
+      }
+  }
+}
+
 const BannersCMSPage = () => {
   const [banners, setBanners] = useState<Banner[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -215,6 +276,8 @@ const BannersCMSPage = () => {
     { id: "story_card", label: "Our Story 4 Cards", count: banners.filter((b) => b.type === "story_card").length },
     { id: "story_wide_banner", label: "Our Story Wide Banner", count: banners.filter((b) => b.type === "story_wide_banner").length },
   ]
+
+  const slotSpecs = editingBanner ? getSlotSpecs(editingBanner.type) : getSlotSpecs(formType)
 
   return (
     <div className="flex flex-col gap-y-6 pb-12">
@@ -463,7 +526,7 @@ const BannersCMSPage = () => {
                   Edit Media: {formTitle}
                 </Heading>
                 <Text className="text-xs text-gray-500">
-                  Update images, target redirection link, and SEO alt text for this fixed UI slot.
+                  Update image assets, target redirection link, and SEO alt text for this fixed UI slot.
                 </Text>
               </div>
               <button
@@ -490,17 +553,28 @@ const BannersCMSPage = () => {
                 <div>
                   <Label className="text-xs font-semibold text-gray-700 block mb-1">UI Placement</Label>
                   <div className="h-8 px-3 flex items-center text-xs bg-gray-100 text-gray-700 font-semibold rounded-md border border-gray-200 uppercase">
-                    {formType.replace(/_/g, " ")}
+                    {slotSpecs.label}
                   </div>
                 </div>
               </div>
 
+              {/* Slot Guide Note */}
+              <div className="px-3 py-2 bg-blue-50/70 border border-blue-200/80 rounded-lg text-xs text-blue-900">
+                <span className="font-semibold">Placement Info: </span>
+                {slotSpecs.guide}
+              </div>
+
               {/* Desktop Banner Uploader */}
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-xs font-semibold text-gray-900">
-                    Desktop Image * (Recommended: 1920x600 for Hero, 800x900 for Cards)
-                  </Label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div>
+                    <Label className="text-xs font-bold text-gray-900 block">
+                      Desktop Image *
+                    </Label>
+                    <span className="text-[11px] text-[#008080] font-semibold">
+                      Exact Recommended Size: {slotSpecs.desktop}
+                    </span>
+                  </div>
                   <input
                     type="file"
                     ref={desktopFileInputRef}
@@ -526,22 +600,31 @@ const BannersCMSPage = () => {
                   value={formDesktopUrl}
                   onChange={(e) => setFormDesktopUrl(e.target.value)}
                   required
-                  className="font-mono text-xs mb-2"
+                  className="font-mono text-xs mb-2 mt-2"
                 />
 
                 {formDesktopUrl && (
-                  <div className="mt-2 rounded overflow-hidden border border-gray-300 bg-white p-1">
-                    <img src={formDesktopUrl} alt="Desktop Preview" className="w-full h-28 object-cover rounded" />
+                  <div className="mt-2 rounded-lg overflow-hidden border border-gray-300 bg-white p-2 flex justify-center items-center">
+                    <img
+                      src={formDesktopUrl}
+                      alt="Desktop Preview"
+                      className={`w-full rounded ${slotSpecs.aspectClass}`}
+                    />
                   </div>
                 )}
               </div>
 
               {/* Mobile Banner Uploader */}
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-xs font-semibold text-gray-900">
-                    Mobile Image (Optional, falls back to desktop image)
-                  </Label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div>
+                    <Label className="text-xs font-bold text-gray-900 block">
+                      Mobile Image (Optional)
+                    </Label>
+                    <span className="text-[11px] text-gray-600 font-medium">
+                      Size: {slotSpecs.mobile}
+                    </span>
+                  </div>
                   <input
                     type="file"
                     ref={mobileFileInputRef}
@@ -563,15 +646,19 @@ const BannersCMSPage = () => {
                 </div>
 
                 <Input
-                  placeholder="Mobile Image URL (optional)"
+                  placeholder="Mobile Image URL (optional, falls back to desktop image)"
                   value={formMobileUrl}
                   onChange={(e) => setFormMobileUrl(e.target.value)}
-                  className="font-mono text-xs mb-2"
+                  className="font-mono text-xs mb-2 mt-2"
                 />
 
                 {formMobileUrl && (
-                  <div className="mt-2 rounded overflow-hidden border border-gray-300 bg-white p-1 max-w-[160px]">
-                    <img src={formMobileUrl} alt="Mobile Preview" className="w-full h-24 object-cover rounded" />
+                  <div className="mt-2 rounded-lg overflow-hidden border border-gray-300 bg-white p-2 flex justify-center items-center max-w-[200px] mx-auto">
+                    <img
+                      src={formMobileUrl}
+                      alt="Mobile Preview"
+                      className="w-full max-h-[160px] object-contain rounded"
+                    />
                   </div>
                 )}
               </div>
