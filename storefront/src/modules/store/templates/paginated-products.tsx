@@ -91,8 +91,10 @@ export default async function PaginatedProducts({
     queryParams["id"] = productsIds
   }
 
-  if (sortBy === "created_at") {
+  if (sortBy === "created_at_asc" || !sortBy) {
     queryParams["order"] = "created_at"
+  } else if (sortBy === "created_at") {
+    queryParams["order"] = "-created_at"
   }
 
   if (searchQuery?.trim()) {
@@ -113,16 +115,7 @@ export default async function PaginatedProducts({
     countryCode: countryCode ?? "in",
   })
 
-  let products = sortProducts(fetchedProducts, sortBy || "created_at")
-
-  if (!sortBy || sortBy === "created_at") {
-    products.sort((a, b) => {
-      const aSC = a.categories?.some((c: any) => c.handle === "shoe-care" || c.name?.toLowerCase().includes("shoe care")) ? 1 : 0
-      const bSC = b.categories?.some((c: any) => c.handle === "shoe-care" || c.name?.toLowerCase().includes("shoe care")) ? 1 : 0
-      if (bSC !== aSC) return bSC - aSC
-      return new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
-    })
-  }
+  let products = sortProducts(fetchedProducts, sortBy || "created_at_asc")
 
   if (typeValue) {
     products = products.filter((product) => product.type?.value === typeValue)
