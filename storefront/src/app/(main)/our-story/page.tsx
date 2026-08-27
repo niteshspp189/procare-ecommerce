@@ -1,5 +1,6 @@
 import React from "react"
 import CustomVideoPlayer from "./CustomVideoPlayer"
+import { getBanners } from "@lib/data/banners"
 
 const AwardIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -34,40 +35,69 @@ const TrophyIcon = () => (
   </svg>
 )
 
-const OurStoryPage = () => {
-    const trustPillars = [
+const OurStoryPage = async () => {
+    const [storyHeroBanners, storyCards, storyWideBanners] = await Promise.all([
+        getBanners("story_hero"),
+        getBanners("story_card"),
+        getBanners("story_wide_banner"),
+    ])
+
+    const heroBannerImg = storyHeroBanners[0]?.desktop_image_url || "/images/story-page-banner.png"
+    const heroBannerAlt = storyHeroBanners[0]?.alt_text || "Our Story Banner"
+
+    const wideBannerImg = storyWideBanners[0]?.desktop_image_url || "/images/our-story/every-pair-has-a-story.png"
+    const wideBannerAlt = storyWideBanners[0]?.alt_text || "Because every pair has a story. And we're here to help it last."
+
+    const defaultTrustPillars = [
         {
+            key: "european",
             title: "BACKED BY EUROPEAN EXPERTISE",
             description: "Formulated in collaboration with leading European laboratories and master chemical specialists.",
-            image: "/images/our-story/backed-by-european-expertise.png",
+            defaultImage: "/images/our-story/backed-by-european-expertise.png",
             icon: <FlaskIcon />
         },
         {
+            key: "excellence",
             title: "15+ YEARS OF PROVEN EXCELLENCE",
             description: "Over a decade and a half of footwear care innovation, craftsmanship, and unwavering quality.",
-            image: "/images/our-story/15-years-of-proven-excellence.png",
+            defaultImage: "/images/our-story/15-years-of-proven-excellence.png",
             icon: <AwardIcon />
         },
         {
+            key: "countries",
             title: "TRUSTED IN 17+ COUNTRIES",
             description: "Delivering international standard shoe care products to footwear lovers across 17+ global markets.",
-            image: "/images/our-story/trusted-in-17-countries.png",
+            defaultImage: "/images/our-story/trusted-in-17-countries.png",
             icon: <GlobeIcon />
         },
         {
+            key: "no1",
             title: "INDIA'S NO. 1 LEADING SHOE CARE BRAND",
             description: "India's foremost choice for premium leather care, sneaker care, and foot comfort solutions.",
-            image: "/images/our-story/indias-no-1-shoe-care-brand.png",
+            defaultImage: "/images/our-story/indias-no-1-shoe-care-brand.png",
             icon: <TrophyIcon />
         }
     ]
+
+    const trustPillars = defaultTrustPillars.map((pillar, idx) => {
+        const dynamicCard = storyCards.find(c => 
+            c.id.includes(pillar.key) || 
+            c.title.toLowerCase().includes(pillar.key) || 
+            c.display_order === idx + 1
+        )
+        return {
+            ...pillar,
+            image: dynamicCard?.desktop_image_url || pillar.defaultImage,
+            title: dynamicCard?.title && !dynamicCard.title.startsWith("Our Story") ? dynamicCard.title : pillar.title,
+        }
+    })
 
     return (
         <div className="bg-white">
             {/* HERO BANNER */}
             <div className="relative overflow-hidden flex items-center justify-center bg-black text-white w-full" style={{aspectRatio: '1920 / 800', height: 'auto', maxHeight: '550px'}}>
                 <div className="absolute inset-0">
-                    <img src="/images/story-page-banner.png" className="w-full h-full object-cover object-center" alt="Our Story Banner" />
+                    <img src={heroBannerImg} className="w-full h-full object-cover object-center" alt={heroBannerAlt} />
                 </div>
             </div>
 
@@ -151,8 +181,8 @@ const OurStoryPage = () => {
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 my-8">
                 <div className="rounded-3xl overflow-hidden shadow-2xl bg-black border border-gray-900">
                     <img 
-                        src="/images/our-story/every-pair-has-a-story.png" 
-                        alt="Because every pair has a story. And we're here to help it last." 
+                        src={wideBannerImg} 
+                        alt={wideBannerAlt} 
                         className="w-full h-auto object-cover rounded-3xl"
                     />
                 </div>

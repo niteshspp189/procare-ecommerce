@@ -274,10 +274,13 @@ const BannersCMSPage = () => {
   const primaryBanner = activeHeroBanners[0] || banners[0]
 
   const typeTabs = [
-    { id: "all", label: "All Banners", count: banners.length },
+    { id: "all", label: "All Media", count: banners.length },
     { id: "hero", label: "Homepage Hero", count: banners.filter((b) => b.type === "hero").length },
-    { id: "category_card", label: "Category Cards", count: banners.filter((b) => b.type === "category_card").length },
+    { id: "category_card", label: "Homepage 4 Cards", count: banners.filter((b) => b.type === "category_card").length },
     { id: "category_banner", label: "Category Headers", count: banners.filter((b) => b.type === "category_banner").length },
+    { id: "story_hero", label: "Our Story Hero", count: banners.filter((b) => b.type === "story_hero").length },
+    { id: "story_card", label: "Our Story 4 Cards", count: banners.filter((b) => b.type === "story_card").length },
+    { id: "story_wide_banner", label: "Our Story Wide Banner", count: banners.filter((b) => b.type === "story_wide_banner").length },
     { id: "promo", label: "Promotional", count: banners.filter((b) => b.type === "promo").length },
   ]
 
@@ -471,6 +474,12 @@ const BannersCMSPage = () => {
                             ? "purple"
                             : b.type === "category_banner"
                             ? "orange"
+                            : b.type === "story_hero"
+                            ? "green"
+                            : b.type === "story_card"
+                            ? "blue"
+                            : b.type === "story_wide_banner"
+                            ? "orange"
                             : "grey"
                         }
                       >
@@ -480,6 +489,12 @@ const BannersCMSPage = () => {
                           ? "CATEGORY CARD"
                           : b.type === "category_banner"
                           ? "CATEGORY HEADER"
+                          : b.type === "story_hero"
+                          ? "STORY HERO"
+                          : b.type === "story_card"
+                          ? "STORY CARD"
+                          : b.type === "story_wide_banner"
+                          ? "STORY WIDE BANNER"
                           : b.type.toUpperCase()}
                       </Badge>
                     </Table.Cell>
@@ -585,8 +600,11 @@ const BannersCMSPage = () => {
                     onChange={(e) => setFormType(e.target.value)}
                   >
                     <option value="hero">Homepage Hero Banner</option>
-                    <option value="category_card">Homepage Category Card (Shoe Care, Insoles, etc.)</option>
+                    <option value="category_card">Homepage 4 Category Cards</option>
                     <option value="category_banner">Category Page Header Banner (/categories/...)</option>
+                    <option value="story_hero">Our Story Top Hero Banner</option>
+                    <option value="story_card">Our Story 4 Trust Pillar Cards</option>
+                    <option value="story_wide_banner">Our Story Wide Feature Banner</option>
                     <option value="promo">Promotional Banner</option>
                   </select>
                 </div>
