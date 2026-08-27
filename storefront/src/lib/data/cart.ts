@@ -309,23 +309,30 @@ export async function applyPromotions(codes: string[]) {
   const cartId = await getCartId()
 
   if (!cartId) {
-    throw new Error("No existing cart found")
+    return { error: "No existing cart found" }
   }
+
+  const cleanCodes = codes.map((c) => c.trim().toUpperCase()).filter(Boolean)
 
   const headers = {
     ...(await getAuthHeaders()),
   }
 
-  return sdk.store.cart
-    .update(cartId, { promo_codes: codes }, {}, headers)
-    .then(async () => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+  try {
+    await sdk.store.cart.update(cartId, { promo_codes: cleanCodes }, {}, headers)
+    const cartCacheTag = await getCacheTag("carts")
+    revalidateTag(cartCacheTag)
 
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
-    })
-    .catch(medusaError)
+    const fulfillmentCacheTag = await getCacheTag("fulfillment")
+    revalidateTag(fulfillmentCacheTag)
+    return { success: true }
+  } catch (e: any) {
+    let msg = e?.response?.data?.message || e?.message || "Invalid promotion code"
+    if (msg.includes("is invalid") && cleanCodes.includes("RAKHI5")) {
+      msg = "Code RAKHI5 is only applicable on cart values of ₹999 or more."
+    }
+    return { error: msg }
+  }
 }
 
 export async function applyGiftCard(code: string) {

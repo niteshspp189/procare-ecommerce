@@ -34,24 +34,26 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
   const addPromotionCode = async (formData: FormData) => {
     setErrorMessage("")
 
-    const code = formData.get("code")
-    if (!code) {
+    const rawCode = formData.get("code")
+    if (!rawCode) {
       return
     }
+    const code = rawCode.toString().trim().toUpperCase()
+    if (!code) return
+
     const input = document.getElementById("promotion-input") as HTMLInputElement
     const codes = promotions
       .filter((p) => p.code !== undefined)
       .map((p) => p.code!)
-    codes.push(code.toString())
+    codes.push(code)
 
-    try {
-      await applyPromotions(codes)
-    } catch (e: any) {
-      setErrorMessage(e.message)
-    }
-
-    if (input) {
-      input.value = ""
+    const res = await applyPromotions(codes)
+    if (res && "error" in res && res.error) {
+      setErrorMessage(res.error)
+    } else {
+      if (input) {
+        input.value = ""
+      }
     }
   }
 
