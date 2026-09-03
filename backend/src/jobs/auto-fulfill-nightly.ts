@@ -3,6 +3,7 @@ import { syncOrderToShiprocket, syncAllShiprocketStatuses } from "../lib/shiproc
 import { shiprocketClient } from "../modules/shiprocket/shiprocket-client"
 import { isRazorpayPaymentCaptured } from "../lib/razorpay"
 import { sendAlertEmail } from "../lib/email"
+import { startJobLog, finishJobLog } from "../lib/cron-logger"
 
 export default async function nightlyAutoFulfillJob(container: MedusaContainer) {
   if (process.env.SHIPROCKET_ENV !== "production") {
@@ -11,6 +12,7 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
   }
 
   console.log("[NightlyAutoFulfillJob] 🌙 Starting nightly Shiprocket fulfillment scan...")
+  let logId: any = null
 
   try {
     const cAny = container as any
@@ -22,6 +24,8 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       console.error("[NightlyAutoFulfillJob] Database connection unavailable")
       return
     }
+
+    logId = await startJobLog(pgConnection, "nightly-shiprocket-fulfill")
 
     // Step 0: Pre-flight Shiprocket Health & Auth Check to prevent lockout loops
     try {
@@ -134,8 +138,36 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     const statusSyncRes = await syncAllShiprocketStatuses(container, 30)
     console.log(`[NightlyAutoFulfillJob] Live status sync complete: ${statusSyncRes.matchedCount} orders checked, ${statusSyncRes.updatedCount} fulfillments updated.`)
 
+    const finalSummary = `Scanned ${unfulfilledOrders.length} unfulfilled order(s). ${successCount} synced, ${failedCount} failed. Tracking sync: ${statusSyncRes.matchedCount} orders checked, ${statusSyncRes.updatedCount} fulfillments updated.`
+    if (logId) {
+      await finishJobLog(pgConnection, logId, {
+        status: failedCount > 0 ? "warning" : "success",
+        summary: finalSummary,
+        details: {
+          unfulfilledOrdersCount: unfulfilledOrders.length,
+          syncedCount: successCount,
+          failedCount: failedCount,
+          statusSyncMatched: statusSyncRes.matchedCount,
+          statusSyncUpdated: statusSyncRes.updatedCount,
+        }
+      })
+    }
+
   } catch (error: any) {
     console.error("[NightlyAutoFulfillJob] Fatal error during nightly fulfillment scan:", error)
+    if (logId) {
+      const cAny = container as any
+      const pgConnection = cAny.__pg_connection__ || 
+        (container.resolve ? container.resolve("__pg_connection__", { allowUnregistered: true }) : null) ||
+        (container.resolve ? container.resolve("pg_connection", { allowUnregistered: true }) : null)
+      if (pgConnection) {
+        await finishJobLog(pgConnection, logId, {
+          status: "failed",
+          summary: `Fatal error: ${error.message}`,
+          details: { error: error.stack }
+        })
+      }
+    }
   }
 }
 
