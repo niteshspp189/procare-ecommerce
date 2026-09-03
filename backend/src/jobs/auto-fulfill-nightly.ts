@@ -1,5 +1,8 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 import { syncOrderToShiprocket, syncAllShiprocketStatuses } from "../lib/shiprocket-sync"
+import { shiprocketClient } from "../modules/shiprocket/shiprocket-client"
+import { isRazorpayPaymentCaptured } from "../lib/razorpay"
+import { sendAlertEmail } from "../lib/email"
 
 export default async function nightlyAutoFulfillJob(container: MedusaContainer) {
   if (process.env.SHIPROCKET_ENV !== "production") {
@@ -18,6 +21,29 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     if (!pgConnection) {
       console.error("[NightlyAutoFulfillJob] Database connection unavailable")
       return
+    }
+
+    // Step 0: Pre-flight Shiprocket Health & Auth Check to prevent lockout loops
+    try {
+      console.log("[NightlyAutoFulfillJob] Verifying Shiprocket API health & authentication...")
+      await shiprocketClient.getOrders("?per_page=1")
+      console.log("[NightlyAutoFulfillJob] Shiprocket API is healthy & authenticated.")
+    } catch (authErr: any) {
+      const errMsg = authErr.message || ""
+      if (errMsg.includes("User blocked") || errMsg.includes("failed login attempts") || errMsg.includes("403")) {
+        console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket lockout detected:", errMsg)
+        await sendAlertEmail(
+          "Shiprocket API Lockout Detected - Nightly Job Paused",
+          `
+            <p><strong>Warning:</strong> The nightly Shiprocket auto-fulfillment job detected an API account lockout.</p>
+            <p><strong>Error Message:</strong> ${errMsg}</p>
+            <p><strong>Time:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
+            <p>The nightly fulfillment loop was paused to protect against further account suspension. Please check your credentials at <a href="https://app.shiprocket.in">app.shiprocket.in</a>.</p>
+          `
+        )
+        return
+      }
+      console.warn("[NightlyAutoFulfillJob] Pre-flight warning:", errMsg)
     }
 
     // Step 1: Look for paid orders created in the last 7 days that are not canceled and have 0 fulfillments
@@ -46,6 +72,38 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
 
     for (const ord of unfulfilledOrders) {
       console.log(`[NightlyAutoFulfillJob] Processing Order #${ord.display_id} (${ord.id})...`)
+
+      // Intelligently validate with live Razorpay API before dispatching to Shiprocket
+      try {
+        const paymentRecord = await pgConnection("payment")
+          .join("order_payment_collection", "order_payment_collection.payment_collection_id", "payment.payment_collection_id")
+          .where("order_payment_collection.order_id", ord.id)
+          .select("payment.data", "payment.captured_at")
+          .first()
+
+        const pData = paymentRecord?.data || {}
+        const targetPayId = pData.razorpay_payment_id || (pData.id && String(pData.id).startsWith("pay_") ? pData.id : null) || pData.razorpay_order_id || (pData.id && String(pData.id).startsWith("order_") ? pData.id : null)
+
+        if (targetPayId) {
+          const rzpCheck = await isRazorpayPaymentCaptured(String(targetPayId))
+          if (!rzpCheck.captured) {
+            console.warn(`[NightlyAutoFulfillJob] ⚠️ Order #${ord.display_id} skipped: Razorpay payment ${targetPayId} is not captured (status: '${rzpCheck.status}').`)
+            await sendAlertEmail(
+              `Order #${ord.display_id} Skipped - Razorpay Payment Unverified`,
+              `
+                <p>Order <strong>#${ord.display_id}</strong> was queued for fulfillment, but live verification with Razorpay returned status <code>${rzpCheck.status}</code> (not captured).</p>
+                <p><strong>Reference ID:</strong> ${targetPayId}</p>
+                <p><strong>Customer:</strong> ${ord.email}</p>
+                <p>The fulfillment was skipped to avoid dispatching an unpaid order.</p>
+              `
+            )
+            continue
+          }
+        }
+      } catch (rzpVerifyErr: any) {
+        console.warn(`[NightlyAutoFulfillJob] Razorpay pre-validation warning for #${ord.display_id}:`, rzpVerifyErr.message)
+      }
+
       const res = await syncOrderToShiprocket(ord.id, container)
 
       if (res.success) {
@@ -54,6 +112,18 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       } else {
         failedCount++
         console.error(`[NightlyAutoFulfillJob] ❌ Order #${ord.display_id} failed: ${res.message}`)
+
+        if (res.message?.includes("User blocked") || res.message?.includes("login attempts")) {
+          console.error("[NightlyAutoFulfillJob] 🚨 Aborting remaining orders due to Shiprocket lockout.")
+          await sendAlertEmail(
+            "Shiprocket Lockout Detected During Order Sync",
+            `
+              <p>While fulfilling Order #${ord.display_id}, Shiprocket responded with: <strong>${res.message}</strong>.</p>
+              <p>Fulfillment of remaining orders was paused to prevent account suspension.</p>
+            `
+          )
+          break
+        }
       }
     }
 

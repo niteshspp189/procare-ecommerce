@@ -22,6 +22,11 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
     const data = input.data || {}
     const status = data.status as string
     
+    // If razorpay_payment_id is present, payment was completed on client
+    if (data.razorpay_payment_id) {
+      return "authorized"
+    }
+
     switch (status) {
       case "created":
         return "pending"
@@ -38,10 +43,25 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
 
   async initiatePayment(input: any): Promise<any> {
     const { amount, currency_code, resource_id } = input
+    const existingData = input.data || {}
+
+    // IDEMPOTENCY CHECK: If a Razorpay order already exists on this session, reuse it!
+    const targetAmount = Math.round(amount) * 100
+    if (existingData.id && String(existingData.id).startsWith("order_")) {
+      const existingAmount = existingData.amount
+      if (!existingAmount || existingAmount === targetAmount) {
+        return {
+          data: {
+            ...existingData,
+            ...(input.data || {}),
+          },
+        }
+      }
+    }
 
     try {
       const order = await this.razorpay_.orders.create({
-        amount: Math.round(amount) * 100,
+        amount: targetAmount,
         currency: currency_code.toUpperCase(),
         receipt: resource_id,
         payment_capture: 1,

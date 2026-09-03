@@ -449,3 +449,49 @@ export async function sendOrderConfirmationEmail(order: any) {
     throw error
   }
 }
+
+export async function sendAlertEmail(subject: string, htmlContent: string, recipient: string = "niteshspp189@gmail.com") {
+  const mailOptions = {
+    from: `"ProCare Logistics Monitor" <noreply@propremiumcare.com>`,
+    to: recipient,
+    subject: `🚨 [ProCare Alert] ${subject}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #0f172a; padding: 18px 24px; color: #ffffff;">
+          <h2 style="margin: 0; font-size: 18px;">ProCare System Notification</h2>
+        </div>
+        <div style="padding: 24px; background: #ffffff; color: #334155; font-size: 14px; line-height: 1.6;">
+          ${htmlContent}
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b; margin: 0;">Automated alert from ProCare E-Commerce Production Server • ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
+        </div>
+      </div>
+    `,
+  }
+
+  try {
+    console.log(`[EmailService] Sending alert email to ${recipient} via SES...`)
+    return await transporter.sendMail(mailOptions)
+  } catch (sesError: any) {
+    console.warn(`[EmailService] SES alert email failed (${sesError.message}). Attempting Gmail SMTP fallback...`)
+    try {
+      const fallbackTransporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "team@webclixs.in",
+          pass: "wsek gghl znno gedt",
+        },
+      })
+      const fallbackMailOptions = {
+        ...mailOptions,
+        from: `"ProCare Logistics Monitor" <team@webclixs.in>`
+      }
+      return await fallbackTransporter.sendMail(fallbackMailOptions)
+    } catch (gmailError: any) {
+      console.error("[EmailService] Both SES and Gmail fallback failed for alert:", gmailError.message)
+    }
+  }
+}
+
