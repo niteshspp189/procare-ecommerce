@@ -94,9 +94,9 @@ export async function getCronJobLogs(pgConnection: any, limit: number = 50): Pro
 
 export function getNextNightlyRun(): Date {
   const now = new Date()
-  // Target: 20:00 UTC (1:30 AM IST next morning)
+  // Target: 20:30 UTC (2:00 AM IST next morning)
   const next = new Date(now)
-  next.setUTCHours(20, 0, 0, 0)
+  next.setUTCHours(20, 30, 0, 0)
   if (now.getTime() >= next.getTime()) {
     next.setUTCDate(next.getUTCDate() + 1)
   }
@@ -115,9 +115,9 @@ export async function getRegisteredJobsInfo(pgConnection: any): Promise<Schedule
     {
       name: "nightly-shiprocket-fulfill",
       title: "Shiprocket Auto-Fulfillment & Tracking Sync",
-      schedule: "0 20 * * *",
-      schedule_cron: "0 20 * * *",
-      schedule_human: "Daily at 1:30 AM IST (20:00 UTC)",
+      schedule: "30 20 * * *",
+      schedule_cron: "30 20 * * *",
+      schedule_human: "Daily at 2:00 AM IST (20:30 UTC)",
       status: "active",
       description: "Scans paid orders in the last 7 days, cross-verifies with Razorpay live API, dispatches shipments to Shiprocket, and pulls live AWB tracking statuses.",
       last_run: lastLog || null,

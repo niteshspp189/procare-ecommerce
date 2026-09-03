@@ -36,6 +36,13 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       const errMsg = authErr.message || ""
       if (errMsg.includes("User blocked") || errMsg.includes("failed login attempts") || errMsg.includes("403")) {
         console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket lockout detected:", errMsg)
+        if (logId) {
+          await finishJobLog(pgConnection, logId, {
+            status: "failed",
+            summary: `Shiprocket API authentication failed: ${errMsg}`,
+            details: { error: errMsg }
+          })
+        }
         await sendAlertEmail(
           "Shiprocket API Lockout Detected - Nightly Job Paused",
           `
@@ -173,5 +180,5 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
 
 export const config = {
   name: "nightly-shiprocket-fulfill",
-  schedule: "0 20 * * *", // Runs every night at 20:00 UTC (1:30 AM IST)
+  schedule: "30 20 * * *", // Runs every night at 20:30 UTC (2:00 AM IST)
 }

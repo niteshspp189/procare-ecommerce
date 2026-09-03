@@ -63,7 +63,7 @@ export class ShiprocketClient {
     this.tokenExpiresAt = 0
   }
 
-  private async authenticate() {
+  private async authenticate(retries = 3, delayMs = 3000): Promise<string> {
     if (this.token && Date.now() < this.tokenExpiresAt) {
       return this.token
     }
@@ -71,25 +71,45 @@ export class ShiprocketClient {
     const email = process.env.SHIPROCKET_EMAIL || ""
     const password = process.env.SHIPROCKET_PASSWORD || ""
 
-    try {
-      const data = await requestJson(`${this.baseUrl}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      })
+    let lastError: any = null
 
-      if (!data || !data.token) {
-        this.clearToken()
-        throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const data = await requestJson(`${this.baseUrl}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        })
+
+        if (data && data.token) {
+          this.token = data.token as string
+          this.tokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000 
+          return data.token as string
+        }
+
+        // If explicitly blocked by Shiprocket, abort immediately without retrying
+        if (data && (data.message?.includes("User blocked") || data.message?.includes("failed login attempts"))) {
+          this.clearToken()
+          throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
+        }
+
+        lastError = new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
+      } catch (err: any) {
+        lastError = err
+        if (err.message?.includes("User blocked") || err.message?.includes("failed login attempts")) {
+          this.clearToken()
+          throw err
+        }
       }
 
-      this.token = data.token
-      this.tokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000 
-      return this.token
-    } catch (err) {
-      this.clearToken()
-      throw err
+      if (attempt < retries) {
+        console.warn(`[ShiprocketClient] Auth attempt ${attempt} failed. Retrying in ${delayMs / 1000}s...`)
+        await new Promise(r => setTimeout(r, delayMs))
+      }
     }
+
+    this.clearToken()
+    throw lastError
   }
 
   private async requestWithAuth(url: string, options: { method?: string; headers?: Record<string, string>; body?: string } = {}) {
