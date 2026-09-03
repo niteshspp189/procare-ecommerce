@@ -20,14 +20,17 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       return
     }
 
-    // Step 1: Look for orders created in the last 7 days that are not canceled and have 0 fulfillments
+    // Step 1: Look for paid orders created in the last 7 days that are not canceled and have 0 fulfillments
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
     const unfulfilledOrders = await pgConnection.raw(`
       SELECT o.id, o.display_id, o.email, o.created_at, o.status
       FROM "order" o
+      JOIN order_payment_collection opc ON opc.order_id = o.id
+      JOIN payment_collection pc ON pc.id = opc.payment_collection_id
       WHERE o.created_at >= ?
         AND o.status != 'canceled'
+        AND pc.status = 'completed'
         AND NOT EXISTS (
           SELECT 1 FROM order_fulfillment of
           JOIN fulfillment f ON of.fulfillment_id = f.id

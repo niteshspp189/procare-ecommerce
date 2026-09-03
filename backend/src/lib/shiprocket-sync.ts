@@ -27,6 +27,17 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
       return { success: false, message: `Order ${orderId} is canceled. Skipping fulfillment.` }
     }
 
+    // Check payment status - do not fulfill unpaid orders
+    const paymentCol = await pgConnection("order_payment_collection")
+      .join("payment_collection", "order_payment_collection.payment_collection_id", "payment_collection.id")
+      .where("order_payment_collection.order_id", orderId)
+      .select("payment_collection.status")
+      .first()
+
+    if (paymentCol && paymentCol.status !== "completed") {
+      return { success: false, message: `Order #${order.display_id} payment is not completed (${paymentCol.status}). Skipping fulfillment.` }
+    }
+
     // Check if already fulfilled in Medusa DB
     const existingFulfillments = await pgConnection("order_fulfillment").where("order_id", orderId)
     if (existingFulfillments.length > 0) {

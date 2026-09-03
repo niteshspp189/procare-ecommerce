@@ -58,6 +58,11 @@ export class ShiprocketClient {
 
   constructor() {}
 
+  public clearToken() {
+    this.token = null
+    this.tokenExpiresAt = 0
+  }
+
   private async authenticate() {
     if (this.token && Date.now() < this.tokenExpiresAt) {
       return this.token
@@ -66,57 +71,82 @@ export class ShiprocketClient {
     const email = process.env.SHIPROCKET_EMAIL || ""
     const password = process.env.SHIPROCKET_PASSWORD || ""
 
-    const data = await requestJson(`${this.baseUrl}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
+    try {
+      const data = await requestJson(`${this.baseUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
 
-    if (!data || !data.token) {
-      throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
+      if (!data || !data.token) {
+        this.clearToken()
+        throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
+      }
+
+      this.token = data.token
+      this.tokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000 
+      return this.token
+    } catch (err) {
+      this.clearToken()
+      throw err
+    }
+  }
+
+  private async requestWithAuth(url: string, options: { method?: string; headers?: Record<string, string>; body?: string } = {}) {
+    let token = await this.authenticate()
+    const headers = {
+      ...(options.headers || {}),
+      "Authorization": `Bearer ${token}`
     }
 
-    this.token = data.token
-    this.tokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000 
-    return this.token
+    try {
+      const res = await requestJson(url, { ...options, headers })
+      if (res && (res.status_code === 401 || res.message === "Unauthorized" || res.message === "Token expired")) {
+        console.warn("[ShiprocketClient] Received 401/Unauthorized from Shiprocket. Re-authenticating...")
+        this.clearToken()
+        token = await this.authenticate()
+        headers["Authorization"] = `Bearer ${token}`
+        return await requestJson(url, { ...options, headers })
+      }
+      return res
+    } catch (err: any) {
+      if (err?.message?.includes("401") || err?.message?.includes("Unauthorized")) {
+        console.warn("[ShiprocketClient] Caught 401 error. Re-authenticating...")
+        this.clearToken()
+        token = await this.authenticate()
+        headers["Authorization"] = `Bearer ${token}`
+        return await requestJson(url, { ...options, headers })
+      }
+      throw err
+    }
   }
 
   public async createOrder(orderData: any) {
-    const token = await this.authenticate()
-    return await requestJson(`${this.baseUrl}/orders/create/adhoc`, {
+    return await this.requestWithAuth(`${this.baseUrl}/orders/create/adhoc`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(orderData)
     })
   }
 
   public async getOrders(queryParams: string = "") {
-    const token = await this.authenticate()
-    const result = await requestJson(`${this.baseUrl}/orders${queryParams}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+    const result = await this.requestWithAuth(`${this.baseUrl}/orders${queryParams}`, {
+      method: "GET"
     })
     return result || { data: [] }
   }
 
   public async checkServiceability(deliveryPostcode: string, isCod: boolean = false) {
-    const token = await this.authenticate()
     const url = new URL(`${this.baseUrl}/courier/serviceability/`)
     url.searchParams.append("pickup_postcode", "201301")
     url.searchParams.append("delivery_postcode", deliveryPostcode)
     url.searchParams.append("cod", isCod ? "1" : "0")
     url.searchParams.append("weight", "1")
 
-    const result = await requestJson(url.toString(), {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+    const result = await this.requestWithAuth(url.toString(), {
+      method: "GET"
     })
 
     const serviceable = !!(result?.status === 200 && result?.data?.available_courier_companies?.length > 0)
@@ -124,32 +154,22 @@ export class ShiprocketClient {
   }
 
   public async getTrackingDetails(awbCode: string) {
-    const token = await this.authenticate()
-    return await requestJson(`${this.baseUrl}/courier/track/awb/${awbCode}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+    return await this.requestWithAuth(`${this.baseUrl}/courier/track/awb/${awbCode}`, {
+      method: "GET"
     })
   }
 
   public async getShipmentTracking(shipmentId: string) {
-    const token = await this.authenticate()
-    return await requestJson(`${this.baseUrl}/courier/track?shipment_id=${shipmentId}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+    return await this.requestWithAuth(`${this.baseUrl}/courier/track?shipment_id=${shipmentId}`, {
+      method: "GET"
     })
   }
 
   public async assignAWB(shipmentId: string) {
-    const token = await this.authenticate()
-    return await requestJson(`${this.baseUrl}/courier/assign/awb`, {
+    return await this.requestWithAuth(`${this.baseUrl}/courier/assign/awb`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         shipment_id: shipmentId,
