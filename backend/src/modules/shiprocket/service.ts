@@ -61,7 +61,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     if (order && order.id && this.container) {
       try {
         console.log("[ShiprocketService] Attempting to resolve query from container...")
-        const query = this.container.resolve ? this.container.resolve("query", { allowUnregistered: true }) : this.container.query
+        const query = (typeof this.container?.resolve === "function") 
+          ? this.container.resolve("query", { allowUnregistered: true }) 
+          : this.container?.query
         if (query) {
           const { data: orders } = await query.graph({
             entity: "order",
@@ -99,16 +101,17 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
         
         // pgConnection Fallback query
         try {
-          const pgConnection = this.container.__pg_connection__ || this.container.resolve("__pg_connection__", { allowUnregistered: true })
+          const pgConnection = this.container.__pg_connection__ || 
+            (typeof this.container?.resolve === "function" ? this.container.resolve("__pg_connection__", { allowUnregistered: true }) : null) ||
+            (typeof this.container?.resolve === "function" ? this.container.resolve("pg_connection", { allowUnregistered: true }) : null)
           if (pgConnection) {
             console.log("[ShiprocketService] Attempting raw SQL fallback via pgConnection (__pg_connection__)...")
             
             // Query Order
             try {
               const orderRes = await pgConnection.raw(`
-                SELECT o.display_id, o.email, o.shipping_address_id, os.current_order_total, os.discount_total
+                SELECT o.display_id, o.email, o.shipping_address_id
                 FROM "order" o
-                LEFT JOIN "order_summary" os ON os.order_id = o.id
                 WHERE o.id = ?
               `, [order.id])
               const orderRow = orderRes?.rows?.[0]
@@ -265,7 +268,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
 
     const undiscountedItemsTotal = orderItems.reduce((sum: number, it: any) => sum + (it.selling_price * it.units), 0)
     const totalDiscount = Math.round(fullOrder?.discount_total ?? fullOrder?.summary?.discount_total ?? (totalItemDiscountSum + shippingDiscount))
-    const rawGrandTotal = fullOrder?.total ?? fullOrder?.summary?.total ?? fullOrder?.summary?.current_order_total ?? (undiscountedItemsTotal + shippingCharges - totalDiscount)
+    const rawGrandTotal = fullOrder?.total ?? fullOrder?.summary?.total ?? (undiscountedItemsTotal + shippingCharges - totalDiscount)
     const grandTotal = Math.round(parseFloat(rawGrandTotal.toString()))
 
     const orderData = {

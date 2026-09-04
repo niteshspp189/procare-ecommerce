@@ -125,6 +125,22 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       }
 
       console.log(`[RazorpayWebhook] ✅ Successfully reconciled payment for collection ${pcId} (Payment: ${rzpPaymentId})`)
+
+      // Safety Net: If order is completed and unfulfilled, trigger automatic Shiprocket fulfillment
+      try {
+        const orderRecord = await pgConnection("order_payment_collection")
+          .where("payment_collection_id", pcId)
+          .select("order_id")
+          .first()
+
+        if (orderRecord && orderRecord.order_id) {
+          const { syncOrderToShiprocket } = require("../../../../lib/shiprocket-sync")
+          console.log(`[RazorpayWebhook] Auto-triggering Shiprocket sync for reconciled order: ${orderRecord.order_id}`)
+          await syncOrderToShiprocket(orderRecord.order_id, req.scope)
+        }
+      } catch (fulfillErr: any) {
+        console.warn("[RazorpayWebhook] Fulfillment trigger warning:", fulfillErr.message)
+      }
     } else {
       console.log(`[RazorpayWebhook] No matching payment session found for Razorpay Order ${rzpOrderId} / Payment ${rzpPaymentId}`)
     }
