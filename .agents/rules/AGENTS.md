@@ -77,10 +77,12 @@ ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verif
 | **7. GTM & Meta Pixel (`/confirm`)** | `Purchase` event triggered on thank-you page | Inspect browser console on `/order/<id>/confirmed`:<br>1. **GTM dataLayer**: `window.dataLayer.find(e => e.event === 'purchase')` returns `{ transaction_id, value, currency: 'INR' }`.<br>2. **Meta Pixel**: `fbq` function exists and Meta Pixel Helper shows `Purchase` event with exact order value and currency. |
 | **8. Shiprocket Redis Token Cache** | Token cached in Redis (`shiprocket:auth_token`) with 7-day TTL | `docker exec procare_redis redis-cli ttl shiprocket:auth_token`<br>Must return positive TTL (> 0), verifying auth token reuse without hitting `/auth/login`. |
 | **9. Dual Host & Container Token Sharing** | RDS fallback table has valid token | `docker exec procare_backend node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(() => c.query('SELECT expires_at FROM shiprocket_token_cache WHERE id = 1')).then(r => { console.log(r.rows); c.end(); });"`<br>Must show valid `expires_at` in the future. |
+| **10. Cron Execution History Audit** | Latest jobs in `cron_job_log` reported `success` | `docker exec procare_backend node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(() => c.query('SELECT job_name, status, duration_ms, started_at, summary FROM cron_job_log ORDER BY id DESC LIMIT 3')).then(r => { console.log(r.rows); c.end(); });"`<br>Must show `status: 'success'` and 0 failed runs. |
+| **11. Razorpay Webhook Safety Net** | Webhook endpoint active & sync wired | Webhook listener at `/api/hooks/payment/razorpay` automatically triggers `syncOrderToShiprocket` whenever an order payment is captured. |
 
 ### 🛠️ In Case of Fulfillment Anomaly:
 - Use the **1-Click "⚡ Fulfill & Sync to Shiprocket"** button in Admin Order Details or the **"⚡ Sync"** button in All Orders table (`/admin/all-orders`).
-- Alternatively, run `untracked/agent_environment/test_nightly_job.js` to immediately batch-fulfill any missing orders.
+- Alternatively, run `untracked/agent_environment/test_nightly_job.js` via `docker exec -i procare_backend node - < untracked/agent_environment/test_nightly_job.js` to immediately batch-fulfill any missing orders.
 
 ---
 
@@ -90,7 +92,7 @@ To prevent API lockouts and cascading fulfillment failures, all agents must stri
 
 ### 1. Persistent Token Caching (Redis + PostgreSQL Dual Layer)
 - **Requirement:** Shiprocket JWT tokens are valid for **10 days (240 hours)**.
-- **Strict Rule:** NEVER store tokens exclusively in JavaScript RAM. Tokens MUST be persisted in Redis (`shiprocket:auth_token` with 7-day TTL) and backed up in PostgreSQL (`shiprocket_token_cache`).
+- **Strict Rule:** NEVER store tokens exclusively in JavaScript RAM. Tokens MUST be persisted in Redis (`shiprocket:auth_token` with 7-day TTL = 604,800s) and backed up in PostgreSQL (`shiprocket_token_cache`).
 - **Why:** Every container restart or cron process that starts with an empty token calls `/auth/login`. Shiprocket's auth cluster (`sr-auth.shiprocket.in`) throttles login calls and returns misleading `403 {"message":"Invalid email and password combination","status_code":403}` errors when hit repeatedly.
 
 ### 2. Dual-Environment Traffic (Direct VPS Host vs Container)
@@ -111,6 +113,25 @@ To prevent API lockouts and cascading fulfillment failures, all agents must stri
 ### 5. Medusa v2 Fulfillment Service Query Safety
 - **Requirement:** In Medusa v2, fulfillment providers run in an isolated module container where `this.container.resolve("query")` is unavailable.
 - **Strict Rule:** Direct SQL fallbacks must query the `order` and `order_address` tables cleanly. NEVER reference `os.current_order_total` from `order_summary` because that column does not exist in Medusa v2.
+
+### 6. Razorpay Webhook Safety Net & Order Auto-Fulfillment
+- **Requirement:** Checkout flow in Medusa consists of two asynchronous steps: payment authorization/capture and order creation.
+- **Safety Rule:** The Razorpay webhook handler at `src/api/hooks/payment/razorpay/route.ts` MUST always trigger `syncOrderToShiprocket(orderRecord.order_id, req.scope)` upon confirming a captured payment.
+- **Why:** If the customer's browser closes prematurely or client-side cart completion experiences network latency, the webhook guarantees the order is immediately fulfilled to Shiprocket without waiting for the nightly cron job.
+
+### 7. Cron Job Observability & Developer Log Viewer
+- **Requirement:** All cron jobs (e.g. `nightly-shiprocket-fulfill`, `shiprocket-status-sync`) must log start times, execution duration, status (`success`, `warning`, `failed`), and summaries to the `cron_job_log` PostgreSQL table.
+- **Inspection Endpoints:**
+  - Database table: `SELECT * FROM cron_job_log ORDER BY id DESC LIMIT 10;`
+  - Admin API: `GET /admin/custom/cron-jobs`
+  - Admin UI: `/admin/cron-jobs`
+
+### 8. Order Discrepancy & Duplicate Payment Resolution Protocol
+- When customers place multiple orders in quick succession with varying totals:
+  1. **Promotions & Coupons:** Check `order.metadata->'discount_code'` and promotion adjustment lines. (e.g., `RAKHI5` 5% discount).
+  2. **Line Item Breakdown:** Query `order_line_item` to compare item counts, quantities, and newly added/removed variants between orders.
+  3. **Payment State Audit:** Check `payment_collection`, `payment_session`, and live Razorpay status (`razorpayClient.payments.fetch`).
+  4. **Duplicate Charge Protocol:** If multiple charges are captured in Razorpay for what appears to be a cart alteration, fulfill the active desired order, flag the redundant order in Medusa Admin, and alert the customer/support team with payment IDs (`pay_*`) to initiate a prompt refund for the duplicate transaction.
 
 ---
 
