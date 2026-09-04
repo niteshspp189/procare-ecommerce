@@ -8,35 +8,50 @@ export default async function autoFulfillOrderHandler({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
-  console.log(`[AutoFulfillSubscriber] Attempting automatic Shiprocket fulfillment for Order: ${data.id}`)
+  console.log(`[AutoFulfillSubscriber] 🚀 Attempting automatic Shiprocket fulfillment for Order: ${data.id}`)
   
   if (process.env.SHIPROCKET_ENV !== "production") {
     console.log(`[AutoFulfillSubscriber] Skipped: SHIPROCKET_ENV is not 'production'`)
     return
   }
   
-  const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
-  
-  const order = await orderModuleService.retrieveOrder(data.id, {
-    relations: ["items.item", "shipping_methods", "shipping_address"]
-  })
-
-  // We check if it's already fulfilled
-  if ((order as any).fulfillment_status === "fulfilled") {
-    return
-  }
-
-  // Get items to fulfill (all unfulfilled items)
-  const itemsToFulfill = order.items?.map(item => ({
-    id: item.id,
-    quantity: item.quantity,
-  }))
-
-  if (!itemsToFulfill || itemsToFulfill.length === 0) {
-    return
-  }
-
   try {
+    const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
+    
+    let order: any = null
+    try {
+      order = await orderModuleService.retrieveOrder(data.id, {
+        relations: ["items", "shipping_methods", "shipping_address"]
+      })
+    } catch (relErr: any) {
+      console.warn(`[AutoFulfillSubscriber] retrieveOrder with relations failed, trying simple retrieve:`, relErr.message)
+      order = await orderModuleService.retrieveOrder(data.id)
+    }
+
+    if (!order) {
+      console.warn(`[AutoFulfillSubscriber] Order not found via service for ${data.id}, invoking direct sync fallback`)
+      await syncOrderToShiprocket(data.id, container)
+      return
+    }
+
+    // Check if already fulfilled
+    if ((order as any).fulfillment_status === "fulfilled") {
+      console.log(`[AutoFulfillSubscriber] Order ${data.id} is already fulfilled. Skipping.`)
+      return
+    }
+
+    // Get items to fulfill (all unfulfilled items)
+    const itemsToFulfill = order.items?.map((item: any) => ({
+      id: item.id,
+      quantity: item.quantity,
+    }))
+
+    if (!itemsToFulfill || itemsToFulfill.length === 0) {
+      console.log(`[AutoFulfillSubscriber] No items found to fulfill via core flow for ${data.id}, running direct sync fallback`)
+      await syncOrderToShiprocket(data.id, container)
+      return
+    }
+
     const { result, errors } = await createOrderFulfillmentWorkflow(container).run({
       input: {
         order_id: order.id,
@@ -51,11 +66,15 @@ export default async function autoFulfillOrderHandler({
       console.warn(`[AutoFulfillSubscriber] Core workflow reported error for ${data.id}, running direct sync fallback:`, errors[0].error?.message)
       await syncOrderToShiprocket(data.id, container)
     } else {
-      console.log(`[AutoFulfillSubscriber] Successfully created fulfillment for Order: ${data.id}`)
+      console.log(`[AutoFulfillSubscriber] ✅ Successfully created fulfillment for Order: ${data.id}`)
     }
   } catch (error: any) {
-    console.warn(`[AutoFulfillSubscriber] Exception during workflow for ${data.id}, running direct sync fallback:`, error.message)
-    await syncOrderToShiprocket(data.id, container)
+    console.warn(`[AutoFulfillSubscriber] Top-level exception for ${data.id}, running direct sync fallback:`, error.message)
+    try {
+      await syncOrderToShiprocket(data.id, container)
+    } catch (fallbackErr: any) {
+      console.error(`[AutoFulfillSubscriber] ❌ Direct sync fallback also encountered error for ${data.id}:`, fallbackErr.message)
+    }
   }
 }
 
