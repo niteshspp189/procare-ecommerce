@@ -57,17 +57,16 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
       console.warn("[NightlyAutoFulfillJob] Pre-flight warning:", errMsg)
     }
 
-    // Step 1: Look for paid orders created in the last 7 days that are not canceled and have 0 fulfillments
+    // Step 1: Look for all active orders created in the last 7 days that are not canceled and have 0 fulfillments
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
     const unfulfilledOrders = await pgConnection.raw(`
-      SELECT o.id, o.display_id, o.email, o.created_at, o.status
+      SELECT o.id, o.display_id, o.email, o.created_at, o.status, pc.status as payment_status, pc.id as payment_collection_id
       FROM "order" o
       JOIN order_payment_collection opc ON opc.order_id = o.id
       JOIN payment_collection pc ON pc.id = opc.payment_collection_id
       WHERE o.created_at >= ?
         AND o.status != 'canceled'
-        AND pc.status = 'completed'
         AND NOT EXISTS (
           SELECT 1 FROM order_fulfillment of
           JOIN fulfillment f ON of.fulfillment_id = f.id
@@ -82,22 +81,72 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     let failedCount = 0
 
     for (const ord of unfulfilledOrders) {
-      console.log(`[NightlyAutoFulfillJob] Processing Order #${ord.display_id} (${ord.id})...`)
+      console.log(`[NightlyAutoFulfillJob] Processing Order #${ord.display_id} (${ord.id}) - Current Payment Status: ${ord.payment_status}...`)
 
-      // Intelligently validate with live Razorpay API before dispatching to Shiprocket
+      let isPaymentConfirmed = ord.payment_status === "completed"
+
+      // Intelligently validate with live Razorpay API & auto-reconcile if needed
       try {
+        const sessionRecord = await pgConnection("payment_session")
+          .where("payment_collection_id", ord.payment_collection_id)
+          .first()
         const paymentRecord = await pgConnection("payment")
-          .join("order_payment_collection", "order_payment_collection.payment_collection_id", "payment.payment_collection_id")
-          .where("order_payment_collection.order_id", ord.id)
-          .select("payment.data", "payment.captured_at")
+          .where("payment_collection_id", ord.payment_collection_id)
           .first()
 
-        const pData = paymentRecord?.data || {}
-        const targetPayId = pData.razorpay_payment_id || (pData.id && String(pData.id).startsWith("pay_") ? pData.id : null) || pData.razorpay_order_id || (pData.id && String(pData.id).startsWith("order_") ? pData.id : null)
+        const pData = paymentRecord?.data || sessionRecord?.data || {}
+        const targetPayId = pData.razorpay_payment_id || 
+          (pData.id && String(pData.id).startsWith("pay_") ? pData.id : null) || 
+          pData.razorpay_order_id || 
+          (pData.id && String(pData.id).startsWith("order_") ? pData.id : null)
 
         if (targetPayId) {
           const rzpCheck = await isRazorpayPaymentCaptured(String(targetPayId))
-          if (!rzpCheck.captured) {
+          if (rzpCheck.captured) {
+            isPaymentConfirmed = true
+            // If payment_collection was not marked completed, reconcile it now
+            if (ord.payment_status !== "completed") {
+              console.log(`[NightlyAutoFulfillJob] 🔄 Auto-reconciling paid order #${ord.display_id} (Razorpay: ${targetPayId})...`)
+              const capturedAmount = rzpCheck.amount || sessionRecord?.amount || 0
+              await pgConnection("payment_collection")
+                .where("id", ord.payment_collection_id)
+                .update({
+                  status: "completed",
+                  captured_amount: capturedAmount,
+                  raw_captured_amount: JSON.stringify({ value: String(capturedAmount), precision: 20 }),
+                  authorized_amount: capturedAmount,
+                  raw_authorized_amount: JSON.stringify({ value: String(capturedAmount), precision: 20 }),
+                  completed_at: new Date(),
+                })
+
+              if (sessionRecord) {
+                await pgConnection("payment_session")
+                  .where("id", sessionRecord.id)
+                  .update({
+                    status: "authorized",
+                    authorized_at: new Date(),
+                    data: { ...(sessionRecord.data || {}), status: "captured" }
+                  })
+              }
+
+              if (!paymentRecord && sessionRecord) {
+                await pgConnection("payment").insert({
+                  id: `pay_${Date.now()}`,
+                  amount: String(capturedAmount),
+                  raw_amount: JSON.stringify({ value: String(capturedAmount), precision: 20 }),
+                  currency_code: "inr",
+                  provider_id: "pp_razorpay_razorpay",
+                  data: { ...(sessionRecord.data || {}), status: "captured" },
+                  created_at: new Date(),
+                  updated_at: new Date(),
+                  captured_at: new Date(),
+                  payment_collection_id: ord.payment_collection_id,
+                  payment_session_id: sessionRecord.id,
+                })
+              }
+              console.log(`[NightlyAutoFulfillJob] ✅ Order #${ord.display_id} payment reconciled to 'completed'.`)
+            }
+          } else {
             console.warn(`[NightlyAutoFulfillJob] ⚠️ Order #${ord.display_id} skipped: Razorpay payment ${targetPayId} is not captured (status: '${rzpCheck.status}').`)
             await sendAlertEmail(
               `Order #${ord.display_id} Skipped - Razorpay Payment Unverified`,
@@ -113,6 +162,11 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
         }
       } catch (rzpVerifyErr: any) {
         console.warn(`[NightlyAutoFulfillJob] Razorpay pre-validation warning for #${ord.display_id}:`, rzpVerifyErr.message)
+      }
+
+      if (!isPaymentConfirmed) {
+        console.warn(`[NightlyAutoFulfillJob] Order #${ord.display_id} payment unconfirmed. Skipping fulfillment.`)
+        continue
       }
 
       const res = await syncOrderToShiprocket(ord.id, container)
