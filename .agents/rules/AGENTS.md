@@ -64,7 +64,7 @@ Run the built-in health audit on the VPS:
 ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verify_production.js
 ```
 
-### 📋 7-Point Manual Verification Checklist
+### 📋 9-Point Manual Verification Checklist
 
 | Checkpoint | Target State | How to Verify |
 | :--- | :--- | :--- |
@@ -75,6 +75,8 @@ ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verif
 | **5. Process Liveness & Cron Worker** | `medusa start` running & worker active | `docker exec procare_backend ps aux`<br>Must show `node ... medusa start` running as the main process. Do NOT kill this process. |
 | **6. Nightly Cron & Fulfillment** | Scheduled job active & 100% orders fulfilled | Query unfulfilled orders from last 7 days. Ensure Medusa scheduled job (`nightly-shiprocket-fulfill` in `src/jobs/auto-fulfill-nightly.ts`) is present, and recent orders have valid Shiprocket order & shipment IDs. |
 | **7. GTM & Meta Pixel (`/confirm`)** | `Purchase` event triggered on thank-you page | Inspect browser console on `/order/<id>/confirmed`:<br>1. **GTM dataLayer**: `window.dataLayer.find(e => e.event === 'purchase')` returns `{ transaction_id, value, currency: 'INR' }`.<br>2. **Meta Pixel**: `fbq` function exists and Meta Pixel Helper shows `Purchase` event with exact order value and currency. |
+| **8. Shiprocket Redis Token Cache** | Token cached in Redis (`shiprocket:auth_token`) with 7-day TTL | `docker exec procare_redis redis-cli ttl shiprocket:auth_token`<br>Must return positive TTL (> 0), verifying auth token reuse without hitting `/auth/login`. |
+| **9. Dual Host & Container Token Sharing** | RDS fallback table has valid token | `docker exec procare_backend node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(() => c.query('SELECT expires_at FROM shiprocket_token_cache WHERE id = 1')).then(r => { console.log(r.rows); c.end(); });"`<br>Must show valid `expires_at` in the future. |
 
 ### 🛠️ In Case of Fulfillment Anomaly:
 - Use the **1-Click "⚡ Fulfill & Sync to Shiprocket"** button in Admin Order Details or the **"⚡ Sync"** button in All Orders table (`/admin/all-orders`).
@@ -82,7 +84,37 @@ ssh procare "docker exec -i procare_backend node -" < untracked/deployment/verif
 
 ---
 
-## 7. Frontend, Media & Nginx Safety Guidelines (Learned Lessons)
+## 7. Shiprocket Logistics & Token Architecture (Learned Lessons)
+
+To prevent API lockouts and cascading fulfillment failures, all agents must strictly adhere to the following rules:
+
+### 1. Persistent Token Caching (Redis + PostgreSQL Dual Layer)
+- **Requirement:** Shiprocket JWT tokens are valid for **10 days (240 hours)**.
+- **Strict Rule:** NEVER store tokens exclusively in JavaScript RAM. Tokens MUST be persisted in Redis (`shiprocket:auth_token` with 7-day TTL) and backed up in PostgreSQL (`shiprocket_token_cache`).
+- **Why:** Every container restart or cron process that starts with an empty token calls `/auth/login`. Shiprocket's auth cluster (`sr-auth.shiprocket.in`) throttles login calls and returns misleading `403 {"message":"Invalid email and password combination","status_code":403}` errors when hit repeatedly.
+
+### 2. Dual-Environment Traffic (Direct VPS Host vs Container)
+- **Requirement:** Both the Docker container and commands executed on the direct VPS host exit through the identical AWS public IP (`3.7.7.67`).
+- **Safety Rule:** Always route diagnostic scripts through `docker exec -i procare_backend node -` so they reuse the shared Redis cache and environment variables. Independent scripts hitting `/auth/login` directly from the host consume the same IP-level rate-limit bucket and can lock out the main server.
+
+### 3. Anti-Hammering & No Tight-Loop Login Retries
+- **Strict Rule:** NEVER loop-retry `/auth/login` on 403 or 400 errors.
+- **Why:** When Shiprocket returns 403 (throttled), firing 3 to 9 retries within seconds causes Shiprocket's firewall to escalate to `400/403 {"message":"User blocked due to too many failed login attempts."}`. Always fail fast and let the temporary (30-60 min) rate limit cool down.
+
+### 4. Mandatory HTTP Request Headers
+- **Requirement:** All HTTP POST requests to `apiv2.shiprocket.in` MUST include:
+  - `User-Agent: ProCare-Ecommerce/1.0`
+  - `Content-Length: Buffer.byteLength(body)`
+  - `Content-Type: application/json`
+- **Why:** Requests without `User-Agent` and `Content-Length` are frequently challenged or dropped by Shiprocket's Cloudflare / AWS WAF.
+
+### 5. Medusa v2 Fulfillment Service Query Safety
+- **Requirement:** In Medusa v2, fulfillment providers run in an isolated module container where `this.container.resolve("query")` is unavailable.
+- **Strict Rule:** Direct SQL fallbacks must query the `order` and `order_address` tables cleanly. NEVER reference `os.current_order_total` from `order_summary` because that column does not exist in Medusa v2.
+
+---
+
+## 8. Frontend, Media & Nginx Safety Guidelines (Learned Lessons)
 
 To avoid regressions across storefront routing, banner assets, media uploads, and catalog sorting, all agents must strictly adhere to the following rules:
 
