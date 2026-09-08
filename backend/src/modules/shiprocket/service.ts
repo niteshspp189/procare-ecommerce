@@ -56,6 +56,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let isCOD = false
     let dbItems: any[] = []
     let dbShippingFee = 0
+    let dbSummaryTotal: number | null = null
 
     let fullOrder = order
     if (order && order.id && this.container) {
@@ -171,8 +172,23 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
             } catch (shipErr: any) {
               console.error("[ShiprocketService] Failed to query shipping from DB:", shipErr.message)
             }
+
+            // Query Order Summary for current_order_total
+            try {
+              const summaryRes = await pgConnection.raw(`
+                SELECT (totals->>'current_order_total')::numeric as current_order_total
+                FROM order_summary
+                WHERE order_id = ?
+                ORDER BY id DESC LIMIT 1
+              `, [order.id])
+              if (summaryRes?.rows?.[0]?.current_order_total != null) {
+                dbSummaryTotal = parseFloat(summaryRes.rows[0].current_order_total.toString())
+              }
+            } catch (summaryErr: any) {
+              console.warn("[ShiprocketService] Failed to query order_summary from DB:", summaryErr.message)
+            }
             
-            console.log("[ShiprocketService] Fallback retrieval complete:", { displayId, email, phoneVal, isCOD, dbItemsCount: dbItems.length, dbShippingFee })
+            console.log("[ShiprocketService] Fallback retrieval complete:", { displayId, email, phoneVal, isCOD, dbItemsCount: dbItems.length, dbShippingFee, dbSummaryTotal })
           }
         } catch (dbErr: any) {
           console.error("[ShiprocketService] pgConnection fallback wrapper failed:", dbErr.message)
@@ -267,9 +283,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     }
 
     const undiscountedItemsTotal = orderItems.reduce((sum: number, it: any) => sum + (it.selling_price * it.units), 0)
-    const totalDiscount = Math.round(fullOrder?.discount_total ?? fullOrder?.summary?.discount_total ?? (totalItemDiscountSum + shippingDiscount))
-    const rawGrandTotal = fullOrder?.total ?? fullOrder?.summary?.total ?? (undiscountedItemsTotal + shippingCharges - totalDiscount)
+    const rawGrandTotal = dbSummaryTotal ?? fullOrder?.total ?? fullOrder?.summary?.total ?? (undiscountedItemsTotal + shippingCharges - (totalItemDiscountSum + shippingDiscount))
     const grandTotal = Math.round(parseFloat(rawGrandTotal.toString()))
+    const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
 
     const orderData = {
       order_id: `OD${(displayId || fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,

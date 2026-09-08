@@ -32,7 +32,12 @@ export default function AnnouncementMarquee({
           {/* First set of items */}
           <div className="flex shrink-0 items-center">
             {formattedItems.map((item, idx) => (
-              <div key={`set1-${idx}`} className="flex items-center shrink-0 pr-6 sm:pr-8 md:pr-10">
+              <div
+                key={`set1-${idx}`}
+                className={`flex items-center shrink-0 ${
+                  idx === formattedItems.length - 1 ? "pr-[60vw]" : "pr-8 md:pr-12"
+                }`}
+              >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] mr-2 animate-promo-pulse shrink-0"></span>
                 <span>{item}</span>
               </div>
@@ -42,7 +47,12 @@ export default function AnnouncementMarquee({
           {/* Duplicate set of items for seamless infinite scroll */}
           <div className="flex shrink-0 items-center" aria-hidden="true">
             {formattedItems.map((item, idx) => (
-              <div key={`set2-${idx}`} className="flex items-center shrink-0 pr-6 sm:pr-8 md:pr-10">
+              <div
+                key={`set2-${idx}`}
+                className={`flex items-center shrink-0 ${
+                  idx === formattedItems.length - 1 ? "pr-[60vw]" : "pr-8 md:pr-12"
+                }`}
+              >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] mr-2 animate-promo-pulse shrink-0"></span>
                 <span>{item}</span>
               </div>

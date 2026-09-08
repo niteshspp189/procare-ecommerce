@@ -73,6 +73,37 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
       WHERE os.order_id = ?
     `, [orderId]).then((r: any) => r.rows || [])
 
+    // Fetch exact current_order_total from order_summary
+    let currentOrderTotal: number | null = null
+    try {
+      const summaryRes = await pgConnection.raw(`
+        SELECT (totals->>'current_order_total')::numeric as current_order_total
+        FROM order_summary
+        WHERE order_id = ?
+        ORDER BY id DESC LIMIT 1
+      `, [orderId])
+      if (summaryRes?.rows?.[0]?.current_order_total != null) {
+        currentOrderTotal = parseFloat(summaryRes.rows[0].current_order_total.toString())
+      }
+    } catch (e: any) {
+      console.warn(`[ShiprocketSync] Could not fetch order_summary for order ${orderId}: ${e.message}`)
+    }
+
+    // Fetch line item adjustments (coupons, promotions) with 18% GST gross adjustment
+    const itemAdjustments = orderItems.length > 0 ? await pgConnection.raw(`
+      SELECT item_id, 
+             SUM(amount * (CASE WHEN is_tax_inclusive THEN 1 ELSE 1.18 END)) as discount_total
+      FROM order_line_item_adjustment
+      WHERE item_id IN (${orderItems.map(() => "?").join(",")})
+        AND deleted_at IS NULL
+      GROUP BY item_id
+    `, orderItems.map((i: any) => i.item_id)).then((r: any) => r.rows || []).catch(() => []) : []
+
+    const adjustmentMap = new Map<string, number>()
+    for (const adj of itemAdjustments) {
+      adjustmentMap.set(adj.item_id, parseFloat(adj.discount_total || "0"))
+    }
+
     // 3. Prepare Channel Order ID & Phone
     const displayIdStr = (order.display_id || order.id || "").toString().padStart(8, "0")
     const channelOrderId = `OD${displayIdStr}`
@@ -111,19 +142,24 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
       awbCode = existingSrOrder.shipments?.[0]?.awb || existingSrOrder.awb_code || ""
       srResponse = existingSrOrder
     } else {
-      // 5. Build Shiprocket payload
+      // 5. Build Shiprocket payload with exact discounts and totals
       let totalItemDiscountSum = 0
       const itemsPayload = lineItems.map((item: any) => {
         const oi = orderItems.find((x: any) => x.item_id === item.id)
         const qty = Number(oi?.quantity || 1)
         const inclusivePrice = Math.round(Number(item.unit_price || 0))
 
+        const itemDiscountTotal = adjustmentMap.get(item.id) || 0
+        const unitDiscount = qty > 0 ? (itemDiscountTotal / qty) : 0
+        const roundedUnitDiscount = Math.round(unitDiscount)
+        totalItemDiscountSum += (roundedUnitDiscount * qty)
+
         return {
           name: item.title || item.product_title || "Product",
           sku: item.variant_sku || item.variant_id || item.id,
           units: qty,
           selling_price: inclusivePrice,
-          discount: 0,
+          discount: roundedUnitDiscount,
           tax: 18,
           hsn: 0,
         }
@@ -131,7 +167,12 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
 
       const shippingCharges = Math.round(Number(shippingMethods[0]?.amount || 0))
       const undiscountedItemsTotal = itemsPayload.reduce((acc: number, it: any) => acc + (it.selling_price * it.units), 0)
-      const grandTotal = undiscountedItemsTotal + shippingCharges - totalItemDiscountSum
+
+      // Align grand_total with Medusa current_order_total and Shiprocket requirement: grand_total = sub_total + shipping_charges - total_discount
+      const grandTotal = currentOrderTotal != null 
+        ? Math.round(currentOrderTotal)
+        : Math.max(0, undiscountedItemsTotal + shippingCharges - totalItemDiscountSum)
+      const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
 
       const orderPayload = {
         order_id: channelOrderId,
@@ -155,7 +196,7 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         shipping_charges: shippingCharges,
         giftwrap_charges: 0,
         transaction_charges: 0,
-        total_discount: totalItemDiscountSum,
+        total_discount: totalDiscount,
         sub_total: undiscountedItemsTotal,
         grand_total: grandTotal,
         length: 10,
