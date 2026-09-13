@@ -133,6 +133,14 @@ To prevent API lockouts and cascading fulfillment failures, all agents must stri
   3. **Payment State Audit:** Check `payment_collection`, `payment_session`, and live Razorpay status (`razorpayClient.payments.fetch`).
   4. **Duplicate Charge Protocol:** If multiple charges are captured in Razorpay for what appears to be a cart alteration, fulfill the active desired order, flag the redundant order in Medusa Admin, and alert the customer/support team with payment IDs (`pay_*`) to initiate a prompt refund for the duplicate transaction.
 
+### 9. Scheduled Hardening (Monday/Tuesday Deployment): Token Lifecycle & False-Alarm Prevention
+- **Context:** Shiprocket JWT tokens possess a true **10-day (864,000s)** lifetime. Top-of-the-hour rate limit spikes at 02:00:00 AM on `sr-auth.shiprocket.in` can return momentary 403 throttling errors.
+- **Action Items to Deploy:**
+  1. **Dynamic JWT Expiration:** Parse `exp` directly from the JWT payload to store the full 10-day validity in both Redis (`expirySec - 3600`) and PostgreSQL RDS (`expires_at = NOW() + interval`), rather than premature 7-day hardcoding.
+  2. **Non-Destructive Login Fallback:** In `shiprocket-client.ts`, NEVER execute `await this.clearToken()` inside `authenticate()` when `/auth/login` fails. Preserve the existing database token so long as its real expiration has not passed. Clear tokens ONLY on explicit `401 Unauthorized` during order creation.
+  3. **15-Second Cron Pre-Flight Cooldown:** In `auto-fulfill-nightly.ts`, implement a 15-second cooldown retry on pre-flight health check before escalating to an alert email.
+- **Status:** Documented and scheduled for rollout alongside the incoming week's sprint changes.
+
 ---
 
 ## 8. Frontend, Media & Nginx Safety Guidelines (Learned Lessons)
