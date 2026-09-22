@@ -101,13 +101,14 @@ async function setCachedTokenInDb(token: string): Promise<void> {
   })
   try {
     const ttlSeconds = getJwtTtlSeconds(token)
+    const expiresAt = new Date(Date.now() + ttlSeconds * 1000)
     await client.connect()
     await client.query(`
       INSERT INTO shiprocket_token_cache (id, token, expires_at, updated_at)
-      VALUES (1, $1, NOW() + ($2 || ' seconds')::interval, NOW())
+      VALUES (1, $1, $2, NOW())
       ON CONFLICT (id) DO UPDATE 
       SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at, updated_at = NOW()
-    `, [token, ttlSeconds.toString()])
+    `, [token, expiresAt])
     await client.end()
   } catch (e) {
     try { await client.end() } catch (_) {}
