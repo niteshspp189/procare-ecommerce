@@ -2,7 +2,7 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { syncOrderToShiprocket, syncAllShiprocketStatuses } from "../lib/shiprocket-sync"
 import { shiprocketClient } from "../modules/shiprocket/shiprocket-client"
 import { isRazorpayPaymentCaptured } from "../lib/razorpay"
-import { sendAlertEmail } from "../lib/email"
+import { sendAlertEmail, sendPeriodicHealthReportEmail } from "../lib/email"
 import { startJobLog, finishJobLog } from "../lib/cron-logger"
 
 export default async function nightlyAutoFulfillJob(container: MedusaContainer) {
@@ -213,6 +213,117 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     const statusSyncRes = await syncAllShiprocketStatuses(container, 30)
     console.log(`[NightlyAutoFulfillJob] Live status sync complete: ${statusSyncRes.matchedCount} orders checked, ${statusSyncRes.updatedCount} fulfillments updated.`)
 
+    // Step 3: Periodic 3-Day Health & 7-Day Fulfillment Confirmation Email
+    let digestSent = false
+    try {
+      const lastDigestLog = await pgConnection("cron_job_log")
+        .where("job_name", "nightly-shiprocket-fulfill")
+        .whereRaw("(details->>'digest_sent')::boolean = true")
+        .orderBy("started_at", "desc")
+        .first()
+
+      const threeDaysMs = 3 * 24 * 60 * 60 * 1000 - 3600000 // 3 days (with 1-hour grace window)
+      const shouldSendDigest = !lastDigestLog || (Date.now() - new Date(lastDigestLog.started_at).getTime() >= threeDaysMs)
+
+      if (shouldSendDigest) {
+        console.log("[NightlyAutoFulfillJob] 📬 3-Day interval reached. Generating 7-day fulfillment health report email...")
+
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+
+        const recentOrdersRaw = await pgConnection.raw(`
+          SELECT 
+            o.id, 
+            o.display_id, 
+            o.email, 
+            o.created_at, 
+            pc.status as payment_status,
+            COALESCE((os.totals->>'current_order_total')::numeric, 0) as total_amount,
+            f.data->>'shiprocket_order_id' as sr_order_id,
+            f.data->>'shiprocket_shipment_id' as sr_shipment_id,
+            f.data->>'awb_code' as awb_code,
+            f.data->'shiprocket_response'->>'status' as sr_status
+          FROM "order" o
+          LEFT JOIN order_summary os ON os.order_id = o.id
+          LEFT JOIN order_payment_collection opc ON opc.order_id = o.id
+          LEFT JOIN payment_collection pc ON pc.id = opc.payment_collection_id
+          LEFT JOIN order_fulfillment of ON of.order_id = o.id
+          LEFT JOIN fulfillment f ON of.fulfillment_id = f.id AND f.canceled_at IS NULL
+          WHERE o.created_at >= ?
+            AND o.status != 'canceled'
+          ORDER BY o.display_id DESC
+          LIMIT 10;
+        `, [sevenDaysAgo]).then((r: any) => r.rows || []).catch(() => [])
+
+        const totalOrders = recentOrdersRaw.length
+        let totalRevenue = 0
+        let paidOrders = 0
+        let fulfilledOrders = 0
+
+        for (const ord of recentOrdersRaw) {
+          totalRevenue += parseFloat(ord.total_amount || "0")
+          if (ord.payment_status === "completed") paidOrders++
+          if (ord.sr_order_id || ord.sr_shipment_id) fulfilledOrders++
+        }
+
+        // Fetch RDS token validity info
+        let daysRemainingStr = "N/A"
+        let expiresAtStr = "N/A"
+        let isTokenValid = false
+        try {
+          const tokenCacheRes = await pgConnection("shiprocket_token_cache")
+            .where("id", 1)
+            .first()
+          if (tokenCacheRes && tokenCacheRes.expires_at) {
+            const exp = new Date(tokenCacheRes.expires_at)
+            isTokenValid = exp > new Date()
+            const diffMs = exp.getTime() - Date.now()
+            daysRemainingStr = Math.max(0, diffMs / (1000 * 60 * 60 * 24)).toFixed(1)
+            expiresAtStr = exp.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric" })
+          }
+        } catch (_) {}
+
+        await sendPeriodicHealthReportEmail({
+          timeZoneString: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+          lastSevenDaysStats: {
+            totalOrders,
+            totalRevenue,
+            paidOrders,
+            fulfilledOrders,
+            unfulfilledOrders: unfulfilledOrders.length,
+          },
+          recentOrders: recentOrdersRaw.map((o: any) => ({
+            display_id: o.display_id,
+            email: o.email,
+            total_amount: parseFloat(o.total_amount || "0"),
+            created_at: new Date(o.created_at).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }),
+            payment_status: o.payment_status || "unknown",
+            sr_order_id: o.sr_order_id,
+            sr_shipment_id: o.sr_shipment_id,
+            awb_code: o.awb_code,
+            sr_status: o.sr_status,
+          })),
+          tokenInfo: {
+            isValid: isTokenValid,
+            expiresAt: expiresAtStr,
+            daysRemaining: daysRemainingStr,
+          },
+          syncStats: {
+            checkedCount: statusSyncRes.matchedCount,
+            updatedCount: statusSyncRes.updatedCount,
+          },
+          nextScheduledRun: "Tomorrow at 2:23 AM IST",
+        })
+
+        digestSent = true
+        console.log("[NightlyAutoFulfillJob] ✅ 3-Day confirmation health report email sent successfully!")
+      } else {
+        const lastSentDate = lastDigestLog?.started_at ? new Date(lastDigestLog.started_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : "N/A"
+        console.log(`[NightlyAutoFulfillJob] 3-Day digest skipped (last sent at ${lastSentDate}).`)
+      }
+    } catch (digestErr: any) {
+      console.warn("[NightlyAutoFulfillJob] Error generating 3-day digest email:", digestErr.message)
+    }
+
     const finalSummary = `Scanned ${unfulfilledOrders.length} unfulfilled order(s). ${successCount} synced, ${failedCount} failed. Tracking sync: ${statusSyncRes.matchedCount} orders checked, ${statusSyncRes.updatedCount} fulfillments updated.`
     if (logId) {
       await finishJobLog(pgConnection, logId, {
@@ -224,6 +335,7 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
           failedCount: failedCount,
           statusSyncMatched: statusSyncRes.matchedCount,
           statusSyncUpdated: statusSyncRes.updatedCount,
+          digest_sent: digestSent,
         }
       })
     }
