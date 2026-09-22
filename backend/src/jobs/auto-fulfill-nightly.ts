@@ -27,34 +27,48 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
 
     logId = await startJobLog(pgConnection, "nightly-shiprocket-fulfill")
 
-    // Step 0: Pre-flight Shiprocket Health & Auth Check to prevent lockout loops
-    try {
-      console.log("[NightlyAutoFulfillJob] Verifying Shiprocket API health & authentication...")
-      await shiprocketClient.getOrders("?per_page=1")
-      console.log("[NightlyAutoFulfillJob] Shiprocket API is healthy & authenticated.")
-    } catch (authErr: any) {
-      const errMsg = authErr.message || ""
-      if (errMsg.includes("User blocked") || errMsg.includes("failed login attempts") || errMsg.includes("403")) {
-        console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket lockout detected:", errMsg)
+    // Step 0: Pre-flight Shiprocket Health & Auth Check with 15s cooldown retry
+    let isHealthy = false
+    let lastAuthError = ""
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        console.log(`[NightlyAutoFulfillJob] Verifying Shiprocket API health & authentication (attempt ${attempt}/2)...`)
+        await shiprocketClient.getOrders("?per_page=1")
+        console.log("[NightlyAutoFulfillJob] Shiprocket API is healthy & authenticated.")
+        isHealthy = true
+        break
+      } catch (authErr: any) {
+        lastAuthError = authErr.message || ""
+        console.warn(`[NightlyAutoFulfillJob] Pre-flight check attempt ${attempt}/2 warning:`, lastAuthError)
+        if (attempt < 2) {
+          console.log("[NightlyAutoFulfillJob] Cooling down for 15s before pre-flight retry to avoid top-of-the-hour rate limit spikes...")
+          await new Promise((resolve) => setTimeout(resolve, 15000))
+        }
+      }
+    }
+
+    if (!isHealthy) {
+      if (lastAuthError.includes("User blocked") || lastAuthError.includes("failed login attempts") || lastAuthError.includes("403")) {
+        console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket lockout confirmed after retries:", lastAuthError)
         if (logId) {
           await finishJobLog(pgConnection, logId, {
             status: "failed",
-            summary: `Shiprocket API authentication failed: ${errMsg}`,
-            details: { error: errMsg }
+            summary: `Shiprocket API authentication failed: ${lastAuthError}`,
+            details: { error: lastAuthError }
           })
         }
         await sendAlertEmail(
           "Shiprocket API Lockout Detected - Nightly Job Paused",
           `
             <p><strong>Warning:</strong> The nightly Shiprocket auto-fulfillment job detected an API account lockout.</p>
-            <p><strong>Error Message:</strong> ${errMsg}</p>
+            <p><strong>Error Message:</strong> ${lastAuthError}</p>
             <p><strong>Time:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
             <p>The nightly fulfillment loop was paused to protect against further account suspension. Please check your credentials at <a href="https://app.shiprocket.in">app.shiprocket.in</a>.</p>
           `
         )
         return
       }
-      console.warn("[NightlyAutoFulfillJob] Pre-flight warning:", errMsg)
+      console.warn("[NightlyAutoFulfillJob] Pre-flight non-lockout warning:", lastAuthError)
     }
 
     // Step 1: Look for all active orders created in the last 7 days that are not canceled and have 0 fulfillments

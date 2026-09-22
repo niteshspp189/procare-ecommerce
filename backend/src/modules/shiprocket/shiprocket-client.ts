@@ -3,7 +3,28 @@ import Redis from "ioredis"
 import { Client } from "pg"
 
 const REDIS_TOKEN_KEY = "shiprocket:auth_token"
-const TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60 // 7 days (Shiprocket tokens are valid for 10 days)
+const DEFAULT_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60 // 7-day fallback
+
+/**
+ * Dynamically extract TTL from Shiprocket JWT token.
+ * Shiprocket JWTs have a 10-day validity (864,000s). We keep a 1-hour safety buffer.
+ */
+function getJwtTtlSeconds(token: string): number {
+  try {
+    const parts = token.split(".")
+    if (parts.length >= 2) {
+      const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf-8"))
+      if (typeof payload.exp === "number") {
+        const remaining = payload.exp - Math.floor(Date.now() / 1000)
+        // Keep a 1-hour buffer (3600s) before actual expiration, minimum 60s
+        return Math.max(60, remaining - 3600)
+      }
+    }
+  } catch (e) {
+    console.warn("[ShiprocketClient] Could not parse JWT exp:", (e as any)?.message)
+  }
+  return DEFAULT_TOKEN_TTL_SECONDS
+}
 
 let redisInstance: Redis | null = null
 
@@ -40,7 +61,8 @@ async function setCachedTokenInRedis(token: string): Promise<void> {
   try {
     const r = getRedis()
     if (!r) return
-    await r.set(REDIS_TOKEN_KEY, token, "EX", TOKEN_TTL_SECONDS)
+    const ttl = getJwtTtlSeconds(token)
+    await r.set(REDIS_TOKEN_KEY, token, "EX", ttl)
   } catch (e) {
     console.warn("[ShiprocketClient] Failed to write token to Redis:", (e as any)?.message)
   }
@@ -78,13 +100,14 @@ async function setCachedTokenInDb(token: string): Promise<void> {
     ssl: process.env.DATABASE_URL.includes("ssl") ? { rejectUnauthorized: false } : false
   })
   try {
+    const ttlSeconds = getJwtTtlSeconds(token)
     await client.connect()
     await client.query(`
       INSERT INTO shiprocket_token_cache (id, token, expires_at, updated_at)
-      VALUES (1, $1, NOW() + INTERVAL '7 days', NOW())
+      VALUES (1, $1, NOW() + ($2 || ' seconds')::interval, NOW())
       ON CONFLICT (id) DO UPDATE 
       SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at, updated_at = NOW()
-    `, [token])
+    `, [token, ttlSeconds.toString()])
     await client.end()
   } catch (e) {
     try { await client.end() } catch (_) {}
@@ -206,16 +229,17 @@ export class ShiprocketClient {
       this.token = token
       this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
 
-      // Cache across Redis and PostgreSQL with 7-day TTL
+      // Cache across Redis and PostgreSQL with dynamic TTL (up to 10 days)
       await setCachedTokenInRedis(token)
       await setCachedTokenInDb(token)
 
-      console.log("[ShiprocketClient] ✅ Successfully authenticated & cached token for 7 days.")
+      const remainingDays = (getJwtTtlSeconds(token) / 86400).toFixed(1)
+      console.log(`[ShiprocketClient] ✅ Successfully authenticated & cached token for ~${remainingDays} days.`)
       return token
     }
 
     console.error("[ShiprocketClient] ❌ Authentication failed:", JSON.stringify(data))
-    await this.clearToken()
+    // Do NOT clear cached tokens here. Preserves the DB fallback token and prevents tight-loop lockouts.
     throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
   }
 
