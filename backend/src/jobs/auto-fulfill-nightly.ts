@@ -248,5 +248,5 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
 
 export const config = {
   name: "nightly-shiprocket-fulfill",
-  schedule: "30 20 * * *", // Runs every night at 20:30 UTC (2:00 AM IST)
+  schedule: "53 20 * * *", // Runs every night at 20:53 UTC (2:23 AM IST) to avoid top-of-the-hour API spikes
 }
