@@ -225,6 +225,7 @@ const AnnouncementsPage = () => {
           <div className="flex flex-wrap gap-2">
             {[
               "Free Delivery Eligible On Orders Above ₹{threshold}",
+              "Festive Offer: 5% Off On All Orders | Use Code: FESTIVE5",
               "Rakhi offer: 5% off on all products on purchase of Rs 999, Use Code RAKHI5",
               "Glow this Rakhi: 5% Off on Magic Pedi. Use Code RAKHI5",
               "Special Launch Offer: Get 10% Off On First Order | Code: WELCOME10",

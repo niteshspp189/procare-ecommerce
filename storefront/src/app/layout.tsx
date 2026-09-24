@@ -51,16 +51,7 @@ fbq('track', 'PageView');`,
         {/* End Meta Pixel Code */}
       </head>
       <body>
-        {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-KFH4H855"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          ></iframe>
-        </noscript>
-        {/* End Google Tag Manager (noscript) */}
+        {/* Note: Google Tag Manager (noscript) is injected directly after <body> via Nginx sub_filter to satisfy Google Merchant Center requirements */}
 
         {/* Meta Pixel (noscript) */}
         <noscript>

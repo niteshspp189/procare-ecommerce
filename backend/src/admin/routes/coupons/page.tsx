@@ -1,3 +1,4 @@
+import { defineRouteConfig } from "@medusajs/admin-sdk"
 import {
   Container,
   Heading,
@@ -581,6 +582,11 @@ const CouponsPage = () => {
     </div>
   )
 }
+
+export const config = defineRouteConfig({
+  label: "Coupons",
+  icon: Tag,
+})
 
 export default CouponsPage
 
