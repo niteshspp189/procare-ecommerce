@@ -28,7 +28,20 @@ export default async function OrderCompletedTemplate({
   return (
     <div className="py-6 min-h-[calc(100vh-64px)]">
       <MetaPurchaseTracker total={order.total} currencyCode={order.currency_code} />
-      <GooglePurchaseTracker transactionId={order.id} value={order.total} currency={order.currency_code} />
+      <GooglePurchaseTracker
+        transactionId={order.id}
+        value={order.total}
+        currency={order.currency_code}
+        items={
+          order.items?.map((item) => ({
+            item_id: item.variant?.sku || item.variant_id || item.product_id || item.id,
+            item_name: item.product_title || item.title || "Product",
+            item_variant: item.variant?.title || undefined,
+            price: item.unit_price,
+            quantity: item.quantity,
+          })) || []
+        }
+      />
       <div className="content-container flex flex-col justify-center items-center gap-y-10 max-w-4xl h-full w-full">
         {isOnboarding && <OnboardingCta orderId={order.id} />}
         <div

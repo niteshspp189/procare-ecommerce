@@ -5,6 +5,9 @@ import "styles/globals.css"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  verification: {
+    google: "1VTBIFynT_31XCptW93gXoeqnVKHT_211xn4U6w-B1s",
+  },
 }
 
 import PageProgress from "@modules/layout/components/page-progress"
@@ -15,6 +18,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
       <head>
+        <meta
+          name="google-site-verification"
+          content="1VTBIFynT_31XCptW93gXoeqnVKHT_211xn4U6w-B1s"
+        />
         {/* Google Tag Manager */}
         <script
           id="gtm-script"
