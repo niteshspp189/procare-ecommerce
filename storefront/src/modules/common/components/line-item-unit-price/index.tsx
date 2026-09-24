@@ -13,7 +13,10 @@ const LineItemUnitPrice = ({
   style = "default",
   currencyCode,
 }: LineItemUnitPriceProps) => {
-  const total = item.total ?? 0
+  // Use actual catalog unit price if available, fallback to total / quantity
+  const unitPrice =
+    item.unit_price ??
+    (item.quantity > 0 ? (item.total ?? 0) / item.quantity : 0)
 
   return (
     <div className="flex flex-col text-ui-fg-muted justify-center h-full">
@@ -22,7 +25,7 @@ const LineItemUnitPrice = ({
         data-testid="product-unit-price"
       >
         {convertToLocale({
-          amount: total / item.quantity,
+          amount: unitPrice,
           currency_code: currencyCode,
         })}
       </span>
