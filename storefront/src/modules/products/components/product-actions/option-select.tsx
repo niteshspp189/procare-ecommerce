@@ -116,7 +116,9 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
               className={clx(
                 "flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 min-w-[100px] justify-center",
                 isSelected
-                  ? "border-black bg-white shadow-sm ring-1 ring-black"
+                  ? (isOutOfStock
+                      ? "border-red-400 bg-red-50/50 shadow-sm ring-1 ring-red-400"
+                      : "border-black bg-white shadow-sm ring-1 ring-black")
                   : isOutOfStock
                     ? "border-dashed border-gray-300 bg-gray-50 opacity-70 hover:border-gray-400"
                     : "border-gray-200 bg-ui-bg-subtle hover:border-gray-400"
@@ -132,8 +134,8 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
               )}
               <span className={clx(
                 "text-sm font-medium",
-                isSelected ? "text-black" : "text-ui-fg-subtle",
-                isOutOfStock && "line-through text-gray-400"
+                isSelected ? (isOutOfStock ? "text-red-700" : "text-black") : "text-ui-fg-subtle",
+                isOutOfStock && "line-through opacity-80"
               )}>
                 {v}
               </span>

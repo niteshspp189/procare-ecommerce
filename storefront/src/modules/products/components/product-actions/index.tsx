@@ -140,7 +140,7 @@ export default function ProductActions({
   // add the selected variant to the cart
   const handleAddToCart = async () => {
     const variantId = selectedVariant?.id || product.variants?.[0]?.id
-    if (!variantId) return null
+    if (!variantId || !inStock) return null
 
     // Track Meta Pixel event immediately on click
     trackMetaEvent("AddToCart", {

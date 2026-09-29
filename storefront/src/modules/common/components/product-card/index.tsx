@@ -9,7 +9,7 @@ import QuickBuy from "@modules/products/components/product-preview/quick-buy"
 import { addToCart } from "@lib/data/cart"
 import { trackMetaEvent } from "@lib/util/meta-pixel"
 import { useParams } from "next/navigation"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import clsx from "clsx"
 import { convertToLocale } from "@lib/util/money"
@@ -54,9 +54,25 @@ export default function ProductCard({
 
   const isMultiVariant = product.variants && product.variants.length > 1 && product.options && product.options.length > 0
 
+  const isVariantInStock = (v: any) => {
+    if (!v) return false
+    if (!v.manage_inventory) return true
+    if (v.allow_backorder) return true
+    return ((v as any).inventory_quantity || 0) > 0
+  }
+
+  const hasStock = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) return false
+    return product.variants.some((v: any) => isVariantInStock(v))
+  }, [product.variants])
+
+  const isOutOfStock = !hasStock
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (isOutOfStock) return
+
     const variantId = product.variants?.[0]?.id
     if (!variantId || isMultiVariant) {
       setTriggerQuickBuy(true)
@@ -105,8 +121,19 @@ export default function ProductCard({
             className="!p-0 object-cover w-full h-full"
           />
           {product.variants && product.variants.length > 0 && (
-            <div className="absolute top-0 left-0 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-tl-[16px] rounded-br-[16px] text-[10px] font-bold uppercase tracking-wider text-black shadow-md z-10 border-b border-r border-slate-100/50">
-              {product.variants.length > 1 ? "Multi-Variant" : "In Stock"}
+            <div
+              className={clsx(
+                "absolute top-0 left-0 backdrop-blur-md px-3 py-1.5 rounded-tl-[16px] rounded-br-[16px] text-[10px] font-bold uppercase tracking-wider shadow-md z-10 border-b border-r",
+                isOutOfStock
+                  ? "bg-red-50 text-red-600 border-red-200"
+                  : "bg-white/95 text-black border-slate-100/50"
+              )}
+            >
+              {isOutOfStock
+                ? "Out of Stock"
+                : product.variants.length > 1
+                ? "Multi-Variant"
+                : "In Stock"}
             </div>
           )}
           {hasDiscount && discountPercentage > 0 && (
@@ -139,13 +166,24 @@ export default function ProductCard({
       <div className="px-1 mt-auto pt-2">
         <button
           onClick={handleAddToCart}
-          disabled={isAdding}
+          disabled={isAdding || isOutOfStock}
           className={clsx(
-            "w-full py-2.5 small:py-3 px-1 rounded-full font-bold text-[11px] small:text-[12px] uppercase tracking-tight small:tracking-wider transition-all transform active:scale-95 disabled:opacity-50",
-            "bg-[#00bda5] text-white hover:bg-[#00a38f] shadow-md hover:shadow-lg"
+            "w-full py-2.5 small:py-3 px-1 rounded-full font-bold text-[11px] small:text-[12px] uppercase tracking-tight small:tracking-wider transition-all",
+            isOutOfStock
+              ? "!bg-gray-200 !text-gray-400 !border-gray-200 !cursor-not-allowed shadow-none hover:!bg-gray-200"
+              : "bg-[#00bda5] text-white hover:bg-[#00a38f] shadow-md hover:shadow-lg transform active:scale-95 disabled:opacity-50"
           )}
         >
-          {isAdding ? "Adding..." : (buttonLabel || (isMultiVariant ? "Select Options" : (isStaging ? "Shop Now" : "Add to Cart")))}
+          {isAdding
+            ? "Adding..."
+            : isOutOfStock
+            ? "Out of Stock"
+            : buttonLabel ||
+              (isMultiVariant
+                ? "Select Options"
+                : isStaging
+                ? "Shop Now"
+                : "Add to Cart")}
         </button>
       </div>
 

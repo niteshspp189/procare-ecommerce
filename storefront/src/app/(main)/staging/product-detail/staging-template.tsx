@@ -241,7 +241,8 @@ import ProductPrice from "@modules/products/components/product-price"
 import { getProductPrice } from "@lib/util/get-product-price"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { clx } from "@medusajs/ui"
 
 const s = {
   container: { width: '100%', backgroundColor: '#f9f9fb', color: '#000', paddingBottom: '80px' },
@@ -275,8 +276,10 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   relatedProducts,
 }) => {
   const imgBase = '/images/product-detail-images/'
+  const router = useRouter()
   const { openDrawer } = useCartDrawer()
   const [isAdding, setIsAdding] = useState(false)
+  const [isBuying, setIsBuying] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
 
@@ -331,6 +334,13 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       return isEqual(variantOptions, options)
     })
   }, [product?.variants, options])
+
+  const inStock = useMemo(() => {
+    if (!selectedVariant) return false
+    if (!selectedVariant.manage_inventory) return true
+    if (selectedVariant.allow_backorder) return true
+    return ((selectedVariant as any).inventory_quantity || 0) > 0
+  }, [selectedVariant])
 
   const images = useMemo(() => {
     let productImages: HttpTypes.StoreProductImage[] = []
@@ -465,6 +475,7 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [sizeDisplay, product?.title])
 
   const handleAddToCart = async () => {
+    if (!inStock) return
     setIsAdding(true)
     const variantId = selectedVariant?.id || product?.variants?.[0]?.id
     if (variantId) {
@@ -476,6 +487,21 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
       }
     }
     setIsAdding(false)
+  }
+
+  const handleBuyNow = async () => {
+    if (!inStock) return
+    setIsBuying(true)
+    const variantId = selectedVariant?.id || product?.variants?.[0]?.id
+    if (variantId) {
+      try {
+        await addToCart({ variantId, quantity, countryCode })
+        router.push(`/checkout?step=address`)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    setIsBuying(false)
   }
 
   const [activeAccordion, setActiveAccordion] = useState<string | null>("description")
@@ -558,24 +584,36 @@ const StagingProductTemplate: React.FC<ProductTemplateProps> = ({
                 )}
               </div>
 
-              <div className="flex items-center border border-gray-200 rounded-full w-max mb-6">
+              <div className={clx("flex items-center border border-gray-200 rounded-full w-max mb-6", !inStock && "opacity-40 pointer-events-none")}>
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black font-bold"
+                  disabled={!inStock}
                 >−</button>
                 <div className="w-10 text-center text-sm font-bold">{quantity}</div>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black font-bold"
+                  disabled={!inStock}
                 >+</button>
               </div>
 
               <div className="flex gap-4 mb-4">
-                <button style={s.btnBuy as any} className="hover:bg-gray-800 rounded-full" onClick={handleAddToCart}>
-                  {isAdding ? "Processing..." : "Buy Now"}
+                <button
+                  style={s.btnBuy as any}
+                  className={clx("rounded-full", !inStock ? "!bg-gray-200 !text-gray-400 !cursor-not-allowed shadow-none hover:!bg-gray-200" : "hover:bg-gray-800")}
+                  onClick={handleBuyNow}
+                  disabled={isAdding || isBuying || !inStock}
+                >
+                  {isBuying ? "Processing..." : inStock ? "Buy Now" : "Out of Stock"}
                 </button>
-                <button style={s.btnCart as any} className="hover:bg-gray-200 rounded-full" disabled={isAdding} onClick={handleAddToCart}>
-                  Add to Cart
+                <button
+                  style={s.btnCart as any}
+                  className={clx("rounded-full", !inStock ? "!bg-gray-100 !text-gray-400 !cursor-not-allowed shadow-none hover:!bg-gray-100" : "hover:bg-gray-200")}
+                  disabled={isAdding || isBuying || !inStock}
+                  onClick={handleAddToCart}
+                >
+                  {isAdding ? "Adding..." : inStock ? "Add to Cart" : "Out of Stock"}
                 </button>
               </div>
 

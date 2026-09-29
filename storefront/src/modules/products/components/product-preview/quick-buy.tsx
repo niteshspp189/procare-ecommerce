@@ -84,9 +84,26 @@ export default function QuickBuy({
 
     React.useEffect(() => {
         if (sortedVariants.length > 0 && !selectedVariantId) {
-            setSelectedVariantId(sortedVariants[0].id)
+            const firstInStock = sortedVariants.find((v: any) => !v.manage_inventory || v.allow_backorder || (v.inventory_quantity || 0) > 0)
+            setSelectedVariantId(firstInStock ? firstInStock.id : sortedVariants[0].id)
         }
     }, [sortedVariants, selectedVariantId])
+
+    const selectedVariant = React.useMemo(() => {
+        return product.variants?.find((v: any) => v.id === selectedVariantId) || null
+    }, [product.variants, selectedVariantId])
+
+    const inStock = React.useMemo(() => {
+        if (!selectedVariant) return false
+        if (!selectedVariant.manage_inventory) return true
+        if (selectedVariant.allow_backorder) return true
+        return ((selectedVariant as any).inventory_quantity || 0) > 0
+    }, [selectedVariant])
+
+    const isAllOutOfStock = React.useMemo(() => {
+        if (!product.variants || product.variants.length === 0) return true
+        return !product.variants.some((v: any) => !v.manage_inventory || v.allow_backorder || ((v as any).inventory_quantity || 0) > 0)
+    }, [product.variants])
 
     const [isAdding, setIsAdding] = useState(false)
     const [isBuying, setIsBuying] = useState(false)
@@ -109,7 +126,7 @@ export default function QuickBuy({
     }
 
     const handleAddToCart = async () => {
-        if (!selectedVariantId) return
+        if (!selectedVariantId || !inStock) return
         setIsAdding(true)
         try {
             await addToCart({
@@ -133,7 +150,7 @@ export default function QuickBuy({
     }
 
     const handleBuyNow = async () => {
-        if (!selectedVariantId) return
+        if (!selectedVariantId || !inStock) return
         setIsBuying(true)
         try {
             await addToCart({
@@ -161,9 +178,15 @@ export default function QuickBuy({
                 <button
                     style={s.btnQuick as any}
                     onClick={openModal}
-                    className="hover:bg-gray-50 transition-all transform active:scale-95"
+                    disabled={isAllOutOfStock}
+                    className={clx(
+                        "transition-all transform",
+                        isAllOutOfStock
+                            ? "!bg-gray-200 !text-gray-400 !border-gray-200 !cursor-not-allowed shadow-none"
+                            : "hover:bg-gray-50 active:scale-95"
+                    )}
                 >
-                    Quick Buy
+                    {isAllOutOfStock ? "Out of Stock" : "Quick Buy"}
                 </button>
             )}
 
@@ -191,20 +214,33 @@ export default function QuickBuy({
                                 <div className="pt-3 sm:pt-4 border-t border-gray-100">
                                     <Text className="font-bold text-sm mb-3 uppercase tracking-wider">Select Option</Text>
                                     <div className="flex flex-wrap gap-2 sm:gap-3">
-                                        {sortedVariants.map((v: any) => (
-                                            <button
-                                                key={v.id}
-                                                onClick={() => setSelectedVariantId(v.id)}
-                                                className={clx(
-                                                    "px-3 sm:px-4 py-1.5 sm:py-2 border rounded-full text-xs font-bold transition-all uppercase tracking-widest",
-                                                    selectedVariantId === v.id
-                                                        ? "border-[#00bda5] bg-[#00bda5] text-white"
-                                                        : "border-gray-200 bg-white text-gray-500 hover:border-gray-400"
-                                                )}
-                                            >
-                                                {v.title}
-                                            </button>
-                                        ))}
+                                        {sortedVariants.map((v: any) => {
+                                            const vInStock = !v.manage_inventory || v.allow_backorder || ((v as any).inventory_quantity || 0) > 0
+                                            const isSelected = selectedVariantId === v.id
+                                            return (
+                                                <button
+                                                    key={v.id}
+                                                    onClick={() => setSelectedVariantId(v.id)}
+                                                    className={clx(
+                                                        "px-3 sm:px-4 py-1.5 sm:py-2 border rounded-full text-xs font-bold transition-all uppercase tracking-widest flex items-center gap-1.5",
+                                                        isSelected
+                                                            ? (vInStock
+                                                                ? "border-[#00bda5] bg-[#00bda5] text-white"
+                                                                : "border-red-400 bg-red-50 text-red-700 ring-2 ring-red-400")
+                                                            : (vInStock
+                                                                ? "border-gray-200 bg-white text-gray-500 hover:border-gray-400"
+                                                                : "border-dashed border-gray-300 bg-gray-50 text-gray-400 hover:border-gray-400")
+                                                    )}
+                                                >
+                                                    <span className={clx(!vInStock && "line-through opacity-70")}>{v.title}</span>
+                                                    {!vInStock && (
+                                                        <span className="text-[10px] font-bold text-red-500 lowercase">
+                                                            sold out
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -214,18 +250,28 @@ export default function QuickBuy({
                                     <Button
                                         onClick={handleAddToCart}
                                         isLoading={isAdding}
-                                        disabled={!selectedVariantId || isBuying}
-                                        className="rounded-full bg-white text-[#00bda5] border-2 border-[#00bda5] hover:bg-gray-50 h-12 uppercase tracking-widest text-xs font-black w-full"
+                                        disabled={!selectedVariantId || isBuying || !inStock}
+                                        className={clx(
+                                            "rounded-full h-12 uppercase tracking-widest text-xs font-black w-full",
+                                            !inStock
+                                                ? "!bg-gray-100 !text-gray-400 !border-gray-200 !cursor-not-allowed shadow-none hover:!bg-gray-100"
+                                                : "bg-white text-[#00bda5] border-2 border-[#00bda5] hover:bg-gray-50"
+                                        )}
                                     >
-                                        Add To Cart
+                                        {isAdding ? "Adding..." : inStock ? "Add To Cart" : "Out of Stock"}
                                     </Button>
                                     <Button
                                         onClick={handleBuyNow}
                                         isLoading={isBuying}
-                                        disabled={!selectedVariantId || isAdding}
-                                        className="rounded-full bg-[#00bda5] text-white h-12 uppercase tracking-widest text-xs font-black hover:bg-[#00a38f] w-full"
+                                        disabled={!selectedVariantId || isAdding || !inStock}
+                                        className={clx(
+                                            "rounded-full h-12 uppercase tracking-widest text-xs font-black w-full",
+                                            !inStock
+                                                ? "!bg-gray-200 !text-gray-400 !border-gray-200 !cursor-not-allowed shadow-none hover:!bg-gray-200"
+                                                : "bg-[#00bda5] text-white hover:bg-[#00a38f]"
+                                        )}
                                     >
-                                        Buy Now
+                                        {isBuying ? "Processing..." : inStock ? "Buy Now" : "Out of Stock"}
                                     </Button>
                                 </div>
                                 <a
