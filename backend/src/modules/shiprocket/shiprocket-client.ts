@@ -76,7 +76,16 @@ async function clearCachedTokenInRedis(): Promise<void> {
   } catch (e) {}
 }
 
-async function getCachedTokenFromDb(): Promise<string | null> {
+interface DbTokenRecord {
+  token: string
+  remainingSeconds: number
+  expiresAt: Date
+}
+
+const RENEWAL_THRESHOLD_SECONDS = 48 * 60 * 60 // 48-hour proactive renewal window (Day 8 of 10)
+const BACKGROUND_RENEWAL_COOLDOWN_MS = 6 * 60 * 60 * 1000 // Attempt background renewal at most once per 6 hours
+
+async function getCachedTokenFromDb(): Promise<DbTokenRecord | null> {
   if (!process.env.DATABASE_URL) return null
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -84,9 +93,20 @@ async function getCachedTokenFromDb(): Promise<string | null> {
   })
   try {
     await client.connect()
-    const res = await client.query("SELECT token FROM shiprocket_token_cache WHERE id = 1 AND expires_at > NOW()")
+    const res = await client.query(`
+      SELECT token, 
+             ROUND(EXTRACT(EPOCH FROM (expires_at - NOW()))) as remaining_seconds,
+             expires_at
+      FROM shiprocket_token_cache 
+      WHERE id = 1
+    `)
     await client.end()
-    return res.rows?.[0]?.token || null
+    if (!res.rows?.[0]?.token) return null
+    return {
+      token: res.rows[0].token,
+      remainingSeconds: parseInt(res.rows[0].remaining_seconds, 10) || 0,
+      expiresAt: new Date(res.rows[0].expires_at)
+    }
   } catch (e) {
     try { await client.end() } catch (_) {}
     return null
@@ -182,6 +202,12 @@ export class ShiprocketClient {
   private tokenExpiresAt: number = 0
   private baseUrl = "https://apiv2.shiprocket.in/v1/external"
 
+  // Single-flight authentication mutex to prevent concurrent login hammering
+  private static activeAuthPromise: Promise<string> | null = null
+
+  // Cooldown tracker for background renewal attempts
+  private static lastBackgroundRenewalAttempt: number = 0
+
   constructor() {}
 
   public async clearToken() {
@@ -192,7 +218,7 @@ export class ShiprocketClient {
   }
 
   public async authenticate(): Promise<string> {
-    // 1. In-memory check
+    // 1. In-memory check (fastest path)
     if (this.token && Date.now() < this.tokenExpiresAt) {
       return this.token
     }
@@ -202,46 +228,156 @@ export class ShiprocketClient {
     if (redisToken) {
       this.token = redisToken
       this.tokenExpiresAt = Date.now() + 60 * 60 * 1000 // In-memory refreshed for 1 hr
+
+      // Check proactive renewal via non-blocking check
+      this.checkAndTriggerProactiveRenewal()
       return redisToken
     }
 
     // 3. PostgreSQL database fallback check
-    const dbToken = await getCachedTokenFromDb()
-    if (dbToken) {
-      this.token = dbToken
+    const dbRecord = await getCachedTokenFromDb()
+    if (dbRecord && dbRecord.remainingSeconds > 0) {
+      this.token = dbRecord.token
       this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
-      await setCachedTokenInRedis(dbToken)
-      return dbToken
+      await setCachedTokenInRedis(dbRecord.token)
+
+      // Proactive Renewal: If token has less than 48 hours remaining (Day 8 or 9)
+      if (dbRecord.remainingSeconds < RENEWAL_THRESHOLD_SECONDS) {
+        this.triggerBackgroundRenewal()
+      }
+
+      return dbRecord.token
     }
 
-    // 4. Remote authentication via Shiprocket API
+    // 4. Remote authentication via Shiprocket API (Guarded with single-flight mutex)
+    if (ShiprocketClient.activeAuthPromise) {
+      return await ShiprocketClient.activeAuthPromise
+    }
+
+    ShiprocketClient.activeAuthPromise = this.executeRemoteAuth()
+    try {
+      const newToken = await ShiprocketClient.activeAuthPromise
+      return newToken
+    } finally {
+      ShiprocketClient.activeAuthPromise = null
+    }
+  }
+
+  /**
+   * Non-blocking asynchronous check for proactive renewal when serving from Redis.
+   */
+  private checkAndTriggerProactiveRenewal(): void {
+    getCachedTokenFromDb().then((record) => {
+      if (record && record.remainingSeconds > 0 && record.remainingSeconds < RENEWAL_THRESHOLD_SECONDS) {
+        this.triggerBackgroundRenewal()
+      }
+    }).catch(() => {})
+  }
+
+  /**
+   * Quietly renews the token in the background while the active token is still valid.
+   */
+  private triggerBackgroundRenewal(): void {
+    const now = Date.now()
+    if (now - ShiprocketClient.lastBackgroundRenewalAttempt < BACKGROUND_RENEWAL_COOLDOWN_MS) {
+      return // Avoid spamming within cooldown
+    }
+    if (ShiprocketClient.activeAuthPromise) {
+      return // Renewal already in flight
+    }
+
+    ShiprocketClient.lastBackgroundRenewalAttempt = now
+    console.log("[ShiprocketClient] 🔄 Proactively renewing Shiprocket token in background (within 48-hour window)...")
+
+    ShiprocketClient.activeAuthPromise = this.executeRemoteAuth()
+    ShiprocketClient.activeAuthPromise
+      .then(() => {
+        console.log("[ShiprocketClient] ✅ Proactive background token renewal succeeded!")
+      })
+      .catch((err) => {
+        console.warn("[ShiprocketClient] ⚠️ Proactive background renewal attempt postponed:", err.message)
+      })
+      .finally(() => {
+        ShiprocketClient.activeAuthPromise = null
+      })
+  }
+
+  /**
+   * Resilient remote authentication with exponential backoff and anti-hammering guard.
+   */
+  private async executeRemoteAuth(): Promise<string> {
     console.log("[ShiprocketClient] Authenticating with Shiprocket API...")
     const email = process.env.SHIPROCKET_EMAIL || ""
     const password = process.env.SHIPROCKET_PASSWORD || ""
 
-    const data = await requestJson(`${this.baseUrl}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
-
-    if (data && data.token) {
-      const token = data.token as string
-      this.token = token
-      this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
-
-      // Cache across Redis and PostgreSQL with dynamic TTL (up to 10 days)
-      await setCachedTokenInRedis(token)
-      await setCachedTokenInDb(token)
-
-      const remainingDays = (getJwtTtlSeconds(token) / 86400).toFixed(1)
-      console.log(`[ShiprocketClient] ✅ Successfully authenticated & cached token for ~${remainingDays} days.`)
-      return token
+    if (!email || !password) {
+      throw new Error("Shiprocket credentials missing (SHIPROCKET_EMAIL or SHIPROCKET_PASSWORD)")
     }
 
-    console.error("[ShiprocketClient] ❌ Authentication failed:", JSON.stringify(data))
-    // Do NOT clear cached tokens here. Preserves the DB fallback token and prevents tight-loop lockouts.
-    throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`)
+    let lastData: any = null
+    const maxAttempts = 2
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const data = await requestJson(`${this.baseUrl}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        })
+
+        if (data && data.token) {
+          const token = data.token as string
+          this.token = token
+          this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
+
+          // Cache across Redis and PostgreSQL with dynamic TTL (up to 10 days)
+          await setCachedTokenInRedis(token)
+          await setCachedTokenInDb(token)
+
+          const remainingDays = (getJwtTtlSeconds(token) / 86400).toFixed(1)
+          console.log(`[ShiprocketClient] ✅ Successfully authenticated & cached token for ~${remainingDays} days.`)
+          return token
+        }
+
+        lastData = data
+        console.warn(`[ShiprocketClient] Authentication attempt ${attempt}/${maxAttempts} rejected:`, JSON.stringify(data))
+
+        if (attempt < maxAttempts) {
+          console.log("[ShiprocketClient] Cooling down 2500ms before auth retry to absorb rate-limit burst...")
+          await new Promise((resolve) => setTimeout(resolve, 2500))
+        }
+      } catch (err: any) {
+        lastData = { message: err.message }
+        console.warn(`[ShiprocketClient] Authentication attempt ${attempt}/${maxAttempts} network error:`, err.message)
+        if (attempt < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, 2500))
+        }
+      }
+    }
+
+    console.error("[ShiprocketClient] ❌ Authentication failed after retries:", JSON.stringify(lastData))
+
+    // Emergency Grace Fallback: If DB has a cached token whose true JWT exp is within 2 hours, use it as fallback
+    try {
+      const dbRecord = await getCachedTokenFromDb()
+      if (dbRecord && dbRecord.token) {
+        const parts = dbRecord.token.split(".")
+        if (parts.length >= 2) {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf-8"))
+          if (typeof payload.exp === "number") {
+            const rawRemaining = payload.exp - Math.floor(Date.now() / 1000)
+            if (rawRemaining > -7200) { // Within 2 hours grace period
+              console.warn(`[ShiprocketClient] 🛡️ Using DB fallback token with ${rawRemaining}s grace period while auth cluster recovers.`)
+              this.token = dbRecord.token
+              this.tokenExpiresAt = Date.now() + 5 * 60 * 1000
+              return dbRecord.token
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
+    throw new Error(`Shiprocket auth failed: ${JSON.stringify(lastData)}`)
   }
 
   private async requestWithAuth(url: string, options: { method?: string; headers?: Record<string, string>; body?: string } = {}) {

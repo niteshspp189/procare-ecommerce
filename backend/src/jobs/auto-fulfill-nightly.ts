@@ -48,19 +48,20 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     }
 
     if (!isHealthy) {
-      if (lastAuthError.includes("User blocked") || lastAuthError.includes("failed login attempts") || lastAuthError.includes("403")) {
-        console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket lockout confirmed after retries:", lastAuthError)
+      const isActualLockout = lastAuthError.includes("User blocked") || lastAuthError.includes("failed login attempts")
+      if (isActualLockout) {
+        console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket account blocked after retries:", lastAuthError)
         if (logId) {
           await finishJobLog(pgConnection, logId, {
             status: "failed",
-            summary: `Shiprocket API authentication failed: ${lastAuthError}`,
+            summary: `Shiprocket API account blocked: ${lastAuthError}`,
             details: { error: lastAuthError }
           })
         }
         await sendAlertEmail(
-          "Shiprocket API Lockout Detected - Nightly Job Paused",
+          "Shiprocket API Account Blocked - Nightly Job Paused",
           `
-            <p><strong>Warning:</strong> The nightly Shiprocket auto-fulfillment job detected an API account lockout.</p>
+            <p><strong>Warning:</strong> The nightly Shiprocket auto-fulfillment job detected an API account suspension or lockout.</p>
             <p><strong>Error Message:</strong> ${lastAuthError}</p>
             <p><strong>Time:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
             <p>The nightly fulfillment loop was paused to protect against further account suspension. Please check your credentials at <a href="https://app.shiprocket.in">app.shiprocket.in</a>.</p>
@@ -68,7 +69,7 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
         )
         return
       }
-      console.warn("[NightlyAutoFulfillJob] Pre-flight non-lockout warning:", lastAuthError)
+      console.warn("[NightlyAutoFulfillJob] Pre-flight transient warning (rate limit / network):", lastAuthError)
     }
 
     // Step 1: Look for all active orders created in the last 7 days that are not canceled and have 0 fulfillments
