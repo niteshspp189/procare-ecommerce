@@ -450,7 +450,47 @@ export async function sendOrderConfirmationEmail(order: any) {
   }
 }
 
-export async function sendAlertEmail(subject: string, htmlContent: string, recipient: string = "niteshspp189@gmail.com") {
+export async function sendAlertEmail(
+  subject: string, 
+  htmlContent: string, 
+  recipient: string = "niteshspp189@gmail.com",
+  options?: {
+    showRetryButton?: boolean
+    retryAction?: string
+    retryExpiresInMs?: number
+  }
+) {
+  let retryButtonHtml = ""
+  const shouldShowRetry = options?.showRetryButton ?? (
+    subject.toLowerCase().includes("shiprocket") || 
+    subject.toLowerCase().includes("lockout") || 
+    subject.toLowerCase().includes("blocked")
+  )
+
+  if (shouldShowRetry) {
+    try {
+      const { generatePresignedActionUrl } = require("./presigned-action")
+      const expiresInMs = options?.retryExpiresInMs || 6 * 60 * 60 * 1000
+      const { url, expiresAt } = generatePresignedActionUrl(options?.retryAction || "retry_shiprocket_fulfillment", expiresInMs)
+      const expiresAtIST = expiresAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+
+      retryButtonHtml = `
+        <div style="margin: 28px 0 16px 0; padding: 20px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center;">
+          <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 700; color: #0f172a;">⚡ One-Click Recovery Action</p>
+          <p style="margin: 0 0 16px 0; font-size: 13px; color: #475569;">Click the button below to immediately trigger fresh authentication and batch-fulfill all pending orders:</p>
+          <a href="${url}" target="_blank" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);">
+            ⚡ 1-Click Retry Fulfillment & Re-Authenticate
+          </a>
+          <p style="margin: 12px 0 0 0; font-size: 11px; color: #64748b;">
+            🔒 Secure Presigned Link • Valid for 6 hours (Expires at ${expiresAtIST} IST)
+          </p>
+        </div>
+      `
+    } catch (err: any) {
+      console.warn("[EmailService] Failed to generate presigned retry button:", err.message)
+    }
+  }
+
   const mailOptions = {
     from: `"ProCare Logistics Monitor" <noreply@propremiumcare.com>`,
     to: recipient,
@@ -462,6 +502,7 @@ export async function sendAlertEmail(subject: string, htmlContent: string, recip
         </div>
         <div style="padding: 24px; background: #ffffff; color: #334155; font-size: 14px; line-height: 1.6;">
           ${htmlContent}
+          ${retryButtonHtml}
           <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
           <p style="font-size: 12px; color: #64748b; margin: 0;">Automated alert from ProCare E-Commerce Production Server • ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
         </div>
