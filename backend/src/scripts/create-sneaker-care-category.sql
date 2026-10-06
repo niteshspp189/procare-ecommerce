@@ -40,3 +40,9 @@ INSERT INTO product_category_product (product_category_id, product_id) VALUES
 ('pcat_sneaker_care', 'prod_01M1XCT1012H6NJ1FNYNY1RGMY'),
 ('pcat_sneaker_care', 'prod_01KWC2J4T2S0G935SZZQGVEVQH')
 ON CONFLICT DO NOTHING;
+
+-- Rename Foot Care category to 'Hand & Foot Care'
+UPDATE product_category 
+SET name = 'Hand & Foot Care', updated_at = NOW() 
+WHERE id = 'pcat_01KPTT7Z52E4TQR1JG0KAVQ2T6' OR handle = 'foot-care';
+
