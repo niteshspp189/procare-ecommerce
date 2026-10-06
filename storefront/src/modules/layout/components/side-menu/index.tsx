@@ -16,6 +16,7 @@ const SideMenuItems = {
   "Shoe Care": "/categories/shoe-care",
   Insoles: "/categories/insoles",
   "Foot Care": "/categories/foot-care",
+  "Sneaker Care": "/categories/sneaker-care",
   Accessories: "/categories/accessories",
   "Our Story": "/our-story",
   "Contact Us": "/contact",

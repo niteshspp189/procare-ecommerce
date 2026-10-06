@@ -75,6 +75,9 @@ export default async function Nav() {
           <LocalizedClientLink href="/categories/foot-care" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Foot Care
           </LocalizedClientLink>
+          <LocalizedClientLink href="/categories/sneaker-care" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
+            Sneaker Care
+          </LocalizedClientLink>
           <LocalizedClientLink href="/categories/accessories" className="nav-item-animated group uppercase tracking-widest text-[13px] font-semibold text-black dark:text-gray-100 hover:text-black dark:hover:text-white flex items-center gap-1">
             Accessories
           </LocalizedClientLink>

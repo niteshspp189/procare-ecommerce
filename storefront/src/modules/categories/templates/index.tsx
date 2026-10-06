@@ -138,7 +138,7 @@ export default async function CategoryTemplate({
   const dynamicBanner = categoryBanners.find(
     (b) => b.link_url.includes(category.handle) || b.title.toLowerCase().includes(category.handle.replace("-", " "))
   )
-  const bannerImageSrc = dynamicBanner?.desktop_image_url || (imgBase + (['shoe-care', 'insoles', 'foot-care', 'accessories'].includes(category.handle) ? `banner-${category.handle}.png` : 'top-side-banner-background.png'))
+  const bannerImageSrc = dynamicBanner?.desktop_image_url || (imgBase + (['shoe-care', 'insoles', 'foot-care', 'accessories', 'sneaker-care'].includes(category.handle) ? `banner-${category.handle}.png` : 'top-side-banner-background.png'))
 
   return (
     <div style={s.container as any} className="animate-fade-in">

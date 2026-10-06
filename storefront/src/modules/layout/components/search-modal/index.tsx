@@ -239,7 +239,7 @@ export default function SearchModal() {
                 <div className="px-4 py-6">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Popular categories</p>
                   <div className="flex flex-wrap gap-2">
-                    {["Shoe Care", "Insoles", "Foot Care", "Sneaker Cleaner", "Leather Conditioner"].map((tag) => (
+                    {["Shoe Care", "Insoles", "Foot Care", "Sneaker Care", "Accessories", "Leather Conditioner"].map((tag) => (
                       <button
                         key={tag}
                         onClick={() => {
