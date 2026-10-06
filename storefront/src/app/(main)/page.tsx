@@ -140,18 +140,18 @@ export default async function StagingHome(props: {
               </div>
             </div>
 
-            {/* Foot Care */}
+            {/* Hand & Foot Care */}
             <div className="flex flex-col group">
               <LocalizedClientLink href="/categories/foot-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
                 <img 
                   src={getCatCardImg('foot-care', imgBase + 'cat-footcare-new.webp')} 
-                  alt="Foot Care" 
+                  alt="Hand & Foot Care" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
               </LocalizedClientLink>
               <div className="mt-5 flex flex-col items-center text-center">
                 <LocalizedClientLink href="/categories/foot-care">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Foot Care</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-wide uppercase group-hover:text-[#0bb799] transition-colors">Hand & Foot Care</h3>
                 </LocalizedClientLink>
               </div>
             </div>
