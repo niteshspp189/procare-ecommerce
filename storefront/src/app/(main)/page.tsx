@@ -11,6 +11,8 @@ import Button from "@modules/common/components/button"
 import Section from "@modules/layout/components/section"
 import DynamicHeroBanner from "@modules/home/components/dynamic-hero-banner"
 
+import FeaturedProducts from "@modules/home/components/featured-products"
+
 import { getShippingThreshold } from "@lib/data/fulfillment"
 import { getBanners } from "@lib/data/banners"
 
@@ -228,6 +230,11 @@ export default async function StagingHome(props: {
             </div>
           </div>
         </Section>
+
+        {/* FEATURED COLLECTIONS SECTION (Appears dynamically whenever collections have assigned products) */}
+        {collections && collections.length > 0 && (
+          <FeaturedProducts collections={collections} region={region} />
+        )}
 
         {/* CUSTOMER REVIEWS CAROUSEL */}
         <Section title="What Our Customers Say" className="bg-white overflow-hidden" innerClassName="!pt-12 !pb-12">

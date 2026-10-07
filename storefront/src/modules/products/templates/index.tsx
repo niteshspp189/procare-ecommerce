@@ -727,7 +727,11 @@ const formatSpecValue = (value: any): string => {
           </div>
 
           <div className="w-full lg:w-[46%] min-w-0 relative z-10">
-            <ImageGallery images={images} discountPercentage={discountPercentage} />
+            <ImageGallery
+              images={images}
+              videos={(metadata.youtube_videos || metadata.youtube_video_urls || []) as string[]}
+              discountPercentage={discountPercentage}
+            />
           </div>
 
           <div className="w-full lg:flex-1 shrink-0">

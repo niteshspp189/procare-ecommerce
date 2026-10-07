@@ -2,11 +2,24 @@
 
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef } from "react-zoom-pan-pinch"
+
+export function extractYouTubeId(urlOrId: string): string | null {
+  if (!urlOrId || typeof urlOrId !== "string") return null
+  const trimmed = urlOrId.trim()
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed
+  }
+  const match = trimmed.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([a-zA-Z0-9_-]{11})/
+  )
+  return match ? match[1] : null
+}
 
 type ImageGalleryProps = {
   images: HttpTypes.StoreProductImage[]
+  videos?: (string | { url?: string; id?: string })[]
   discountPercentage?: number
 }
 
@@ -17,6 +30,22 @@ const getFormattedUrl = (url: string) => {
   }
   return encodeURI(formattedUrl)
 }
+
+type GalleryItem =
+  | {
+      type: "image"
+      id: string
+      url: string
+      image: HttpTypes.StoreProductImage
+    }
+  | {
+      type: "video"
+      id: string
+      videoId: string
+      embedUrl: string
+      thumbUrl: string
+      url: string
+    }
 
 // ─── Per-image zoom wrapper ────────────────────────────────────────────────────
 type GalleryImageProps = {
@@ -31,14 +60,11 @@ type GalleryImageProps = {
 const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zoomRef }: GalleryImageProps) => {
   const [scale, setScale] = useState(1)
 
-  // On mobile at scale=1: panning disabled → touch events propagate to parent
-  // so the snap-container can receive the horizontal swipe.
-  // At scale > 1: panning enabled → user can pan within the zoomed image.
   const panDisabled = isMobile && scale <= 1
 
   return (
     <div
-      id={`gallery-img-${image.id}`}
+      id={`gallery-item-${image.id}`}
       className="relative aspect-square w-full flex-shrink-0 snap-center lg:snap-align-none overflow-hidden bg-white solid-box animate-fade-in-up"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
@@ -48,8 +74,6 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
           {discountPercentage}% OFF
         </div>
       )}
-
-
 
       {!!image.url && (
         <TransformWrapper
@@ -69,7 +93,7 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
             step: 0.15,
           }}
           doubleClick={{
-            mode: "toggle",         // toggle between 1× and 2.5×
+            mode: "toggle",
             step: 1.5,
             animationTime: 250,
             animationType: "easeInOutCubic",
@@ -82,7 +106,6 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
           <TransformComponent
             wrapperClass="!w-full !h-full"
             contentClass="!w-full !h-full relative"
-            // On mobile at scale=1: allow horizontal pan-x so swipe reaches parent
             wrapperProps={panDisabled ? { style: { touchAction: "pan-x" } } : {}}
           >
             <Image
@@ -120,7 +143,6 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
       {/* Reset zoom button when zoomed in */}
       {scale > 1 && (
         <div className="absolute top-3 right-3 z-20">
-          {/* visual indicator only — tapping image resets via doubleClick toggle */}
           <div className="bg-black/50 text-white text-[10px] font-medium px-2 py-1 rounded-full">
             {isMobile ? "Pinch or double-tap to reset" : "Double-click to reset"}
           </div>
@@ -130,11 +152,103 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
   )
 }
 
+// ─── Per-video viewport component ──────────────────────────────────────────────
+type GalleryVideoProps = {
+  item: Extract<GalleryItem, { type: "video" }>
+  index: number
+  isActive: boolean
+  onActivate: () => void
+}
+
+const GalleryVideo = ({ item, index, isActive, onActivate }: GalleryVideoProps) => {
+  return (
+    <div
+      id={`gallery-item-${item.id}`}
+      className="relative aspect-square w-full flex-shrink-0 snap-center lg:snap-align-none overflow-hidden bg-black rounded-2xl shadow-md flex items-center justify-center animate-fade-in"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      {isActive ? (
+        <iframe
+          src={item.embedUrl}
+          title={`Product Video ${index + 1}`}
+          className="w-full h-full border-0 aspect-square rounded-2xl"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      ) : (
+        <div
+          onClick={onActivate}
+          className="relative w-full h-full cursor-pointer group flex items-center justify-center"
+        >
+          <img
+            src={item.thumbUrl}
+            alt={`Video poster ${index + 1}`}
+            className="w-full h-full object-cover opacity-85 group-hover:opacity-95 transition-opacity"
+          />
+          <div className="absolute inset-0 bg-black/35 flex flex-col items-center justify-center gap-3">
+            <div className="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+              <svg className="w-7 h-7 fill-current ml-1" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            <span className="text-white text-xs font-bold uppercase tracking-wider bg-black/70 backdrop-blur-sm px-3.5 py-1.5 rounded-full shadow-sm">
+              Click to Play
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main gallery ──────────────────────────────────────────────────────────────
-const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
+const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const zoomRefs = useRef<(ReactZoomPanPinchRef | null)[]>([])
+
+  // Parse and normalize YouTube videos (max 3)
+  const parsedVideos = useMemo(() => {
+    if (!videos || !Array.isArray(videos)) return []
+    const list: Array<{ id: string; videoId: string; embedUrl: string; thumbUrl: string; url: string }> = []
+
+    videos.forEach((v, i) => {
+      const raw = typeof v === "string" ? v : v?.url || v?.id || ""
+      const vidId = extractYouTubeId(raw)
+      if (vidId) {
+        list.push({
+          id: `vid-${vidId}-${i}`,
+          videoId: vidId,
+          embedUrl: `https://www.youtube-nocookie.com/embed/${vidId}?autoplay=1&rel=0&modestbranding=1`,
+          thumbUrl: `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`,
+          url: raw,
+        })
+      }
+    })
+
+    return list.slice(0, 3)
+  }, [videos])
+
+  // Combined gallery items: Product Images FIRST, then Videos
+  const allItems = useMemo<GalleryItem[]>(() => {
+    const imgItems: GalleryItem[] = images.map((img, idx) => ({
+      type: "image",
+      id: img.id || `img-${idx}`,
+      url: img.url,
+      image: img,
+    }))
+
+    const vidItems: GalleryItem[] = parsedVideos.map((v) => ({
+      type: "video",
+      id: v.id,
+      videoId: v.videoId,
+      embedUrl: v.embedUrl,
+      thumbUrl: v.thumbUrl,
+      url: v.url,
+    }))
+
+    return [...imgItems, ...vidItems]
+  }, [images, parsedVideos])
 
   // Detect viewport
   useEffect(() => {
@@ -148,15 +262,15 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
   const intersectionRatios = useRef<number[]>([])
 
   useEffect(() => {
-    intersectionRatios.current = new Array(images.length).fill(0)
+    intersectionRatios.current = new Array(allItems.length).fill(0)
     const container = document.getElementById("main-gallery-container")
-    if (!container || images.length === 0) return
+    if (!container || allItems.length === 0) return
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const idx = images.findIndex(
-            (img) => `gallery-img-${img.id}` === entry.target.id
+          const idx = allItems.findIndex(
+            (item) => `gallery-item-${item.id}` === entry.target.id
           )
           if (idx !== -1) {
             intersectionRatios.current[idx] = entry.intersectionRatio
@@ -165,7 +279,7 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
 
         let bestRatio = 0
         let bestIdx = -1
-        
+
         intersectionRatios.current.forEach((ratio, idx) => {
           if (ratio > bestRatio) {
             bestRatio = ratio
@@ -183,23 +297,21 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
       }
     )
 
-    images.forEach((img) => {
-      const el = document.getElementById(`gallery-img-${img.id}`)
+    allItems.forEach((item) => {
+      const el = document.getElementById(`gallery-item-${item.id}`)
       if (el) observer.observe(el)
     })
 
     return () => observer.disconnect()
-  }, [images])
+  }, [allItems])
 
   // ── Desktop thumbnail click ────────────────────────────────────────────────
   const handleDesktopThumb = useCallback(
-    (image: HttpTypes.StoreProductImage, index: number) => {
+    (item: GalleryItem, index: number) => {
       const container = document.getElementById("main-gallery-container")
-      const el = document.getElementById(`gallery-img-${image.id}`)
+      const el = document.getElementById(`gallery-item-${item.id}`)
       if (container && el) {
-        // 1. Scroll main page to top (so user sees image + product title)
         window.scrollTo({ top: 0, behavior: "smooth" })
-        // 2. After page scroll starts, scroll the gallery panel to the image
         setTimeout(() => {
           container.scrollTo({ top: el.offsetTop, behavior: "smooth" })
         }, 80)
@@ -211,14 +323,13 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
 
   // ── Mobile thumbnail click ─────────────────────────────────────────────────
   const handleMobileThumb = useCallback(
-    (image: HttpTypes.StoreProductImage, index: number) => {
+    (item: GalleryItem, index: number) => {
       const container = document.getElementById("main-gallery-container")
-      const el = document.getElementById(`gallery-img-${image.id}`)
+      const el = document.getElementById(`gallery-item-${item.id}`)
       if (container && el) {
         container.scrollTo({ left: el.offsetLeft, behavior: "smooth" })
       }
       setActiveIndex(index)
-      // Reset zoom on all images when navigating away
       zoomRefs.current.forEach((ref) => ref?.resetTransform())
     },
     []
@@ -226,86 +337,147 @@ const ImageGallery = ({ images, discountPercentage }: ImageGalleryProps) => {
 
   return (
     <div className="flex flex-col lg:flex-row items-start relative w-full lg:absolute lg:inset-0 lg:overflow-hidden gap-x-4">
-
       {/* ── Desktop Thumbnail Sidebar ── */}
       <div className="hidden lg:flex flex-col gap-y-3 h-full overflow-y-auto no-scrollbar py-2 px-2 -ml-2">
-        {images.map((image, index) => (
-          <button
-            key={`thumb-${image.id}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleDesktopThumb(image, index)
-            }}
-            className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
-              ${activeIndex === index
-                ? "border-black shadow-md"
-                : "border-transparent hover:border-gray-400"
-              }`}
-          >
-            {!!image.url && (
-              <Image
-                src={getFormattedUrl(image.url)}
-                alt={`Thumbnail ${index + 1}`}
-                fill
-                className="object-cover p-1"
-                sizes="64px"
-                unoptimized={true}
-              />
-            )}
-          </button>
-        ))}
+        {allItems.map((item, index) => {
+          const isSelected = activeIndex === index
+          return (
+            <button
+              key={`thumb-${item.id}`}
+              onClick={(e) => {
+                e.preventDefault()
+                handleDesktopThumb(item, index)
+              }}
+              className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
+                ${
+                  isSelected
+                    ? "border-black shadow-md"
+                    : "border-transparent hover:border-gray-400"
+                }`}
+            >
+              {item.type === "image" && !!item.url && (
+                <Image
+                  src={getFormattedUrl(item.url)}
+                  alt={`Thumbnail ${index + 1}`}
+                  fill
+                  className="object-cover p-1"
+                  sizes="64px"
+                  unoptimized={true}
+                />
+              )}
+              {item.type === "video" && (
+                <div className="relative w-full h-full">
+                  <img
+                    src={item.thumbUrl}
+                    alt={`Video Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* YouTube play badge */}
+                  <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center shadow-sm">
+                      <svg className="w-2.5 h-2.5 fill-current ml-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       <div className="flex flex-col flex-1 w-full lg:w-auto h-full min-w-0">
-
         {/* ── Main Gallery ── */}
         <div
           id="main-gallery-container"
           className="group flex flex-row lg:flex-col flex-1 gap-x-4 lg:gap-y-6 overflow-x-auto lg:overflow-y-auto h-full min-h-0 lg:relative snap-x lg:snap-none snap-mandatory no-scrollbar"
         >
-          {images.map((image, index) => (
-            <GalleryImage
-              key={image.id}
-              image={image}
-              index={index}
-              isMobile={isMobile}
-              isActive={activeIndex === index}
-              discountPercentage={discountPercentage}
-              zoomRef={(ref) => { zoomRefs.current[index] = ref }}
+          {allItems.map((item, index) => {
+            if (item.type === "image") {
+              return (
+                <GalleryImage
+                  key={item.id}
+                  image={item.image}
+                  index={index}
+                  isMobile={isMobile}
+                  isActive={activeIndex === index}
+                  discountPercentage={discountPercentage}
+                  zoomRef={(ref) => {
+                    zoomRefs.current[index] = ref
+                  }}
+                />
+              )
+            } else {
+              return (
+                <GalleryVideo
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  isActive={activeIndex === index}
+                  onActivate={() => setActiveIndex(index)}
+                />
+              )
+            }
+          })}
+          {/* Spacer to allow the last images/videos to scroll all the way to top in desktop */}
+          {!isMobile && (
+            <div
+              className="hidden lg:block h-full min-h-full flex-shrink-0 pointer-events-none"
+              style={{ height: "100%" }}
             />
-          ))}
-          {/* Spacer to allow the last images to scroll all the way to the top in desktop */}
-          {!isMobile && <div className="hidden lg:block h-full min-h-full flex-shrink-0 pointer-events-none" style={{ height: "100%" }} />}
+          )}
         </div>
 
         {/* ── Mobile Thumbnails with active highlight ── */}
-        {images.length > 1 && (
+        {allItems.length > 1 && (
           <div className="flex lg:hidden overflow-x-auto gap-x-3 no-scrollbar py-4 px-2 -ml-1">
-            {images.map((image, index) => (
-              <button
-                key={`mob-thumb-${image.id}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleMobileThumb(image, index)
-                }}
-                className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
-                  ${activeIndex === index
-                    ? "border-black shadow-sm"
-                    : "border-gray-200 hover:border-gray-400"
-                  }`}
-              >
-                {!!image.url && (
-                  <Image
-                    src={getFormattedUrl(image.url)}
-                    alt={`Thumbnail ${index + 1}`}
-                    fill
-                    className="object-cover p-1"
-                    sizes="64px"
-                    unoptimized={true}
-                  />
-                )}
-              </button>
-            ))}
+            {allItems.map((item, index) => {
+              const isSelected = activeIndex === index
+              return (
+                <button
+                  key={`mob-thumb-${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleMobileThumb(item, index)
+                  }}
+                  className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
+                    ${
+                      isSelected
+                        ? "border-black shadow-sm"
+                        : "border-gray-200 hover:border-gray-400"
+                    }`}
+                >
+                  {item.type === "image" && !!item.url && (
+                    <Image
+                      src={getFormattedUrl(item.url)}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      className="object-cover p-1"
+                      sizes="64px"
+                      unoptimized={true}
+                    />
+                  )}
+                  {item.type === "video" && (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={item.thumbUrl}
+                        alt={`Video Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* YouTube play badge */}
+                      <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center shadow-sm">
+                          <svg className="w-2.5 h-2.5 fill-current ml-0.5" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </button>
+              )
+            })}
           </div>
         )}
       </div>
