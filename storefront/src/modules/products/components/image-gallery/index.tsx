@@ -262,7 +262,7 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
     return () => window.removeEventListener("resize", check)
   }, [])
 
-  // ── Scroll Listener: Automatically active & autoplay when item is in center ──
+  // ── Scroll Listener: Real-time alignment tracker ──────────────────────────
   useEffect(() => {
     const container = document.getElementById("main-gallery-container")
     if (!container || allItems.length === 0) return
@@ -274,25 +274,18 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
       if (rafId) cancelAnimationFrame(rafId)
 
       rafId = requestAnimationFrame(() => {
-        const containerRect = container.getBoundingClientRect()
-        const containerCenter = isMobile
-          ? containerRect.left + containerRect.width / 2
-          : containerRect.top + containerRect.height / 2
-
+        const scrollPos = isMobile ? container.scrollLeft : container.scrollTop
         let closestIdx = -1
-        let minDistance = Infinity
+        let minDiff = Infinity
 
         allItems.forEach((item, idx) => {
           const el = document.getElementById(`gallery-item-${item.id}`)
           if (!el) return
-          const elRect = el.getBoundingClientRect()
-          const elCenter = isMobile
-            ? elRect.left + elRect.width / 2
-            : elRect.top + elRect.height / 2
-          const distance = Math.abs(containerCenter - elCenter)
+          const itemPos = isMobile ? el.offsetLeft : el.offsetTop
+          const diff = Math.abs(scrollPos - itemPos)
 
-          if (distance < minDistance) {
-            minDistance = distance
+          if (diff < minDiff) {
+            minDiff = diff
             closestIdx = idx
           }
         })
@@ -310,7 +303,7 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
     }
   }, [allItems, isMobile, activeIndex])
 
-  // ── Programmatic navigation on thumbnail click with smooth centering ──────
+  // ── Programmatic navigation on thumbnail click: REACHES TOP OF FIRST FRAME ──
   const handleThumbClick = useCallback(
     (item: GalleryItem, index: number) => {
       setActiveIndex(index)
@@ -318,20 +311,30 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
       scrollTimeout.current = setTimeout(() => {
         isProgrammaticScroll.current = false
-      }, 850)
+      }, 750)
 
       const container = document.getElementById("main-gallery-container")
       const el = document.getElementById(`gallery-item-${item.id}`)
       if (container && el) {
         if (!isMobile) {
-          window.scrollTo({ top: 0, behavior: "smooth" })
-          setTimeout(() => {
-            const targetTop = el.offsetTop - (container.clientHeight - el.clientHeight) / 2
-            container.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" })
-          }, 80)
+          // 1. Ensure window is scrolled up so the primary product frame is visible
+          const galleryRect = container.getBoundingClientRect()
+          if (galleryRect.top < 0 || galleryRect.top > 160) {
+            window.scrollTo({ top: 0, behavior: "smooth" })
+          }
+
+          // 2. Scroll element DIRECTLY to the top of the first frame (el.offsetTop)
+          // No mid-half road offset! It aligns cleanly at top: 0
+          container.scrollTo({
+            top: el.offsetTop,
+            behavior: "smooth",
+          })
         } else {
-          const targetLeft = el.offsetLeft - (container.clientWidth - el.clientWidth) / 2
-          container.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" })
+          // Mobile: scroll directly to element's horizontal offset
+          container.scrollTo({
+            left: el.offsetLeft,
+            behavior: "smooth",
+          })
         }
       }
 
@@ -426,11 +429,11 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
               )
             }
           })}
-          {/* Spacer to allow the last images/videos to scroll all the way to top in desktop */}
+          {/* Bottom spacer with 100vh height to guarantee even the last video can scroll all the way to top: 0 */}
           {!isMobile && (
             <div
-              className="hidden lg:block h-full min-h-full flex-shrink-0 pointer-events-none"
-              style={{ height: "100%" }}
+              className="hidden lg:block w-full flex-shrink-0 pointer-events-none"
+              style={{ minHeight: "100vh" }}
             />
           )}
         </div>
