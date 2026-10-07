@@ -169,7 +169,8 @@ const GalleryVideo = ({ item, index, isActive, onActivate }: GalleryVideoProps) 
     >
       {isActive ? (
         <iframe
-          src={item.embedUrl}
+          key={`yt-iframe-${item.videoId}`}
+          src={`https://www.youtube-nocookie.com/embed/${item.videoId}?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&enablejsapi=1`}
           title={`Product Video ${index + 1}`}
           className="w-full h-full border-0 aspect-square rounded-2xl"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -207,6 +208,9 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
   const [isMobile, setIsMobile] = useState(false)
   const zoomRefs = useRef<(ReactZoomPanPinchRef | null)[]>([])
 
+  const isProgrammaticScroll = useRef(false)
+  const scrollTimeout = useRef<ReturnType<typeof setTimeout>>()
+
   // Parse and normalize YouTube videos (max 3)
   const parsedVideos = useMemo(() => {
     if (!videos || !Array.isArray(videos)) return []
@@ -219,7 +223,7 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
         list.push({
           id: `vid-${vidId}-${i}`,
           videoId: vidId,
-          embedUrl: `https://www.youtube-nocookie.com/embed/${vidId}?autoplay=1&rel=0&modestbranding=1`,
+          embedUrl: `https://www.youtube-nocookie.com/embed/${vidId}?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&enablejsapi=1`,
           thumbUrl: `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`,
           url: raw,
         })
@@ -258,81 +262,83 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
     return () => window.removeEventListener("resize", check)
   }, [])
 
-  // ── IntersectionObserver: highlight thumbnail as user swipes/scrolls ──────
-  const intersectionRatios = useRef<number[]>([])
-
+  // ── Scroll Listener: Automatically active & autoplay when item is in center ──
   useEffect(() => {
-    intersectionRatios.current = new Array(allItems.length).fill(0)
     const container = document.getElementById("main-gallery-container")
     if (!container || allItems.length === 0) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const idx = allItems.findIndex(
-            (item) => `gallery-item-${item.id}` === entry.target.id
-          )
-          if (idx !== -1) {
-            intersectionRatios.current[idx] = entry.intersectionRatio
+    let rafId: number | null = null
+
+    const handleScroll = () => {
+      if (isProgrammaticScroll.current) return
+      if (rafId) cancelAnimationFrame(rafId)
+
+      rafId = requestAnimationFrame(() => {
+        const containerRect = container.getBoundingClientRect()
+        const containerCenter = isMobile
+          ? containerRect.left + containerRect.width / 2
+          : containerRect.top + containerRect.height / 2
+
+        let closestIdx = -1
+        let minDistance = Infinity
+
+        allItems.forEach((item, idx) => {
+          const el = document.getElementById(`gallery-item-${item.id}`)
+          if (!el) return
+          const elRect = el.getBoundingClientRect()
+          const elCenter = isMobile
+            ? elRect.left + elRect.width / 2
+            : elRect.top + elRect.height / 2
+          const distance = Math.abs(containerCenter - elCenter)
+
+          if (distance < minDistance) {
+            minDistance = distance
+            closestIdx = idx
           }
         })
 
-        let bestRatio = 0
-        let bestIdx = -1
-
-        intersectionRatios.current.forEach((ratio, idx) => {
-          if (ratio > bestRatio) {
-            bestRatio = ratio
-            bestIdx = idx
-          }
-        })
-
-        if (bestIdx !== -1 && bestRatio >= 0.45) {
-          setActiveIndex(bestIdx)
+        if (closestIdx !== -1 && closestIdx !== activeIndex) {
+          setActiveIndex(closestIdx)
         }
-      },
-      {
-        root: container,
-        threshold: [0.45, 0.55, 0.75, 1.0],
-      }
-    )
+      })
+    }
 
-    allItems.forEach((item) => {
-      const el = document.getElementById(`gallery-item-${item.id}`)
-      if (el) observer.observe(el)
-    })
+    container.addEventListener("scroll", handleScroll, { passive: true })
+    return () => {
+      container.removeEventListener("scroll", handleScroll)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [allItems, isMobile, activeIndex])
 
-    return () => observer.disconnect()
-  }, [allItems])
-
-  // ── Desktop thumbnail click ────────────────────────────────────────────────
-  const handleDesktopThumb = useCallback(
+  // ── Programmatic navigation on thumbnail click with smooth centering ──────
+  const handleThumbClick = useCallback(
     (item: GalleryItem, index: number) => {
+      setActiveIndex(index)
+      isProgrammaticScroll.current = true
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
+      scrollTimeout.current = setTimeout(() => {
+        isProgrammaticScroll.current = false
+      }, 850)
+
       const container = document.getElementById("main-gallery-container")
       const el = document.getElementById(`gallery-item-${item.id}`)
       if (container && el) {
-        window.scrollTo({ top: 0, behavior: "smooth" })
-        setTimeout(() => {
-          container.scrollTo({ top: el.offsetTop, behavior: "smooth" })
-        }, 80)
+        if (!isMobile) {
+          window.scrollTo({ top: 0, behavior: "smooth" })
+          setTimeout(() => {
+            const targetTop = el.offsetTop - (container.clientHeight - el.clientHeight) / 2
+            container.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" })
+          }, 80)
+        } else {
+          const targetLeft = el.offsetLeft - (container.clientWidth - el.clientWidth) / 2
+          container.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" })
+        }
       }
-      setActiveIndex(index)
-    },
-    []
-  )
 
-  // ── Mobile thumbnail click ─────────────────────────────────────────────────
-  const handleMobileThumb = useCallback(
-    (item: GalleryItem, index: number) => {
-      const container = document.getElementById("main-gallery-container")
-      const el = document.getElementById(`gallery-item-${item.id}`)
-      if (container && el) {
-        container.scrollTo({ left: el.offsetLeft, behavior: "smooth" })
-      }
-      setActiveIndex(index)
+      // Reset zoom on images when navigating
       zoomRefs.current.forEach((ref) => ref?.resetTransform())
     },
-    []
+    [isMobile]
   )
 
   return (
@@ -346,12 +352,12 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
               key={`thumb-${item.id}`}
               onClick={(e) => {
                 e.preventDefault()
-                handleDesktopThumb(item, index)
+                handleThumbClick(item, index)
               }}
               className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
                 ${
                   isSelected
-                    ? "border-black shadow-md"
+                    ? "border-black shadow-md ring-1 ring-black"
                     : "border-transparent hover:border-gray-400"
                 }`}
             >
@@ -415,7 +421,7 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
                   item={item}
                   index={index}
                   isActive={activeIndex === index}
-                  onActivate={() => setActiveIndex(index)}
+                  onActivate={() => handleThumbClick(item, index)}
                 />
               )
             }
@@ -439,12 +445,12 @@ const ImageGallery = ({ images, videos, discountPercentage }: ImageGalleryProps)
                   key={`mob-thumb-${item.id}`}
                   onClick={(e) => {
                     e.preventDefault()
-                    handleMobileThumb(item, index)
+                    handleThumbClick(item, index)
                   }}
                   className={`relative w-16 aspect-[1/1] rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white flex-shrink-0 cursor-pointer
                     ${
                       isSelected
-                        ? "border-black shadow-sm"
+                        ? "border-black shadow-sm ring-1 ring-black"
                         : "border-gray-200 hover:border-gray-400"
                     }`}
                 >
