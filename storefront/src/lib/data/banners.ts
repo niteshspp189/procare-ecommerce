@@ -14,12 +14,12 @@ export interface CMSBanner {
 
 export const DEFAULT_HERO_BANNER: CMSBanner = {
   id: "default-hero",
-  title: "Shop Pro Care Products",
+  title: "Step Into The Festive Flex",
   type: "hero",
-  desktop_image_url: "/images/landing-page-images/hero-banner-desktop.jpg",
-  mobile_image_url: "/images/landing-page-images/hero-banner-mobile.jpg",
+  desktop_image_url: "/images/landing-page-images/hero-banner-desktop.webp",
+  mobile_image_url: "/images/landing-page-images/hero-banner-mobile.webp",
   link_url: "/shop",
-  alt_text: "Shop Pro Care Shoe Care Products",
+  alt_text: "Step Into The Festive Flex - Shop Pro Care Products",
   is_active: true,
   display_order: 0,
 }
