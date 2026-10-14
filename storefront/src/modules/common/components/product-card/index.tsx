@@ -13,6 +13,7 @@ import { useState, useMemo } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import clsx from "clsx"
 import { convertToLocale } from "@lib/util/money"
+import StarRating from "@modules/common/components/star-rating"
 
 interface ProductCardProps {
   product: HttpTypes.StoreProduct
@@ -31,6 +32,7 @@ export default function ProductCard({
   className,
   buttonLabel,
 }: ProductCardProps) {
+  const metadata = (product.metadata || {}) as Record<string, any>
   const { cheapestPrice } = getProductPrice({ product })
   const hasDiscount = Boolean(
     cheapestPrice &&
@@ -157,7 +159,18 @@ export default function ProductCard({
           <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest mb-1 h-[20px] overflow-hidden">
             {product.categories?.[0]?.name || "Premium Shine"}
           </p>
-          <div className="mt-2 mb-4 h-[30px] flex items-center gap-3">
+
+          <div className="h-[18px] flex items-center">
+            {metadata.rating ? (
+              <StarRating 
+                rating={metadata.rating} 
+                count={metadata.review_count || metadata.rating_count} 
+                size="sm" 
+              />
+            ) : null}
+          </div>
+
+          <div className="mt-1.5 mb-3 h-[30px] flex items-center gap-3">
             {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
           </div>
         </div>

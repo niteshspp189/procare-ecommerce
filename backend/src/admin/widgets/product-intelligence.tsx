@@ -225,6 +225,16 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
     const [badgeProductCount, setBadgeProductCount] = useState<number | null>(null)
     const fileInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null])
 
+    // Star Rating & Amazon Records
+    const [rating, setRating] = useState("")
+    const [reviewCount, setReviewCount] = useState("")
+    const [amazonUrl, setAmazonUrl] = useState("")
+    const [amazonRating, setAmazonRating] = useState("")
+    const [amazonReviewsCount, setAmazonReviewsCount] = useState("")
+    const [amazonProofImage, setAmazonProofImage] = useState("")
+    const [isUploadingAmazonProof, setIsUploadingAmazonProof] = useState(false)
+    const amazonProofInputRef = useRef<HTMLInputElement | null>(null)
+
     const [loadingMeta, setLoadingMeta] = useState(true)
     const [savingMeta, setSavingMeta] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false)
@@ -305,6 +315,13 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
             setHowToUseCustomImages(stepImgs)
             setKeyBenefits(typeof meta.key_benefits === "string" ? meta.key_benefits : "")
             setSuitableFor(typeof meta.suitable_for === "string" ? meta.suitable_for : "")
+
+            setRating(meta.rating ? String(meta.rating) : "")
+            setReviewCount(meta.review_count || meta.rating_count ? String(meta.review_count || meta.rating_count) : "")
+            setAmazonUrl(typeof meta.amazon_url === "string" ? meta.amazon_url : "")
+            setAmazonRating(typeof meta.amazon_rating === "string" || typeof meta.amazon_rating === "number" ? String(meta.amazon_rating) : "")
+            setAmazonReviewsCount(typeof meta.amazon_reviews_count === "string" || typeof meta.amazon_reviews_count === "number" ? String(meta.amazon_reviews_count) : "")
+            setAmazonProofImage(typeof meta.amazon_proof_image === "string" ? meta.amazon_proof_image : "")
 
             // Parse Specifications (convert JSON object or string into Key: Value multiline text)
             let formattedSpecsText = ""
@@ -409,6 +426,45 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
         }
     }
 
+    const handleUploadAmazonProof = async (file: File) => {
+        try {
+            setIsUploadingAmazonProof(true)
+            if (file.size > 1 * 1024 * 1024) {
+                toast.error(`File size (${(file.size / (1024 * 1024)).toFixed(2)} MB) exceeds 1.0 MB limit.`)
+                setIsUploadingAmazonProof(false)
+                return
+            }
+
+            const reader = new FileReader()
+            reader.onload = async (e) => {
+                const dataUrl = e.target?.result as string
+                try {
+                    const res = await fetch("/admin/custom/banners/upload", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({ filename: file.name, dataUrl })
+                    })
+                    const data = await res.json()
+                    if (res.ok && data.success) {
+                        setAmazonProofImage(data.url)
+                        toast.success("Amazon screenshot/proof uploaded successfully!")
+                    } else {
+                        toast.error(data.message || "Failed to upload image")
+                    }
+                } catch (err: any) {
+                    toast.error(err.message || "Upload failed")
+                } finally {
+                    setIsUploadingAmazonProof(false)
+                }
+            }
+            reader.readAsDataURL(file)
+        } catch (err: any) {
+            toast.error(err.message || "Upload failed")
+            setIsUploadingAmazonProof(false)
+        }
+    }
+
     // Save Meta Handler
     const handleSaveMetadata = async () => {
         setSavingMeta(true)
@@ -443,7 +499,13 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                 key_benefits: keyBenefits,
                 suitable_for: suitableFor,
                 product_specifications: specsObj,
-                product_badges: formattedBadges
+                product_badges: formattedBadges,
+                rating: rating ? (parseFloat(rating) || rating) : null,
+                review_count: reviewCount ? reviewCount.trim() : null,
+                amazon_url: amazonUrl ? amazonUrl.trim() : null,
+                amazon_rating: amazonRating ? amazonRating.trim() : null,
+                amazon_reviews_count: amazonReviewsCount ? amazonReviewsCount.trim() : null,
+                amazon_proof_image: amazonProofImage ? amazonProofImage.trim() : null,
             }
 
             const res = await fetch(`/admin/quick-meta-update`, {
@@ -986,6 +1048,222 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                             No active badges configured.
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ── 3. STAR RATING & AMAZON PROOF RECORD (Full Width Card) ── */}
+                        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-5 col-span-1 lg:col-span-2 mt-4">
+                            <div className="border-b border-gray-100 pb-3 flex items-center justify-between flex-wrap gap-2">
+                                <div>
+                                    <Heading level="h3" className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                        ⭐ Star Rating & Social Proof
+                                    </Heading>
+                                    <Text className="text-[11px] text-gray-500">
+                                        Configure public star rating for storefront display, and optionally record Amazon rating/proof for internal records.
+                                    </Text>
+                                </div>
+                                {rating && (
+                                    <Badge color="green" className="text-xs font-semibold">
+                                        Active on Storefront: {rating} ★ ({reviewCount || "0"} reviews)
+                                    </Badge>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                                {/* 1. Storefront Public Rating */}
+                                <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200/70 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-amber-900 uppercase tracking-wider block">
+                                            🌐 Public Storefront Rating
+                                        </span>
+                                        <span className="text-[10px] text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full font-medium">
+                                            Shows on cards & detail page
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-gray-700 block mb-1">
+                                                Star Rating (1.0 – 5.0)
+                                            </label>
+                                            <Input
+                                                type="number"
+                                                step="0.1"
+                                                min="1.0"
+                                                max="5.0"
+                                                size="small"
+                                                placeholder="e.g. 4.8"
+                                                value={rating}
+                                                onChange={(e) => setRating(e.target.value)}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-gray-700 block mb-1">
+                                                Reviews Count
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                size="small"
+                                                placeholder="e.g. 124"
+                                                value={reviewCount}
+                                                onChange={(e) => setReviewCount(e.target.value)}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Live Star Preview */}
+                                    <div className="pt-2 border-t border-amber-200/50 flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[11px] text-gray-600 font-medium">Live Preview:</span>
+                                            {rating ? (
+                                                <div className="flex items-center gap-1">
+                                                    <div className="flex items-center text-amber-500">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <span key={star} className="text-sm">
+                                                                {parseFloat(rating) >= star ? "★" : parseFloat(rating) >= star - 0.5 ? "★" : "☆"}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-xs font-bold text-gray-900">{parseFloat(rating).toFixed(1)}</span>
+                                                    {reviewCount && <span className="text-xs text-gray-500">({reviewCount})</span>}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-400 italic">No rating configured (hidden on storefront)</span>
+                                            )}
+                                        </div>
+                                        {rating && (
+                                            <button
+                                                type="button"
+                                                onClick={() => { setRating(""); setReviewCount(""); }}
+                                                className="text-[10px] text-red-500 hover:text-red-700 hover:underline cursor-pointer"
+                                            >
+                                                Clear Rating
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* 2. Amazon Record Keeping (Admin Only - Optional) */}
+                                <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                                            🔒 Amazon Record Keeping
+                                        </span>
+                                        <span className="text-[10px] text-slate-600 bg-slate-200/70 px-2 py-0.5 rounded-full font-medium">
+                                            Admin only (internal)
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                            <label className="text-[11px] font-semibold text-gray-700">Amazon Product / Listing URL</label>
+                                            {amazonUrl && (
+                                                <a
+                                                    href={amazonUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-[10px] text-teal-600 hover:text-teal-800 hover:underline flex items-center gap-0.5"
+                                                >
+                                                    Open Amazon ↗
+                                                </a>
+                                            )}
+                                        </div>
+                                        <Input
+                                            type="url"
+                                            size="small"
+                                            placeholder="https://www.amazon.in/dp/..."
+                                            value={amazonUrl}
+                                            onChange={(e) => setAmazonUrl(e.target.value)}
+                                            className="bg-white"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-gray-700 block mb-1">
+                                                Amazon Rating
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                size="small"
+                                                placeholder="e.g. 4.5"
+                                                value={amazonRating}
+                                                onChange={(e) => setAmazonRating(e.target.value)}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-gray-700 block mb-1">
+                                                Amazon Review Count
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                size="small"
+                                                placeholder="e.g. 1,850 reviews"
+                                                value={amazonReviewsCount}
+                                                onChange={(e) => setAmazonReviewsCount(e.target.value)}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Screenshot / Proof Upload */}
+                                    <div className="pt-2 border-t border-slate-200/70">
+                                        <label className="text-[11px] font-semibold text-gray-700 block mb-1">
+                                            Amazon Rating Screenshot / Proof (≤ 1.0 MB)
+                                        </label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="file"
+                                                accept="image/png,image/jpeg,image/webp"
+                                                className="hidden"
+                                                ref={amazonProofInputRef}
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handleUploadAmazonProof(file)
+                                                }}
+                                            />
+                                            <Button
+                                                type="button"
+                                                size="small"
+                                                variant="secondary"
+                                                isLoading={isUploadingAmazonProof}
+                                                onClick={() => amazonProofInputRef.current?.click()}
+                                                className="text-xs h-8 cursor-pointer"
+                                            >
+                                                📷 Upload Proof Screenshot
+                                            </Button>
+
+                                            {amazonProofImage && (
+                                                <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border border-gray-200 text-xs">
+                                                    <a
+                                                        href={amazonProofImage}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-teal-600 hover:underline flex items-center gap-1 font-medium"
+                                                    >
+                                                        <img
+                                                            src={amazonProofImage}
+                                                            alt="Proof"
+                                                            className="w-5 h-5 rounded object-cover border border-gray-200"
+                                                        />
+                                                        View Proof ↗
+                                                    </a>
+                                                    <button
+                                                        type="button"
+                                                        title="Remove screenshot"
+                                                        onClick={() => setAmazonProofImage("")}
+                                                        className="text-red-500 hover:text-red-700 font-bold ml-1 cursor-pointer"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

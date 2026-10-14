@@ -17,6 +17,7 @@ import { isGenuineOption } from "@lib/util/product"
 import { trackMetaEvent } from "@lib/util/meta-pixel"
 import MetaViewContentTracker from "@modules/products/components/meta-view-content-tracker"
 import { clx } from "@medusajs/ui"
+import StarRating from "@modules/common/components/star-rating"
 
 const AVAILABLE_BADGES: { label: string; imgFile: string; id?: string }[] = [
     // PRO Line
@@ -697,6 +698,27 @@ const formatSpecValue = (value: any): string => {
   return (
     <div style={{ ...(s.container as any), overflowAnchor: 'none' }} className="font-sans">
       <MetaViewContentTracker title={title} id={selectedVariant?.id || product.id} value={selectedPrice?.calculated_price_number || 0} />
+      {metadata.rating ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "Product",
+              name: product.title,
+              image: images?.[0]?.url,
+              description: product.description || product.title,
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: Number(metadata.rating) || 5,
+                reviewCount: parseInt(String(metadata.review_count || metadata.rating_count || "100"), 10) || 100,
+                bestRating: "5",
+                worstRating: "1",
+              },
+            }),
+          }}
+        />
+      ) : null}
       <div style={s.inner as any}>
         <div style={s.breadcrumb as any}>
           <LocalizedClientLink href="/" className="hover:text-black">Home</LocalizedClientLink>
@@ -708,6 +730,16 @@ const formatSpecValue = (value: any): string => {
           <div className="block lg:hidden w-full">
             <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Home / {title}</div>
             <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
+            {metadata.rating ? (
+              <div className="mb-3">
+                <StarRating 
+                  rating={metadata.rating} 
+                  count={metadata.review_count || metadata.rating_count} 
+                  size="md" 
+                  showVerified 
+                />
+              </div>
+            ) : null}
             {/* Tagline / Subtitle commented out temporarily until client provides taglines for all products */}
             {/* {!isSingleDefaultVariant && <p className="text-sm text-gray-500 font-medium">{subtitle}</p>} */}
             {(product?.categories ?? []).length > 0 && (
@@ -739,6 +771,16 @@ const formatSpecValue = (value: any): string => {
               <div className="hidden lg:block">
                 <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-3">Home / {title}</div>
                 <h1 className="text-3xl font-semibold mb-2 text-black">{title}</h1>
+                {metadata.rating ? (
+                  <div className="mb-3">
+                    <StarRating 
+                      rating={metadata.rating} 
+                      count={metadata.review_count || metadata.rating_count} 
+                      size="md" 
+                      showVerified 
+                    />
+                  </div>
+                ) : null}
                 {/* Tagline / Subtitle commented out temporarily until client provides taglines for all products */}
             {/* {!isSingleDefaultVariant && <p className="text-sm text-gray-500 mb-3 font-medium">{subtitle}</p>} */}
                 {(product?.categories ?? []).length > 0 && (
