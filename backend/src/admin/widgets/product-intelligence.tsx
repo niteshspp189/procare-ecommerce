@@ -113,6 +113,7 @@ const HOW_TO_USE_PRESETS = [
     { label: "Pedi Roller Pack (5 steps)", folder: "pedi-roller-pack", count: 5 },
     { label: "Perfect Clean Gel (3 steps)", folder: "perfect-clean-gel", count: 3 },
     { label: "Power Cleaning Shampoo (5 steps)", folder: "power-cleaning-shampoo", count: 5 },
+    { label: "Premium Shoe Care Kit (6 steps)", folder: "premium-shoe-care-kit", count: 6 },
     { label: "Premium Sneaker Care Kit (8 steps)", folder: "premium-sneaker-care-kit", count: 8 },
     { label: "Shoe Cream With Applicator (5 steps)", folder: "shoe-cream-with-applicator", count: 5 },
     { label: "Shoe Deo (4 steps)", folder: "shoe-deo", count: 4 },
@@ -120,6 +121,7 @@ const HOW_TO_USE_PRESETS = [
     { label: "Smooth Feet Pumice (7 steps)", folder: "smooth-feet-pumice", count: 7 },
     { label: "Sneaker Cleaning Kit (5 steps)", folder: "sneaker-cleaning-kit", count: 5 },
     { label: "Sneaker Wipes (5 steps)", folder: "sneaker-wipes", count: 5 },
+    { label: "Sneaker Wipes Pack of 30 Kit (8 steps)", folder: "sneaker-wipes-pack-of-30-kit", count: 8 },
     { label: "Sports And Sneaker Cleaning (6 steps)", folder: "sports-and-sneaker-cleaning", count: 6 },
     { label: "Suede Brush (4 steps)", folder: "suede-brush", count: 4 },
     { label: "Suede N Nubuck 2in1 (7 steps)", folder: "suede-n-nubuck-2in1", count: 7 },
@@ -697,10 +699,12 @@ const ProductIntelligenceWidget = ({ data: product }: DetailWidgetProps<AdminPro
                                             if (h.includes("naivy-white") || h.includes("navy-white")) return "navy-white"
                                             if (h.includes("perfect-clean-gel")) return "perfect-clean-gel"
                                             if (h.includes("shampoo") || h.includes("power-cleaning")) return "power-cleaning-shampoo"
+                                            if (h.includes("premium-shoe-care-kit")) return "premium-shoe-care-kit"
                                             if (h.includes("premium-sneaker-care-kit")) return "premium-sneaker-care-kit"
                                             if (h.includes("shoe-deo") || h.includes("deo")) return "shoe-deo"
                                             if (h.includes("sports-sneaker-cleaning") || h.includes("sports-and-sneaker")) return "sports-and-sneaker-cleaning"
                                             if (h.includes("suede-and-nubuck-renovator") || h.includes("suede-n-nubuck")) return "suede-n-nubuck-renovator"
+                                            if (h.includes("wipes-pack-of-30-kit") || h.includes("wipes-kit")) return "sneaker-wipes-pack-of-30-kit"
                                             if (h.includes("kit")) return "sneaker-cleaning-kit"
                                             if (h.includes("wipes")) return "sneaker-wipes"
                                             return ""
