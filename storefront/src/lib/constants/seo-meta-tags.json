@@ -1,0 +1,620 @@
+{
+  "paths": {
+    "/": {
+      "title": "Premium Shoe Care Products & Insoles | PRO Care",
+      "description": "Discover premium shoe care products, sneaker cleaners, leather polish, insoles and foot care essentials from Pro Premium Care.",
+      "keywords": "Premium Shoe Care Products, Shoe Care Products India, Sneaker Cleaning Products, Leather Shoe Polish, Shoe Insoles",
+      "url": "https://www.propremiumcare.com/"
+    },
+    "/faq": {
+      "title": "Shoe Care FAQs: Products, Orders & Usage | PRO Care",
+      "description": "Find answers about shoe care products, cleaning methods, orders, payments, delivery, returns and product usage with Pro Premium Care.",
+      "keywords": "Shoe Care FAQs, Shoe Cleaning FAQs, Shoe Care Product Guide, Shoe Care Help, Pro Premium Care FAQs",
+      "url": "https://www.propremiumcare.com/faq"
+    },
+    "/our-story": {
+      "title": "Our Story: Premium Shoe Care Brand | PRO Care",
+      "description": "Discover the story behind PRO, a shoe care brand offering innovative solutions for leather shoes, sneakers, accessories and foot comfort.",
+      "keywords": "Pro Premium Care, Premium Shoe Care Brand, Shoe Care Company India, Leather Care Products, Sneaker Care Brand",
+      "url": "https://www.propremiumcare.com/our-story"
+    },
+    "/terms-and-conditions": {
+      "title": "Terms and Conditions | Pro Premium Care",
+      "description": "Read Pro Premium Care's terms and conditions covering website access, product purchases, payments, orders and customer responsibilities.",
+      "keywords": "Pro Premium Care Terms, Terms and Conditions, Website Terms, Online Shopping Terms, Purchase Terms",
+      "url": "https://www.propremiumcare.com/terms-and-conditions"
+    },
+    "/privacy-policy": {
+      "title": "Privacy Policy | Pro Premium Care",
+      "description": "Learn how Pro Premium Care handles personal information, website data, customer details and privacy when you browse or shop online.",
+      "keywords": "Pro Premium Care Privacy Policy, Privacy Policy, Customer Data Privacy, Website Privacy, Online Shopping Privacy",
+      "url": "https://www.propremiumcare.com/privacy-policy"
+    },
+    "/shipping-and-exchange": {
+      "title": "Shipping and Exchange Policy | Pro Premium Care",
+      "description": "Review Pro Premium Care's shipping and exchange information to understand order delivery, shipping terms and exchange procedures.",
+      "keywords": "Pro Premium Care Shipping, Shipping Policy, Exchange Policy, Online Order Delivery, Shoe Care Products Delivery",
+      "url": "https://www.propremiumcare.com/shipping-and-exchange"
+    },
+    "/compliance-certifications": {
+      "title": "Compliance and Certifications | Pro Premium Care",
+      "description": "Explore Pro Premium Care's compliance and certification information and learn about its commitment to product quality and standards.",
+      "keywords": "Pro Premium Care Certifications, Compliance Certifications, Shoe Care Quality Standards, Product Quality, PRO Care Compliance",
+      "url": "https://www.propremiumcare.com/compliance-certifications"
+    },
+    "/contact": {
+      "title": "Contact Us for Shoe Care Support | PRO Care",
+      "description": "Contact Pro Premium Care for product inquiries, order assistance, customer support and questions about premium shoe care solutions.",
+      "keywords": "Contact Pro Premium Care, Shoe Care Customer Support, Product Enquiries, Order Support, PRO Care Contact",
+      "url": "https://www.propremiumcare.com/contact"
+    },
+    "/refund-policy": {
+      "title": "Refund Policy | Pro Premium Care",
+      "description": "Read Pro Premium Care's refund policy to understand refund eligibility, request procedures and important information about online orders.",
+      "keywords": "Pro Premium Care Refund Policy, Refund Policy, Online Shopping Refunds, Order Refund Information, Customer Refund Support",
+      "url": "https://www.propremiumcare.com/refund-policy"
+    },
+    "/account": {
+      "title": "My Account | Pro Premium Care",
+      "description": "Access your Pro Premium Care account to manage your shopping profile and conveniently access your account information.",
+      "keywords": "Pro Premium Care Account, Customer Account, Online Shopping Account, PRO Care Login, Customer Profile",
+      "url": "https://www.propremiumcare.com/account"
+    },
+    "/cart": {
+      "title": "Shopping Cart | Pro Premium Care",
+      "description": "Review your selected shoe care products, check your shopping cart and prepare your order with Pro Premium Care.",
+      "keywords": "Pro Premium Care Cart, Shoe Care Shopping Cart, Buy Shoe Care Products, Online Shopping Cart, PRO Care Products",
+      "url": "https://www.propremiumcare.com/cart"
+    },
+    "/categories/accessories": {
+      "title": "Shoe Care Accessories & Brushes | PRO Care",
+      "description": "Shop shoe care accessories, including brushes and essential footwear care tools designed to help maintain clean, polished and well-kept shoes.",
+      "keywords": "Shoe Care Accessories, Shoe Cleaning Brush, Shoe Polish Brush, Shoe Care Tools, Footwear Accessories",
+      "url": "https://www.propremiumcare.com/categories/accessories"
+    },
+    "/categories/foot-care": {
+      "title": "Foot Care Products & Pedicure Tools | PRO Care",
+      "description": "Explore foot care products, pedicure tools, foot files and personal care essentials designed to support a comfortable grooming routine.",
+      "keywords": "Foot Care Products, Foot Care Tools, Pedicure Tools, Foot File, Foot Grooming Products",
+      "url": "https://www.propremiumcare.com/categories/foot-care"
+    },
+    "/categories/insoles": {
+      "title": "Shoe Insoles for Comfort & Support | PRO Care",
+      "description": "Shop shoe insoles for everyday comfort, cushioning and activity-specific support, with options for walking, running and sports footwear.",
+      "keywords": "Shoe Insoles, Comfortable Shoe Insoles, Gel Insoles, Sports Shoe Insoles, Insoles for Walking",
+      "url": "https://www.propremiumcare.com/categories/insoles"
+    },
+    "/categories/shoe-care": {
+      "title": "Shoe Care Products & Cleaners | PRO Care",
+      "description": "Shop shoe cleaners, sneaker wipes, leather shoe creams, polish and cleaning kits to keep your footwear clean, fresh and well maintained.",
+      "keywords": "Shoe Care Products, Shoe Cleaner, Leather Shoe Polish, Sneaker Cleaning Kit, Shoe Cleaning Products India",
+      "url": "https://www.propremiumcare.com/categories/shoe-care"
+    },
+    "/shop": {
+      "title": "Shop Shoe Care Products & Insoles | PRO Care",
+      "description": "Shop Pro Premium Care's range of shoe cleaners, sneaker care kits, leather polish, insoles, brushes and personal care accessories online.",
+      "keywords": "Buy Shoe Care Products, Shoe Care Online India, Sneaker Cleaning Kit, Shoe Polish, Shoe Insoles",
+      "url": "https://www.propremiumcare.com/shop"
+    },
+    "/products/pro-gold-color-shoe-cream-with-applicator": {
+      "title": "Pro Gold Shoe Cream with Applicator | PRO Care",
+      "description": "Restore leather shoe colour and shine with Pro Gold Shoe Cream with Applicator, featuring easy application and nourishing waxes.",
+      "keywords": "Leather Polish for Shoes, Best Leather Shoe Polish, Leather Shoes Cream, Shoe Cream with Applicator, Leather Shoe Care",
+      "url": "https://www.propremiumcare.com/products/pro-gold-color-shoe-cream-with-applicator"
+    },
+    "/products/pro-gold-color-shoe-cream": {
+      "title": "Pro Gold Color Shoe Cream | Leather Shoe Polish",
+      "description": "Refresh faded leather with Pro Gold Shoe Cream. Help restore colour, enhance shine and nourish leather shoes with an easy-to-use formula.",
+      "keywords": "White Shoe Cleaning Cream, Leather Shoe Cream, Leather Polish for Shoes, Best Shoe Polish for Leather Shoes, Shoe Cream",
+      "url": "https://www.propremiumcare.com/products/pro-gold-color-shoe-cream"
+    },
+    "/products/pro-gold-sneaker-wipes-pack-of-30-kit": {
+      "title": "Pro Gold Sneaker Wipes Pack of 30 Kit | PRO Care",
+      "description": "Clean sneakers on the go with Pro Gold Sneaker Wipes. Dual-textured wipes help remove everyday dirt and stubborn marks conveniently.",
+      "keywords": "Sneaker Wipes, Sneaker Wipes for Quick Cleaning, Sneaker Cleaning Wipes, Shoe Cleaning Wipes, Sneaker Care",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sneaker-wipes-pack-of-30-kit"
+    },
+    "/products/pro-gold-shine-self-shine": {
+      "title": "Pro Gold Self Shine Shoe Polish | PRO Care",
+      "description": "Give leather and synthetic shoes a polished look with Pro Gold Self Shine, a convenient liquid polish that requires no buffing.",
+      "keywords": "Self Shine Shoe Polish, Liquid Shoe Polish, Instant Shoe Shine, Leather Shoe Polish, Shoe Shine Product",
+      "url": "https://www.propremiumcare.com/products/pro-gold-shine-self-shine"
+    },
+    "/products/pro-gold-shoe-deo": {
+      "title": "Pro Gold Shoe Deo for Fresh Footwear | PRO Care",
+      "description": "Keep your footwear feeling fresh with Pro Gold Shoe Deo, a convenient shoe deodorizer for everyday footwear care and odour management.",
+      "keywords": "Shoe Deo, Shoe Deodorizer, Shoe Odour Control, Shoe Freshener, Footwear Freshener",
+      "url": "https://www.propremiumcare.com/products/pro-gold-shoe-deo"
+    },
+    "/products/pro-gold-foam-cleaner": {
+      "title": "Pro Gold Foam Cleaner for Suede & Nubuck",
+      "description": "Clean suede and nubuck footwear with Pro Gold Foam Cleaner, designed to help lift dirt and refresh delicate shoe surfaces.",
+      "keywords": "Suede and Nubuck Foam Cleaner, Suede Shoe Cleaner, Nubuck Cleaner, Foam Shoe Cleaner, Suede Cleaning Products",
+      "url": "https://www.propremiumcare.com/products/pro-gold-foam-cleaner"
+    },
+    "/products/pro-clean-perfect-clean-gel-50ml-neutral": {
+      "title": "Pro Clean Perfect Clean Gel 50ml | PRO Care",
+      "description": "Discover Pro Clean Perfect Clean Gel in a neutral shade for convenient footwear care and targeted cleaning of suitable shoe materials.",
+      "keywords": "Shoe Cleaning Gel, Neutral Shoe Cleaner, Shoe Cleaner Gel 50ml, Footwear Cleaning Product, Shoe Care Gel",
+      "url": "https://www.propremiumcare.com/products/pro-clean-perfect-clean-gel-50ml-neutral"
+    },
+    "/products/pro-gold-sports-sneaker-cleaning-kit": {
+      "title": "Pro Gold Sports Sneaker Cleaning Kit | PRO Care",
+      "description": "Refresh sports shoes and sneakers with Pro Gold Sports Sneaker Cleaning Kit, a practical solution for routine footwear cleaning and care.",
+      "keywords": "Sneaker Cleaning Kit, Sneaker Shoe Cleaning Kit, Sports Shoe Cleaner, Shoe Cleaning Kit, Sneaker Care Kit",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sports-sneaker-cleaning-kit"
+    },
+    "/products/pro-gold-clean-power-cleaning-shampoo": {
+      "title": "Pro Gold Clean Power Shoe Cleaning Shampoo",
+      "description": "Clean everyday footwear with Pro Gold Clean Power Cleaning Shampoo, designed to help remove dirt and stains from suitable shoe materials.",
+      "keywords": "White Shoe Cleaner, Shoe Cleaning Shampoo, Sneaker Cleaner, Shoe Stain Remover, Shoe Cleaning Product",
+      "url": "https://www.propremiumcare.com/products/pro-gold-clean-power-cleaning-shampoo"
+    },
+    "/products/pro-gold-sneaker-wipes-pack-of-30": {
+      "title": "Pro Gold Sneaker Wipes Pack of 30 | PRO Care",
+      "description": "Clean sneakers quickly with Pro Gold Sneaker Wipes. Portable wipes help remove everyday dirt and marks for convenient shoe care anywhere.",
+      "keywords": "Sneaker Wipes for Quick Cleaning, Sneaker Wipes, Shoe Cleaning Wipes, Sneaker Care Products",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sneaker-wipes-pack-of-30"
+    },
+    "/products/pro-gold-care-leather-moisturizer": {
+      "title": "Pro Gold Leather Moisturizer for Shoes | PRO Care",
+      "description": "Care for leather footwear with Pro Gold Leather Moisturizer, designed to condition leather and help maintain its softness and appearance.",
+      "keywords": "Leather Moisturizer, Leather Shoe Conditioner, Leather Care Products, Leather Shoe Care, Leather Moisturizer for Shoes",
+      "url": "https://www.propremiumcare.com/products/pro-gold-care-leather-moisturizer"
+    },
+    "/products/pro-gold-shine-instant-shine": {
+      "title": "Pro Gold Instant Shine Shoe Polish | PRO Care",
+      "description": "Refresh dull footwear with Pro Gold Instant Shine, a convenient shoe shine product for a polished appearance and everyday shoe care.",
+      "keywords": "Instant Shoe Shine, Instant Shine Shoe Polish, Shoe Shine Product, Leather Shoe Polish, Quick Shoe Shine",
+      "url": "https://www.propremiumcare.com/products/pro-gold-shine-instant-shine"
+    },
+    "/products/pro-gold-sneaker-cleaning-kit-shampoo-mini-brush": {
+      "title": "Pro Gold Sneaker Cleaning Kit with Mini Brush",
+      "description": "Clean sneakers with Pro Gold Sneaker Cleaning Kit, featuring cleaning shampoo and a mini brush for convenient everyday footwear care.",
+      "keywords": "Sneaker Cleaning Kit, Shoe Cleaner Kit, Sneaker Shampoo, Shoe Cleaning Brush, Sneaker Shoe Cleaning Kit",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sneaker-cleaning-kit-shampoo-mini-brush"
+    },
+    "/products/pro-insoles-ease-aloe-vera": {
+      "title": "Pro Insoles Ease Aloe Vera | Comfort Insoles",
+      "description": "Explore Pro Insoles Ease Aloe Vera, designed for everyday footwear comfort and cushioning to support your daily walking routine.",
+      "keywords": "Aloe Vera Insoles, Comfortable Shoe Insoles, Everyday Insoles, Shoe Comfort Insoles, Pro Insoles Ease",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-aloe-vera"
+    },
+    "/products/pro-comfort-air-walk-gel-insoles": {
+      "title": "Pro Comfort Air Walk Gel Insoles | PRO Care",
+      "description": "Improve everyday footwear comfort with Pro Comfort Air Walk Gel Insoles, designed to provide cushioning and support while walking.",
+      "keywords": "Gel Insoles, Comfortable Shoe Insoles, Air Walk Insoles, Walking Insoles, Cushioning Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-comfort-air-walk-gel-insoles"
+    },
+    "/products/pro-insoles-ease-soft": {
+      "title": "Pro Insoles Ease Soft | Comfortable Shoe Insoles",
+      "description": "Discover Pro Insoles Ease Soft for cushioned everyday footwear comfort, helping make daily walking and standing more comfortable.",
+      "keywords": "Soft Shoe Insoles, Comfortable Shoe Insoles, Cushioning Insoles, Everyday Insoles, Pro Insoles Ease Soft",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-soft"
+    },
+    "/products/pro-insoles-gel-comfort-heel-lovers": {
+      "title": "Pro Insoles Gel Comfort Heel Lovers | PRO Care",
+      "description": "Explore Pro Gel Comfort Heel Lovers insoles, designed to add cushioning and comfort to suitable footwear for everyday use.",
+      "keywords": "Gel Heel Insoles, Heel Comfort Insoles, Gel Insoles, Shoe Comfort Products, Heel Cushioning Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-gel-comfort-heel-lovers"
+    },
+    "/products/pro-insoles-ease-pacific-blue": {
+      "title": "Pro Insoles Ease Pacific Blue | PRO Care",
+      "description": "Discover Pro Insoles Ease Pacific Blue, a footwear comfort option designed to provide cushioning for everyday walking and regular use.",
+      "keywords": "Pro Insoles Ease Pacific Blue, Comfortable Shoe Insoles, Everyday Insoles, Cushioning Insoles, Shoe Comfort Products",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-pacific-blue"
+    },
+    "/products/pro-insoles-gel-comfort-heel-pad": {
+      "title": "Pro Insoles Gel Comfort Heel Pad | PRO Care",
+      "description": "Add cushioning to your footwear with Pro Gel Comfort Heel Pads, designed to support heel comfort during everyday walking and use.",
+      "keywords": "Gel Heel Pad, Heel Cushion Pads, Heel Comfort Products, Shoe Heel Pads, Gel Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-gel-comfort-heel-pad"
+    },
+    "/products/pro-insoles-active-cricket": {
+      "title": "Pro Insoles Active Cricket | Sports Shoe Insoles",
+      "description": "Explore Pro Insoles Active Cricket, designed for added cushioning and comfort in suitable cricket footwear and sports shoes.",
+      "keywords": "Cricket Shoe Insoles, Sports Shoe Insoles, Cricket Insoles, Athletic Insoles, Sports Footwear Comfort",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-active-cricket"
+    },
+    "/products/pro-insole-ease-heel-liner": {
+      "title": "Pro Insole Ease Heel Liner | PRO Care",
+      "description": "Improve footwear fit and heel comfort with Pro Insole Ease Heel Liner, a practical accessory for everyday shoes.",
+      "keywords": "Shoe Heel Liner, Heel Liners, Shoe Comfort Accessories, Heel Cushion, Footwear Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-insole-ease-heel-liner"
+    },
+    "/products/pro-insoles-ease-memory-foam": {
+      "title": "Pro Insoles Ease Memory Foam | PRO Care",
+      "description": "Discover Pro Insoles Ease Memory Foam, designed to provide cushioning and a comfortable feel for everyday walking and footwear use.",
+      "keywords": "Memory Foam Insoles, Comfortable Shoe Insoles, Cushioning Insoles, Soft Insoles, Everyday Shoe Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-memory-foam"
+    },
+    "/products/pro-insoles-active-running": {
+      "title": "Pro Insoles Active Running | Running Shoe Insoles",
+      "description": "Explore Pro Insoles Active Running, designed to add cushioning and comfort to suitable running shoes and active footwear.",
+      "keywords": "Running Shoe Insoles, Running Insoles, Sports Shoe Insoles, Athletic Insoles, Cushioning Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-active-running"
+    },
+    "/products/pro-comfort-gel-insoles": {
+      "title": "Pro Comfort Gel Insoles for Everyday Shoes",
+      "description": "Add cushioning to everyday footwear with Pro Comfort Gel Insoles, designed to support comfort while walking and standing.",
+      "keywords": "Gel Insoles, Comfortable Shoe Insoles, Gel Shoe Inserts, Cushioning Insoles, Shoe Comfort Products",
+      "url": "https://www.propremiumcare.com/products/pro-comfort-gel-insoles"
+    },
+    "/products/pro-insoles-active-cycling": {
+      "title": "Pro Insoles Active Cycling | Cycling Shoe Insoles",
+      "description": "Explore Pro Insoles Active Cycling, designed to add cushioning and comfort to suitable cycling footwear and active-use shoes.",
+      "keywords": "Cycling Shoe Insoles, Sports Insoles, Active Insoles, Shoe Cushioning, Athletic Footwear Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-active-cycling"
+    },
+    "/products/pro-horse-hair-brush": {
+      "title": "Pro Horse Hair Shoe Brush | PRO Care",
+      "description": "Care for leather footwear with the Pro Horse Hair Brush, a practical shoe care tool for brushing and maintaining a neat finish.",
+      "keywords": "Shoe Cleaner Brush, Horse Hair Shoe Brush, Leather Shoe Brush, Shoe Polish Brush, Shoe Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-horse-hair-brush"
+    },
+    "/products/shoe-horn-metal-52-cm": {
+      "title": "Metal Shoe Horn 52 cm | PRO Care",
+      "description": "Make putting on shoes easier with the 52 cm metal shoe horn, designed for convenient footwear use and everyday shoe care.",
+      "keywords": "Metal Shoe Horn, Long Shoe Horn, Shoe Horn 52 cm, Shoe Accessories, Footwear Accessories",
+      "url": "https://www.propremiumcare.com/products/shoe-horn-metal-52-cm"
+    },
+    "/products/pro-suede-brush": {
+      "title": "Pro Suede Brush for Shoe Cleaning | PRO Care",
+      "description": "Maintain suede footwear with the Pro Suede Brush, designed to help remove surface dirt and refresh the texture of suitable materials.",
+      "keywords": "Suede Brush, Suede Shoe Cleaner Brush, Nubuck Brush, Suede Care Products, Shoe Cleaning Brush",
+      "url": "https://www.propremiumcare.com/products/pro-suede-brush"
+    },
+    "/products/pro-application-brush": {
+      "title": "Pro Shoe Polish Application Brush | PRO Care",
+      "description": "Apply shoe cream and polish with the Pro Application Brush, a useful accessory for routine leather footwear care and maintenance.",
+      "keywords": "Shoe Cleaner Brush, Shoe Polish Application Brush, Shoe Cream Brush, Leather Shoe Care Tools, Shoe Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-application-brush"
+    },
+    "/products/pro-gloss-brush": {
+      "title": "Pro Gloss Brush for Shoe Polishing | PRO Care",
+      "description": "Achieve a well-groomed footwear finish with the Pro Gloss Brush, designed to support shoe polishing and routine leather shoe care.",
+      "keywords": "Shoe Cleaner Brush, Shoe Gloss Brush, Shoe Polish Brush, Leather Shoe Brush, Shoe Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-gloss-brush"
+    },
+    "/products/pro-premium-shoe-tree": {
+      "title": "Pro Premium Shoe Tree for Shoe Shape | PRO Care",
+      "description": "Help maintain your footwear's shape between wears with the Pro Premium Shoe Tree, a useful accessory for everyday shoe care.",
+      "keywords": "Premium Shoe Tree, Shoe Tree, Shoe Shape Keeper, Shoe Care Accessories, Footwear Maintenance",
+      "url": "https://www.propremiumcare.com/products/pro-premium-shoe-tree"
+    },
+    "/products/pro-accessories-men-shoe-tree-with-spiral": {
+      "title": "Men's Shoe Tree with Spiral | PRO Care",
+      "description": "Help maintain the shape of men's footwear between wears with the Pro Accessories Shoe Tree with Spiral for everyday shoe care.",
+      "keywords": "Men's Shoe Tree, Shoe Tree with Spiral, Shoe Shape Keeper, Men's Shoe Accessories, Shoe Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-accessories-men-shoe-tree-with-spiral"
+    },
+    "/products/pro-essentials-brush-pumice-combo-turqouise": {
+      "title": "Pro Essentials Brush and Pumice Combo | PRO Care",
+      "description": "Explore the Pro Essentials Brush and Pumice Combo for a convenient personal grooming routine and everyday foot care.",
+      "keywords": "Brush and Pumice Combo, Foot Care Tools, Pumice Stone, Foot Grooming Products, Pedicure Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-brush-pumice-combo-turqouise"
+    },
+    "/products/pro-essentials-nail-file-turqouise": {
+      "title": "Pro Essentials Nail File Turquoise | PRO Care",
+      "description": "Keep your nail care routine simple with the Pro Essentials Nail File, a practical grooming accessory for shaping and smoothing nails.",
+      "keywords": "Nail File, Nail Filing Tool, Nail Care Accessories, Personal Grooming Tools, Pro Essentials Nail File",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-nail-file-turqouise"
+    },
+    "/products/pro-essentials-magic-pedi-roller-pack-black": {
+      "title": "Pro Essentials Magic Pedi Roller Pack | PRO Care",
+      "description": "Maintain your foot care routine with the Pro Essentials Magic Pedi Roller Pack, a convenient grooming tool for smoother-feeling feet.",
+      "keywords": "Magic Pedi Roller, Foot Care Roller, Pedicure Tool, Foot Grooming Products, Foot Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-magic-pedi-roller-pack-black"
+    },
+    "/products/pro-essentials-double-sided-foot-file-purple": {
+      "title": "Double Sided Foot File Purple | Pro Essentials",
+      "description": "Support your foot grooming routine with the Pro Essentials Double Sided Foot File, designed for convenient at-home foot care.",
+      "keywords": "Double Sided Foot File, Foot File, Pedicure Tools, Foot Care Products, Foot Grooming Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-double-sided-foot-file-purple"
+    },
+    "/products/pro-essentials-magic-pedi-roller": {
+      "title": "Pro Essentials Magic Pedi Roller | PRO Care",
+      "description": "Add the Pro Essentials Magic Pedi Roller to your personal grooming routine for convenient foot care at home.",
+      "keywords": "Magic Pedi Roller, Foot Care Tool, Pedicure Roller, Foot Grooming Products, Personal Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-magic-pedi-roller"
+    },
+    "/products/pro-essentials-dual-action-foot-file-turqouise": {
+      "title": "Dual Action Foot File Turquoise | Pro Essentials",
+      "description": "Care for your feet with the Pro Essentials Dual Action Foot File, a practical grooming accessory for your regular foot care routine.",
+      "keywords": "Dual Action Foot File, Foot File, Foot Care Tools, Pedicure Accessories, Foot Grooming Products",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-dual-action-foot-file-turqouise"
+    },
+    "/products/pro-essentials-smooth-feet-pumice-turqouise": {
+      "title": "Pro Essentials Smooth Feet Pumice | PRO Care",
+      "description": "Add the Pro Essentials Smooth Feet Pumice to your foot care routine for convenient at-home grooming and smoother-feeling feet.",
+      "keywords": "Foot Pumice, Pumice Stone, Foot Care Products, Foot Grooming Tools, Pedicure Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-smooth-feet-pumice-turqouise"
+    },
+    "/products/pro-essentials-nail-clipper-turqouise": {
+      "title": "Pro Essentials Nail Clipper Turquoise | PRO Care",
+      "description": "Keep your grooming kit ready with the Pro Essentials Nail Clipper, a practical personal care tool for regular nail maintenance.",
+      "keywords": "Nail Clipper, Nail Cutting Tool, Nail Care Accessories, Personal Grooming Tools, Pro Essentials Nail Clipper",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-nail-clipper-turqouise"
+    },
+    "/products/pro-essentials-nail-buffer-turqouise": {
+      "title": "Pro Essentials Nail Buffer Turquoise | PRO Care",
+      "description": "Complete your nail care routine with the Pro Essentials Nail Buffer, a useful grooming accessory for smoothing and maintaining nails.",
+      "keywords": "Nail Buffer, Nail Buffing Tool, Nail Care Accessories, Nail Grooming Products, Personal Care Tools",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-nail-buffer-turqouise"
+    }
+  },
+  "products": {
+    "pro-gold-color-shoe-cream-with-applicator": {
+      "title": "Pro Gold Shoe Cream with Applicator | PRO Care",
+      "description": "Restore leather shoe colour and shine with Pro Gold Shoe Cream with Applicator, featuring easy application and nourishing waxes.",
+      "keywords": "Leather Polish for Shoes, Best Leather Shoe Polish, Leather Shoes Cream, Shoe Cream with Applicator, Leather Shoe Care",
+      "url": "https://www.propremiumcare.com/products/pro-gold-color-shoe-cream-with-applicator"
+    },
+    "pro-gold-color-shoe-cream": {
+      "title": "Pro Gold Color Shoe Cream | Leather Shoe Polish",
+      "description": "Refresh faded leather with Pro Gold Shoe Cream. Help restore colour, enhance shine and nourish leather shoes with an easy-to-use formula.",
+      "keywords": "White Shoe Cleaning Cream, Leather Shoe Cream, Leather Polish for Shoes, Best Shoe Polish for Leather Shoes, Shoe Cream",
+      "url": "https://www.propremiumcare.com/products/pro-gold-color-shoe-cream"
+    },
+    "pro-gold-sneaker-wipes-pack-of-30-kit": {
+      "title": "Pro Gold Sneaker Wipes Pack of 30 Kit | PRO Care",
+      "description": "Clean sneakers on the go with Pro Gold Sneaker Wipes. Dual-textured wipes help remove everyday dirt and stubborn marks conveniently.",
+      "keywords": "Sneaker Wipes, Sneaker Wipes for Quick Cleaning, Sneaker Cleaning Wipes, Shoe Cleaning Wipes, Sneaker Care",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sneaker-wipes-pack-of-30-kit"
+    },
+    "pro-gold-shine-self-shine": {
+      "title": "Pro Gold Self Shine Shoe Polish | PRO Care",
+      "description": "Give leather and synthetic shoes a polished look with Pro Gold Self Shine, a convenient liquid polish that requires no buffing.",
+      "keywords": "Self Shine Shoe Polish, Liquid Shoe Polish, Instant Shoe Shine, Leather Shoe Polish, Shoe Shine Product",
+      "url": "https://www.propremiumcare.com/products/pro-gold-shine-self-shine"
+    },
+    "pro-gold-shoe-deo": {
+      "title": "Pro Gold Shoe Deo for Fresh Footwear | PRO Care",
+      "description": "Keep your footwear feeling fresh with Pro Gold Shoe Deo, a convenient shoe deodorizer for everyday footwear care and odour management.",
+      "keywords": "Shoe Deo, Shoe Deodorizer, Shoe Odour Control, Shoe Freshener, Footwear Freshener",
+      "url": "https://www.propremiumcare.com/products/pro-gold-shoe-deo"
+    },
+    "pro-gold-foam-cleaner": {
+      "title": "Pro Gold Foam Cleaner for Suede & Nubuck",
+      "description": "Clean suede and nubuck footwear with Pro Gold Foam Cleaner, designed to help lift dirt and refresh delicate shoe surfaces.",
+      "keywords": "Suede and Nubuck Foam Cleaner, Suede Shoe Cleaner, Nubuck Cleaner, Foam Shoe Cleaner, Suede Cleaning Products",
+      "url": "https://www.propremiumcare.com/products/pro-gold-foam-cleaner"
+    },
+    "pro-clean-perfect-clean-gel-50ml-neutral": {
+      "title": "Pro Clean Perfect Clean Gel 50ml | PRO Care",
+      "description": "Discover Pro Clean Perfect Clean Gel in a neutral shade for convenient footwear care and targeted cleaning of suitable shoe materials.",
+      "keywords": "Shoe Cleaning Gel, Neutral Shoe Cleaner, Shoe Cleaner Gel 50ml, Footwear Cleaning Product, Shoe Care Gel",
+      "url": "https://www.propremiumcare.com/products/pro-clean-perfect-clean-gel-50ml-neutral"
+    },
+    "pro-gold-sports-sneaker-cleaning-kit": {
+      "title": "Pro Gold Sports Sneaker Cleaning Kit | PRO Care",
+      "description": "Refresh sports shoes and sneakers with Pro Gold Sports Sneaker Cleaning Kit, a practical solution for routine footwear cleaning and care.",
+      "keywords": "Sneaker Cleaning Kit, Sneaker Shoe Cleaning Kit, Sports Shoe Cleaner, Shoe Cleaning Kit, Sneaker Care Kit",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sports-sneaker-cleaning-kit"
+    },
+    "pro-gold-clean-power-cleaning-shampoo": {
+      "title": "Pro Gold Clean Power Shoe Cleaning Shampoo",
+      "description": "Clean everyday footwear with Pro Gold Clean Power Cleaning Shampoo, designed to help remove dirt and stains from suitable shoe materials.",
+      "keywords": "White Shoe Cleaner, Shoe Cleaning Shampoo, Sneaker Cleaner, Shoe Stain Remover, Shoe Cleaning Product",
+      "url": "https://www.propremiumcare.com/products/pro-gold-clean-power-cleaning-shampoo"
+    },
+    "pro-gold-sneaker-wipes-pack-of-30": {
+      "title": "Pro Gold Sneaker Wipes Pack of 30 | PRO Care",
+      "description": "Clean sneakers quickly with Pro Gold Sneaker Wipes. Portable wipes help remove everyday dirt and marks for convenient shoe care anywhere.",
+      "keywords": "Sneaker Wipes for Quick Cleaning, Sneaker Wipes, Shoe Cleaning Wipes, Sneaker Care Products",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sneaker-wipes-pack-of-30"
+    },
+    "pro-gold-care-leather-moisturizer": {
+      "title": "Pro Gold Leather Moisturizer for Shoes | PRO Care",
+      "description": "Care for leather footwear with Pro Gold Leather Moisturizer, designed to condition leather and help maintain its softness and appearance.",
+      "keywords": "Leather Moisturizer, Leather Shoe Conditioner, Leather Care Products, Leather Shoe Care, Leather Moisturizer for Shoes",
+      "url": "https://www.propremiumcare.com/products/pro-gold-care-leather-moisturizer"
+    },
+    "pro-gold-shine-instant-shine": {
+      "title": "Pro Gold Instant Shine Shoe Polish | PRO Care",
+      "description": "Refresh dull footwear with Pro Gold Instant Shine, a convenient shoe shine product for a polished appearance and everyday shoe care.",
+      "keywords": "Instant Shoe Shine, Instant Shine Shoe Polish, Shoe Shine Product, Leather Shoe Polish, Quick Shoe Shine",
+      "url": "https://www.propremiumcare.com/products/pro-gold-shine-instant-shine"
+    },
+    "pro-gold-sneaker-cleaning-kit-shampoo-mini-brush": {
+      "title": "Pro Gold Sneaker Cleaning Kit with Mini Brush",
+      "description": "Clean sneakers with Pro Gold Sneaker Cleaning Kit, featuring cleaning shampoo and a mini brush for convenient everyday footwear care.",
+      "keywords": "Sneaker Cleaning Kit, Shoe Cleaner Kit, Sneaker Shampoo, Shoe Cleaning Brush, Sneaker Shoe Cleaning Kit",
+      "url": "https://www.propremiumcare.com/products/pro-gold-sneaker-cleaning-kit-shampoo-mini-brush"
+    },
+    "pro-insoles-ease-aloe-vera": {
+      "title": "Pro Insoles Ease Aloe Vera | Comfort Insoles",
+      "description": "Explore Pro Insoles Ease Aloe Vera, designed for everyday footwear comfort and cushioning to support your daily walking routine.",
+      "keywords": "Aloe Vera Insoles, Comfortable Shoe Insoles, Everyday Insoles, Shoe Comfort Insoles, Pro Insoles Ease",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-aloe-vera"
+    },
+    "pro-comfort-air-walk-gel-insoles": {
+      "title": "Pro Comfort Air Walk Gel Insoles | PRO Care",
+      "description": "Improve everyday footwear comfort with Pro Comfort Air Walk Gel Insoles, designed to provide cushioning and support while walking.",
+      "keywords": "Gel Insoles, Comfortable Shoe Insoles, Air Walk Insoles, Walking Insoles, Cushioning Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-comfort-air-walk-gel-insoles"
+    },
+    "pro-insoles-ease-soft": {
+      "title": "Pro Insoles Ease Soft | Comfortable Shoe Insoles",
+      "description": "Discover Pro Insoles Ease Soft for cushioned everyday footwear comfort, helping make daily walking and standing more comfortable.",
+      "keywords": "Soft Shoe Insoles, Comfortable Shoe Insoles, Cushioning Insoles, Everyday Insoles, Pro Insoles Ease Soft",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-soft"
+    },
+    "pro-insoles-gel-comfort-heel-lovers": {
+      "title": "Pro Insoles Gel Comfort Heel Lovers | PRO Care",
+      "description": "Explore Pro Gel Comfort Heel Lovers insoles, designed to add cushioning and comfort to suitable footwear for everyday use.",
+      "keywords": "Gel Heel Insoles, Heel Comfort Insoles, Gel Insoles, Shoe Comfort Products, Heel Cushioning Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-gel-comfort-heel-lovers"
+    },
+    "pro-insoles-ease-pacific-blue": {
+      "title": "Pro Insoles Ease Pacific Blue | PRO Care",
+      "description": "Discover Pro Insoles Ease Pacific Blue, a footwear comfort option designed to provide cushioning for everyday walking and regular use.",
+      "keywords": "Pro Insoles Ease Pacific Blue, Comfortable Shoe Insoles, Everyday Insoles, Cushioning Insoles, Shoe Comfort Products",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-pacific-blue"
+    },
+    "pro-insoles-gel-comfort-heel-pad": {
+      "title": "Pro Insoles Gel Comfort Heel Pad | PRO Care",
+      "description": "Add cushioning to your footwear with Pro Gel Comfort Heel Pads, designed to support heel comfort during everyday walking and use.",
+      "keywords": "Gel Heel Pad, Heel Cushion Pads, Heel Comfort Products, Shoe Heel Pads, Gel Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-gel-comfort-heel-pad"
+    },
+    "pro-insoles-active-cricket": {
+      "title": "Pro Insoles Active Cricket | Sports Shoe Insoles",
+      "description": "Explore Pro Insoles Active Cricket, designed for added cushioning and comfort in suitable cricket footwear and sports shoes.",
+      "keywords": "Cricket Shoe Insoles, Sports Shoe Insoles, Cricket Insoles, Athletic Insoles, Sports Footwear Comfort",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-active-cricket"
+    },
+    "pro-insole-ease-heel-liner": {
+      "title": "Pro Insole Ease Heel Liner | PRO Care",
+      "description": "Improve footwear fit and heel comfort with Pro Insole Ease Heel Liner, a practical accessory for everyday shoes.",
+      "keywords": "Shoe Heel Liner, Heel Liners, Shoe Comfort Accessories, Heel Cushion, Footwear Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-insole-ease-heel-liner"
+    },
+    "pro-insoles-ease-memory-foam": {
+      "title": "Pro Insoles Ease Memory Foam | PRO Care",
+      "description": "Discover Pro Insoles Ease Memory Foam, designed to provide cushioning and a comfortable feel for everyday walking and footwear use.",
+      "keywords": "Memory Foam Insoles, Comfortable Shoe Insoles, Cushioning Insoles, Soft Insoles, Everyday Shoe Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-ease-memory-foam"
+    },
+    "pro-insoles-active-running": {
+      "title": "Pro Insoles Active Running | Running Shoe Insoles",
+      "description": "Explore Pro Insoles Active Running, designed to add cushioning and comfort to suitable running shoes and active footwear.",
+      "keywords": "Running Shoe Insoles, Running Insoles, Sports Shoe Insoles, Athletic Insoles, Cushioning Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-active-running"
+    },
+    "pro-comfort-gel-insoles": {
+      "title": "Pro Comfort Gel Insoles for Everyday Shoes",
+      "description": "Add cushioning to everyday footwear with Pro Comfort Gel Insoles, designed to support comfort while walking and standing.",
+      "keywords": "Gel Insoles, Comfortable Shoe Insoles, Gel Shoe Inserts, Cushioning Insoles, Shoe Comfort Products",
+      "url": "https://www.propremiumcare.com/products/pro-comfort-gel-insoles"
+    },
+    "pro-insoles-active-cycling": {
+      "title": "Pro Insoles Active Cycling | Cycling Shoe Insoles",
+      "description": "Explore Pro Insoles Active Cycling, designed to add cushioning and comfort to suitable cycling footwear and active-use shoes.",
+      "keywords": "Cycling Shoe Insoles, Sports Insoles, Active Insoles, Shoe Cushioning, Athletic Footwear Insoles",
+      "url": "https://www.propremiumcare.com/products/pro-insoles-active-cycling"
+    },
+    "pro-horse-hair-brush": {
+      "title": "Pro Horse Hair Shoe Brush | PRO Care",
+      "description": "Care for leather footwear with the Pro Horse Hair Brush, a practical shoe care tool for brushing and maintaining a neat finish.",
+      "keywords": "Shoe Cleaner Brush, Horse Hair Shoe Brush, Leather Shoe Brush, Shoe Polish Brush, Shoe Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-horse-hair-brush"
+    },
+    "shoe-horn-metal-52-cm": {
+      "title": "Metal Shoe Horn 52 cm | PRO Care",
+      "description": "Make putting on shoes easier with the 52 cm metal shoe horn, designed for convenient footwear use and everyday shoe care.",
+      "keywords": "Metal Shoe Horn, Long Shoe Horn, Shoe Horn 52 cm, Shoe Accessories, Footwear Accessories",
+      "url": "https://www.propremiumcare.com/products/shoe-horn-metal-52-cm"
+    },
+    "pro-suede-brush": {
+      "title": "Pro Suede Brush for Shoe Cleaning | PRO Care",
+      "description": "Maintain suede footwear with the Pro Suede Brush, designed to help remove surface dirt and refresh the texture of suitable materials.",
+      "keywords": "Suede Brush, Suede Shoe Cleaner Brush, Nubuck Brush, Suede Care Products, Shoe Cleaning Brush",
+      "url": "https://www.propremiumcare.com/products/pro-suede-brush"
+    },
+    "pro-application-brush": {
+      "title": "Pro Shoe Polish Application Brush | PRO Care",
+      "description": "Apply shoe cream and polish with the Pro Application Brush, a useful accessory for routine leather footwear care and maintenance.",
+      "keywords": "Shoe Cleaner Brush, Shoe Polish Application Brush, Shoe Cream Brush, Leather Shoe Care Tools, Shoe Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-application-brush"
+    },
+    "pro-gloss-brush": {
+      "title": "Pro Gloss Brush for Shoe Polishing | PRO Care",
+      "description": "Achieve a well-groomed footwear finish with the Pro Gloss Brush, designed to support shoe polishing and routine leather shoe care.",
+      "keywords": "Shoe Cleaner Brush, Shoe Gloss Brush, Shoe Polish Brush, Leather Shoe Brush, Shoe Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-gloss-brush"
+    },
+    "pro-premium-shoe-tree": {
+      "title": "Pro Premium Shoe Tree for Shoe Shape | PRO Care",
+      "description": "Help maintain your footwear's shape between wears with the Pro Premium Shoe Tree, a useful accessory for everyday shoe care.",
+      "keywords": "Premium Shoe Tree, Shoe Tree, Shoe Shape Keeper, Shoe Care Accessories, Footwear Maintenance",
+      "url": "https://www.propremiumcare.com/products/pro-premium-shoe-tree"
+    },
+    "pro-accessories-men-shoe-tree-with-spiral": {
+      "title": "Men's Shoe Tree with Spiral | PRO Care",
+      "description": "Help maintain the shape of men's footwear between wears with the Pro Accessories Shoe Tree with Spiral for everyday shoe care.",
+      "keywords": "Men's Shoe Tree, Shoe Tree with Spiral, Shoe Shape Keeper, Men's Shoe Accessories, Shoe Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-accessories-men-shoe-tree-with-spiral"
+    },
+    "pro-essentials-brush-pumice-combo-turqouise": {
+      "title": "Pro Essentials Brush and Pumice Combo | PRO Care",
+      "description": "Explore the Pro Essentials Brush and Pumice Combo for a convenient personal grooming routine and everyday foot care.",
+      "keywords": "Brush and Pumice Combo, Foot Care Tools, Pumice Stone, Foot Grooming Products, Pedicure Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-brush-pumice-combo-turqouise"
+    },
+    "pro-essentials-nail-file-turqouise": {
+      "title": "Pro Essentials Nail File Turquoise | PRO Care",
+      "description": "Keep your nail care routine simple with the Pro Essentials Nail File, a practical grooming accessory for shaping and smoothing nails.",
+      "keywords": "Nail File, Nail Filing Tool, Nail Care Accessories, Personal Grooming Tools, Pro Essentials Nail File",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-nail-file-turqouise"
+    },
+    "pro-essentials-magic-pedi-roller-pack-black": {
+      "title": "Pro Essentials Magic Pedi Roller Pack | PRO Care",
+      "description": "Maintain your foot care routine with the Pro Essentials Magic Pedi Roller Pack, a convenient grooming tool for smoother-feeling feet.",
+      "keywords": "Magic Pedi Roller, Foot Care Roller, Pedicure Tool, Foot Grooming Products, Foot Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-magic-pedi-roller-pack-black"
+    },
+    "pro-essentials-double-sided-foot-file-purple": {
+      "title": "Double Sided Foot File Purple | Pro Essentials",
+      "description": "Support your foot grooming routine with the Pro Essentials Double Sided Foot File, designed for convenient at-home foot care.",
+      "keywords": "Double Sided Foot File, Foot File, Pedicure Tools, Foot Care Products, Foot Grooming Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-double-sided-foot-file-purple"
+    },
+    "pro-essentials-magic-pedi-roller": {
+      "title": "Pro Essentials Magic Pedi Roller | PRO Care",
+      "description": "Add the Pro Essentials Magic Pedi Roller to your personal grooming routine for convenient foot care at home.",
+      "keywords": "Magic Pedi Roller, Foot Care Tool, Pedicure Roller, Foot Grooming Products, Personal Care Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-magic-pedi-roller"
+    },
+    "pro-essentials-dual-action-foot-file-turqouise": {
+      "title": "Dual Action Foot File Turquoise | Pro Essentials",
+      "description": "Care for your feet with the Pro Essentials Dual Action Foot File, a practical grooming accessory for your regular foot care routine.",
+      "keywords": "Dual Action Foot File, Foot File, Foot Care Tools, Pedicure Accessories, Foot Grooming Products",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-dual-action-foot-file-turqouise"
+    },
+    "pro-essentials-smooth-feet-pumice-turqouise": {
+      "title": "Pro Essentials Smooth Feet Pumice | PRO Care",
+      "description": "Add the Pro Essentials Smooth Feet Pumice to your foot care routine for convenient at-home grooming and smoother-feeling feet.",
+      "keywords": "Foot Pumice, Pumice Stone, Foot Care Products, Foot Grooming Tools, Pedicure Accessories",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-smooth-feet-pumice-turqouise"
+    },
+    "pro-essentials-nail-clipper-turqouise": {
+      "title": "Pro Essentials Nail Clipper Turquoise | PRO Care",
+      "description": "Keep your grooming kit ready with the Pro Essentials Nail Clipper, a practical personal care tool for regular nail maintenance.",
+      "keywords": "Nail Clipper, Nail Cutting Tool, Nail Care Accessories, Personal Grooming Tools, Pro Essentials Nail Clipper",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-nail-clipper-turqouise"
+    },
+    "pro-essentials-nail-buffer-turqouise": {
+      "title": "Pro Essentials Nail Buffer Turquoise | PRO Care",
+      "description": "Complete your nail care routine with the Pro Essentials Nail Buffer, a useful grooming accessory for smoothing and maintaining nails.",
+      "keywords": "Nail Buffer, Nail Buffing Tool, Nail Care Accessories, Nail Grooming Products, Personal Care Tools",
+      "url": "https://www.propremiumcare.com/products/pro-essentials-nail-buffer-turqouise"
+    }
+  },
+  "categories": {
+    "accessories": {
+      "title": "Shoe Care Accessories & Brushes | PRO Care",
+      "description": "Shop shoe care accessories, including brushes and essential footwear care tools designed to help maintain clean, polished and well-kept shoes.",
+      "keywords": "Shoe Care Accessories, Shoe Cleaning Brush, Shoe Polish Brush, Shoe Care Tools, Footwear Accessories",
+      "url": "https://www.propremiumcare.com/categories/accessories"
+    },
+    "foot-care": {
+      "title": "Foot Care Products & Pedicure Tools | PRO Care",
+      "description": "Explore foot care products, pedicure tools, foot files and personal care essentials designed to support a comfortable grooming routine.",
+      "keywords": "Foot Care Products, Foot Care Tools, Pedicure Tools, Foot File, Foot Grooming Products",
+      "url": "https://www.propremiumcare.com/categories/foot-care"
+    },
+    "insoles": {
+      "title": "Shoe Insoles for Comfort & Support | PRO Care",
+      "description": "Shop shoe insoles for everyday comfort, cushioning and activity-specific support, with options for walking, running and sports footwear.",
+      "keywords": "Shoe Insoles, Comfortable Shoe Insoles, Gel Insoles, Sports Shoe Insoles, Insoles for Walking",
+      "url": "https://www.propremiumcare.com/categories/insoles"
+    },
+    "shoe-care": {
+      "title": "Shoe Care Products & Cleaners | PRO Care",
+      "description": "Shop shoe cleaners, sneaker wipes, leather shoe creams, polish and cleaning kits to keep your footwear clean, fresh and well maintained.",
+      "keywords": "Shoe Care Products, Shoe Cleaner, Leather Shoe Polish, Sneaker Cleaning Kit, Shoe Cleaning Products India",
+      "url": "https://www.propremiumcare.com/categories/shoe-care"
+    }
+  }
+}

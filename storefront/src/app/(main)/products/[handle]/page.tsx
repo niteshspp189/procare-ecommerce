@@ -61,6 +61,8 @@ function getImagesForVariant(
   return productImages.filter((i) => imageIdsMap.has(i.id))
 }
 
+import { getSeoForProduct } from "@lib/util/seo"
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle } = params
@@ -79,12 +81,26 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const customSeo = getSeoForProduct(handle)
+  const title = customSeo?.title || `${product.title} | ProCare`
+  const description = customSeo?.description || product.description || `${product.title}`
+  const keywords = customSeo?.keywords
+    ? customSeo.keywords.split(",").map((k) => k.trim())
+    : undefined
+
   return {
-    title: `${product.title} | ProCare`,
-    description: `${product.title}`,
+    title,
+    description,
+    keywords,
     openGraph: {
-      title: `${product.title} | ProCare`,
-      description: `${product.title}`,
+      title,
+      description,
+      images: product.thumbnail ? [product.thumbnail] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }

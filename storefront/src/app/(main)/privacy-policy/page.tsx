@@ -1,8 +1,17 @@
 import { Metadata } from "next"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const privacySeo = getSeoForPath("/privacy-policy")
+
 export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "Privacy Policy for ProPremiumCare.",
+  title: privacySeo?.title || "Privacy Policy | Pro Premium Care",
+  description:
+    privacySeo?.description ||
+    "Learn how Pro Premium Care handles personal information, website data, customer details and privacy when you browse or shop online.",
+  keywords: privacySeo?.keywords
+    ? privacySeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 export default function PrivacyPolicy() {

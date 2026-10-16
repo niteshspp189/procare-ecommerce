@@ -1,9 +1,18 @@
 import React from "react"
 import { Metadata } from "next"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const complianceSeo = getSeoForPath("/compliance-certifications")
+
 export const metadata: Metadata = {
-  title: "Compliance & Certifications | PRO Premium Care",
-  description: "Our Quality Management System is aligned with ISO 9001 principles and SEDEX ethical standards.",
+  title: complianceSeo?.title || "Compliance and Certifications | Pro Premium Care",
+  description:
+    complianceSeo?.description ||
+    "Explore Pro Premium Care's compliance and certification information and learn about its commitment to product quality and standards.",
+  keywords: complianceSeo?.keywords
+    ? complianceSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 export default function ComplianceCertificationsPage() {

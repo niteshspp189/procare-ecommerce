@@ -3,9 +3,18 @@ import { Metadata } from "next"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import StoreTemplate from "@modules/store/templates"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const shopSeo = getSeoForPath("/shop")
+
 export const metadata: Metadata = {
-  title: "Store",
-  description: "Explore all of our products.",
+  title: shopSeo?.title || "Shop Shoe Care Products & Insoles | PRO Care",
+  description:
+    shopSeo?.description ||
+    "Shop Pro Premium Care's range of shoe cleaners, sneaker wipes, shoe creams, polishes, insoles and foot care tools online.",
+  keywords: shopSeo?.keywords
+    ? shopSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 type Params = {

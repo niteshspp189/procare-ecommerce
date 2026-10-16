@@ -5,9 +5,18 @@ import MetaCheckoutTracker from "@modules/checkout/components/meta-checkout-trac
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const cartSeo = getSeoForPath("/cart")
+
 export const metadata: Metadata = {
-  title: "Cart",
-  description: "View your cart",
+  title: cartSeo?.title || "Shopping Cart | Pro Premium Care",
+  description:
+    cartSeo?.description ||
+    "Review your selected shoe care products, check your shopping cart and prepare your order with Pro Premium Care.",
+  keywords: cartSeo?.keywords
+    ? cartSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 export const dynamic = "force-dynamic"

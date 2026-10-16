@@ -1,8 +1,17 @@
 import { Metadata } from "next"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const refundSeo = getSeoForPath("/refund-policy")
+
 export const metadata: Metadata = {
-  title: "Refund Policy",
-  description: "Refund Policy for ProPremiumCare.",
+  title: refundSeo?.title || "Refund Policy | Pro Premium Care",
+  description:
+    refundSeo?.description ||
+    "Read Pro Premium Care's refund policy to understand refund eligibility, request procedures and important information about online orders.",
+  keywords: refundSeo?.keywords
+    ? refundSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 export default function RefundPolicy() {

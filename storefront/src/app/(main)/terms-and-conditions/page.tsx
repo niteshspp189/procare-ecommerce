@@ -1,8 +1,17 @@
 import { Metadata } from "next"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const termsSeo = getSeoForPath("/terms-and-conditions")
+
 export const metadata: Metadata = {
-  title: "Terms & Conditions",
-  description: "Terms and conditions for MV Shoe Care.",
+  title: termsSeo?.title || "Terms and Conditions | Pro Premium Care",
+  description:
+    termsSeo?.description ||
+    "Read Pro Premium Care's terms and conditions covering website access, product purchases, payments, orders and customer responsibilities.",
+  keywords: termsSeo?.keywords
+    ? termsSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 export default function TermsAndConditions() {

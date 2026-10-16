@@ -1,6 +1,20 @@
 import React from "react"
+import { Metadata } from "next"
 import CustomVideoPlayer from "./CustomVideoPlayer"
 import { getBanners } from "@lib/data/banners"
+import { getSeoForPath } from "@lib/util/seo"
+
+const storySeo = getSeoForPath("/our-story")
+
+export const metadata: Metadata = {
+  title: storySeo?.title || "Our Story: Premium Shoe Care Brand | PRO Care",
+  description:
+    storySeo?.description ||
+    "Discover the story behind PRO, a shoe care brand offering innovative solutions for leather shoes, sneakers, accessories and foot comfort.",
+  keywords: storySeo?.keywords
+    ? storySeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
+}
 
 const AwardIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

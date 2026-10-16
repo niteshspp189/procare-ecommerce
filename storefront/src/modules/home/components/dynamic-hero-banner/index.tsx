@@ -45,23 +45,92 @@ const DynamicHeroBanner: React.FC<DynamicHeroBannerProps> = ({ banners = [] }) =
     return () => clearInterval(interval)
   }, [activeBanners.length, isPaused, youtubeId])
 
-  const handlePrev = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handlePrev = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     setCurrentIndex((prev) => (prev - 1 + activeBanners.length) % activeBanners.length)
   }
 
-  const handleNext = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     setCurrentIndex((prev) => (prev + 1) % activeBanners.length)
+  }
+
+  // Touch and mouse drag swipe support
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [touchStartY, setTouchStartY] = useState<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStartX, setDragStartX] = useState<number | null>(null)
+  const [didSwipe, setDidSwipe] = useState(false)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX)
+    setTouchStartY(e.touches[0].clientY)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || touchStartY === null) return
+    const diffX = touchStartX - e.changedTouches[0].clientX
+    const diffY = touchStartY - e.changedTouches[0].clientY
+
+    // Ensure horizontal gesture is stronger than vertical scroll
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+      if (diffX > 0) {
+        handleNext()
+      } else {
+        handlePrev()
+      }
+    }
+    setTouchStartX(null)
+    setTouchStartY(null)
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setDragStartX(e.clientX)
+    setDidSwipe(false)
+  }
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (isDragging && dragStartX !== null) {
+      const diffX = dragStartX - e.clientX
+      if (Math.abs(diffX) > 50) {
+        setDidSwipe(true)
+        if (diffX > 0) {
+          handleNext()
+        } else {
+          handlePrev()
+        }
+      }
+    }
+    setIsDragging(false)
+    setDragStartX(null)
   }
 
   return (
     <section 
-      className="relative w-full overflow-hidden bg-black group"
+      className="relative w-full overflow-hidden bg-black group select-none"
       onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseLeave={() => {
+        setIsPaused(false)
+        setIsDragging(false)
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onClickCapture={(e) => {
+        if (didSwipe) {
+          e.preventDefault()
+          e.stopPropagation()
+          setDidSwipe(false)
+        }
+      }}
     >
       <div className="relative w-full aspect-[390/520] sm:aspect-[16/7] md:aspect-[1600/583] max-h-[583px]">
         {youtubeId ? (
@@ -114,30 +183,31 @@ const DynamicHeroBanner: React.FC<DynamicHeroBannerProps> = ({ banners = [] }) =
                 className="w-full h-full object-cover object-top block transition-transform duration-[5s] group-hover:scale-105"
                 loading="eager"
                 fetchPriority="high"
+                draggable={false}
               />
             </picture>
           </LocalizedClientLink>
         )}
       </div>
 
-      {/* Previous / Next Arrow Controls (if multiple slides) */}
+      {/* Previous / Next Arrow Controls (visible on hover on desktop, always accessible/tappable on mobile) */}
       {activeBanners.length > 1 && (
         <>
           <button
             onClick={handlePrev}
             aria-label="Previous slide"
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/75 text-white flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow-lg cursor-pointer"
+            className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-20 shadow-lg cursor-pointer"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={handleNext}
             aria-label="Next slide"
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/75 text-white flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow-lg cursor-pointer"
+            className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-20 shadow-lg cursor-pointer"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
             </svg>
           </button>

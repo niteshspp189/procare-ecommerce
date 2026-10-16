@@ -42,6 +42,8 @@ export async function generateStaticParams() {
   return staticParams
 }
 
+import { getSeoForCategory } from "@lib/util/seo"
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   try {
@@ -53,14 +55,30 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       }
     }
 
-    const title = `${productCategory.name} | ProCare`
-    const description = productCategory.description ?? `${title} category.`
+    const catHandle = params.category[params.category.length - 1]
+    const customSeo = getSeoForCategory(catHandle)
+
+    const title = customSeo?.title || `${productCategory.name} | ProCare`
+    const description = customSeo?.description || productCategory.description || `${title} category.`
+    const keywords = customSeo?.keywords
+      ? customSeo.keywords.split(",").map((k) => k.trim())
+      : undefined
 
     return {
       title,
       description,
+      keywords,
       alternates: {
         canonical: `${params.category.join("/")}`,
+      },
+      openGraph: {
+        title,
+        description,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
       },
     }
   } catch (error) {

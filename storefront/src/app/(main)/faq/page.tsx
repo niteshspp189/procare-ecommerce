@@ -1,4 +1,18 @@
 import React from "react"
+import { Metadata } from "next"
+import { getSeoForPath } from "@lib/util/seo"
+
+const faqSeo = getSeoForPath("/faq")
+
+export const metadata: Metadata = {
+  title: faqSeo?.title || "Shoe Care FAQs: Products, Orders & Usage | PRO Care",
+  description:
+    faqSeo?.description ||
+    "Find answers about shoe care products, cleaning methods, orders, payments, delivery, returns and product usage with Pro Premium Care.",
+  keywords: faqSeo?.keywords
+    ? faqSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
+}
 
 const FAQPage = () => {
     const faqCategories = [

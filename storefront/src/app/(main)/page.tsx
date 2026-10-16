@@ -19,9 +19,30 @@ import { getBanners } from "@lib/data/banners"
 export const revalidate = 60
 
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const homeSeo = getSeoForPath("/")
+
 export const metadata: Metadata = {
-  title: "Pro Premium Care | Staging Home",
-  description: "Experience the ultimate in shoe care and foot comfort.",
+  title: homeSeo?.title || "Premium Shoe Care Products & Insoles | PRO Care",
+  description:
+    homeSeo?.description ||
+    "Discover premium shoe care products, sneaker cleaners, leather polish, insoles and foot care essentials from Pro Premium Care.",
+  keywords: homeSeo?.keywords
+    ? homeSeo.keywords.split(",").map((k) => k.trim())
+    : [
+        "Premium Shoe Care Products",
+        "Shoe Care Products India",
+        "Sneaker Cleaning Products",
+        "Leather Shoe Polish",
+        "Shoe Insoles",
+      ],
+  openGraph: {
+    title: homeSeo?.title || "Premium Shoe Care Products & Insoles | PRO Care",
+    description:
+      homeSeo?.description ||
+      "Discover premium shoe care products, sneaker cleaners, leather polish, insoles and foot care essentials from Pro Premium Care.",
+  },
 }
 
 export default async function StagingHome(props: {

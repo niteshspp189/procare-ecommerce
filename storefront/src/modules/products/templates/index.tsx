@@ -502,6 +502,7 @@ const formatSpecValue = (value: any): string => {
   const [activeAccordion, setActiveAccordion] = useState<string | null>("description")
   const [faqOpen, setFaqOpen] = useState<number | null>(null)
   const howScrollRef = useRef<HTMLDivElement>(null)
+  const [activeHowStep, setActiveHowStep] = useState(0)
 
   const toggleAccordion = (name: string) => {
     setActiveAccordion(activeAccordion === name ? null : name)
@@ -1203,157 +1204,195 @@ const formatSpecValue = (value: any): string => {
                 <p className="text-gray-500 text-sm tracking-wide">Follow these simple steps for perfect results</p>
               </div>
               <div className="relative">
-                {/* Prev button */}
-                {(!useStatic && steps.length > 3) && (
+                {/* Prev button (visible on mobile and desktop) */}
+                {(steps.length > 1 || useStatic) && (
                   <button
-                    onClick={() => howScrollRef.current?.scrollBy({ left: -(343 + 32), behavior: 'smooth' })}
-                    className="hidden md:flex absolute left-0 top-[140px] -translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
-                    aria-label="Previous"
+                    onClick={() => {
+                      const stepW = typeof window !== 'undefined' && window.innerWidth < 640 ? window.innerWidth * 0.84 : 375
+                      howScrollRef.current?.scrollBy({ left: -stepW, behavior: 'smooth' })
+                    }}
+                    className="flex absolute left-1 sm:-left-5 top-[120px] sm:top-[140px] z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/95 border border-gray-200 shadow-md items-center justify-center hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
+                    aria-label="Previous step"
                   >
-                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                   </button>
                 )}
-              <div ref={howScrollRef} style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '24px' } as React.CSSProperties}>
-              <div className="snap-x snap-mandatory" style={{ display: 'inline-flex', gap: '32px', textAlign: 'left' } as React.CSSProperties}>
-                {!useStatic ? (
-                  steps.map((step, index) => {
-                    let stepImgUrl = ""
-                    let folder = metadata.how_to_use_folder as string | undefined
-                    if (!folder) {
-                      const handle = (product.handle || "").toLowerCase()
-                      if (handle.includes("shoe-cream-with-applicator")) folder = "shoe-cream-with-applicator"
-                      else if (handle.includes("shoe-cream") || handle.includes("black-shoe-cream")) folder = "black-shoe-cream"
-                      else if (handle.includes("self-shine") && !handle.includes("instant-shine")) folder = "brown-self-shine"
-                      else if (handle.includes("easy-care")) folder = "easy-care-combo-pack-neutral"
-                      else if (handle.includes("foam-cleaner") || (handle.includes("foam") && !handle.includes("insole"))) folder = "foam-cleaner"
-                      else if (handle.includes("hydroshield")) folder = "hydroshield"
-                      else if (handle.includes("moisturizer")) folder = "leather-moisturizer"
-                      else if (handle.includes("naivy-white") || handle.includes("navy-white")) folder = "navy-white"
-                      else if (handle.includes("perfect-clean-gel")) folder = "perfect-clean-gel"
-                      else if (handle.includes("shampoo") || handle.includes("power-cleaning")) folder = "power-cleaning-shampoo"
-                      else if (handle.includes("premium-shoe-care-kit")) folder = "premium-shoe-care-kit"
-                      else if (handle.includes("premium-sneaker-care-kit")) folder = "premium-sneaker-care-kit"
-                      else if (handle.includes("shoe-deo") || handle.includes("deo")) folder = "shoe-deo"
-                      else if (handle.includes("sports-sneaker-cleaning") || handle.includes("sports-and-sneaker")) folder = "sports-and-sneaker-cleaning"
-                      else if (handle.includes("suede-n-nubuck-kit")) folder = "suede-n-nubuck-kit"
-                      else if (handle.includes("suede-2in1") || handle.includes("suede-n-nubuck-2in1")) folder = "suede-n-nubuck-2in1"
-                      else if (handle.includes("suede-and-nubuck-renovator") || handle.includes("suede-n-nubuck")) folder = "suede-n-nubuck-renovator"
-                      else if (handle === "pro-sneaker-cleaning-kit" || handle === "sneaker-cleaning-kit" || handle === "pro-gold-sneaker-cleaning-kit-shampoo-mini-brush" || handle.includes("sneaker-cleaning-kit")) folder = "sneaker-cleaning-kit"
-                      else if (handle === "pro-gold-sneaker-wipes-pack-of-30-kit" || handle.includes("sneaker-wipes-pack-of-30-kit") || handle.includes("sneaker-wipes-kit")) folder = "sneaker-wipes-pack-of-30-kit"
-                      else if (handle === "pro-gold-sneaker-wipes-pack-of-30" || handle === "sneaker-wipes" || handle.includes("sneaker-wipes")) folder = "sneaker-wipes"
-                      else if (handle.includes("cricket")) folder = "active-cricket"
-                      else if (handle.includes("cycling")) folder = "active-cycling"
-                      else if (handle.includes("running")) folder = "active-running"
-                      else if (handle.includes("application-brush")) folder = "application-brush"
-                      else if (handle.includes("brush-pumice") || handle.includes("brush-and-pumice")) folder = "brush-and-pumice-combo"
-                      else if (handle.includes("air-walk")) folder = "comfort-air-walk-gel"
-                      else if (handle.includes("comfort-gel")) folder = "comfort-gel-foot-bed"
-                      else if (handle.includes("double-sided")) folder = "double-sided-foot-file-purple"
-                      else if (handle.includes("dual-action")) folder = "dual-action-foot-file-turqouise"
-                      else if (handle.includes("aloe-vera")) folder = "ease-aloe-vera"
-                      else if (handle.includes("pacific-blue")) folder = "ease-pacific-blue"
-                      else if (handle.includes("ease-soft")) folder = "ease-soft"
-                      else if (handle.includes("heel-lovers")) folder = "gel-comfort-heel-lovers"
-                      else if (handle.includes("heel-pad")) folder = "gel-comfort-heel-pad"
-                      else if (handle.includes("gloss-brush")) folder = "gloss-brush"
-                      else if (handle.includes("heel-liner")) folder = "heel-liner"
-                      else if (handle.includes("horse-hair")) folder = "horse-hair-brush"
-                      else if (handle.includes("instant-shine")) folder = "instant-shine"
-                      else if (handle.includes("loving-my-bag")) folder = "loving-my-bag-kit"
-                      else if (handle.includes("pedi-roller-pack")) folder = "pedi-roller-pack"
-                      else if (handle.includes("magic-pedi")) folder = "magic-pedi"
-                      else if (handle.includes("memory-foam")) folder = "memory-foam"
-                      else if (handle.includes("nail-buffer")) folder = "nail-buffer"
-                      else if (handle.includes("nail-clipper")) folder = "nail-clipper"
-                      else if (handle.includes("nail-file") || handle.includes("nail-filer")) folder = "nail-file"
-                      else if (handle.includes("shoe-horn")) folder = "shoe-horn-metal-52-cm"
-                      else if (handle.includes("smooth-feet")) folder = "smooth-feet-pumice"
-                      else if (handle.includes("suede-brush")) folder = "suede-brush"
-                    }
+                <div
+                  ref={howScrollRef}
+                  onScroll={(e) => {
+                    const el = e.currentTarget
+                    const card = el.querySelector('.how-step-card') as HTMLElement | null
+                    const width = card ? card.offsetWidth + 16 : 320
+                    setActiveHowStep(Math.round(el.scrollLeft / width))
+                  }}
+                  style={{ overflowX: 'auto', textAlign: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: '16px', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+                >
+                  <div className="snap-x snap-mandatory flex gap-4 sm:gap-8 text-left px-2 sm:px-0">
+                    {!useStatic ? (
+                      steps.map((step, index) => {
+                        let stepImgUrl = ""
+                        let folder = metadata.how_to_use_folder as string | undefined
+                        if (!folder) {
+                          const handle = (product.handle || "").toLowerCase()
+                          if (handle.includes("shoe-cream-with-applicator")) folder = "shoe-cream-with-applicator"
+                          else if (handle.includes("shoe-cream") || handle.includes("black-shoe-cream")) folder = "black-shoe-cream"
+                          else if (handle.includes("self-shine") && !handle.includes("instant-shine")) folder = "brown-self-shine"
+                          else if (handle.includes("easy-care")) folder = "easy-care-combo-pack-neutral"
+                          else if (handle.includes("foam-cleaner") || (handle.includes("foam") && !handle.includes("insole"))) folder = "foam-cleaner"
+                          else if (handle.includes("hydroshield")) folder = "hydroshield"
+                          else if (handle.includes("moisturizer")) folder = "leather-moisturizer"
+                          else if (handle.includes("naivy-white") || handle.includes("navy-white")) folder = "navy-white"
+                          else if (handle.includes("perfect-clean-gel")) folder = "perfect-clean-gel"
+                          else if (handle.includes("shampoo") || handle.includes("power-cleaning")) folder = "power-cleaning-shampoo"
+                          else if (handle.includes("premium-shoe-care-kit")) folder = "premium-shoe-care-kit"
+                          else if (handle.includes("premium-sneaker-care-kit")) folder = "premium-sneaker-care-kit"
+                          else if (handle.includes("shoe-deo") || handle.includes("deo")) folder = "shoe-deo"
+                          else if (handle.includes("sports-sneaker-cleaning") || handle.includes("sports-and-sneaker")) folder = "sports-and-sneaker-cleaning"
+                          else if (handle.includes("suede-n-nubuck-kit")) folder = "suede-n-nubuck-kit"
+                          else if (handle.includes("suede-2in1") || handle.includes("suede-n-nubuck-2in1")) folder = "suede-n-nubuck-2in1"
+                          else if (handle.includes("suede-and-nubuck-renovator") || handle.includes("suede-n-nubuck")) folder = "suede-n-nubuck-renovator"
+                          else if (handle === "pro-sneaker-cleaning-kit" || handle === "sneaker-cleaning-kit" || handle === "pro-gold-sneaker-cleaning-kit-shampoo-mini-brush" || handle.includes("sneaker-cleaning-kit")) folder = "sneaker-cleaning-kit"
+                          else if (handle === "pro-gold-sneaker-wipes-pack-of-30-kit" || handle.includes("sneaker-wipes-pack-of-30-kit") || handle.includes("sneaker-wipes-kit")) folder = "sneaker-wipes-pack-of-30-kit"
+                          else if (handle === "pro-gold-sneaker-wipes-pack-of-30" || handle === "sneaker-wipes" || handle.includes("sneaker-wipes")) folder = "sneaker-wipes"
+                          else if (handle.includes("cricket")) folder = "active-cricket"
+                          else if (handle.includes("cycling")) folder = "active-cycling"
+                          else if (handle.includes("running")) folder = "active-running"
+                          else if (handle.includes("application-brush")) folder = "application-brush"
+                          else if (handle.includes("brush-pumice") || handle.includes("brush-and-pumice")) folder = "brush-and-pumice-combo"
+                          else if (handle.includes("air-walk")) folder = "comfort-air-walk-gel"
+                          else if (handle.includes("comfort-gel")) folder = "comfort-gel-foot-bed"
+                          else if (handle.includes("double-sided")) folder = "double-sided-foot-file-purple"
+                          else if (handle.includes("dual-action")) folder = "dual-action-foot-file-turqouise"
+                          else if (handle.includes("aloe-vera")) folder = "ease-aloe-vera"
+                          else if (handle.includes("pacific-blue")) folder = "ease-pacific-blue"
+                          else if (handle.includes("ease-soft")) folder = "ease-soft"
+                          else if (handle.includes("heel-lovers")) folder = "gel-comfort-heel-lovers"
+                          else if (handle.includes("heel-pad")) folder = "gel-comfort-heel-pad"
+                          else if (handle.includes("gloss-brush")) folder = "gloss-brush"
+                          else if (handle.includes("heel-liner")) folder = "heel-liner"
+                          else if (handle.includes("horse-hair")) folder = "horse-hair-brush"
+                          else if (handle.includes("instant-shine")) folder = "instant-shine"
+                          else if (handle.includes("loving-my-bag")) folder = "loving-my-bag-kit"
+                          else if (handle.includes("pedi-roller-pack")) folder = "pedi-roller-pack"
+                          else if (handle.includes("magic-pedi")) folder = "magic-pedi"
+                          else if (handle.includes("memory-foam")) folder = "memory-foam"
+                          else if (handle.includes("nail-buffer")) folder = "nail-buffer"
+                          else if (handle.includes("nail-clipper")) folder = "nail-clipper"
+                          else if (handle.includes("nail-file") || handle.includes("nail-filer")) folder = "nail-file"
+                          else if (handle.includes("shoe-horn")) folder = "shoe-horn-metal-52-cm"
+                          else if (handle.includes("smooth-feet")) folder = "smooth-feet-pumice"
+                          else if (handle.includes("suede-brush")) folder = "suede-brush"
+                        }
 
-                    const metaImages = metadata.how_to_use_images
-                    if (Array.isArray(metaImages) && metaImages[index]) {
-                      stepImgUrl = metaImages[index]
-                    } else if (typeof metaImages === 'string') {
-                      try {
-                        const arr = JSON.parse(metaImages)
-                        if (arr[index]) stepImgUrl = arr[index]
-                      } catch {}
-                    }
+                        const metaImages = metadata.how_to_use_images
+                        if (Array.isArray(metaImages) && metaImages[index]) {
+                          stepImgUrl = metaImages[index]
+                        } else if (typeof metaImages === 'string') {
+                          try {
+                            const arr = JSON.parse(metaImages)
+                            if (arr[index]) stepImgUrl = arr[index]
+                          } catch {}
+                        }
 
-                    if (!stepImgUrl) {
-                      if (folder) {
-                        stepImgUrl = `/images/how-to-use/${folder}/step-${index + 1}.png`
-                      } else {
-                        stepImgUrl = `${imgBase}how${(index % 4) + 1}.png`
-                      }
-                    }
+                        if (!stepImgUrl) {
+                          if (folder) {
+                            stepImgUrl = `/images/how-to-use/${folder}/step-${index + 1}.png`
+                          } else {
+                            stepImgUrl = `${imgBase}how${(index % 4) + 1}.png`
+                          }
+                        }
 
-                    return (
-                      <div key={index} className="text-left flex-shrink-0 w-[343px] snap-start">
-                        <div className="h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6 overflow-hidden relative group p-0">
-                          <img
-                            src={stepImgUrl}
-                            alt={step.title || `Step ${step.stepNum}`}
-                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                            onError={(e) => {
-                              // Fallback if specific step image doesn't exist
-                              const target = e.target as HTMLImageElement
-                              if (folder && !target.src.includes("recommended.png") && !target.src.includes("product-detail-images")) {
-                                target.src = `/images/how-to-use/${folder}/recommended.png`
-                              } else if (!target.src.includes("product-detail-images") && !target.src.includes("landing-page-images")) {
-                                target.src = `${imgBase}how${(index % 4) + 1}.png`
-                              }
-                            }}
-                          />
-                          <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                            {step.stepNum}
+                        return (
+                          <div key={index} className="how-step-card text-left flex-shrink-0 w-[84vw] max-w-[343px] sm:w-[343px] snap-center sm:snap-start select-none">
+                            <div className="h-[260px] sm:h-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4 sm:mb-6 overflow-hidden relative group p-0">
+                              <img
+                                src={stepImgUrl}
+                                alt={step.title || `Step ${step.stepNum}`}
+                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => {
+                                  // Fallback if specific step image doesn't exist
+                                  const target = e.target as HTMLImageElement
+                                  if (folder && !target.src.includes("recommended.png") && !target.src.includes("product-detail-images")) {
+                                    target.src = `/images/how-to-use/${folder}/recommended.png`
+                                  } else if (!target.src.includes("product-detail-images") && !target.src.includes("landing-page-images")) {
+                                    target.src = `${imgBase}how${(index % 4) + 1}.png`
+                                  }
+                                }}
+                              />
+                              <div className="absolute top-4 left-4 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                                {step.stepNum}
+                              </div>
+                            </div>
+                            <h3 className="font-semibold text-base mb-1 text-black">
+                              {step.title || `Step ${step.stepNum}`}
+                            </h3>
+                            <p className="text-xs text-gray-500 leading-relaxed">
+                              {step.description}
+                            </p>
                           </div>
+                        )
+                      })
+                    ) : (
+                      <>
+                        <div className="how-step-card text-left flex-shrink-0 w-[84vw] max-w-[343px] sm:w-[343px] snap-center sm:snap-start select-none">
+                          <div className="h-[260px] sm:h-[280px] bg-transparent rounded-2xl sm:rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-4 sm:mb-6 overflow-hidden relative group p-0">
+                            <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                          </div>
+                          <h3 className="font-semibold text-base mb-1 text-black">Clean</h3>
+                          <p className="text-xs text-gray-500 leading-relaxed">Remove dirt and debris from your shoes.</p>
                         </div>
-                        <h3 className="font-semibold text-base mb-1 text-black">
-                          {step.title || `Step ${step.stepNum}`}
-                        </h3>
-                        <p className="text-xs text-gray-500 leading-relaxed">
-                          {step.description}
-                        </p>
-                      </div>
-                    )
-                  })                ) : (
-                  <>
-                    <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                      <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                        <img src="/images/product-detail-images/how1.png" alt="Clean" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                      </div>
-                      <h3 className="font-semibold text-base mb-1 text-black">Clean</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed">Remove dirt and debris from your shoes.</p>
-                    </div>
-                    <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                      <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                        <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                      </div>
-                      <h3 className="font-semibold text-base mb-1 text-black">Apply</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed">Use the solution with gentle circular motions.</p>
-                    </div>
-                    <div className="text-left flex-shrink-0 w-[343px] snap-start">
-                      <div className="h-[280px] bg-transparent rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-6 overflow-hidden relative group p-0">
-                        <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                      </div>
-                      <h3 className="font-semibold text-base mb-1 text-black">Dry</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed">Let your shoes air dry naturally.</p>
-                    </div>
-                  </>
-                )}
-              </div>
-              </div>
-                {/* Next button */}
-                {(!useStatic && steps.length > 3) && (
+                        <div className="how-step-card text-left flex-shrink-0 w-[84vw] max-w-[343px] sm:w-[343px] snap-center sm:snap-start select-none">
+                          <div className="h-[260px] sm:h-[280px] bg-transparent rounded-2xl sm:rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-4 sm:mb-6 overflow-hidden relative group p-0">
+                            <img src="/images/product-detail-images/how2.png" alt="Apply" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                          </div>
+                          <h3 className="font-semibold text-base mb-1 text-black">Apply</h3>
+                          <p className="text-xs text-gray-500 leading-relaxed">Use the solution with gentle circular motions.</p>
+                        </div>
+                        <div className="how-step-card text-left flex-shrink-0 w-[84vw] max-w-[343px] sm:w-[343px] snap-center sm:snap-start select-none">
+                          <div className="h-[260px] sm:h-[280px] bg-transparent rounded-2xl sm:rounded-3xl border border-gray-100 flex flex-col items-center justify-center mb-4 sm:mb-6 overflow-hidden relative group p-0">
+                            <img src="/images/product-detail-images/how3.png" alt="Dry" className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                          </div>
+                          <h3 className="font-semibold text-base mb-1 text-black">Dry</h3>
+                          <p className="text-xs text-gray-500 leading-relaxed">Let your shoes air dry naturally.</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {/* Next button (visible on mobile and desktop) */}
+                {(steps.length > 1 || useStatic) && (
                   <button
-                    onClick={() => howScrollRef.current?.scrollBy({ left: 343 + 32, behavior: 'smooth' })}
-                    className="hidden md:flex absolute right-0 top-[140px] translate-x-5 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow items-center justify-center hover:bg-gray-50 transition-colors"
-                    aria-label="Next"
+                    onClick={() => {
+                      const stepW = typeof window !== 'undefined' && window.innerWidth < 640 ? window.innerWidth * 0.84 : 375
+                      howScrollRef.current?.scrollBy({ left: stepW, behavior: 'smooth' })
+                    }}
+                    className="flex absolute right-1 sm:-right-5 top-[120px] sm:top-[140px] z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/95 border border-gray-200 shadow-md items-center justify-center hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
+                    aria-label="Next step"
                   >
-                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                   </button>
+                )}
+
+                {/* Mobile Step Dots */}
+                {(steps.length > 1 || useStatic) && (
+                  <div className="flex items-center justify-center gap-1.5 mt-3 sm:hidden">
+                    {Array.from({ length: !useStatic ? steps.length : 3 }).map((_, dotIdx) => (
+                      <button
+                        key={dotIdx}
+                        onClick={() => {
+                          if (!howScrollRef.current) return
+                          const card = howScrollRef.current.querySelector('.how-step-card') as HTMLElement | null
+                          const width = card ? card.offsetWidth + 16 : 320
+                          howScrollRef.current.scrollTo({ left: dotIdx * width, behavior: 'smooth' })
+                          setActiveHowStep(dotIdx)
+                        }}
+                        aria-label={`Go to step ${dotIdx + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          dotIdx === activeHowStep ? "w-5 bg-black" : "w-1.5 bg-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

@@ -1,8 +1,17 @@
 import { Metadata } from "next"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const shippingSeo = getSeoForPath("/shipping-and-exchange")
+
 export const metadata: Metadata = {
-  title: "Shipping & Exchange Policy",
-  description: "Shipping & Exchange Policy for ProPremiumCare.",
+  title: shippingSeo?.title || "Shipping and Exchange Policy | Pro Premium Care",
+  description:
+    shippingSeo?.description ||
+    "Review Pro Premium Care's shipping and exchange information to understand order delivery, shipping terms and exchange procedures.",
+  keywords: shippingSeo?.keywords
+    ? shippingSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 export default function ShippingAndExchange() {

@@ -1,9 +1,18 @@
 import { Metadata } from "next"
 import EnquiryForm from "@modules/contact/components/enquiry-form"
 
+import { getSeoForPath } from "@lib/util/seo"
+
+const contactSeo = getSeoForPath("/contact")
+
 export const metadata: Metadata = {
-    title: "Contact Us | Pro Premium Care",
-    description: "Get in touch with Pro Premium Care for any inquiries about our high-quality shoe and foot care products.",
+  title: contactSeo?.title || "Contact Us for Shoe Care Support | PRO Care",
+  description:
+    contactSeo?.description ||
+    "Contact Pro Premium Care for product inquiries, order assistance, customer support and questions about premium shoe care solutions.",
+  keywords: contactSeo?.keywords
+    ? contactSeo.keywords.split(",").map((k) => k.trim())
+    : undefined,
 }
 
 const s = {
