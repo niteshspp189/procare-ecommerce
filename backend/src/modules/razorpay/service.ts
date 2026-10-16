@@ -45,11 +45,20 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
     const { amount, currency_code, resource_id } = input
     const existingData = input.data || {}
 
-    // IDEMPOTENCY CHECK: If a Razorpay order already exists on this session, reuse it!
-    const targetAmount = Math.round(amount) * 100
+    // Partial payment detection
+    const isPartial = Boolean(existingData.is_partial || input.context?.is_partial)
+    const partialPct = Number(existingData.partial_percentage || input.context?.partial_percentage || 15)
+
+    let targetAmount = Math.round(amount) * 100
+    if (isPartial) {
+      targetAmount = Math.round((amount * partialPct) / 100) * 100
+    }
+
+    // IDEMPOTENCY CHECK: If a Razorpay order already exists on this session, reuse it if amount and mode match
     if (existingData.id && String(existingData.id).startsWith("order_")) {
       const existingAmount = existingData.amount
-      if (!existingAmount || existingAmount === targetAmount) {
+      const existingIsPartial = Boolean(existingData.is_partial)
+      if (existingAmount === targetAmount && existingIsPartial === isPartial) {
         return {
           data: {
             ...existingData,
@@ -60,16 +69,31 @@ class RazorpayPaymentProviderService extends AbstractPaymentProvider {
     }
 
     try {
+      const advanceRs = targetAmount / 100
+      const balanceRs = isPartial ? Math.round(amount - advanceRs) : 0
+
       const order = await this.razorpay_.orders.create({
         amount: targetAmount,
         currency: currency_code.toUpperCase(),
         receipt: resource_id,
         payment_capture: 1,
+        notes: {
+          is_partial: isPartial ? "true" : "false",
+          partial_percentage: String(partialPct),
+          advance_amount: String(advanceRs),
+          balance_cod: String(balanceRs),
+          payment_mode: isPartial ? "partial_cod" : "prepaid",
+        },
       })
 
       return {
         data: {
           ...order,
+          is_partial: isPartial,
+          partial_percentage: partialPct,
+          advance_paid: advanceRs,
+          cod_balance: balanceRs,
+          payment_mode: isPartial ? "partial_cod" : "prepaid",
         },
       }
     } catch (error: any) {

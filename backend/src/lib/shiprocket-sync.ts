@@ -174,12 +174,19 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         : Math.max(0, undiscountedItemsTotal + shippingCharges - totalItemDiscountSum)
       const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
 
+      const orderMeta = typeof order.metadata === "string" ? JSON.parse(order.metadata) : (order.metadata || {})
+      const isPartialCod = orderMeta.payment_mode === "partial_cod" || orderMeta.is_partial === true
+      const advanceAmount = Number(orderMeta.advance_paid || 0)
+      const codBalance = Number(orderMeta.cod_balance || 0)
+
       const orderPayload = {
         order_id: channelOrderId,
         order_date: new Date(order.created_at || Date.now()).toISOString().replace("T", " ").substring(0, 19),
         pickup_location: "Primary",
         channel_id: "",
-        comment: "Prepaid Order via Medusa",
+        comment: isPartialCod
+          ? `⚡ Partial COD: ₹${advanceAmount} Paid Online (Razorpay), Collect ₹${codBalance} on Delivery`
+          : "Prepaid Order via Medusa",
         billing_customer_name: address.first_name || "Customer",
         billing_last_name: address.last_name || "",
         billing_address: address.address_1 || "Address Line 1",
@@ -192,13 +199,13 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         billing_phone: cleanPhone,
         shipping_is_billing: true,
         order_items: itemsPayload,
-        payment_method: "Prepaid",
+        payment_method: isPartialCod ? "COD" : "Prepaid",
         shipping_charges: shippingCharges,
         giftwrap_charges: 0,
         transaction_charges: 0,
         total_discount: totalDiscount,
         sub_total: undiscountedItemsTotal,
-        grand_total: grandTotal,
+        grand_total: isPartialCod && codBalance > 0 ? codBalance : grandTotal,
         length: 10,
         breadth: 10,
         height: 10,

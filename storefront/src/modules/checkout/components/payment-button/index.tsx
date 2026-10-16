@@ -113,12 +113,18 @@ const RazorpayPaymentButton = ({
       return
     }
 
+    const isPartial = Boolean(
+      session?.data?.is_partial || session?.data?.payment_mode === "partial_cod"
+    )
+    const advanceAmount = Number(session?.data?.advance_paid) || (isPartial ? Math.round((cart.total * Number(session?.data?.partial_percentage || 15)) / 100) : Math.round(cart.total))
+    const balanceCodAmount = isPartial ? Math.max(0, Math.round(cart.total - advanceAmount)) : 0
+
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || "rzp_test_RtoniMCuUpyCFR",
-      amount: session.data.amount ?? Math.round(cart.total) * 100, // Fallback to cart.total if session.data.amount is missing
+      amount: session.data.amount ?? (isPartial ? advanceAmount * 100 : Math.round(cart.total) * 100),
       currency: cart.region?.currency_code.toUpperCase(),
       name: "ProCare Store",
-      description: `Order ${cart.id}`,
+      description: isPartial ? `Advance Deposit (Order ${cart.id})` : `Order ${cart.id}`,
       order_id: session.data.id,
       handler: async function (response: any) {
         await updatePaymentSession(cart.id, {
@@ -127,6 +133,11 @@ const RazorpayPaymentButton = ({
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_order_id: response.razorpay_order_id,
             razorpay_signature: response.razorpay_signature,
+            is_partial: isPartial,
+            advance_paid: advanceAmount,
+            cod_balance: balanceCodAmount,
+            partial_percentage: session?.data?.partial_percentage || 15,
+            payment_mode: isPartial ? "partial_cod" : "prepaid",
           },
         })
         onPaymentCompleted()
@@ -138,6 +149,10 @@ const RazorpayPaymentButton = ({
       },
       notes: {
         address: cart.billing_address?.address_1,
+        is_partial: isPartial ? "true" : "false",
+        advance_paid: String(advanceAmount),
+        cod_balance: String(balanceCodAmount),
+        payment_mode: isPartial ? "partial_cod" : "prepaid",
       },
       theme: {
         color: "#00bda5",
@@ -152,6 +167,12 @@ const RazorpayPaymentButton = ({
     rzp1.open()
   }
 
+  const isPartial = Boolean(
+    session?.data?.is_partial || session?.data?.payment_mode === "partial_cod"
+  )
+  const advanceAmount = Number(session?.data?.advance_paid) || (isPartial ? Math.round((cart.total * Number(session?.data?.partial_percentage || 15)) / 100) : Math.round(cart.total))
+  const balanceCodAmount = isPartial ? Math.max(0, Math.round(cart.total - advanceAmount)) : 0
+
   return (
     <div className="flex flex-col items-end">
       <Button
@@ -162,8 +183,13 @@ const RazorpayPaymentButton = ({
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Pay Now
+        {isPartial ? `Pay Advance ₹${advanceAmount} via Razorpay` : "Pay Now"}
       </Button>
+      {isPartial && (
+        <p className="text-xs text-gray-500 mt-2 text-right">
+          Remaining <strong>₹{balanceCodAmount}</strong> to be collected on doorstep delivery (Cash/UPI)
+        </p>
+      )}
       <ErrorMessage
         error={errorMessage}
         data-testid="razorpay-payment-error-message"

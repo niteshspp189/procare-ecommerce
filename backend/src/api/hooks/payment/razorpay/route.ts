@@ -134,6 +134,28 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
           .first()
 
         if (orderRecord && orderRecord.order_id) {
+          const isPartial = Boolean(matchingSession.data?.is_partial || matchingSession.data?.payment_mode === "partial_cod")
+          if (isPartial) {
+            const existingOrder = await pgConnection("order").where("id", orderRecord.order_id).first()
+            if (existingOrder) {
+              const currentMeta = typeof existingOrder.metadata === "string" ? JSON.parse(existingOrder.metadata) : (existingOrder.metadata || {})
+              const advancePaid = Number(matchingSession.data?.advance_paid) || (capturedAmount / 100)
+              const codBalance = Number(matchingSession.data?.cod_balance) || 0
+              const newMeta = {
+                ...currentMeta,
+                payment_mode: "partial_cod",
+                is_partial: true,
+                advance_paid: advancePaid,
+                cod_balance: codBalance,
+                partial_percentage: matchingSession.data?.partial_percentage || 15,
+                razorpay_payment_id: rzpPaymentId,
+              }
+              await pgConnection("order").where("id", orderRecord.order_id).update({
+                metadata: JSON.stringify(newMeta),
+              })
+            }
+          }
+
           const { syncOrderToShiprocket } = require("../../../../lib/shiprocket-sync")
           console.log(`[RazorpayWebhook] Auto-triggering Shiprocket sync for reconciled order: ${orderRecord.order_id}`)
           await syncOrderToShiprocket(orderRecord.order_id, req.scope)

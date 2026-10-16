@@ -85,14 +85,73 @@ const Payment = ({
     }
   }, [isOpen, postalCode, pincodeChecked])
 
-  const setPaymentMethod = async (method: string) => {
+  const [partialConfig, setPartialConfig] = useState<{
+    enabled: boolean
+    percentage: number
+    min_order_value: number
+    label: string
+  }>({
+    enabled: true,
+    percentage: 15,
+    min_order_value: 0,
+    label: "Partial COD (Pay 15% Online + 85% on Delivery)",
+  })
+  const [isPartialPayment, setIsPartialPayment] = useState(
+    Boolean(activeSession?.data?.is_partial || activeSession?.data?.payment_mode === "partial_cod")
+  )
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
+        const res = await fetch(`${backendUrl}/store/custom/partial-payment`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.success && data.config) {
+            setPartialConfig(data.config)
+          }
+        }
+      } catch (e) {
+        // Fallback default
+      }
+    }
+    fetchConfig()
+  }, [])
+
+  const cartTotal = Math.round(cart?.total || 0)
+  const partialPct = partialConfig.percentage || 15
+  const advanceAmount = Math.round((cartTotal * partialPct) / 100)
+  const balanceCodAmount = Math.max(0, cartTotal - advanceAmount)
+  const isPartialEligible = Boolean(
+    partialConfig.enabled && cartTotal >= (partialConfig.min_order_value || 0)
+  )
+
+  const setPaymentMethod = async (method: string, partial: boolean = isPartialPayment) => {
     setError(null)
     setSelectedPaymentMethod(method)
     
-    // Always initiate session when a method is selected (Razorpay needs this too)
+    // Initiate session with partial or full payment data
     await initiatePaymentSession(cart, {
       provider_id: method,
+      data: partial
+        ? {
+            is_partial: true,
+            partial_percentage: partialPct,
+            advance_paid: advanceAmount,
+            cod_balance: balanceCodAmount,
+            payment_mode: "partial_cod",
+          }
+        : {
+            is_partial: false,
+            payment_mode: "prepaid",
+          },
     })
+  }
+
+  const handleTogglePartialPayment = async (partial: boolean) => {
+    setIsPartialPayment(partial)
+    const method = selectedPaymentMethod || filteredPaymentMethods[0]?.id || "pp_razorpay_razorpay"
+    await setPaymentMethod(method, partial)
   }
 
   const paidByGiftcard =
@@ -237,6 +296,80 @@ const Payment = ({
           )}
           {!paidByGiftcard && filteredPaymentMethods?.length && (
             <>
+              {isPartialEligible && (
+                <div className="mb-6 space-y-3">
+                  <Text className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                    Choose Payment Option:
+                  </Text>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Option 1: 100% Online Payment */}
+                    <div
+                      onClick={() => handleTogglePartialPayment(false)}
+                      className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        !isPartialPayment
+                          ? "border-black bg-gray-50 shadow-xs ring-1 ring-black"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-sm font-bold text-gray-900">
+                            100% Online Payment
+                          </span>
+                          <span className="text-xs font-semibold text-gray-700 font-mono">
+                            ₹{cartTotal}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          Pay entire order amount online via UPI, Cards, or NetBanking for zero-contact delivery.
+                        </p>
+                      </div>
+                      <div className="mt-3 pt-2.5 border-t border-gray-200 flex items-center justify-between text-xs font-semibold text-gray-700">
+                        <span>Pay Online Now:</span>
+                        <span className="font-bold text-black font-mono">₹{cartTotal}</span>
+                      </div>
+                    </div>
+
+                    {/* Option 2: Partial COD */}
+                    <div
+                      onClick={() => handleTogglePartialPayment(true)}
+                      className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        isPartialPayment
+                          ? "border-emerald-600 bg-emerald-50/40 shadow-xs ring-1 ring-emerald-600"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-sm font-bold text-emerald-900 flex items-center gap-1.5">
+                            <span>⚡</span> Partial COD ({partialPct}% Online)
+                          </span>
+                          <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                            Popular
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 leading-relaxed">
+                          Pay small {partialPct}% advance to confirm dispatch. Remaining balance collected at your doorstep.
+                        </p>
+                      </div>
+                      <div className="mt-3 pt-2.5 border-t border-emerald-200 space-y-1 text-xs">
+                        <div className="flex items-center justify-between font-bold text-emerald-900">
+                          <span>Pay Online Now ({partialPct}%):</span>
+                          <span className="font-mono">₹{advanceAmount}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-gray-600 font-medium">
+                          <span>Pay on Delivery (Cash/UPI):</span>
+                          <span className="font-mono">₹{balanceCodAmount}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <Text className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                Payment Gateway:
+              </Text>
               <RadioGroup
                 value={selectedPaymentMethod}
                 onChange={(value: string) => setPaymentMethod(value)}
