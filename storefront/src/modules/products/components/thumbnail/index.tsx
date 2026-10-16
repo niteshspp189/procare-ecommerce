@@ -22,7 +22,8 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   className,
   "data-testid": dataTestid,
 }) => {
-  const initialImage = images?.[0]?.url || thumbnail
+  const uploadedImage = images?.find((img: any) => img?.url && (img.url.startsWith("http") || img.url.includes("/static/")))?.url
+  const initialImage = uploadedImage || thumbnail || images?.[0]?.url
 
   return (
     <Container

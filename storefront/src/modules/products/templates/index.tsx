@@ -316,7 +316,7 @@ const formatSpecValue = (value: any): string => {
 
     let variantImages: HttpTypes.StoreProductImage[] = []
     if (vObj?.images && Array.isArray(vObj.images) && vObj.images.length > 0) {
-      const explicitThumb = meta?.thumbnail || vObj?.thumbnail || product?.thumbnail;
+      const explicitThumb = meta?.thumbnail || vObj?.thumbnail
       if (explicitThumb) {
         variantImages = [{ id: 'explicit_thumb', url: explicitThumb } as any, ...vObj.images]
       } else {
