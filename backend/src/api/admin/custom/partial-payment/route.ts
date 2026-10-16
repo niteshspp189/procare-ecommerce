@@ -45,7 +45,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     }
 
     const currentMeta = typeof store.metadata === "string" ? JSON.parse(store.metadata) : (store.metadata || {})
-    const validPct = [10, 15, 20, 25].includes(Number(percentage)) ? Number(percentage) : 15
+    const numPct = Number(percentage)
+    const validPct = !isNaN(numPct) && numPct >= 1 && numPct <= 99 ? Math.round(numPct) : 15
 
     const updatedConfig: PartialPaymentConfig = {
       enabled: Boolean(enabled),

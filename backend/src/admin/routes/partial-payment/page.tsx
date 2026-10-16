@@ -130,29 +130,72 @@ const PartialPaymentAdminPage = () => {
               />
             </div>
 
-            {/* Advance Percentage Selector */}
-            <div>
-              <Label className="text-xs font-semibold text-gray-700 block mb-1">
-                Advance Online Deposit Percentage *
-              </Label>
+            {/* Advance Percentage Selector & Custom Overwrite */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold text-gray-700 block">
+                  Advance Online Deposit Percentage *
+                </Label>
+                <span className="text-xs font-mono font-bold text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-md border border-gray-200">
+                  Active: {percentage}%
+                </span>
+              </div>
+
+              {/* Quick Preset Buttons */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[10, 15, 20, 25].map((pct) => (
                   <button
                     key={pct}
                     type="button"
                     onClick={() => setPercentage(pct)}
-                    className={`py-3 px-4 rounded-xl border text-center transition-all cursor-pointer ${
+                    className={`py-2.5 px-4 rounded-xl border text-center transition-all cursor-pointer ${
                       percentage === pct
                         ? "bg-black text-white border-black shadow-md font-bold"
                         : "bg-white text-gray-700 border-gray-200 hover:border-gray-400 font-medium"
                     }`}
                   >
-                    <span className="text-lg block font-mono">{pct}%</span>
-                    <span className="text-[11px] opacity-80 block">Advance</span>
+                    <span className="text-base block font-mono">{pct}%</span>
+                    <span className="text-[10px] opacity-80 block">Quick Preset</span>
                   </button>
                 ))}
               </div>
-              <span className="text-[11px] text-gray-500 mt-1.5 block">
+
+              {/* Custom Overwrite Percentage Input */}
+              <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <Label className="text-xs font-semibold text-gray-800 block">
+                    Custom Percentage Overwrite (%)
+                  </Label>
+                  <Text className="text-[11px] text-gray-500">
+                    Type any custom advance deposit percentage (1% to 99%) or click a quick preset above.
+                  </Text>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="relative flex items-center">
+                    <Input
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={percentage}
+                      onChange={(e) => {
+                        const val = Math.min(99, Math.max(1, Number(e.target.value) || 1))
+                        setPercentage(val)
+                      }}
+                      className="w-24 font-mono font-bold text-sm pr-6 text-center"
+                    />
+                    <span className="absolute right-2.5 text-xs font-bold text-gray-400 pointer-events-none">
+                      %
+                    </span>
+                  </div>
+                  {![10, 15, 20, 25].includes(percentage) && (
+                    <Badge color="orange" size="small" className="font-semibold text-[10px]">
+                      Custom Active
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              <span className="text-[11px] text-gray-500 block">
                 Recommended: <strong>10%</strong> or <strong>15%</strong>. This amount acts as a non-refundable deposit to secure courier transit.
               </span>
             </div>
