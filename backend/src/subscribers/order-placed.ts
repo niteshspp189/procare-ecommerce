@@ -69,16 +69,46 @@ export default async function orderPlacedHandler({
         }
     }
 
-    // 3. Link order and set auto_login_token
+    // 3. Link order and set auto_login_token (preserving partial COD metadata if present)
     const autoLoginToken = Math.random().toString(36).substring(2, 15)
+
+    let partialMetadata: any = {}
+    try {
+      const dbConn = container.resolve("__pg_connection__") as any
+      if (dbConn) {
+        const paySession = await dbConn("payment_session")
+          .whereIn("payment_collection_id", function (this: any) {
+            this.select("payment_collection_id").from("order_payment_collection").where("order_id", order.id)
+          })
+          .first()
+
+        const sessionData = paySession?.data || {}
+        if (sessionData.is_partial || sessionData.payment_mode === "partial_cod") {
+          partialMetadata = {
+            payment_mode: "partial_cod",
+            is_partial: true,
+            advance_paid: Number(sessionData.advance_paid) || 0,
+            cod_balance: Number(sessionData.cod_balance) || 0,
+            partial_percentage: Number(sessionData.partial_percentage) || 15,
+            razorpay_payment_id: sessionData.razorpay_payment_id || null,
+            razorpay_order_id: sessionData.razorpay_order_id || null,
+            note: `⚡ Partial COD: ₹${sessionData.advance_paid || 0} paid online advance (${sessionData.partial_percentage || 15}%), ₹${sessionData.cod_balance || 0} balance due on delivery`,
+          }
+        }
+      }
+    } catch (metaErr) {
+      console.warn("[OrderPlacedSubscriber] Error reading payment session metadata:", metaErr)
+    }
+
     await orderModuleService.updateOrders(order.id, {
         customer_id: customer.id,
         metadata: {
             ...order.metadata,
+            ...partialMetadata,
             auto_login_token: autoLoginToken
         }
     })
-    console.log(`[OrderPlacedSubscriber] Linked order ${order.id} and set auto_login_token`)
+    console.log(`[OrderPlacedSubscriber] Linked order ${order.id} and set metadata`)
     
     // 4. Send Welcome OTP (For all guest checkouts to ensure they can login)
     try {
@@ -100,13 +130,43 @@ export default async function orderPlacedHandler({
       console.log(`[OrderPlacedSubscriber] Order already has customer_id: ${order.customer_id}`)
       // Even for existing customers, we set an auto_login_token for convenience
       const autoLoginToken = Math.random().toString(36).substring(2, 15)
+
+      let partialMetadata: any = {}
+      try {
+        const dbConn = container.resolve("__pg_connection__") as any
+        if (dbConn) {
+          const paySession = await dbConn("payment_session")
+            .whereIn("payment_collection_id", function (this: any) {
+              this.select("payment_collection_id").from("order_payment_collection").where("order_id", order.id)
+            })
+            .first()
+
+          const sessionData = paySession?.data || {}
+          if (sessionData.is_partial || sessionData.payment_mode === "partial_cod") {
+            partialMetadata = {
+              payment_mode: "partial_cod",
+              is_partial: true,
+              advance_paid: Number(sessionData.advance_paid) || 0,
+              cod_balance: Number(sessionData.cod_balance) || 0,
+              partial_percentage: Number(sessionData.partial_percentage) || 15,
+              razorpay_payment_id: sessionData.razorpay_payment_id || null,
+              razorpay_order_id: sessionData.razorpay_order_id || null,
+              note: `⚡ Partial COD: ₹${sessionData.advance_paid || 0} paid online advance (${sessionData.partial_percentage || 15}%), ₹${sessionData.cod_balance || 0} balance due on delivery`,
+            }
+          }
+        }
+      } catch (metaErr) {
+        console.warn("[OrderPlacedSubscriber] Error reading payment session metadata:", metaErr)
+      }
+
       await orderModuleService.updateOrders(order.id, {
           metadata: {
               ...order.metadata,
+              ...partialMetadata,
               auto_login_token: autoLoginToken
           }
       })
-      console.log(`[OrderPlacedSubscriber] Set auto_login_token for existing customer`)
+      console.log(`[OrderPlacedSubscriber] Set metadata for existing customer`)
   }
 
   // Auto-capture payment for the order so it shows as Paid in Admin
