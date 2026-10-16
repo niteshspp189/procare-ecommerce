@@ -8,6 +8,7 @@ import CartMismatchBanner from "@modules/layout/components/cart-mismatch-banner"
 import Footer from "@modules/layout/templates/footer"
 import Nav from "@modules/layout/templates/nav"
 import FreeShippingPriceNudge from "@modules/shipping/components/free-shipping-price-nudge"
+import FestiveCelebrationModal from "@modules/cart/components/festive-celebration-modal"
 import { CartDrawerProvider } from "@lib/context/cart-drawer-context"
 
 export const metadata: Metadata = {
@@ -35,11 +36,14 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
       )}
 
       {cart && (
-        <FreeShippingPriceNudge
-          variant="popup"
-          cart={cart}
-          shippingOptions={shippingOptions}
-        />
+        <>
+          <FreeShippingPriceNudge
+            variant="popup"
+            cart={cart}
+            shippingOptions={shippingOptions}
+          />
+          <FestiveCelebrationModal cart={cart} />
+        </>
       )}
       {props.children}
       <Footer />

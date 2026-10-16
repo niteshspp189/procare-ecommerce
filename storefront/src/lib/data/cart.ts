@@ -155,6 +155,8 @@ export async function addToCart({
       headers
     )
     .then(async () => {
+      await checkAndAutoApplyFestive5(cart.id)
+
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
 
@@ -193,6 +195,8 @@ export async function updateLineItem({
   await sdk.store.cart
     .updateLineItem(cartId, lineId, { quantity }, {}, headers)
     .then(async () => {
+      await checkAndAutoApplyFestive5(cartId)
+
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
 
@@ -225,6 +229,8 @@ export async function deleteLineItem(lineId: string) {
   await sdk.store.cart
     .deleteLineItem(cartId, lineId, {}, headers)
     .then(async () => {
+      await checkAndAutoApplyFestive5(cartId)
+
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
 
@@ -237,6 +243,47 @@ export async function deleteLineItem(lineId: string) {
       }
       return medusaError(e)
     })
+}
+
+export async function checkAndAutoApplyFestive5(cartId: string) {
+  if (!cartId) return
+  try {
+    const headers = {
+      ...(await getAuthHeaders()),
+    }
+    const { cart } = await sdk.client.fetch<{ cart: HttpTypes.StoreCart }>(
+      `/store/carts/${cartId}`,
+      {
+        query: { fields: "*items,+items.total,*promotions" },
+        headers,
+        cache: "no-store",
+      }
+    )
+    if (!cart) return
+
+    const subtotal = cart.items?.reduce((acc, item) => {
+      return acc + (item.total ?? ((item.unit_price || 0) * (item.quantity || 1)))
+    }, 0) ?? 0
+
+    const hasFestive5 = cart.promotions?.some((p) => p.code?.toUpperCase() === "FESTIVE5")
+
+    if (subtotal >= 999 && !hasFestive5) {
+      const currentCodes = (cart.promotions || [])
+        .map((p) => p.code)
+        .filter(Boolean) as string[]
+      if (!currentCodes.includes("FESTIVE5")) {
+        currentCodes.push("FESTIVE5")
+        await sdk.store.cart.update(cartId, { promo_codes: currentCodes }, {}, headers).catch(() => {})
+      }
+    } else if (subtotal < 999 && hasFestive5) {
+      const remainingCodes = (cart.promotions || [])
+        .map((p) => p.code)
+        .filter((c) => c && c.toUpperCase() !== "FESTIVE5") as string[]
+      await sdk.store.cart.update(cartId, { promo_codes: remainingCodes }, {}, headers).catch(() => {})
+    }
+  } catch (err) {
+    console.warn("Auto FESTIVE5 check failed:", err)
+  }
 }
 
 export async function setShippingMethod({

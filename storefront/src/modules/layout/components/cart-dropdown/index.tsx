@@ -74,7 +74,7 @@ const CartDropdown = ({
   }, [])
 
   useEffect(() => {
-    if (!isInitialRender.current && totalItems > itemRef.current && !pathname.includes("/cart")) {
+    if (!isInitialRender.current && totalItems > itemRef.current && !pathname?.includes("/cart")) {
       openDrawer()
     }
     itemRef.current = totalItems
@@ -166,6 +166,35 @@ const CartDropdown = ({
                   style={{ width: `${freeShippingProgress}%` }}
                 />
               </div>
+
+              {/* Festive 5 Offer Status / Teaser */}
+              {cartState?.promotions?.some((p) => p.code?.toUpperCase() === "FESTIVE5") ? (
+                <div className="mt-2.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🎉</span>
+                    <div>
+                      <p className="text-[11px] font-bold text-gray-900 uppercase tracking-wide">
+                        Festive 5% Unlocked!
+                      </p>
+                      <p className="text-[10px] text-emerald-700 font-medium">
+                        FESTIVE5 automatically applied
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bg-[#d8fa00] text-black font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                    5% OFF
+                  </span>
+                </div>
+              ) : subtotal > 0 && Math.max(0, 999 - subtotal) > 0 ? (
+                <div className="mt-2.5 bg-amber-50/80 border border-amber-200/70 rounded-xl p-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🎁</span>
+                    <p className="text-[11px] text-amber-900 font-medium">
+                      Add <span className="font-bold">{convertToLocale({ amount: Math.max(0, 999 - subtotal), currency_code: currencyCode })}</span> for <span className="font-bold uppercase text-amber-950">5% OFF (FESTIVE5)</span>
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5 no-scrollbar">

@@ -1,4 +1,4 @@
-import { retrieveCart } from "@lib/data/cart"
+import { retrieveCart, checkAndAutoApplyFestive5 } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
 import PaymentWrapper from "@modules/checkout/components/payment-wrapper"
 import CheckoutForm from "@modules/checkout/templates/checkout-form"
@@ -14,10 +14,20 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic"
 
 export default async function Checkout() {
-  const cart = await retrieveCart()
+  let cart = await retrieveCart()
 
   if (!cart) {
     return notFound()
+  }
+
+  // Pre-flight check: If subtotal >= 999 and FESTIVE5 isn't applied yet, apply and reload
+  const subtotal = cart.items?.reduce((acc: number, item: any) => {
+    return acc + (item.total ?? ((item.unit_price || 0) * (item.quantity || 1)))
+  }, 0) ?? 0
+  const hasFestive5 = cart.promotions?.some((p: any) => p.code?.toUpperCase() === "FESTIVE5")
+  if (subtotal >= 999 && !hasFestive5) {
+    await checkAndAutoApplyFestive5(cart.id)
+    cart = await retrieveCart() || cart
   }
 
   const customer = await retrieveCustomer()

@@ -65,28 +65,20 @@ const Summary = ({ cart }: SummaryProps) => {
 
   useEffect(() => {
     if (isFestiveEligible && !hasFestive5 && !isApplyingFestive) {
-      const autoApply = async () => {
-        setIsApplyingFestive(true)
-        try {
-          const currentCodes = (cart.promotions || [])
-            .map((p) => p.code)
-            .filter(Boolean) as string[]
-          if (!currentCodes.includes("FESTIVE5")) {
-            currentCodes.push("FESTIVE5")
-            const res = await applyPromotions(currentCodes)
-            if (res && !("error" in res)) {
-              setShowCelebration(true)
-            }
-          }
-        } catch (e) {
-          console.error("Auto apply FESTIVE5 error:", e)
-        } finally {
+      setIsApplyingFestive(true)
+      const currentCodes = (cart.promotions || [])
+        .map((p) => p.code)
+        .filter(Boolean) as string[]
+      if (!currentCodes.includes("FESTIVE5")) {
+        currentCodes.push("FESTIVE5")
+        applyPromotions(currentCodes).finally(() => {
           setIsApplyingFestive(false)
-        }
+        })
+      } else {
+        setIsApplyingFestive(false)
       }
-      autoApply()
     }
-  }, [isFestiveEligible, hasFestive5, isApplyingFestive, cart.promotions])
+  }, [isFestiveEligible, hasFestive5, isApplyingFestive])
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -174,42 +166,6 @@ const Summary = ({ cart }: SummaryProps) => {
       <p className="text-xs text-gray-400 text-center">
         Taxes and shipping calculated at checkout
       </p>
-
-      {/* Congratulations Unlock Modal */}
-      {showCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-sm w-full p-6 text-center relative">
-            <button
-              onClick={() => setShowCelebration(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-lg w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 cursor-pointer"
-            >
-              ✕
-            </button>
-            <div className="w-16 h-16 mx-auto mb-3 bg-[#d8fa00]/30 rounded-full flex items-center justify-center text-3xl shadow-inner">
-              🎉
-            </div>
-            <Heading level="h3" className="text-xl font-extrabold text-gray-900 mb-1">
-              Congratulations!
-            </Heading>
-            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-              You unlocked our exclusive <span className="font-bold text-gray-900">5% Festive Discount</span> on your order above ₹999!
-            </p>
-            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl py-2 px-4 mb-5 flex items-center justify-center gap-2">
-              <span className="text-xs text-gray-500 uppercase font-semibold">Code:</span>
-              <span className="font-mono font-extrabold text-sm text-black tracking-wider">FESTIVE5</span>
-              <span className="bg-[#d8fa00] text-black text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase ml-1">
-                APPLIED
-              </span>
-            </div>
-            <button
-              onClick={() => setShowCelebration(false)}
-              className="w-full bg-[#00b5a4] hover:bg-[#009d8e] text-white font-bold py-3 rounded-full text-sm shadow-md transition-colors cursor-pointer"
-            >
-              Awesome, Claim Discount! →
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
