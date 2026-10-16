@@ -200,7 +200,7 @@ function FreeShippingPopup({
   return (
     <div
       className={clx(
-        "fixed bottom-5 right-5 flex flex-col items-end gap-2 transition-all duration-500 ease-in-out z-10",
+        "fixed bottom-4 sm:bottom-5 left-3 right-3 sm:left-auto sm:right-5 flex flex-col items-end gap-2 transition-all duration-500 ease-in-out z-50 pointer-events-none",
         {
           "opacity-0 invisible delay-1000": price.target_reached,
           "opacity-0 invisible": isClosed,
@@ -208,23 +208,24 @@ function FreeShippingPopup({
         }
       )}
     >
-      <div>
+      <div className="pointer-events-auto">
         <Button
-          className="rounded-full bg-neutral-900 shadow-none outline-none border-none text-[15px] p-2"
+          className="rounded-full bg-neutral-900/90 hover:bg-neutral-900 shadow-md outline-none border border-white/10 text-[14px] p-2 text-white"
           onClick={() => setIsClosed(true)}
+          aria-label="Close free shipping popup"
         >
           <XMark />
         </Button>
       </div>
 
-      <div className="w-[400px] bg-black text-white p-6 rounded-lg ">
-        <div className="pb-4">
-          <div className="space-y-3">
-            <div className="flex justify-between text-[15px] text-neutral-400">
-              <div>
+      <div className="pointer-events-auto w-full sm:w-[400px] bg-neutral-950/95 backdrop-blur-md text-white p-4 sm:p-5 rounded-2xl shadow-2xl border border-white/10">
+        <div className="pb-3 sm:pb-4">
+          <div className="space-y-2.5">
+            <div className="flex justify-between items-center text-xs sm:text-sm text-neutral-300 font-medium">
+              <div className="font-semibold text-white">
                 {price.target_reached ? (
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircleSolid className="text-green-500 inline-block" />{" "}
+                  <div className="flex items-center gap-1.5 text-green-400">
+                    <CheckCircleSolid className="text-green-400 inline-block w-4 h-4" />{" "}
                     Free Shipping unlocked!
                   </div>
                 ) : (
@@ -233,12 +234,12 @@ function FreeShippingPopup({
               </div>
 
               <div
-                className={clx("visible", {
+                className={clx("visible text-xs sm:text-sm", {
                   "opacity-0 invisible": price.target_reached,
                 })}
               >
                 Only{" "}
-                <span className="text-white">
+                <span className="text-[#d8fa00] font-bold">
                   {convertToLocale({
                     amount: price.target_remaining,
                     currency_code: cart.currency_code,
@@ -247,31 +248,31 @@ function FreeShippingPopup({
                 away
               </div>
             </div>
-            <div className="flex justify-between gap-1">
+            <div className="flex justify-between gap-1 items-center">
               <div
                 className={clx(
-                  "bg-gradient-to-r from-zinc-400 to-zinc-500 h-1.5 rounded-full max-w-full duration-500 ease-in-out",
+                  "bg-gradient-to-r from-[#d8fa00] to-green-400 h-1.5 rounded-full max-w-full duration-500 ease-in-out shadow-sm",
                   {
                     "from-green-400 to-green-500": price.target_reached,
                   }
                 )}
                 style={{ width: `${price.remaining_percentage}%` }}
               ></div>
-              <div className="bg-zinc-600 h-1.5 rounded-full w-fit flex-grow"></div>
+              <div className="bg-neutral-800 h-1.5 rounded-full w-fit flex-grow"></div>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <LocalizedClientLink
-            className="rounded-2xl bg-transparent shadow-none outline-none border-[1px] border-white text-[15px] py-2.5 px-4"
+            className="rounded-xl sm:rounded-2xl bg-transparent border border-white/30 hover:border-white text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3.5 sm:px-4 text-center transition-colors"
             href="/cart"
           >
             View cart
           </LocalizedClientLink>
 
           <LocalizedClientLink
-            className="flex-grow rounded-2xl bg-white text-neutral-950 shadow-none outline-none border-[1px] border-white text-[15px] py-2.5 px-4 text-center"
+            className="flex-grow rounded-xl sm:rounded-2xl bg-white text-neutral-950 hover:bg-neutral-100 text-xs sm:text-sm font-bold py-2 sm:py-2.5 px-3.5 sm:px-4 text-center transition-colors shadow-sm"
             href="/shop"
           >
             View products
