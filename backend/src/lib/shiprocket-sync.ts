@@ -420,6 +420,34 @@ export async function syncAllShiprocketStatuses(container: any, daysBack: number
         updated_at: new Date(),
       })
       updatedCount++
+
+      // If order is DELIVERED, automatically mark remaining Partial COD balance as collected
+      if (isDelivered) {
+        try {
+          const orderMeta = typeof medusaOrder.metadata === "string" 
+            ? JSON.parse(medusaOrder.metadata) 
+            : (medusaOrder.metadata || {})
+
+          if (orderMeta.payment_mode === "partial_cod" && !orderMeta.cod_balance_collected) {
+            const updatedOrderMeta = {
+              ...orderMeta,
+              cod_balance_collected: true,
+              cod_collected_at: deliveredAtDate || new Date(),
+              settlement_status: "fully_paid",
+              note: `✅ Delivered: ₹${orderMeta.advance_paid || 0} paid online advance (${orderMeta.partial_percentage || 15}%), ₹${orderMeta.cod_balance || 0} collected at doorstep on delivery. Order fully settled.`,
+            }
+
+            await pgConnection("order").where("id", medusaOrder.id).update({
+              metadata: JSON.stringify(updatedOrderMeta),
+              updated_at: new Date(),
+            })
+
+            console.log(`[ShiprocketStatusSync] 💰 Partial COD balance of ₹${orderMeta.cod_balance} marked COLLECTED for Order #${medusaOrder.display_id} on delivery!`)
+          }
+        } catch (metaErr: any) {
+          console.warn(`[ShiprocketStatusSync] Failed to update partial COD metadata for Order #${medusaOrder.display_id}:`, metaErr.message)
+        }
+      }
     }
   }
 
