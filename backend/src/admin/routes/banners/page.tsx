@@ -157,6 +157,41 @@ const BannersCMSPage = () => {
     setIsFormOpen(true)
   }
 
+  const handleAddNewHeroSlide = () => {
+    if (activeHeroBanners.length >= 5) {
+      toast.error("Maximum of 5 hero carousel slides allowed.")
+      return
+    }
+    setEditingBanner(null)
+    setFormTitle(`Hero Slide ${activeHeroBanners.length + 1}`)
+    setFormType("hero")
+    setFormDesktopUrl("")
+    setFormMobileUrl("")
+    setFormLinkUrl("/shop")
+    setFormAltText(`PRO Care Hero Slide ${activeHeroBanners.length + 1}`)
+    setIsFormOpen(true)
+  }
+
+  const handleDeleteBanner = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this hero slide?")) return
+    try {
+      const res = await fetch(`/admin/custom/banners/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      const data = await res.json()
+      if (data.success) {
+        toast.success("Hero slide removed successfully")
+        await fetchBanners()
+      } else {
+        toast.error(data.message || "Failed to remove hero slide")
+      }
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message || "Network error removing slide")
+    }
+  }
+
   const handleFileUpload = async (
     file: File,
     target: "desktop" | "mobile"
@@ -417,9 +452,20 @@ const BannersCMSPage = () => {
       {/* Banner List Table with Type Filter Tabs */}
       <Container className="p-0 overflow-hidden">
         <div className="p-4 border-b border-ui-border-base flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <Heading level="h2" className="text-base font-semibold">
-            Storefront Media Slots ({filteredBanners.length})
-          </Heading>
+          <div className="flex flex-wrap items-center gap-3">
+            <Heading level="h2" className="text-base font-semibold">
+              Storefront Media Slots ({filteredBanners.length})
+            </Heading>
+            <Button
+              variant="primary"
+              size="small"
+              onClick={handleAddNewHeroSlide}
+              disabled={activeHeroBanners.length >= 5}
+              className="flex items-center gap-1.5 bg-black hover:bg-gray-800 text-white"
+            >
+              + Add Hero Slide ({activeHeroBanners.length}/5)
+            </Button>
+          </div>
 
           {/* Type Filter Tabs */}
           <div className="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1 rounded-lg">
@@ -468,13 +514,26 @@ const BannersCMSPage = () => {
                   <Table.Row key={b.id}>
                     <Table.Cell>
                       <div className="flex items-center gap-3">
-                        <img
-                          src={b.desktop_image_url}
-                          alt={b.title}
-                          className="w-16 h-10 object-cover rounded border border-gray-200 bg-gray-50 shrink-0"
-                        />
+                        {b.desktop_image_url.includes("youtube.com") || b.desktop_image_url.includes("youtu.be") ? (
+                          <div className="w-16 h-10 rounded border border-gray-200 bg-black flex items-center justify-center text-red-500 font-bold text-base shrink-0">
+                            ▶
+                          </div>
+                        ) : (
+                          <img
+                            src={b.desktop_image_url}
+                            alt={b.title}
+                            className="w-16 h-10 object-cover rounded border border-gray-200 bg-gray-50 shrink-0"
+                          />
+                        )}
                         <div>
-                          <Text className="font-semibold text-sm text-ui-fg-base">{b.title}</Text>
+                          <div className="flex items-center gap-2">
+                            <Text className="font-semibold text-sm text-ui-fg-base">{b.title}</Text>
+                            {(b.desktop_image_url.includes("youtube.com") || b.desktop_image_url.includes("youtu.be")) && (
+                              <Badge size="small" color="red" className="text-[10px] uppercase">
+                                Video
+                              </Badge>
+                            )}
+                          </div>
                           <Text className="text-xs text-ui-fg-muted font-mono truncate max-w-[240px]">
                             {b.desktop_image_url}
                           </Text>
@@ -518,15 +577,27 @@ const BannersCMSPage = () => {
                     </Table.Cell>
 
                     <Table.Cell className="text-right">
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onClick={() => handleOpenEdit(b)}
-                        className="inline-flex items-center gap-1 font-medium bg-white hover:bg-gray-50 border border-gray-200 text-gray-800"
-                      >
-                        <PencilSquare className="w-3.5 h-3.5" />
-                        Edit / Replace
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          onClick={() => handleOpenEdit(b)}
+                          className="inline-flex items-center gap-1 font-medium bg-white hover:bg-gray-50 border border-gray-200 text-gray-800"
+                        >
+                          <PencilSquare className="w-3.5 h-3.5" />
+                          Edit / Replace
+                        </Button>
+                        {b.type === "hero" && b.id !== "banner_hero_default" && (
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={() => handleDeleteBanner(b.id)}
+                            className="font-medium"
+                          >
+                            Delete
+                          </Button>
+                        )}
+                      </div>
                     </Table.Cell>
                   </Table.Row>
                 ))
@@ -632,11 +703,19 @@ const BannersCMSPage = () => {
 
                 {formDesktopUrl && (
                   <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 bg-white p-2 flex justify-center items-center">
-                    <img
-                      src={formDesktopUrl}
-                      alt="Desktop Preview"
-                      className={`w-full rounded ${slotSpecs.aspectClass}`}
-                    />
+                    {formDesktopUrl.includes("youtube.com") || formDesktopUrl.includes("youtu.be") ? (
+                      <div className="w-full aspect-[16/9] max-h-[200px] bg-black rounded flex flex-col items-center justify-center text-white p-4 text-center">
+                        <span className="text-red-500 text-2xl font-bold mb-1">▶</span>
+                        <span className="font-semibold text-xs text-white">YouTube Video Slide Detected</span>
+                        <span className="text-[10px] text-gray-400 font-mono mt-1 truncate max-w-full">{formDesktopUrl}</span>
+                      </div>
+                    ) : (
+                      <img
+                        src={formDesktopUrl}
+                        alt="Desktop Preview"
+                        className={`w-full rounded ${slotSpecs.aspectClass}`}
+                      />
+                    )}
                   </div>
                 )}
               </div>

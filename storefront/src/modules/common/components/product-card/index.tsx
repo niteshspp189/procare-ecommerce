@@ -122,27 +122,29 @@ export default function ProductCard({
             isFeatured={variant === "featured"}
             className="!p-0 object-cover w-full h-full"
           />
-          {product.variants && product.variants.length > 0 && (
-            <div
-              className={clsx(
-                "absolute top-0 left-0 backdrop-blur-md px-3 py-1.5 rounded-tl-[16px] rounded-br-[16px] text-[10px] font-bold uppercase tracking-wider shadow-md z-10 border-b border-r",
-                isOutOfStock
-                  ? "bg-red-50 text-red-600 border-red-200"
-                  : "bg-white/95 text-black border-slate-100/50"
-              )}
-            >
-              {isOutOfStock
-                ? "Out of Stock"
-                : product.variants.length > 1
-                ? "Multi-Variant"
-                : "In Stock"}
-            </div>
-          )}
-          {hasDiscount && discountPercentage > 0 && (
-            <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md z-10">
-              {discountPercentage}% OFF
-            </div>
-          )}
+          <div className="absolute top-0 inset-x-0 p-1.5 small:p-2.5 flex items-start justify-between pointer-events-none z-10 gap-1">
+            {product.variants && product.variants.length > 0 && (
+              <div
+                className={clsx(
+                  "pointer-events-auto backdrop-blur-md px-2 py-0.5 small:px-2.5 small:py-1 rounded-md text-[8.5px] small:text-[10px] font-bold uppercase tracking-wide shadow-sm border",
+                  isOutOfStock
+                    ? "bg-red-50 text-red-600 border-red-200"
+                    : "bg-white/95 text-black border-slate-100/50"
+                )}
+              >
+                {isOutOfStock
+                  ? "Out of Stock"
+                  : product.variants.length > 1
+                  ? "Multi-Variant"
+                  : "In Stock"}
+              </div>
+            )}
+            {hasDiscount && discountPercentage > 0 && (
+              <div className="pointer-events-auto bg-[#d8fa00] text-black text-[9px] small:text-[11px] font-extrabold px-1.5 py-0.5 small:px-2.5 small:py-1 rounded-full uppercase tracking-wider shadow-sm shrink-0 ml-auto">
+                {discountPercentage}% OFF
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col flex-1 px-1">

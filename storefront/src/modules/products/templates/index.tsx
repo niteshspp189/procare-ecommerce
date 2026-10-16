@@ -49,6 +49,7 @@ const AVAILABLE_BADGES: { label: string; imgFile: string; id?: string }[] = [
     { label: "Shine", imgFile: "shine.png", id: "shine" },
     { label: "Create Natural Shine", imgFile: "create-natural-shine.png", id: "create-natural-shine" },
     { label: "Cleaning", imgFile: "cleaning.png", id: "cleaning" },
+    { label: "Effective Clean", imgFile: "effective-cleaning-agent.png", id: "effective-clean" },
     { label: "Effective Cleaning Agent", imgFile: "effective-cleaning-agent.png", id: "effective-cleaning-agent" },
     { label: "Color Refreshing", imgFile: "color-refreshing.png", id: "color-refreshing" },
     { label: "Long Lasting Freshness", imgFile: "long-lasting-freshness.png", id: "long-lasting-freshness" },
@@ -383,6 +384,11 @@ const formatSpecValue = (value: any): string => {
     }
   }, [selectedVariant?.id])
 
+  React.useEffect(() => {
+    router.prefetch("/checkout?step=address")
+    router.prefetch("/checkout")
+  }, [router])
+
   const { cheapestPrice, variantPrice } = getProductPrice({
     product,
     variantId: selectedVariant?.id,
@@ -471,24 +477,26 @@ const formatSpecValue = (value: any): string => {
   }
 
   const handleBuyNow = async () => {
-    if (!inStock) return
+    if (!inStock || isBuying) return
     setIsBuying(true)
     const variantId = selectedVariant?.id || product?.variants?.[0]?.id
     if (variantId) {
       try {
-        await addToCart({ variantId, quantity, countryCode })
         trackMetaEvent("AddToCart", {
           content_name: title,
           content_ids: [variantId],
           value: (selectedPrice?.calculated_price_number || 0) * quantity,
           currency: "INR",
         })
+        await addToCart({ variantId, quantity, countryCode })
         router.push(`/checkout?step=address`)
       } catch (err) {
         console.error(err)
+        setIsBuying(false)
       }
+    } else {
+      setIsBuying(false)
     }
-    setIsBuying(false)
   }
 
   const [activeAccordion, setActiveAccordion] = useState<string | null>("description")
@@ -854,6 +862,8 @@ const formatSpecValue = (value: any): string => {
                   variant="primary"
                   className={clx("!w-full", !inStock && "!bg-gray-200 !text-gray-400 !border-gray-200 !cursor-not-allowed shadow-none hover:!bg-gray-200")}
                   onClick={handleBuyNow}
+                  onMouseEnter={() => router.prefetch("/checkout?step=address")}
+                  onTouchStart={() => router.prefetch("/checkout?step=address")}
                   disabled={isAdding || isBuying || !inStock}
                 >
                   {isBuying ? "Processing..." : inStock ? "Buy Now" : "Out of Stock"}
@@ -941,12 +951,11 @@ const formatSpecValue = (value: any): string => {
 
                           if (normMatch) {
                             mappedIconUrl = `/images/icons/${normMatch.imgFile}`;
-                          } else if (rawId && rawId.length > 2 && !["eco", "shipping", "star", "check"].includes(rawId)) {
-                            // 3. Direct image slug fallback
-                            mappedIconUrl = `/images/icons/${rawId.endsWith(".png") ? rawId : rawId + ".png"}`;
                           } else {
-                            // 4. Fuzzy fallback logic for edge cases
-                            if (normLabel.includes("european exper") || normLabel.includes("europe") || normId.includes("europ")) {
+                            // 3. Fuzzy fallback logic for edge cases
+                            if (normLabel.includes("effective") || normId.includes("effective")) {
+                              mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
+                            } else if (normLabel.includes("european exper") || normLabel.includes("europe") || normId.includes("europ")) {
                               mappedIconUrl = "/images/icons/europian-experts.png";
                             } else if (normLabel.includes("callus") || normLabel.includes("dead skin") || normId.includes("callus")) {
                               mappedIconUrl = "/images/icons/remove-callus-and-dead-skin.png";
@@ -958,8 +967,6 @@ const formatSpecValue = (value: any): string => {
                               mappedIconUrl = "/images/icons/helps-fight-fungi-and-bacteria.png";
                             } else if (normLabel.includes("freshness") || normId.includes("freshness")) {
                               mappedIconUrl = "/images/icons/long-lasting-freshness.png";
-                            } else if (normLabel.includes("effective clean") || normId.includes("effective")) {
-                              mappedIconUrl = "/images/icons/effective-cleaning-agent.png";
                             } else if (normLabel.includes("clean") || normId.includes("clean")) {
                               mappedIconUrl = "/images/icons/cleaning.png";
                             } else if (normLabel.includes("shine") || normId.includes("shine")) {
@@ -970,6 +977,9 @@ const formatSpecValue = (value: any): string => {
                               mappedIconUrl = "/images/icons/water-protection.png";
                             } else if (normLabel.includes("carnauba") || normLabel.includes("bristle") || normLabel.includes("steel") || normId === "contain-high-quality") {
                               mappedIconUrl = "/images/icons/contain-high-quality.png";
+                            } else if (rawId && rawId.length > 2 && !["eco", "shipping", "star", "check"].includes(rawId)) {
+                              // 4. Direct image slug fallback
+                              mappedIconUrl = `/images/icons/${rawId.endsWith(".png") ? rawId : rawId + ".png"}`;
                             }
                           }
                         }
@@ -982,7 +992,17 @@ const formatSpecValue = (value: any): string => {
                         <div key={idx} className="text-center flex flex-col items-center gap-1.5 flex-1 min-w-0">
                           <div className="w-[58px] h-[58px] sm:w-[70px] sm:h-[70px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden mx-auto">
                             {isImage ? (
-                              <img src={finalIconSource} alt={displayLabel} className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] object-contain" />
+                              <img 
+                                src={finalIconSource} 
+                                alt={displayLabel} 
+                                className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] object-contain"
+                                onError={(e) => {
+                                  const target = e.currentTarget;
+                                  if (!target.src.includes('cleaning.png')) {
+                                    target.src = '/images/icons/cleaning.png';
+                                  }
+                                }}
+                              />
                             ) : (
                               <svg width="26" height="26" className="sm:w-[32px] sm:h-[32px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
                                 dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />

@@ -70,7 +70,7 @@ const GalleryImage = ({ image, index, isMobile, isActive, discountPercentage, zo
     >
       {/* Discount badge */}
       {(discountPercentage ?? 0) > 0 && (
-        <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-emerald-600 text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md z-20">
+        <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-[#d8fa00] text-black text-xs md:text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md z-20">
           {discountPercentage}% OFF
         </div>
       )}

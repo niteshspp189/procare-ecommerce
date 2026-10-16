@@ -112,7 +112,10 @@ export default async function StagingHome(props: {
           <div className="max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-3.5 w-full animate-fade-in-up mt-6">
             {/* Shoe Care */}
             <div className="flex flex-col group">
-              <LocalizedClientLink href="/categories/shoe-care" className="block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
+              <LocalizedClientLink href="/categories/shoe-care" className="relative block overflow-hidden rounded-[6px] bg-gray-100 aspect-[9/10] shadow-md group-hover:shadow-xl transition-all duration-500">
+                <div className="absolute top-3 right-3 bg-[#d8fa00] text-black text-[11px] sm:text-xs font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-10">
+                  UPTO 50% OFF
+                </div>
                 <img 
                   src={getCatCardImg('shoe-care', imgBase + 'cat-shoecare-new.webp')} 
                   alt="Shoe Care" 

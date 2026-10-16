@@ -28,7 +28,7 @@ export default function AnnouncementMarquee({
     <div className="flex items-center justify-between w-full max-w-full overflow-hidden relative">
       {/* Marquee Track container with overflow-hidden and pause-on-hover */}
       <div className="flex-1 overflow-hidden relative group cursor-default">
-        <div className="flex whitespace-nowrap animate-marquee items-center text-[10.5px] sm:text-[11px] md:text-[12px] font-bold text-[#00b5a4] uppercase tracking-normal sm:tracking-wider">
+        <div className="flex whitespace-nowrap animate-marquee items-center text-[10.5px] sm:text-[11px] md:text-[12px] font-bold text-[#d8fa00] uppercase tracking-normal sm:tracking-wider">
           {/* First set of items */}
           <div className="flex shrink-0 items-center">
             {formattedItems.map((item, idx) => (
@@ -38,7 +38,7 @@ export default function AnnouncementMarquee({
                   idx === formattedItems.length - 1 ? "pr-[60vw]" : "pr-8 md:pr-12"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] mr-2 animate-promo-pulse shrink-0"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#d8fa00] mr-2 animate-promo-pulse shrink-0"></span>
                 <span>{item}</span>
               </div>
             ))}
@@ -53,7 +53,7 @@ export default function AnnouncementMarquee({
                   idx === formattedItems.length - 1 ? "pr-[60vw]" : "pr-8 md:pr-12"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00b5a4] mr-2 animate-promo-pulse shrink-0"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#d8fa00] mr-2 animate-promo-pulse shrink-0"></span>
                 <span>{item}</span>
               </div>
             ))}
