@@ -19,6 +19,7 @@ const SideMenuItems = {
   "Hand & Foot Care": "/categories/foot-care",
   Accessories: "/categories/accessories",
   "Our Story": "/our-story",
+  Blog: "/blog",
   "Contact Us": "/contact",
 }
 

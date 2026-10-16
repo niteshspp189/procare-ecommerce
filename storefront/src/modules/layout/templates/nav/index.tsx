@@ -46,6 +46,7 @@ export default async function Nav() {
           <LocalizedClientLink href="/" className="hover:text-white transition-colors shrink-0">Home</LocalizedClientLink>
           <LocalizedClientLink href="/faq" className="hover:text-white transition-colors shrink-0">FAQ</LocalizedClientLink>
           <LocalizedClientLink href="/our-story" className="hover:text-white transition-colors shrink-0">Our Story</LocalizedClientLink>
+          <LocalizedClientLink href="/blog" className="hover:text-white transition-colors shrink-0">Blog</LocalizedClientLink>
           <LocalizedClientLink href="/contact" className="hover:text-white transition-colors shrink-0">Contact Us</LocalizedClientLink>
           <LocalizedClientLink href="/account" className="hover:text-white transition-colors shrink-0">
             {customer ? "Account" : "Log In"}
