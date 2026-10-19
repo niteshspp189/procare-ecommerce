@@ -190,7 +190,7 @@ const RazorpayPaymentButton = ({
           <p className="text-xs text-gray-500">
             Remaining <strong>₹{balanceCodAmount}</strong> to be collected on doorstep delivery (Cash/UPI)
           </p>
-          <p className="text-[11px] text-amber-800 font-medium">
+          <p className="text-[11px] text-gray-500">
             * Note: Partial advance payment is non-refundable. T&C apply.
           </p>
         </div>

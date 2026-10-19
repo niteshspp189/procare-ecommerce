@@ -361,26 +361,18 @@ const Payment = ({
                           <span>Pay on Delivery (Cash/UPI):</span>
                           <span className="font-mono">₹{balanceCodAmount}</span>
                         </div>
-                        <div className="pt-1.5 flex items-center justify-between text-[11px] text-amber-800 font-medium">
+                        <div className="pt-1.5 flex items-center justify-between text-[11px] text-gray-500">
                           <span>Advance Payment:</span>
-                          <span className="font-semibold text-amber-900">Non-Refundable (T&C Apply)</span>
+                          <span className="font-medium text-gray-600">Non-Refundable (T&C apply)</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {isPartialPayment && (
-                    <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 flex items-start gap-2.5">
-                      <span className="text-base leading-none mt-0.5">⚠️</span>
-                      <div className="space-y-0.5">
-                        <p className="font-bold text-amber-950">
-                          Advance Payment Policy (Non-Refundable):
-                        </p>
-                        <p className="text-amber-800 text-[11.5px] leading-relaxed">
-                          The {partialPct}% online advance payment is non-refundable once the order is confirmed and dispatched. The remaining balance of ₹{balanceCodAmount} will be collected upon doorstep delivery via Cash or UPI. Terms & conditions apply.
-                        </p>
-                      </div>
-                    </div>
+                    <p className="text-xs text-gray-500 pt-0.5">
+                      * Note: Advance partial payment is non-refundable. Terms & conditions apply.
+                    </p>
                   )}
                 </div>
               )}
