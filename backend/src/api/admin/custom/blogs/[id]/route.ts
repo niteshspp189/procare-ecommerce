@@ -57,7 +57,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
     }
     if (excerpt !== undefined) updates.excerpt = excerpt ? excerpt.trim() : null
     if (content !== undefined) updates.content = content.trim()
-    if (category !== undefined) updates.category = category ? category.trim() : "General"
+    if (category !== undefined) updates.category = category && category.trim() ? category.trim() : null
     if (featured_image !== undefined) updates.featured_image = featured_image ? featured_image.trim() : null
     if (author !== undefined) updates.author = author ? author.trim() : "PRO Care Editorial"
     if (read_time !== undefined) updates.read_time = read_time ? read_time.trim() : "4 min read"

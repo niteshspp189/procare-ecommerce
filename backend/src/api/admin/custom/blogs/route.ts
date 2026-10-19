@@ -33,7 +33,7 @@ export const DEFAULT_SEED_BLOGS = [
     slug: "how-to-clean-and-condition-leather-shoes",
     title: "How to Clean and Condition Leather Shoes: The Ultimate 5-Step Guide",
     excerpt: "Discover the European heritage techniques to clean, nourish, and protect your fine leather footwear using premium waxes, creams, and horsehair brushes.",
-    category: "Shoe Care",
+    category: null,
     featured_image: "/images/landing-page-images/cat-shoecare-new.webp",
     author: "PRO Care Editorial",
     read_time: "5 min read",
@@ -84,7 +84,7 @@ Finally, always insert **solid cedar shoe trees** immediately after wearing to a
     slug: "complete-sneaker-cleaning-guide-white-sneakers",
     title: "The Complete Sneaker Cleaning Guide: Keeping Whites Crisp & Clean",
     excerpt: "From canvas to rubber midsoles, learn how instant sneaker wipes, foam cleansers, and water-repellent sprays prevent dirt stains and yellowing.",
-    category: "Sneaker Care",
+    category: null,
     featured_image: "/images/landing-page-images/cat-accessories-new.webp",
     author: "PRO Care Sneaker Lab",
     read_time: "4 min read",
@@ -128,7 +128,7 @@ Before heading out, spray an even coat of **PRO Universal Waterproof Protector**
     slug: "suede-vs-nubuck-how-to-protect-and-restore",
     title: "Suede vs. Nubuck: How to Protect, Brush, and Waterproof Velvet Leathers",
     excerpt: "Suede and nubuck need special attention. Learn why water is their biggest enemy and how crepe brushes, brass bristles, and renovator sprays keep nap soft and rich.",
-    category: "Leather Care",
+    category: null,
     featured_image: "/images/landing-page-images/cat-footcare-new.webp",
     author: "PRO Care Craftsmen",
     read_time: "6 min read",
@@ -170,7 +170,7 @@ export async function ensureBlogTableExists(knex: any) {
       table.string("title", 500).notNullable()
       table.text("excerpt").nullable()
       table.text("content").notNullable()
-      table.string("category", 100).defaultTo("General")
+      table.string("category", 100).nullable()
       table.text("featured_image").nullable()
       table.string("author", 100).defaultTo("PRO Care Editorial")
       table.string("read_time", 50).defaultTo("4 min read")
@@ -230,7 +230,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       slug,
       excerpt,
       content,
-      category = "Shoe Care",
+      category = null,
       featured_image,
       author = "PRO Care Editorial",
       read_time = "4 min read",
@@ -258,7 +258,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       title: title.trim(),
       excerpt: excerpt ? excerpt.trim() : null,
       content: content.trim(),
-      category: category ? category.trim() : "General",
+      category: category && category.trim() ? category.trim() : null,
       featured_image: featured_image ? featured_image.trim() : null,
       author: author ? author.trim() : "PRO Care Editorial",
       read_time: read_time ? read_time.trim() : "4 min read",

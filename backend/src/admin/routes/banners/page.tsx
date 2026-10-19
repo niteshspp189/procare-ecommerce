@@ -902,21 +902,22 @@ const BannersCMSPage = () => {
                     onChange={(e) => {
                       if (e.target.value) setFormLinkUrl(e.target.value)
                     }}
-                    value={["/shop", "/categories/shoe-care", "/categories/insoles", "/categories/foot-care", "/categories/accessories", "/our-story", "/"].includes(formLinkUrl) ? formLinkUrl : ""}
+                    value={["/shop", "/categories/shoe-care", "/categories/sneaker-care", "/categories/insoles", "/categories/foot-care", "/categories/accessories", "/our-story", "/"].includes(formLinkUrl) ? formLinkUrl : ""}
                     className="w-full h-8 px-2 text-xs bg-white text-gray-700 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-900 cursor-pointer"
                   >
                     <option value="">-- Choose Page Dropdown --</option>
                     <option value="/shop">🛍️ All Products (/shop)</option>
                     <option value="/categories/shoe-care">👞 Shoe Care (/categories/shoe-care)</option>
-                    <option value="/categories/insoles">👟 Insoles (/categories/insoles)</option>
-                    <option value="/categories/foot-care">🦶 Foot Care (/categories/foot-care)</option>
+                    <option value="/categories/sneaker-care">👟 Sneaker Care (/categories/sneaker-care)</option>
+                    <option value="/categories/insoles">🦶 Insoles (/categories/insoles)</option>
+                    <option value="/categories/foot-care">👣 Foot Care (/categories/foot-care)</option>
                     <option value="/categories/accessories">🧦 Accessories (/categories/accessories)</option>
                     <option value="/our-story">📖 Our Story (/our-story)</option>
                     <option value="/">🏠 Homepage (/)</option>
                   </select>
                   <div className="sm:col-span-2">
                     <Input
-                      placeholder="/shop or /categories/shoe-care"
+                      placeholder="/shop or /categories/sneaker-care"
                       value={formLinkUrl}
                       onChange={(e) => setFormLinkUrl(e.target.value)}
                       className="font-mono text-xs"
@@ -938,6 +939,13 @@ const BannersCMSPage = () => {
                     className="px-2 py-0.5 text-[11px] bg-gray-100 hover:bg-gray-200 rounded border text-gray-700 cursor-pointer"
                   >
                     /categories/shoe-care
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormLinkUrl("/categories/sneaker-care")}
+                    className="px-2 py-0.5 text-[11px] bg-gray-100 hover:bg-gray-200 rounded border text-gray-700 cursor-pointer"
+                  >
+                    /categories/sneaker-care
                   </button>
                   <button
                     type="button"

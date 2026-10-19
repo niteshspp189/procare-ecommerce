@@ -51,7 +51,7 @@ const BlogsCMSPage = () => {
   // Form Fields
   const [formTitle, setFormTitle] = useState("")
   const [formSlug, setFormSlug] = useState("")
-  const [formCategory, setFormCategory] = useState("Shoe Care")
+  const [formCategory, setFormCategory] = useState("")
   const [formExcerpt, setFormExcerpt] = useState("")
   const [formFeaturedImage, setFormFeaturedImage] = useState("")
   const [formContent, setFormContent] = useState("")
@@ -85,7 +85,7 @@ const BlogsCMSPage = () => {
     setEditingPost(null)
     setFormTitle("")
     setFormSlug("")
-    setFormCategory("Shoe Care")
+    setFormCategory("")
     setFormExcerpt("")
     setFormFeaturedImage("")
     setFormContent("")
@@ -99,7 +99,7 @@ const BlogsCMSPage = () => {
     setEditingPost(post)
     setFormTitle(post.title)
     setFormSlug(post.slug)
-    setFormCategory(post.category || "General")
+    setFormCategory(post.category || "")
     setFormExcerpt(post.excerpt || "")
     setFormFeaturedImage(post.featured_image || "")
     setFormContent(post.content || "")
@@ -158,7 +158,7 @@ const BlogsCMSPage = () => {
       const payload = {
         title: formTitle.trim(),
         slug: formSlug.trim() || undefined,
-        category: formCategory.trim() || "General",
+        category: formCategory.trim() || null,
         excerpt: formExcerpt.trim() || null,
         featured_image: formFeaturedImage.trim() || null,
         content: formContent.trim(),
@@ -253,32 +253,34 @@ const BlogsCMSPage = () => {
             All Articles ({filteredPosts.length})
           </Heading>
 
-          {/* Category Tabs */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1 rounded-lg">
-            <button
-              onClick={() => setActiveCategoryTab("all")}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
-                activeCategoryTab === "all"
-                  ? "bg-white text-gray-900 shadow-2xs font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              All ({posts.length})
-            </button>
-            {uniqueCategories.map((cat) => (
+          {/* Category Tabs (Only if any category exists) */}
+          {uniqueCategories.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1 rounded-lg">
               <button
-                key={cat}
-                onClick={() => setActiveCategoryTab(cat)}
+                onClick={() => setActiveCategoryTab("all")}
                 className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
-                  activeCategoryTab === cat
+                  activeCategoryTab === "all"
                     ? "bg-white text-gray-900 shadow-2xs font-semibold"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {cat} ({posts.filter((p) => p.category === cat).length})
+                All ({posts.length})
               </button>
-            ))}
-          </div>
+              {uniqueCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategoryTab(cat)}
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                    activeCategoryTab === cat
+                      ? "bg-white text-gray-900 shadow-2xs font-semibold"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  {cat} ({posts.filter((p) => p.category === cat).length})
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -341,9 +343,13 @@ const BlogsCMSPage = () => {
                     </Table.Cell>
 
                     <Table.Cell>
-                      <Badge size="small" color="grey" className="font-medium text-xs">
-                        {post.category || "General"}
-                      </Badge>
+                      {post.category ? (
+                        <Badge size="small" color="grey" className="font-medium text-xs">
+                          {post.category}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">None</span>
+                      )}
                     </Table.Cell>
 
                     <Table.Cell>
@@ -435,21 +441,23 @@ const BlogsCMSPage = () => {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-gray-700 block mb-1">Category</Label>
-                  <div className="flex gap-2">
-                    <select
-                      value={formCategory}
-                      onChange={(e) => setFormCategory(e.target.value)}
-                      className="w-full h-8 px-2 text-xs bg-white text-gray-800 rounded-md border border-gray-300"
-                    >
-                      <option value="Shoe Care">Shoe Care</option>
-                      <option value="Sneaker Care">Sneaker Care</option>
-                      <option value="Leather Care">Leather Care</option>
-                      <option value="Foot Care & Insoles">Foot Care & Insoles</option>
-                      <option value="Style & Guides">Style & Guides</option>
-                      <option value="General">General</option>
-                    </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs font-semibold text-gray-700">Category <span className="font-normal text-gray-400">(Optional)</span></Label>
+                    {formCategory && (
+                      <button
+                        type="button"
+                        onClick={() => setFormCategory("")}
+                        className="text-[11px] text-red-500 hover:text-red-700 font-medium cursor-pointer"
+                      >
+                        ✕ Clear Category
+                      </button>
+                    )}
                   </div>
+                  <Input
+                    placeholder="e.g. Sneaker Care (or leave blank)"
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                  />
                 </div>
               </div>
 

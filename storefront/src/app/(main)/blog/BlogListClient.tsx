@@ -68,9 +68,11 @@ export default function BlogListClient({ initialPosts, categories }: BlogListCli
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
-                <span className="absolute top-3 left-3 bg-black/80 backdrop-blur-xs text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
-                  {post.category || "Care Guide"}
-                </span>
+                {post.category && (
+                  <span className="absolute top-3 left-3 bg-black/80 backdrop-blur-xs text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+                    {post.category}
+                  </span>
+                )}
               </LocalizedClientLink>
 
               {/* Card Content */}

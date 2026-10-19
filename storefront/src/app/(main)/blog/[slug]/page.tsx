@@ -125,9 +125,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Article Header */}
         <header className="mb-8">
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="bg-black text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
-              {post.category || "Care Guide"}
-            </span>
+            {post.category && (
+              <span className="bg-black text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                {post.category}
+              </span>
+            )}
             <span className="text-xs text-gray-500 font-medium">
               {post.read_time || "4 min read"}
             </span>

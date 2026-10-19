@@ -129,6 +129,17 @@ export const DEFAULT_SEED_BANNERS = [
     is_active: true,
     display_order: 4,
   },
+  {
+    id: "banner_cat_header_sneakercare",
+    title: "Sneaker Care - Header Banner",
+    type: "category_banner",
+    desktop_image_url: "/images/product-category-images/banner-sneaker-care.png",
+    mobile_image_url: "/images/product-category-images/banner-sneaker-care.png",
+    link_url: "/categories/sneaker-care",
+    alt_text: "Sneaker Care Header Banner",
+    is_active: true,
+    display_order: 5,
+  },
   // Our Story Page Hero Banner
   {
     id: "banner_story_hero",
