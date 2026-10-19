@@ -341,8 +341,8 @@ const Payment = ({
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-sm font-bold text-emerald-900 flex items-center gap-1.5">
-                            <span>⚡</span> Partial COD ({partialPct}% Online)
+                          <span className="text-sm font-bold text-emerald-900">
+                            Partial COD ({partialPct}% Online)
                           </span>
                           <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
                             Popular

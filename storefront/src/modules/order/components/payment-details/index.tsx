@@ -30,7 +30,7 @@ const PaymentDetails = ({ order }: PaymentDetailsProps) => {
                   data-testid="payment-method"
                 >
                   {((order as any).metadata?.payment_mode === "partial_cod" || (payment as any).data?.is_partial)
-                    ? "⚡ Partial COD (Advance Paid Online + Balance on Delivery)"
+                    ? "Partial COD (Advance Paid Online + Balance on Delivery)"
                     : (paymentInfoMap[payment.provider_id]?.title || "Online Payment")}
                 </Text>
               </div>
