@@ -186,9 +186,14 @@ const RazorpayPaymentButton = ({
         {isPartial ? `Pay Advance ₹${advanceAmount} via Razorpay` : "Pay Now"}
       </Button>
       {isPartial && (
-        <p className="text-xs text-gray-500 mt-2 text-right">
-          Remaining <strong>₹{balanceCodAmount}</strong> to be collected on doorstep delivery (Cash/UPI)
-        </p>
+        <div className="mt-2 text-right space-y-0.5">
+          <p className="text-xs text-gray-500">
+            Remaining <strong>₹{balanceCodAmount}</strong> to be collected on doorstep delivery (Cash/UPI)
+          </p>
+          <p className="text-[11px] text-amber-800 font-medium">
+            * Note: Partial advance payment is non-refundable. T&C apply.
+          </p>
+        </div>
       )}
       <ErrorMessage
         error={errorMessage}
