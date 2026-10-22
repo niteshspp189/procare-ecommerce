@@ -10,6 +10,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       status = "all", 
       sort = "created_at_desc",
       date_range = "all_time",
+      from_date = "",
+      to_date = "",
       archived = "false",
     } = req.query as Record<string, string>
 
@@ -60,8 +62,28 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     // Determine date boundary
     const now = new Date()
     let startDate: Date | null = null
+    let endDate: Date | null = null
 
-    if (date_range === "today") {
+    if (date_range === "custom" || (from_date || to_date)) {
+      if (from_date) {
+        const parts = from_date.split("-").map(Number)
+        if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+          startDate = new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0)
+        } else {
+          startDate = new Date(from_date)
+          startDate.setHours(0, 0, 0, 0)
+        }
+      }
+      if (to_date) {
+        const parts = to_date.split("-").map(Number)
+        if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+          endDate = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59, 999)
+        } else {
+          endDate = new Date(to_date)
+          endDate.setHours(23, 59, 59, 999)
+        }
+      }
+    } else if (date_range === "today") {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
     } else if (date_range === "last_7_days") {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -166,10 +188,12 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
     // Filter by Date Range (if specified)
     let dateFilteredOrders = activeOrArchivedOrders
-    if (startDate) {
+    if (startDate || endDate) {
       dateFilteredOrders = activeOrArchivedOrders.filter((o: any) => {
         const orderDate = new Date(o.created_at)
-        return orderDate >= startDate!
+        if (startDate && orderDate < startDate) return false
+        if (endDate && orderDate > endDate) return false
+        return true
       })
     }
 

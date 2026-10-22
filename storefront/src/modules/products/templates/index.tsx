@@ -918,11 +918,42 @@ const formatSpecValue = (value: any): string => {
                   } catch {}
                 }
                 return (
-                  <div className="flex justify-between items-center py-4 border-t border-b border-gray-200 mb-5 w-full gap-1">
+                  <div className="flex justify-between items-start py-4 border-t border-b border-gray-200 mb-5 w-full gap-1">
                     {activeBadges.map((badge: { iconId: string; label: string; iconUrl?: string }, idx: number) => {
-                      let displayLabel = badge.label;
-                      if (displayLabel && displayLabel.toLowerCase().includes("return")) {
+                      let displayLabel = badge.label || "";
+                      const lower = displayLabel.trim().toLowerCase();
+                      if (lower.includes("return")) {
                         displayLabel = "15 Day Return";
+                      } else if (lower.includes("carnauba")) {
+                        displayLabel = "Carnauba Wax";
+                      } else if (lower.includes("effective clean")) {
+                        displayLabel = "Effective Clean";
+                      } else if (lower.includes("fungi") || lower.includes("bacteria")) {
+                        displayLabel = "Anti Fungi & Bacteria";
+                      } else if (lower.includes("trapped dust")) {
+                        displayLabel = "Remove Dust";
+                      } else if (lower.includes("feet into") || lower.includes("slide feet")) {
+                        displayLabel = "Easy Foot Slide";
+                      } else if (lower.includes("original") && lower.includes("shape")) {
+                        displayLabel = "Maintains Shape";
+                      } else if (lower.includes("callus")) {
+                        displayLabel = "Remove Callus";
+                      } else if (lower.includes("coarse") && lower.includes("fine")) {
+                        displayLabel = "Coarse & Fine Filing";
+                      } else if (lower.includes("chromium")) {
+                        displayLabel = "Chrome Finish";
+                      } else if (lower.includes("horse") && lower.includes("hair")) {
+                        displayLabel = "Horse Hair Bristles";
+                      } else if (lower.includes("high quality bristle")) {
+                        displayLabel = "Quality Bristles";
+                      } else if (lower.includes("high quality wood")) {
+                        displayLabel = "Quality Wood";
+                      } else if (lower.includes("high grade steel")) {
+                        displayLabel = "High Grade Steel";
+                      } else if (lower.includes("multi-purpose") || lower.includes("multi purpose")) {
+                        displayLabel = "Multi Purpose";
+                      } else if (lower.includes("long lasting freshness")) {
+                        displayLabel = "Long Freshness";
                       }
                       
                       let mappedIconUrl = badge.iconUrl;
@@ -990,13 +1021,13 @@ const formatSpecValue = (value: any): string => {
                       const isImage = Boolean(finalIconSource && (finalIconSource.startsWith("/") || finalIconSource.includes(".")));
 
                       return (
-                        <div key={idx} className="text-center flex flex-col items-center gap-1.5 flex-1 min-w-0">
-                          <div className="w-[58px] h-[58px] sm:w-[70px] sm:h-[70px] rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden mx-auto">
+                        <div key={idx} className="text-center flex flex-col items-center flex-1 min-w-0">
+                          <div className="w-[58px] h-[58px] sm:w-[70px] sm:h-[70px] shrink-0 rounded-full bg-white flex items-center justify-center text-black border border-gray-300 overflow-hidden mx-auto shadow-xs">
                             {isImage ? (
                               <img 
                                 src={finalIconSource} 
                                 alt={displayLabel} 
-                                className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] object-contain"
+                                className="w-[38px] h-[38px] sm:w-[48px] sm:h-[48px] object-contain"
                                 onError={(e) => {
                                   const target = e.currentTarget;
                                   if (!target.src.includes('cleaning.png')) {
@@ -1009,7 +1040,11 @@ const formatSpecValue = (value: any): string => {
                                 dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
                             )}
                           </div>
-                          <span className="text-[9px] sm:text-[10px] font-bold text-black tracking-wider uppercase leading-tight">{displayLabel}</span>
+                          <div className="w-full mt-2 min-h-[26px] sm:min-h-[30px] flex items-start justify-center">
+                            <span className="text-[8.5px] sm:text-[9.5px] font-bold text-black tracking-tight uppercase leading-[1.2] text-center line-clamp-2 px-0.5">
+                              {displayLabel}
+                            </span>
+                          </div>
                         </div>
                       )
                     })}

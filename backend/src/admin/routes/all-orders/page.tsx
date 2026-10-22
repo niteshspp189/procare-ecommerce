@@ -29,6 +29,8 @@ export default function AllOrdersPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<string>("all_time")
+  const [customFromDate, setCustomFromDate] = useState<string>("")
+  const [customToDate, setCustomToDate] = useState<string>("")
   const [sortOrder, setSortOrder] = useState<"created_at_desc" | "created_at_asc" | "total_desc" | "total_asc">("created_at_desc")
 
   // Pagination states
@@ -96,6 +98,10 @@ export default function AllOrdersPage() {
         date_range: dateRange,
         sort: sortOrder,
       })
+      if (dateRange === "custom") {
+        if (customFromDate) queryParams.set("from_date", customFromDate)
+        if (customToDate) queryParams.set("to_date", customToDate)
+      }
 
       const res = await fetch(`/admin/custom/orders?${queryParams.toString()}`, {
         credentials: "include",
@@ -115,7 +121,7 @@ export default function AllOrdersPage() {
 
   useEffect(() => {
     fetchOrders()
-  }, [statusFilter, dateRange, sortOrder])
+  }, [statusFilter, dateRange, sortOrder, customFromDate, customToDate])
 
   // Debounced search trigger
   useEffect(() => {
@@ -152,6 +158,12 @@ export default function AllOrdersPage() {
       case "last_7_days": return "Last 7 days"
       case "last_30_days": return "Last 30 days"
       case "this_month": return "This month"
+      case "custom": {
+        if (customFromDate && customToDate) return `${customFromDate} to ${customToDate}`
+        if (customFromDate) return `From ${customFromDate}`
+        if (customToDate) return `Until ${customToDate}`
+        return "Custom Range"
+      }
       default: return "All time"
     }
   }
@@ -224,7 +236,10 @@ export default function AllOrdersPage() {
       ]
     })
 
-    const filename = `ProCare_Orders_${statusFilter}_${dateRange}_${new Date().toISOString().slice(0, 10)}.csv`
+    const dateRangeSlug = dateRange === "custom"
+      ? `custom_${customFromDate || "start"}_to_${customToDate || "end"}`
+      : dateRange
+    const filename = `ProCare_Orders_${statusFilter}_${dateRangeSlug}_${new Date().toISOString().slice(0, 10)}.csv`
     exportToCSV(filename, headers, rows)
     toast.success(`Exported ${orders.length} orders to CSV successfully!`)
   }
@@ -248,22 +263,67 @@ export default function AllOrdersPage() {
         </div>
 
         {/* Date Range Selector */}
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-ui-fg-muted" />
-          <select
-            value={dateRange}
-            onChange={(e) => {
-              setDateRange(e.target.value)
-              setCurrentPage(0)
-            }}
-            className="border border-ui-border-base rounded-md px-2.5 py-1.5 bg-white text-xs font-medium text-ui-fg-base cursor-pointer hover:border-gray-400 transition-colors focus:outline-hidden"
-          >
-            <option value="today">Today</option>
-            <option value="last_7_days">Last 7 days</option>
-            <option value="last_30_days">Last 30 days</option>
-            <option value="this_month">This month</option>
-            <option value="all_time">All time</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-ui-fg-muted" />
+            <select
+              value={dateRange}
+              onChange={(e) => {
+                setDateRange(e.target.value)
+                setCurrentPage(0)
+              }}
+              className="border border-ui-border-base rounded-md px-2.5 py-1.5 bg-white text-xs font-medium text-ui-fg-base cursor-pointer hover:border-gray-400 transition-colors focus:outline-hidden"
+            >
+              <option value="today">Today</option>
+              <option value="last_7_days">Last 7 days</option>
+              <option value="last_30_days">Last 30 days</option>
+              <option value="this_month">This month</option>
+              <option value="custom">Custom Range</option>
+              <option value="all_time">All time</option>
+            </select>
+          </div>
+
+          {dateRange === "custom" && (
+            <div className="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-md border border-gray-200">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-gray-500 font-medium">From:</span>
+                <input
+                  type="date"
+                  value={customFromDate}
+                  onChange={(e) => {
+                    setCustomFromDate(e.target.value)
+                    setCurrentPage(0)
+                  }}
+                  className="border border-gray-300 rounded px-2 py-1 bg-white text-xs font-medium text-gray-800 focus:outline-hidden focus:border-gray-500"
+                />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-gray-500 font-medium">To:</span>
+                <input
+                  type="date"
+                  value={customToDate}
+                  onChange={(e) => {
+                    setCustomToDate(e.target.value)
+                    setCurrentPage(0)
+                  }}
+                  className="border border-gray-300 rounded px-2 py-1 bg-white text-xs font-medium text-gray-800 focus:outline-hidden focus:border-gray-500"
+                />
+              </div>
+              {(customFromDate || customToDate) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomFromDate("")
+                    setCustomToDate("")
+                    setCurrentPage(0)
+                  }}
+                  className="text-[11px] text-gray-500 hover:text-red-600 underline ml-1 cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
