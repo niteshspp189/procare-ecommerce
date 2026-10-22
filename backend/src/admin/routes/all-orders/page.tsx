@@ -19,6 +19,9 @@ export default function AllOrdersPage() {
     refundedOrReturned: 0,
     canceled: 0,
     totalRevenue: 0,
+    partialCodCount: 0,
+    partialCodPendingCollection: 0,
+    partialCodCollectedAmount: 0,
   })
   const [isLoading, setIsLoading] = useState(true)
   const [syncingOrderId, setSyncingOrderId] = useState<string | null>(null)
@@ -172,6 +175,9 @@ export default function AllOrdersPage() {
       "State",
       "Pincode",
       "Payment Status",
+      "Payment Mode",
+      "Advance Paid (INR)",
+      "Doorstep COD Balance (INR)",
       "Fulfillment Status",
       "Shiprocket Order ID",
       "AWB Tracking Number",
@@ -199,6 +205,9 @@ export default function AllOrdersPage() {
         o.shipping_address?.province || "",
         o.shipping_address?.postal_code || "",
         o.paymentState || "pending",
+        o.isPartialCod ? "Partial COD" : "100% Prepaid",
+        o.isPartialCod ? Number(o.partialAdvancePaid || 0).toFixed(2) : Number(o.total || 0).toFixed(2),
+        o.isPartialCod ? Number(o.partialCodBalance || 0).toFixed(2) : "0.00",
         o.fulfillmentState || "not_fulfilled",
         shiprocketData.shiprocket_order_id || shiprocketData.order_id || "",
         shiprocketData.awb_code || shiprocketData.tracking_number || "",
@@ -379,6 +388,7 @@ export default function AllOrdersPage() {
             { id: "all", label: "All Orders", count: stats.totalOrders },
             { id: "needs_shipping", label: "Needs Shipping", count: stats.needsShipping },
             { id: "completed", label: "Completed", count: stats.completed },
+            { id: "partial_cod", label: "⚡ Partial COD", count: stats.partialCodCount },
             { id: "refunded", label: "Refund / Returned", count: stats.refundedOrReturned },
             { id: "payment_captured", label: "Payment Captured" },
             { id: "payment_pending", label: "Payment Pending" },
@@ -472,9 +482,16 @@ export default function AllOrdersPage() {
               >
                 {/* Order ID */}
                 <Table.Cell>
-                  <span className="font-medium text-ui-fg-base group-hover:text-ui-fg-interactive">
-                    {order.displayId}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-medium text-ui-fg-base group-hover:text-ui-fg-interactive">
+                      {order.displayId}
+                    </span>
+                    {order.isPartialCod && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+                        ⚡ Partial COD
+                      </span>
+                    )}
+                  </div>
                 </Table.Cell>
 
                 {/* Date */}
@@ -514,24 +531,40 @@ export default function AllOrdersPage() {
 
                 {/* Payment */}
                 <Table.Cell>
-                  <div className="flex items-center gap-1.5 text-xs text-ui-fg-base">
-                    {order.paymentState === "captured" ? (
-                      <>
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        <span>Captured</span>
-                      </>
-                    ) : order.paymentState === "refunded" ? (
-                      <>
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                        <span>Refunded</span>
-                      </>
-                    ) : (
-                      <>
+                  {order.isPartialCod ? (
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-1.5 text-xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        <span>Pending</span>
-                      </>
-                    )}
-                  </div>
+                        <span className="font-semibold text-amber-800">Partial COD</span>
+                      </div>
+                      <div className="text-[10.5px] leading-tight text-ui-fg-subtle">
+                        <span className="text-emerald-700 font-medium">Paid: ₹{order.partialAdvancePaid}</span>
+                        {" • "}
+                        <span className={order.partialCodCollected ? "text-emerald-700 font-medium" : "text-amber-900 font-bold"}>
+                          {order.partialCodCollected ? "COD Collected" : `Due: ₹${order.partialCodBalance}`}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-xs text-ui-fg-base">
+                      {order.paymentState === "captured" ? (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span>Captured (Prepaid)</span>
+                        </>
+                      ) : order.paymentState === "refunded" ? (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                          <span>Refunded</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          <span>Pending</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </Table.Cell>
 
                 {/* Fulfillment */}
@@ -565,7 +598,14 @@ export default function AllOrdersPage() {
 
                 {/* Total */}
                 <Table.Cell className="text-right text-xs text-ui-fg-base whitespace-nowrap">
-                  {formatCurrency(order.total || 0)}
+                  <div>
+                    <span className="font-medium">{formatCurrency(order.total || 0)}</span>
+                    {order.isPartialCod && (
+                      <div className="text-[10px] text-amber-700 font-medium">
+                        (₹{order.partialCodBalance} Doorstep COD)
+                      </div>
+                    )}
+                  </div>
                 </Table.Cell>
 
                 {/* Actions */}

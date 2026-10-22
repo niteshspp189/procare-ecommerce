@@ -168,16 +168,18 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
       const shippingCharges = Math.round(Number(shippingMethods[0]?.amount || 0))
       const undiscountedItemsTotal = itemsPayload.reduce((acc: number, it: any) => acc + (it.selling_price * it.units), 0)
 
-      // Align grand_total with Medusa current_order_total and Shiprocket requirement: grand_total = sub_total + shipping_charges - total_discount
-      const grandTotal = currentOrderTotal != null 
+      const fullOrderTotal = currentOrderTotal != null 
         ? Math.round(currentOrderTotal)
         : Math.max(0, undiscountedItemsTotal + shippingCharges - totalItemDiscountSum)
-      const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
 
       const orderMeta = typeof order.metadata === "string" ? JSON.parse(order.metadata) : (order.metadata || {})
       const isPartialCod = orderMeta.payment_mode === "partial_cod" || orderMeta.is_partial === true
       const advanceAmount = Number(orderMeta.advance_paid || 0)
       const codBalance = Number(orderMeta.cod_balance || 0)
+
+      // For Partial COD: collect only codBalance at delivery; advance amount is credited as discount to satisfy Shiprocket formula
+      const grandTotal = (isPartialCod && codBalance > 0) ? codBalance : fullOrderTotal
+      const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
 
       const orderPayload = {
         order_id: channelOrderId,
@@ -185,7 +187,7 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         pickup_location: "Primary",
         channel_id: "",
         comment: isPartialCod
-          ? `⚡ Partial COD: ₹${advanceAmount} Paid Online (Razorpay), Collect ₹${codBalance} on Delivery`
+          ? `⚡ PARTIAL COD: ₹${advanceAmount} Paid Online (Razorpay). COLLECT ₹${codBalance} CASH/UPI ON DELIVERY.`
           : "Prepaid Order via Medusa",
         billing_customer_name: address.first_name || "Customer",
         billing_last_name: address.last_name || "",
@@ -205,7 +207,7 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         transaction_charges: 0,
         total_discount: totalDiscount,
         sub_total: undiscountedItemsTotal,
-        grand_total: isPartialCod && codBalance > 0 ? codBalance : grandTotal,
+        grand_total: grandTotal,
         length: 10,
         breadth: 10,
         height: 10,

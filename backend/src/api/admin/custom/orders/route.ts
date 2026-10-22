@@ -130,6 +130,13 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       const customerEmail = order.email || order.customer?.email || "-"
       const displayId = order.display_id ? `#${order.display_id}` : `#${order.id.slice(-4)}`
 
+      const meta = typeof order.metadata === "string" ? JSON.parse(order.metadata) : (order.metadata || {})
+      const isPartialCod = meta.payment_mode === "partial_cod" || meta.is_partial === true
+      const partialAdvancePaid = Number(meta.advance_paid || 0)
+      const partialCodBalance = Number(meta.cod_balance || 0)
+      const partialPercentage = Number(meta.partial_percentage || 15)
+      const partialCodCollected = meta.cod_balance_collected === true || meta.doorstep_collected === true
+
       return {
         ...order,
         total: orderTotal,
@@ -140,6 +147,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         customerName,
         customerPhone,
         customerEmail,
+        isPartialCod,
+        partialAdvancePaid,
+        partialCodBalance,
+        partialPercentage,
+        partialCodCollected,
       }
     })
 
@@ -166,6 +178,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     let refundedCount = 0
     let canceledCount = 0
     let totalRevenue = 0
+    let partialCodCount = 0
+    let partialCodPendingCollection = 0
+    let partialCodCollectedAmount = 0
 
     for (const o of dateFilteredOrders) {
       totalRevenue += o.total || 0
@@ -173,6 +188,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       else if (o.computedStatus === "pending_fulfillment") needsShippingCount++
       else if (o.computedStatus === "refunded") refundedCount++
       else if (o.computedStatus === "canceled") canceledCount++
+
+      if (o.isPartialCod) {
+        partialCodCount++
+        if (o.partialCodCollected) {
+          partialCodCollectedAmount += o.partialCodBalance || 0
+        } else {
+          partialCodPendingCollection += o.partialCodBalance || 0
+        }
+      }
     }
 
     // Filter by Search Query
@@ -185,6 +209,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         o.customerName.toLowerCase().includes(q) ||
         o.customerEmail.toLowerCase().includes(q) ||
         o.customerPhone.toLowerCase().includes(q) ||
+        (o.isPartialCod && ("partial cod").includes(q)) ||
         (o.items && o.items.some((it: any) => it.title && it.title.toLowerCase().includes(q)))
       )
     }
@@ -203,6 +228,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         filtered = filtered.filter((o: any) => o.paymentState === "captured")
       } else if (status === "payment_pending") {
         filtered = filtered.filter((o: any) => o.paymentState === "pending")
+      } else if (status === "partial_cod") {
+        filtered = filtered.filter((o: any) => o.isPartialCod)
       }
     }
 
@@ -231,7 +258,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         needsShipping: needsShippingCount,
         refundedOrReturned: refundedCount,
         canceled: canceledCount,
-        totalRevenue
+        totalRevenue,
+        partialCodCount,
+        partialCodPendingCollection,
+        partialCodCollectedAmount,
       }
     })
   } catch (error: any) {

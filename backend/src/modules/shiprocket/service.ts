@@ -57,6 +57,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     let dbItems: any[] = []
     let dbShippingFee = 0
     let dbSummaryTotal: number | null = null
+    let orderMetadata = order?.metadata || null
 
     let fullOrder = order
     if (order && order.id && this.container) {
@@ -87,6 +88,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
           })
           if (orders && orders.length > 0) {
             fullOrder = orders[0]
+            if (fullOrder.metadata) {
+              orderMetadata = fullOrder.metadata
+            }
             console.log("[ShiprocketService] Successfully retrieved full order details via query.graph:", fullOrder.id)
             email = fullOrder.email || email
             phoneVal = fullOrder.shipping_address?.phone || phoneVal
@@ -111,7 +115,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
             // Query Order
             try {
               const orderRes = await pgConnection.raw(`
-                SELECT o.display_id, o.email, o.shipping_address_id
+                SELECT o.display_id, o.email, o.shipping_address_id, o.metadata
                 FROM "order" o
                 WHERE o.id = ?
               `, [order.id])
@@ -120,6 +124,9 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
               if (orderRow) {
                 displayId = orderRow.display_id
                 email = orderRow.email
+                if (orderRow.metadata) {
+                  orderMetadata = orderRow.metadata
+                }
                 
                 // Query Address
                 if (orderRow.shipping_address_id) {
@@ -196,8 +203,15 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
       }
     }
     
-    // We assume COD if the payment method was manual (Cash on Delivery)
-    const paymentMethod = isCOD ? "COD" : "Prepaid"
+    // Parse order metadata for Partial COD detection
+    const orderMeta = typeof orderMetadata === "string" ? JSON.parse(orderMetadata) : (orderMetadata || {})
+    const isPartialCod = orderMeta.payment_mode === "partial_cod" || orderMeta.is_partial === true
+    const advancePaid = Number(orderMeta.advance_paid || 0)
+    const codBalance = Number(orderMeta.cod_balance || 0)
+
+    // For Partial COD, the courier partner MUST collect remaining balance at doorstep, so Shiprocket payment method is COD.
+    // For regular orders, manual payment (Cash on Delivery) is COD, and online Razorpay is Prepaid.
+    const paymentMethod = isPartialCod ? "COD" : (isCOD ? "COD" : "Prepaid")
     
     const address = fulfillment.delivery_address
     const shippingAddress = fullOrder?.shipping_address || order?.shipping_address || {}
@@ -284,13 +298,23 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
 
     const undiscountedItemsTotal = orderItems.reduce((sum: number, it: any) => sum + (it.selling_price * it.units), 0)
     const rawGrandTotal = dbSummaryTotal ?? fullOrder?.total ?? fullOrder?.summary?.total ?? (undiscountedItemsTotal + shippingCharges - (totalItemDiscountSum + shippingDiscount))
-    const grandTotal = Math.round(parseFloat(rawGrandTotal.toString()))
+    const fullOrderTotal = Math.round(parseFloat(rawGrandTotal.toString()))
+
+    // For Partial COD, the amount the delivery partner must collect is the remaining codBalance (e.g. ₹585).
+    // The advance amount already paid online (e.g. ₹103) is credited as an advance discount on the COD delivery invoice
+    // to strictly satisfy Shiprocket's formula: grand_total = sub_total + shipping_charges - total_discount.
+    const grandTotal = (isPartialCod && codBalance > 0) ? codBalance : fullOrderTotal
     const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
+
+    const comment = isPartialCod
+      ? `⚡ PARTIAL COD: ₹${advancePaid} Paid Online (Razorpay). COLLECT ₹${codBalance} CASH/UPI ON DELIVERY.`
+      : "Prepaid Order via Medusa"
 
     const orderData = {
       order_id: `OD${(displayId || fullOrder?.display_id || order?.display_id || order?.id || '').toString().padStart(8, '0')}`,
       order_date: new Date(fullOrder?.created_at || order?.created_at || Date.now()).toISOString().split('T')[0],
       pickup_location: "Primary",
+      comment: comment,
       billing_customer_name: name,
       billing_last_name: lastName,
       billing_address: addressLine1,
