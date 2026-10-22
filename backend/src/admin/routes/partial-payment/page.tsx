@@ -251,7 +251,7 @@ const PartialPaymentAdminPage = () => {
             <div className={`p-4 rounded-xl border-2 transition-all ${isEnabled ? "border-emerald-500 bg-emerald-50/30" : "border-gray-200 opacity-50"}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-                  <span>⚡</span> Partial COD ({percentage}% Online)
+                  Partial COD ({percentage}% Online)
                 </span>
                 <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
                   Verified

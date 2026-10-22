@@ -33,11 +33,13 @@ export default function RefundPolicy() {
         <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Non-Refundable Cases</h2>
         <p className="mb-2">Refunds will not be provided for:</p>
         <ul className="list-disc pl-6 mb-8 space-y-2">
-          <li>Change of mind</li>
-          <li>Wrong product ordered by the customer</li>
-          <li>Used or damaged products after delivery</li>
-          <li>Normal wear and tear</li>
-          <li>Minor packaging damage that does not affect the product</li>
+          <li><strong>Partial COD Advance Deposit:</strong> The online booking advance deposit paid for Partial COD orders is strictly non-refundable once the order is confirmed and processed for dispatch.</li>
+          <li><strong>Shipping & Delivery Charges:</strong> All shipping, handling, and delivery charges are strictly non-refundable under all circumstances.</li>
+          <li>Change of mind or refusal of delivery at the doorstep.</li>
+          <li>Wrong product or variant ordered by the customer.</li>
+          <li>Used or damaged products after delivery.</li>
+          <li>Normal wear and tear.</li>
+          <li>Minor packaging damage that does not affect the product.</li>
         </ul>
 
         <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Refund Process</h2>

@@ -53,7 +53,11 @@ const FAQPage = () => {
                 },
                 {
                     q: "Do you offer Cash on Delivery (COD)?",
-                    a: "No, Cash on Delivery is not available."
+                    a: "We offer Partial Cash on Delivery (Partial COD). Customers can pay a small 15% advance deposit online to confirm dispatch, with the remaining balance collected in cash or UPI at the doorstep upon delivery."
+                },
+                {
+                    q: "Is the Partial COD advance deposit or delivery charge refundable?",
+                    a: "No. The Partial COD online advance deposit and delivery charges are strictly non-refundable once the order is placed and dispatched."
                 },
                 {
                     q: "Do you offer bulk purchase or wholesale options?",

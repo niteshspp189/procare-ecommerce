@@ -152,6 +152,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         partialCodBalance,
         partialPercentage,
         partialCodCollected,
+        razorpayPaymentId: meta.razorpay_payment_id || null,
+        razorpayOrderId: meta.razorpay_order_id || null,
       }
     })
 

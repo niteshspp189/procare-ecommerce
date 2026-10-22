@@ -1,6 +1,6 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { Badge, Button, Container, Heading, Text, toast } from "@medusajs/ui"
-import { CheckCircle, Clock, CurrencyDollar, ArrowPath } from "@medusajs/icons"
+import { CheckCircle, Clock, ArrowPath } from "@medusajs/icons"
 import { useState } from "react"
 
 const OrderPartialPaymentWidget = ({ data }: { data: any }) => {
@@ -54,7 +54,6 @@ const OrderPartialPaymentWidget = ({ data }: { data: any }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xl">⚡</span>
             <Heading level="h2" className="text-base font-semibold text-gray-900">
               Partial Payment (Partial COD) Breakdown
             </Heading>

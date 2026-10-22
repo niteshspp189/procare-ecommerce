@@ -21,12 +21,19 @@ export default function ShippingAndExchange() {
       <div className="prose prose-slate max-w-none text-gray-700">
 
 
-        <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Shipping</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Shipping & Delivery Charges</h2>
         <ul className="list-disc pl-6 mb-8 space-y-2">
           <li>We ship orders across India through our trusted logistics partner Shiprocket.</li>
           <li>Standard delivery time is 5–7 business days from the date of dispatch.</li>
           <li>Delivery timelines may vary due to remote locations, weather conditions, public holidays, or courier delays.</li>
           <li>Customers will receive shipment tracking details once the order has been dispatched.</li>
+          <li><strong>Non-Refundable Shipping:</strong> All shipping, courier handling, and delivery charges are strictly non-refundable under all circumstances.</li>
+        </ul>
+
+        <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Partial COD Terms</h2>
+        <ul className="list-disc pl-6 mb-8 space-y-2">
+          <li>For orders placed using Partial Cash on Delivery (Partial COD), a small advance deposit is paid online, with the remaining balance collected at the doorstep upon delivery.</li>
+          <li><strong>Non-Refundable Deposit:</strong> The online partial advance deposit is strictly non-refundable once the order has been processed and dispatched. In the event of order cancellation post-dispatch or delivery refusal at the doorstep, this deposit and shipping charges are retained to cover courier logistics transit costs.</li>
         </ul>
 
         <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Order Processing</h2>

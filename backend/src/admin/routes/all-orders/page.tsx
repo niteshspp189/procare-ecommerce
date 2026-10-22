@@ -177,7 +177,10 @@ export default function AllOrdersPage() {
       "Payment Status",
       "Payment Mode",
       "Advance Paid (INR)",
+      "Razorpay Payment ID",
+      "Razorpay Order ID",
       "Doorstep COD Balance (INR)",
+      "COD Settlement Status",
       "Fulfillment Status",
       "Shiprocket Order ID",
       "AWB Tracking Number",
@@ -207,7 +210,10 @@ export default function AllOrdersPage() {
         o.paymentState || "pending",
         o.isPartialCod ? "Partial COD" : "100% Prepaid",
         o.isPartialCod ? Number(o.partialAdvancePaid || 0).toFixed(2) : Number(o.total || 0).toFixed(2),
+        o.razorpayPaymentId || o.metadata?.razorpay_payment_id || "",
+        o.razorpayOrderId || o.metadata?.razorpay_order_id || "",
         o.isPartialCod ? Number(o.partialCodBalance || 0).toFixed(2) : "0.00",
+        o.isPartialCod ? (o.partialCodCollected ? "Doorstep Collected / Settled" : "Pending Doorstep Collection") : "N/A (Prepaid)",
         o.fulfillmentState || "not_fulfilled",
         shiprocketData.shiprocket_order_id || shiprocketData.order_id || "",
         shiprocketData.awb_code || shiprocketData.tracking_number || "",
@@ -388,7 +394,7 @@ export default function AllOrdersPage() {
             { id: "all", label: "All Orders", count: stats.totalOrders },
             { id: "needs_shipping", label: "Needs Shipping", count: stats.needsShipping },
             { id: "completed", label: "Completed", count: stats.completed },
-            { id: "partial_cod", label: "⚡ Partial COD", count: stats.partialCodCount },
+            { id: "partial_cod", label: "Partial COD", count: stats.partialCodCount },
             { id: "refunded", label: "Refund / Returned", count: stats.refundedOrReturned },
             { id: "payment_captured", label: "Payment Captured" },
             { id: "payment_pending", label: "Payment Pending" },
@@ -487,8 +493,8 @@ export default function AllOrdersPage() {
                       {order.displayId}
                     </span>
                     {order.isPartialCod && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
-                        ⚡ Partial COD
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        Partial COD
                       </span>
                     )}
                   </div>

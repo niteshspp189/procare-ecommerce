@@ -335,25 +335,25 @@ const Payment = ({
                       onClick={() => handleTogglePartialPayment(true)}
                       className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
                         isPartialPayment
-                          ? "border-emerald-600 bg-emerald-50/40 shadow-xs ring-1 ring-emerald-600"
+                          ? "border-black bg-gray-50 shadow-xs ring-1 ring-black"
                           : "border-gray-200 hover:border-gray-300 bg-white"
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-sm font-bold text-emerald-900">
+                          <span className="text-sm font-bold text-gray-900">
                             Partial COD ({partialPct}% Online)
                           </span>
-                          <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                            Popular
+                          <span className="text-[10px] font-bold bg-gray-200 text-gray-800 px-2 py-0.5 rounded-full">
+                            Pay On Delivery
                           </span>
                         </div>
-                        <p className="text-xs text-gray-600 leading-relaxed">
+                        <p className="text-xs text-gray-500 leading-relaxed">
                           Pay small {partialPct}% advance to confirm dispatch. Remaining balance collected at your doorstep.
                         </p>
                       </div>
-                      <div className="mt-3 pt-2.5 border-t border-emerald-200 space-y-1 text-xs">
-                        <div className="flex items-center justify-between font-bold text-emerald-900">
+                      <div className="mt-3 pt-2.5 border-t border-gray-200 space-y-1 text-xs">
+                        <div className="flex items-center justify-between font-bold text-gray-900">
                           <span>Pay Online Now ({partialPct}%):</span>
                           <span className="font-mono">₹{advanceAmount}</span>
                         </div>
@@ -362,8 +362,8 @@ const Payment = ({
                           <span className="font-mono">₹{balanceCodAmount}</span>
                         </div>
                         <div className="pt-1.5 flex items-center justify-between text-[11px] text-gray-500">
-                          <span>Advance Payment:</span>
-                          <span className="font-medium text-gray-600">Non-Refundable (T&C apply)</span>
+                          <span>Advance & Delivery:</span>
+                          <span className="font-medium text-gray-600">Non-Refundable</span>
                         </div>
                       </div>
                     </div>
@@ -371,7 +371,7 @@ const Payment = ({
 
                   {isPartialPayment && (
                     <p className="text-xs text-gray-500 pt-0.5">
-                      * Note: Advance partial payment is non-refundable. Terms & conditions apply.
+                      * Note: Partial COD online advance payment and delivery charges are strictly non-refundable once the order is placed.
                     </p>
                   )}
                 </div>
