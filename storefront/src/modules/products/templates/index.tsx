@@ -924,42 +924,40 @@ const formatSpecValue = (value: any): string => {
                       const lower = displayLabel.trim().toLowerCase();
                       if (lower.includes("return")) {
                         displayLabel = "15 Day Return";
-                      } else if (lower.includes("carnauba")) {
-                        displayLabel = "Carnauba Wax";
+                      } else if (lower.includes("carnauba") || lower === "contain high quality" || lower.includes("contain high quality")) {
+                        displayLabel = "High Quality Carnauba Wax";
                       } else if (lower.includes("effective clean")) {
-                        displayLabel = "Effective Clean";
+                        displayLabel = "Effective Cleaning Agent";
                       } else if (lower.includes("fungi") || lower.includes("bacteria")) {
-                        displayLabel = "Anti Fungi & Bacteria";
+                        displayLabel = "Helps Fight Fungi & Bacteria";
                       } else if (lower.includes("trapped dust")) {
-                        displayLabel = "Remove Dust";
+                        displayLabel = "Remove Trapped Dust";
                       } else if (lower.includes("feet into") || lower.includes("slide feet")) {
                         displayLabel = "Easy Foot Slide";
                       } else if (lower.includes("original") && lower.includes("shape")) {
-                        displayLabel = "Maintains Shape";
+                        displayLabel = "Maintains Original Shape";
                       } else if (lower.includes("callus")) {
-                        displayLabel = "Remove Callus";
+                        displayLabel = "Remove Callus & Dead Skin";
                       } else if (lower.includes("coarse") && lower.includes("fine")) {
                         displayLabel = "Coarse & Fine Filing";
                       } else if (lower.includes("chromium")) {
-                        displayLabel = "Chrome Finish";
+                        displayLabel = "Chromium Plated Finish";
                       } else if (lower.includes("horse") && lower.includes("hair")) {
-                        displayLabel = "Horse Hair Bristles";
+                        displayLabel = "Genuine Horse Hair Bristles";
                       } else if (lower.includes("high quality bristle")) {
-                        displayLabel = "Quality Bristles";
+                        displayLabel = "High Quality Bristles";
                       } else if (lower.includes("high quality wood")) {
-                        displayLabel = "Quality Wood";
+                        displayLabel = "High Quality Wood";
                       } else if (lower.includes("high grade steel")) {
                         displayLabel = "High Grade Steel";
                       } else if (lower.includes("multi-purpose") || lower.includes("multi purpose")) {
                         displayLabel = "Multi Purpose";
                       } else if (lower.includes("long lasting freshness")) {
-                        displayLabel = "Long Freshness";
-                      } else if (lower === "contain high quality") {
-                        displayLabel = "High Quality";
+                        displayLabel = "Long Lasting Freshness";
                       } else if (lower.includes("cedar") && lower.includes("wood")) {
-                        displayLabel = "Cedar Wood";
+                        displayLabel = "Natural Cedar Wood";
                       } else if (lower.includes("lotus") && lower.includes("wood")) {
-                        displayLabel = "Lotus Wood";
+                        displayLabel = "Natural Lotus Wood";
                       } else if (lower.includes("beech") && lower.includes("wood")) {
                         displayLabel = "Beech Wood";
                       } else if (lower.includes("buffer")) {
@@ -1031,6 +1029,8 @@ const formatSpecValue = (value: any): string => {
 
                       const finalIconSource = mappedIconUrl || badge.iconId;
                       const isImage = Boolean(finalIconSource && (finalIconSource.startsWith("/") || finalIconSource.includes(".")));
+                      const words = displayLabel.trim().split(/\s+/).filter(Boolean);
+                      const hasMoreThanTwoWords = words.length > 2;
 
                       return (
                         <div key={idx} className="text-center flex flex-col items-center flex-1 min-w-0">
@@ -1052,8 +1052,14 @@ const formatSpecValue = (value: any): string => {
                                 dangerouslySetInnerHTML={{ __html: ICON_SVGS[badge.iconId] || ICON_SVGS["shipping"] }} />
                             )}
                           </div>
-                          <div className="w-full mt-2 min-h-[26px] sm:min-h-[30px] flex items-start justify-center">
-                            <span className="text-[8.5px] sm:text-[9.5px] font-bold text-black tracking-tight uppercase leading-[1.2] text-center line-clamp-2 px-0.5">
+                          <div className="w-full mt-1.5 h-[36px] sm:h-[40px] flex items-center justify-center">
+                            <span 
+                              className={`font-bold text-black uppercase text-center px-0.5 ${
+                                hasMoreThanTwoWords
+                                  ? "text-[7.2px] sm:text-[8px] leading-[1.1] tracking-tighter sm:tracking-tight"
+                                  : "text-[8.5px] sm:text-[9.5px] leading-[1.2] tracking-wider"
+                              }`}
+                            >
                               {displayLabel}
                             </span>
                           </div>

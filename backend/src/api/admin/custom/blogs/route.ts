@@ -181,18 +181,6 @@ export async function ensureBlogTableExists(knex: any) {
       table.timestamp("updated_at").defaultTo(knex.fn.now())
     })
   }
-
-  // Seed default articles if table is empty
-  const count = await knex("cms_blog_post").count("id as total").first()
-  if (count && Number(count.total) === 0) {
-    for (const post of DEFAULT_SEED_BLOGS) {
-      await knex("cms_blog_post").insert({
-        ...post,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-    }
-  }
 }
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
