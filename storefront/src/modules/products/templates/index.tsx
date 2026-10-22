@@ -954,6 +954,18 @@ const formatSpecValue = (value: any): string => {
                         displayLabel = "Multi Purpose";
                       } else if (lower.includes("long lasting freshness")) {
                         displayLabel = "Long Freshness";
+                      } else if (lower === "contain high quality") {
+                        displayLabel = "High Quality";
+                      } else if (lower.includes("cedar") && lower.includes("wood")) {
+                        displayLabel = "Cedar Wood";
+                      } else if (lower.includes("lotus") && lower.includes("wood")) {
+                        displayLabel = "Lotus Wood";
+                      } else if (lower.includes("beech") && lower.includes("wood")) {
+                        displayLabel = "Beech Wood";
+                      } else if (lower.includes("buffer")) {
+                        displayLabel = "Nail Buffer";
+                      } else if (lower.includes("anti-slip") || lower.includes("anti slip")) {
+                        displayLabel = "Anti-Slip Handle";
                       }
                       
                       let mappedIconUrl = badge.iconUrl;
