@@ -187,7 +187,7 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         pickup_location: "Primary",
         channel_id: "",
         comment: isPartialCod
-          ? `⚡ PARTIAL COD: ₹${advanceAmount} Paid Online (Razorpay). COLLECT ₹${codBalance} CASH/UPI ON DELIVERY.`
+          ? `PARTIAL COD: ₹${advanceAmount} already paid online. Remaining balance ₹${codBalance} to be collected on delivery.`
           : "Prepaid Order via Medusa",
         billing_customer_name: address.first_name || "Customer",
         billing_last_name: address.last_name || "",

@@ -35,7 +35,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       settlement_status: newCollectedState ? "fully_paid" : "advance_only",
       note: newCollectedState
         ? `✅ Manually verified: ₹${currentMeta.advance_paid || 0} paid online advance (${currentMeta.partial_percentage || 15}%), ₹${currentMeta.cod_balance || 0} collected at doorstep on delivery. Order fully settled.`
-        : `⚡ Partial COD: ₹${currentMeta.advance_paid || 0} paid online advance (${currentMeta.partial_percentage || 15}%), ₹${currentMeta.cod_balance || 0} pending doorstep collection.`,
+        : `Partial COD: ₹${currentMeta.advance_paid || 0} already paid online. Remaining balance ₹${currentMeta.cod_balance || 0} to be collected on delivery.`,
     }
 
     await pgConnection("order").where("id", id).update({

@@ -307,7 +307,7 @@ export class ShiprocketFulfillmentService extends AbstractFulfillmentProviderSer
     const totalDiscount = Math.max(0, undiscountedItemsTotal + shippingCharges - grandTotal)
 
     const comment = isPartialCod
-      ? `⚡ PARTIAL COD: ₹${advancePaid} Paid Online (Razorpay). COLLECT ₹${codBalance} CASH/UPI ON DELIVERY.`
+      ? `PARTIAL COD: ₹${advancePaid} already paid online. Remaining balance ₹${codBalance} to be collected on delivery.`
       : "Prepaid Order via Medusa"
 
     const orderData = {

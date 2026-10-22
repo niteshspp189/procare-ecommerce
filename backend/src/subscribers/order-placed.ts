@@ -92,7 +92,7 @@ export default async function orderPlacedHandler({
             partial_percentage: Number(sessionData.partial_percentage) || 15,
             razorpay_payment_id: sessionData.razorpay_payment_id || null,
             razorpay_order_id: sessionData.razorpay_order_id || null,
-            note: `⚡ Partial COD: ₹${sessionData.advance_paid || 0} paid online advance (${sessionData.partial_percentage || 15}%), ₹${sessionData.cod_balance || 0} balance due on delivery`,
+            note: `Partial COD: ₹${sessionData.advance_paid || 0} already paid online. Remaining balance ₹${sessionData.cod_balance || 0} to be collected on delivery`,
           }
         }
       }
@@ -151,7 +151,7 @@ export default async function orderPlacedHandler({
               partial_percentage: Number(sessionData.partial_percentage) || 15,
               razorpay_payment_id: sessionData.razorpay_payment_id || null,
               razorpay_order_id: sessionData.razorpay_order_id || null,
-              note: `⚡ Partial COD: ₹${sessionData.advance_paid || 0} paid online advance (${sessionData.partial_percentage || 15}%), ₹${sessionData.cod_balance || 0} balance due on delivery`,
+              note: `Partial COD: ₹${sessionData.advance_paid || 0} already paid online. Remaining balance ₹${sessionData.cod_balance || 0} to be collected on delivery`,
             }
           }
         }
