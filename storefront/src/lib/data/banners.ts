@@ -14,12 +14,12 @@ export interface CMSBanner {
 
 export const DEFAULT_HERO_BANNER: CMSBanner = {
   id: "default-hero",
-  title: "Step Into The Festive Flex",
+  title: "Step Into The Festive Flex - Diwali Celebration",
   type: "hero",
-  desktop_image_url: "/images/landing-page-images/hero-banner-desktop.webp",
-  mobile_image_url: "/images/landing-page-images/hero-banner-mobile.webp",
+  desktop_image_url: "/images/landing-page-images/hero-banner-desktop.webp?v=diwali",
+  mobile_image_url: "/images/landing-page-images/hero-banner-mobile.webp?v=diwali",
   link_url: "/shop",
-  alt_text: "Step Into The Festive Flex - Shop Pro Care Products",
+  alt_text: "Diwali Festive Celebration - Shop Pro Care Products",
   is_active: true,
   display_order: 0,
 }
