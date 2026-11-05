@@ -208,6 +208,9 @@ export class ShiprocketClient {
   // Cooldown tracker for background renewal attempts
   private static lastBackgroundRenewalAttempt: number = 0
 
+  // Anti-hammering lockout cooldown (e.g. when Shiprocket returns 400 User blocked)
+  private static authLockoutUntil: number = 0
+
   constructor() {}
 
   public async clearToken() {
@@ -230,7 +233,7 @@ export class ShiprocketClient {
       this.tokenExpiresAt = Date.now() + 60 * 60 * 1000 // In-memory refreshed for 1 hr
 
       // Check proactive renewal via non-blocking check
-      this.checkAndTriggerProactiveRenewal()
+      this.checkAndTriggerProactiveRenewal(redisToken)
       return redisToken
     }
 
@@ -266,7 +269,14 @@ export class ShiprocketClient {
   /**
    * Non-blocking asynchronous check for proactive renewal when serving from Redis.
    */
-  private checkAndTriggerProactiveRenewal(): void {
+  private checkAndTriggerProactiveRenewal(token?: string): void {
+    if (token) {
+      const remainingSec = getJwtTtlSeconds(token)
+      if (remainingSec > 0 && remainingSec < RENEWAL_THRESHOLD_SECONDS) {
+        this.triggerBackgroundRenewal()
+      }
+      return
+    }
     getCachedTokenFromDb().then((record) => {
       if (record && record.remainingSeconds > 0 && record.remainingSeconds < RENEWAL_THRESHOLD_SECONDS) {
         this.triggerBackgroundRenewal()
@@ -289,13 +299,15 @@ export class ShiprocketClient {
     ShiprocketClient.lastBackgroundRenewalAttempt = now
     console.log("[ShiprocketClient] 🔄 Proactively renewing Shiprocket token in background (within 48-hour window)...")
 
-    ShiprocketClient.activeAuthPromise = this.executeRemoteAuth()
+    ShiprocketClient.activeAuthPromise = this.executeRemoteAuth({ isProactive: true })
     ShiprocketClient.activeAuthPromise
       .then(() => {
         console.log("[ShiprocketClient] ✅ Proactive background token renewal succeeded!")
       })
       .catch((err) => {
         console.warn("[ShiprocketClient] ⚠️ Proactive background renewal attempt postponed:", err.message)
+        // Retry in 30 minutes rather than waiting full 6 hours, to give ample retry chances over 48h
+        ShiprocketClient.lastBackgroundRenewalAttempt = Date.now() - BACKGROUND_RENEWAL_COOLDOWN_MS + 30 * 60 * 1000
       })
       .finally(() => {
         ShiprocketClient.activeAuthPromise = null
@@ -303,9 +315,27 @@ export class ShiprocketClient {
   }
 
   /**
-   * Resilient remote authentication with exponential backoff and anti-hammering guard.
+   * Resilient remote authentication with anti-hammering guard.
    */
-  private async executeRemoteAuth(): Promise<string> {
+  private async executeRemoteAuth(options: { isProactive?: boolean } = {}): Promise<string> {
+    const now = Date.now()
+    if (now < ShiprocketClient.authLockoutUntil) {
+      const waitMin = Math.ceil((ShiprocketClient.authLockoutUntil - now) / 60000)
+      const lockMsg = `Shiprocket auth cooling down (${waitMin}m remaining) to absorb lockout`
+      if (options.isProactive) {
+        throw new Error(lockMsg)
+      }
+      // Check if DB fallback has an unexpired token to use in the interim
+      const dbRecord = await getCachedTokenFromDb()
+      if (dbRecord && dbRecord.remainingSeconds > 0) {
+        console.warn(`[ShiprocketClient] 🛡️ Using DB token during auth lockout cooldown (${dbRecord.remainingSeconds}s remaining).`)
+        this.token = dbRecord.token
+        this.tokenExpiresAt = Date.now() + 5 * 60 * 1000
+        return dbRecord.token
+      }
+      throw new Error(lockMsg)
+    }
+
     console.log("[ShiprocketClient] Authenticating with Shiprocket API...")
     const email = process.env.SHIPROCKET_EMAIL || ""
     const password = process.env.SHIPROCKET_PASSWORD || ""
@@ -315,49 +345,51 @@ export class ShiprocketClient {
     }
 
     let lastData: any = null
-    const maxAttempts = 2
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        const data = await requestJson(`${this.baseUrl}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        })
+    try {
+      const data = await requestJson(`${this.baseUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
 
-        if (data && data.token) {
-          const token = data.token as string
-          this.token = token
-          this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
+      if (data && data.token) {
+        const token = data.token as string
+        this.token = token
+        this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
 
-          // Cache across Redis and PostgreSQL with dynamic TTL (up to 10 days)
-          await setCachedTokenInRedis(token)
-          await setCachedTokenInDb(token)
+        // Cache across Redis and PostgreSQL with dynamic TTL (up to 10 days)
+        await setCachedTokenInRedis(token)
+        await setCachedTokenInDb(token)
 
-          const remainingDays = (getJwtTtlSeconds(token) / 86400).toFixed(1)
-          console.log(`[ShiprocketClient] ✅ Successfully authenticated & cached token for ~${remainingDays} days.`)
-          return token
-        }
-
-        lastData = data
-        console.warn(`[ShiprocketClient] Authentication attempt ${attempt}/${maxAttempts} rejected:`, JSON.stringify(data))
-
-        if (attempt < maxAttempts) {
-          console.log("[ShiprocketClient] Cooling down 2500ms before auth retry to absorb rate-limit burst...")
-          await new Promise((resolve) => setTimeout(resolve, 2500))
-        }
-      } catch (err: any) {
-        lastData = { message: err.message }
-        console.warn(`[ShiprocketClient] Authentication attempt ${attempt}/${maxAttempts} network error:`, err.message)
-        if (attempt < maxAttempts) {
-          await new Promise((resolve) => setTimeout(resolve, 2500))
-        }
+        const remainingDays = (getJwtTtlSeconds(token) / 86400).toFixed(1)
+        console.log(`[ShiprocketClient] ✅ Successfully authenticated & cached token for ~${remainingDays} days.`)
+        return token
       }
+
+      lastData = data
+      const errMsg = (data && typeof data === "object") ? (data.message || JSON.stringify(data)) : String(data)
+      console.warn("[ShiprocketClient] Authentication rejected:", errMsg)
+
+      // Check if Shiprocket locked out the IP or user
+      if (errMsg.includes("User blocked") || errMsg.includes("failed login attempts")) {
+        console.error("[ShiprocketClient] 🚨 Shiprocket auth account locked out. Setting 30-minute cooldown.")
+        ShiprocketClient.authLockoutUntil = Date.now() + 30 * 60 * 1000
+      } else if (data?.status_code === 403 || data?.status_code === 400) {
+        // Throttled: set a 5-minute cooldown before next login attempt
+        ShiprocketClient.authLockoutUntil = Date.now() + 5 * 60 * 1000
+      }
+    } catch (err: any) {
+      lastData = { message: err.message }
+      console.warn("[ShiprocketClient] Authentication network error:", err.message)
     }
 
-    console.error("[ShiprocketClient] ❌ Authentication failed after retries:", JSON.stringify(lastData))
+    // For proactive renewal: NEVER return old token as success! Fail cleanly so it can retry later.
+    if (options.isProactive) {
+      throw new Error(`Proactive renewal failed: ${JSON.stringify(lastData)}`)
+    }
 
-    // Emergency Grace Fallback: If DB has a cached token whose true JWT exp is within 2 hours, use it as fallback
+    // Emergency Grace Fallback for live user requests: If DB has a cached token whose true JWT exp is within 2 hours, use it as fallback
     try {
       const dbRecord = await getCachedTokenFromDb()
       if (dbRecord && dbRecord.token) {
