@@ -48,29 +48,38 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     }
 
     if (!isHealthy) {
-      const isActualLockout = lastAuthError.includes("User blocked") || lastAuthError.includes("failed login attempts")
-      if (isActualLockout) {
-        console.error("[NightlyAutoFulfillJob] 🚨 CRITICAL: Shiprocket account blocked after retries:", lastAuthError)
-        if (logId) {
-          await finishJobLog(pgConnection, logId, {
-            status: "failed",
-            summary: `Shiprocket API account blocked: ${lastAuthError}`,
-            details: { error: lastAuthError }
-          })
-        }
-        await sendAlertEmail(
-          "Shiprocket API Account Blocked - Nightly Job Paused",
-          `
-            <p><strong>Warning:</strong> The nightly Shiprocket auto-fulfillment job detected an API account suspension or lockout.</p>
-            <p><strong>Error Message:</strong> ${lastAuthError}</p>
-            <p><strong>Time:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
-            <p>The nightly fulfillment loop was paused to protect against further account suspension. Please check your credentials at <a href="https://app.shiprocket.in">app.shiprocket.in</a>.</p>
-          `
-        )
-        return
+      console.error("[NightlyAutoFulfillJob] 🚨 Shiprocket API health & auth check failed:", lastAuthError)
+      if (logId) {
+        await finishJobLog(pgConnection, logId, {
+          status: "failed",
+          summary: `Shiprocket API authentication failed: ${lastAuthError}`,
+          details: { error: lastAuthError }
+        })
       }
-      console.warn("[NightlyAutoFulfillJob] Pre-flight transient warning (rate limit / network):", lastAuthError)
+      await sendAlertEmail(
+        "Shiprocket API Authentication Failed - Action Required",
+        `
+          <p><strong>Alert:</strong> The nightly Shiprocket auto-fulfillment job was unable to authenticate or query the Shiprocket API.</p>
+          <p><strong>Error Message:</strong> <code>${lastAuthError}</code></p>
+          <p><strong>Time:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>
+          <p>Fulfillment of unfulfilled orders was paused to protect against failed API calls. Please check your API credentials or log in to <a href="https://app.shiprocket.in">app.shiprocket.in</a> to ensure your account is active and unrestricted.</p>
+        `
+      )
+      return
     }
+
+    // Step 0.5: Warn if active token is within 24 hours of expiry and hasn't renewed
+    try {
+      const tokenCacheRes = await pgConnection("shiprocket_token_cache").where("id", 1).first()
+      if (tokenCacheRes && tokenCacheRes.expires_at) {
+        const exp = new Date(tokenCacheRes.expires_at)
+        const diffMs = exp.getTime() - Date.now()
+        const hoursRemaining = diffMs / (1000 * 60 * 60)
+        if (hoursRemaining > 0 && hoursRemaining < 24) {
+          console.warn(`[NightlyAutoFulfillJob] ⚠️ Shiprocket token expires in ${hoursRemaining.toFixed(1)} hours.`)
+        }
+      }
+    } catch (_) {}
 
     // Step 1: Look for all active orders created in the last 7 days that are not canceled and have 0 fulfillments
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -208,6 +217,18 @@ export default async function nightlyAutoFulfillJob(container: MedusaContainer) 
     }
 
     console.log(`[NightlyAutoFulfillJob] Finished unfulfilled scan: ${successCount} synced, ${failedCount} failed out of ${unfulfilledOrders.length} total.`)
+
+    if (failedCount > 0) {
+      await sendAlertEmail(
+        `Shiprocket Fulfillment Alert: ${failedCount} Order(s) Failed to Sync`,
+        `
+          <p>The nightly fulfillment scan processed ${unfulfilledOrders.length} order(s), but <strong>${failedCount}</strong> could not be synced to Shiprocket.</p>
+          <p><strong>Successfully Synced:</strong> ${successCount}</p>
+          <p><strong>Failed / Needs Review:</strong> ${failedCount}</p>
+          <p>Please check the Medusa Admin panel at <a href="https://propremiumcare.com/store-backend/all-orders">All Orders</a> to review and retry them.</p>
+        `
+      ).catch(() => {})
+    }
 
     // Step 2: Synchronize tracking, AWBs, Shipped & Delivered statuses from Shiprocket
     console.log("[NightlyAutoFulfillJob] Step 2: Synchronizing live tracking & shipping statuses from Shiprocket...")
