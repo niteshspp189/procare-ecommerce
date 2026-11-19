@@ -119,6 +119,9 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
       cleanPhone = "9999999999"
     }
 
+    // Sanitize postal code to 6 pure numeric digits (e.g. strips suffixes like "500034.TS")
+    const cleanPincode = (address.postal_code || "110001").replace(/\D/g, "").slice(0, 6) || "110001"
+
     // 4. Check if order already exists in Shiprocket to prevent duplicates
     let existingSrOrder: any = null
     try {
@@ -194,7 +197,7 @@ export async function syncOrderToShiprocket(orderId: string, container: any): Pr
         billing_address: address.address_1 || "Address Line 1",
         billing_address_2: address.address_2 || "",
         billing_city: address.city || "City",
-        billing_pincode: address.postal_code || "110001",
+        billing_pincode: cleanPincode,
         billing_state: address.province || "State",
         billing_country: "India",
         billing_email: order.email || "support@propremiumcare.com",
