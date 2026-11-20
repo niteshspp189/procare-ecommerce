@@ -1,4 +1,3 @@
-import { defineRouteConfig } from "@medusajs/admin-sdk"
 import {
   Container,
   Heading,
@@ -488,11 +487,6 @@ const CronJobsPage = () => {
     </div>
   )
 }
-
-export const config = defineRouteConfig({
-  label: "Cron & Logistics",
-  icon: Clock,
-})
 
 export default CronJobsPage
 
