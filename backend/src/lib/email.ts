@@ -363,12 +363,13 @@ export async function sendOrderConfirmationEmail(order: any) {
       : "0"
 
     const storeUrl = process.env.STORE_URL || 'https://propremiumcare.com'
+    const officialAdminEmail = process.env.ADMIN_ORDER_EMAIL || 'orders@propremiumcare.com'
 
     const mailOptions: any = {
       from: `"${process.env.SMTP_ADMIN_NAME || 'ProCare Store'}" <${process.env.SMTP_FROM || 'orders@propremiumcare.com'}>`,
       replyTo: 'customercare@mvscindia.com',
       to: order.email,
-      bcc: 'customercare@mvscindia.com, team@webclixs.in',
+      bcc: officialAdminEmail,
       subject: `Order Confirmation #${formattedId} - ProPremium Care`,
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: #ffffff;">
@@ -453,7 +454,7 @@ export async function sendOrderConfirmationEmail(order: any) {
 export async function sendAlertEmail(
   subject: string, 
   htmlContent: string, 
-  recipient: string = "niteshspp189@gmail.com",
+  recipient: string = process.env.ALERT_EMAIL || "niteshspp189@gmail.com",
   options?: {
     showRetryButton?: boolean
     retryAction?: string
@@ -568,7 +569,7 @@ export interface HealthReportData {
   nextScheduledRun: string
 }
 
-export async function sendPeriodicHealthReportEmail(report: HealthReportData, recipient: string = "niteshspp189@gmail.com") {
+export async function sendPeriodicHealthReportEmail(report: HealthReportData, recipient: string = process.env.ALERT_EMAIL || "niteshspp189@gmail.com") {
   const fulfillmentPercent = report.lastSevenDaysStats.paidOrders > 0
     ? Math.round((report.lastSevenDaysStats.fulfilledOrders / report.lastSevenDaysStats.paidOrders) * 100)
     : 100

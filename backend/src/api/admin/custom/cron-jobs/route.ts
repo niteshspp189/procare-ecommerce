@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { getCronJobLogs, getRegisteredJobsInfo, getNextNightlyRun } from "../../../../lib/cron-logger"
 import nightlyAutoFulfillJob from "../../../../jobs/auto-fulfill-nightly"
+import { shiprocketClient } from "../../../../modules/shiprocket/shiprocket-client"
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
@@ -16,6 +17,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const logs = await getCronJobLogs(pgConnection, limit)
     const jobs = await getRegisteredJobsInfo(pgConnection)
     const nextRun = getNextNightlyRun()
+    const tokenStatus = await shiprocketClient.getTokenStatus()
 
     const totalRuns = logs.length
     const successRuns = logs.filter((l) => l.status === "success").length
@@ -26,6 +28,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       success: true,
       jobs,
       logs,
+      token_status: tokenStatus,
       stats: {
         total_runs: totalRuns,
         success_runs: successRuns,

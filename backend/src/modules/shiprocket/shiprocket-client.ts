@@ -220,6 +220,83 @@ export class ShiprocketClient {
     await clearCachedTokenInDb()
   }
 
+  /**
+   * Force refreshes the token immediately, bypassing any cached tokens in memory, Redis, or DB.
+   * Clears any local cooldown lockouts so the admin manual trigger takes immediate precedence.
+   */
+  public async forceRefreshToken(): Promise<{
+    token: string
+    expiresAt: Date
+    remainingDays: number
+    remainingHours: number
+  }> {
+    console.log("[ShiprocketClient] ⚡ Manual admin token refresh requested. Purging caches...")
+    ShiprocketClient.authLockoutUntil = 0
+    await this.clearToken()
+    const token = await this.executeRemoteAuth()
+    this.token = token
+    this.tokenExpiresAt = Date.now() + 60 * 60 * 1000
+
+    const remainingSec = getJwtTtlSeconds(token)
+    const expiresAt = new Date(Date.now() + remainingSec * 1000)
+    const remainingDays = Math.floor(remainingSec / (24 * 3600))
+    const remainingHours = Math.round((remainingSec % (24 * 3600)) / 3600)
+
+    console.log(`[ShiprocketClient] ⚡ Token freshly generated! Valid for ${remainingDays}d ${remainingHours}h (until ${expiresAt.toISOString()})`)
+    return {
+      token,
+      expiresAt,
+      remainingDays,
+      remainingHours,
+    }
+  }
+
+  /**
+   * Retrieves active token cache status from Redis and PostgreSQL DB without modifying state.
+   */
+  public async getTokenStatus(): Promise<{
+    hasToken: boolean
+    expiresAt?: Date
+    remainingSeconds: number
+    remainingDays: number
+    remainingHours: number
+    source: "redis" | "database" | "none"
+  }> {
+    const redisToken = await getCachedTokenFromRedis()
+    if (redisToken) {
+      const ttlSec = getJwtTtlSeconds(redisToken)
+      const expiresAt = new Date(Date.now() + ttlSec * 1000)
+      return {
+        hasToken: true,
+        expiresAt,
+        remainingSeconds: ttlSec,
+        remainingDays: Math.floor(ttlSec / 86400),
+        remainingHours: Math.round((ttlSec % 86400) / 3600),
+        source: "redis",
+      }
+    }
+
+    const dbRecord = await getCachedTokenFromDb()
+    if (dbRecord && dbRecord.remainingSeconds > 0) {
+      return {
+        hasToken: true,
+        expiresAt: dbRecord.expiresAt,
+        remainingSeconds: dbRecord.remainingSeconds,
+        remainingDays: Math.floor(dbRecord.remainingSeconds / 86400),
+        remainingHours: Math.round((dbRecord.remainingSeconds % 86400) / 3600),
+        source: "database",
+      }
+    }
+
+    return {
+      hasToken: false,
+      remainingSeconds: 0,
+      remainingDays: 0,
+      remainingHours: 0,
+      source: "none",
+    }
+  }
+
   public async authenticate(): Promise<string> {
     // 1. In-memory check (fastest path)
     if (this.token && Date.now() < this.tokenExpiresAt) {

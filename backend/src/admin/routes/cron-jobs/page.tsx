@@ -1,3 +1,4 @@
+import { defineRouteConfig } from "@medusajs/admin-sdk"
 import {
   Container,
   Heading,
@@ -13,6 +14,8 @@ import {
   Bolt,
   CheckCircleSolid,
   XMark,
+  Key,
+  ShieldCheck,
 } from "@medusajs/icons"
 import { useState, useEffect } from "react"
 
@@ -39,6 +42,15 @@ interface ScheduledJobInfo {
   next_run: string
 }
 
+interface TokenStatusInfo {
+  hasToken: boolean
+  expiresAt?: string
+  remainingSeconds: number
+  remainingDays: number
+  remainingHours: number
+  source: "redis" | "database" | "none"
+}
+
 interface CronStats {
   total_runs: number
   success_runs: number
@@ -51,6 +63,7 @@ interface CronStats {
 const CronJobsPage = () => {
   const [jobs, setJobs] = useState<ScheduledJobInfo[]>([])
   const [logs, setLogs] = useState<CronJobLogEntry[]>([])
+  const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo | null>(null)
   const [stats, setStats] = useState<CronStats>({
     total_runs: 0,
     success_runs: 0,
@@ -61,6 +74,7 @@ const CronJobsPage = () => {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isRunningManual, setIsRunningManual] = useState(false)
+  const [isRecreatingToken, setIsRecreatingToken] = useState(false)
   const [selectedLog, setSelectedLog] = useState<CronJobLogEntry | null>(null)
 
   const fetchCronData = async () => {
@@ -71,6 +85,7 @@ const CronJobsPage = () => {
       if (data.success) {
         setJobs(data.jobs || [])
         setLogs(data.logs || [])
+        if (data.token_status) setTokenStatus(data.token_status)
         if (data.stats) setStats(data.stats)
       } else {
         toast.error(data.message || "Failed to load cron job logs")
@@ -106,6 +121,31 @@ const CronJobsPage = () => {
       toast.error(err.message || "Network error triggering nightly job")
     } finally {
       setIsRunningManual(false)
+    }
+  }
+
+  const handleRecreateToken = async () => {
+    if (!confirm("Are you sure you want to recreate and refresh the Shiprocket auth token now? This will immediately request a fresh 10-day token and update Redis & PostgreSQL.")) {
+      return
+    }
+    setIsRecreatingToken(true)
+    toast.info("Recreating and validating Shiprocket authentication token...")
+    try {
+      const res = await fetch("/admin/custom/cron-jobs/refresh-token", {
+        method: "POST",
+        credentials: "include",
+      })
+      const data = await res.json()
+      if (data.success) {
+        toast.success(data.message || `Token regenerated! Valid for ${data.remaining_days} days.`)
+        await fetchCronData()
+      } else {
+        toast.error(data.message || "Failed to recreate Shiprocket token")
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Network error recreating Shiprocket token")
+    } finally {
+      setIsRecreatingToken(false)
     }
   }
 
@@ -176,6 +216,17 @@ const CronJobsPage = () => {
           </Button>
 
           <Button
+            variant="secondary"
+            size="small"
+            onClick={handleRecreateToken}
+            isLoading={isRecreatingToken}
+            className="border-amber-500 text-amber-700 hover:bg-amber-50 flex items-center gap-1.5 font-medium"
+          >
+            <Key className="w-4 h-4 text-amber-600" />
+            ⚡ Recreate Shiprocket Token
+          </Button>
+
+          <Button
             variant="primary"
             size="small"
             onClick={handleRunNow}
@@ -187,6 +238,53 @@ const CronJobsPage = () => {
           </Button>
         </div>
       </div>
+
+      {/* Shiprocket Token Health Banner */}
+      <Container className="p-4 bg-gradient-to-r from-amber-50/50 via-white to-teal-50/30 border border-amber-200/80 shadow-sm rounded-lg">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-amber-100 rounded-lg text-amber-800 shrink-0 mt-0.5">
+              <ShieldCheck className="w-5 h-5 text-amber-700" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm text-ui-fg-base">Shiprocket Authentication & Self-Healing Shield</span>
+                {tokenStatus?.hasToken ? (
+                  <Badge color="green" className="text-[10px] uppercase font-bold">
+                    Active Token ({tokenStatus.source.toUpperCase()})
+                  </Badge>
+                ) : (
+                  <Badge color="red" className="text-[10px] uppercase font-bold">
+                    No Cached Token
+                  </Badge>
+                )}
+              </div>
+              <Text className="text-xs text-ui-fg-subtle mt-0.5">
+                {tokenStatus?.hasToken ? (
+                  <>
+                    Token expires in <strong>{tokenStatus.remainingDays} days, {tokenStatus.remainingHours} hours</strong> (on {formatIST(tokenStatus.expiresAt)}). Cached across Redis and PostgreSQL RDS.
+                  </>
+                ) : (
+                  "No valid token detected in cache. Click the button to regenerate authentication."
+                )}
+              </Text>
+            </div>
+          </div>
+
+          <div className="shrink-0 flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={handleRecreateToken}
+              isLoading={isRecreatingToken}
+              className="bg-amber-600 hover:bg-amber-700 text-white !border-amber-600 flex items-center gap-1.5 shadow-xs font-semibold text-xs"
+            >
+              <Key className="w-3.5 h-3.5 text-white" />
+              ⚡ Recreate Auth Token Now
+            </Button>
+          </div>
+        </div>
+      </Container>
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -390,6 +488,11 @@ const CronJobsPage = () => {
     </div>
   )
 }
+
+export const config = defineRouteConfig({
+  label: "Cron & Logistics",
+  icon: Clock,
+})
 
 export default CronJobsPage
 
