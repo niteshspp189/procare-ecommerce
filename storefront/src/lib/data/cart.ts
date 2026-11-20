@@ -246,6 +246,7 @@ export async function deleteLineItem(lineId: string) {
 }
 
 export async function checkAndAutoApplyFestive5(cartId: string) {
+  // Festival season has ended. Clean up FESTIVE5 if any cart still holds it.
   if (!cartId) return
   try {
     const headers = {
@@ -261,28 +262,15 @@ export async function checkAndAutoApplyFestive5(cartId: string) {
     )
     if (!cart) return
 
-    const subtotal = cart.items?.reduce((acc, item) => {
-      return acc + (item.total ?? ((item.unit_price || 0) * (item.quantity || 1)))
-    }, 0) ?? 0
-
     const hasFestive5 = cart.promotions?.some((p) => p.code?.toUpperCase() === "FESTIVE5")
-
-    if (subtotal >= 999 && !hasFestive5) {
-      const currentCodes = (cart.promotions || [])
-        .map((p) => p.code)
-        .filter(Boolean) as string[]
-      if (!currentCodes.includes("FESTIVE5")) {
-        currentCodes.push("FESTIVE5")
-        await sdk.store.cart.update(cartId, { promo_codes: currentCodes }, {}, headers).catch(() => {})
-      }
-    } else if (subtotal < 999 && hasFestive5) {
+    if (hasFestive5) {
       const remainingCodes = (cart.promotions || [])
         .map((p) => p.code)
         .filter((c) => c && c.toUpperCase() !== "FESTIVE5") as string[]
       await sdk.store.cart.update(cartId, { promo_codes: remainingCodes }, {}, headers).catch(() => {})
     }
   } catch (err) {
-    console.warn("Auto FESTIVE5 check failed:", err)
+    // silently catch
   }
 }
 

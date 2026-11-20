@@ -31,7 +31,6 @@ import { trackMetaEvent } from "@lib/util/meta-pixel"
 const Summary = ({ cart }: SummaryProps) => {
   const [threshold, setThreshold] = useState(499)
   const [showCelebration, setShowCelebration] = useState(false)
-  const [isApplyingFestive, setIsApplyingFestive] = useState(false)
 
   useEffect(() => {
     const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://propremiumcare.com/store-backend"
@@ -56,29 +55,6 @@ const Summary = ({ cart }: SummaryProps) => {
   const amountToFreeShipping = Math.max(0, threshold - subtotal)
   const freeShippingProgress = Math.min(100, (subtotal / threshold) * 100)
   const hasFreeShipping = subtotal >= threshold
-
-  // Festive 5 Auto-Apply Logic (Threshold: ₹999)
-  const FESTIVE_MIN_AMOUNT = 999
-  const hasFestive5 = cart.promotions?.some((p) => p.code?.toUpperCase() === "FESTIVE5")
-  const isFestiveEligible = subtotal >= FESTIVE_MIN_AMOUNT
-  const amountToFestive = Math.max(0, FESTIVE_MIN_AMOUNT - subtotal)
-
-  useEffect(() => {
-    if (isFestiveEligible && !hasFestive5 && !isApplyingFestive) {
-      setIsApplyingFestive(true)
-      const currentCodes = (cart.promotions || [])
-        .map((p) => p.code)
-        .filter(Boolean) as string[]
-      if (!currentCodes.includes("FESTIVE5")) {
-        currentCodes.push("FESTIVE5")
-        applyPromotions(currentCodes).finally(() => {
-          setIsApplyingFestive(false)
-        })
-      } else {
-        setIsApplyingFestive(false)
-      }
-    }
-  }, [isFestiveEligible, hasFestive5, isApplyingFestive])
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -114,35 +90,6 @@ const Summary = ({ cart }: SummaryProps) => {
           />
         </div>
       </div>
-
-      {/* Festive 5 Offer Status / Teaser */}
-      {hasFestive5 ? (
-        <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 rounded-xl p-3.5 flex items-center justify-between shadow-2xs animate-fade-in">
-          <div className="flex items-center gap-2.5">
-            <span className="text-xl">🎉</span>
-            <div>
-              <p className="text-xs font-bold text-gray-900 uppercase tracking-wide">
-                Festive Offer Unlocked!
-              </p>
-              <p className="text-[11px] text-emerald-700 font-medium">
-                5% discount (FESTIVE5) automatically applied.
-              </p>
-            </div>
-          </div>
-          <span className="bg-[#d8fa00] text-black font-extrabold text-[11px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
-            5% OFF
-          </span>
-        </div>
-      ) : subtotal > 0 && amountToFestive > 0 ? (
-        <div className="bg-amber-50/70 border border-amber-200/70 rounded-xl p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-base">🎁</span>
-            <p className="text-xs text-amber-900 font-medium">
-              Add <span className="font-bold">{convertToLocale({ amount: amountToFestive, currency_code: cart.currency_code })}</span> more to unlock <span className="font-bold uppercase text-amber-950">5% OFF (FESTIVE5)</span>!
-            </p>
-          </div>
-        </div>
-      ) : null}
 
       <DiscountCode cart={cart} />
       <Divider />

@@ -14,12 +14,12 @@ export interface CMSBanner {
 
 export const DEFAULT_HERO_BANNER: CMSBanner = {
   id: "default-hero",
-  title: "Step Into The Festive Flex - Diwali Celebration",
+  title: "Good Shoes Deserve PRO Care - Premium Shoe & Foot Care",
   type: "hero",
-  desktop_image_url: "/images/landing-page-images/hero-banner-desktop.webp?v=diwali",
-  mobile_image_url: "/images/landing-page-images/hero-banner-mobile.webp?v=diwali",
+  desktop_image_url: "/images/landing-page-images/hero-banner-desktop.webp?v=regular",
+  mobile_image_url: "/images/landing-page-images/hero-banner-mobile.webp?v=regular",
   link_url: "/shop",
-  alt_text: "Diwali Festive Celebration - Shop Pro Care Products",
+  alt_text: "ProPremium Care - Premium Shoe & Foot Care Products",
   is_active: true,
   display_order: 0,
 }
